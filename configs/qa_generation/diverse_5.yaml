@@ -1,0 +1,58 @@
+# Q-A generation on 5 diverse pages for prototype sanity check
+# Inherits structure from default.yaml; overrides sampling.
+
+name: diverse_5
+
+model:
+  provider: openai
+  id: gpt-4o-2024-08-06
+  temperature: 0.7
+  request_timeout_seconds: 60
+  max_retries: 2
+
+dataset:
+  config: configs/data/kogovdoc_bench.yaml
+  split: validation
+
+# Pre-selected diverse samples from inspection (see docs/qa_generation/samples/)
+# 0 = kogov first
+# 8 = mixed-quality (teacher reasoning leaked — should be skipped)
+# 9 = arxiv first (bibliography page — may be skipped)
+# 62 = shortest (16 chars — should be skipped)
+# 259 = longest (11178 chars)
+sampling:
+  page_indices: [0, 8, 9, 62, 259]
+  num_pages: 5
+  mode: explicit
+
+output:
+  path: output/qa_pairs/diverse_5.jsonl
+  pretty_log_path: output/qa_pairs/diverse_5.log
+
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+# v2: chunk auto-expansion (model only returns answer_span; chunk computed in code)
+chunk_expansion:
+  target_min: 200
+  target_max: 800
+
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.30
+
+validation:
+  # v2: chunk is auto-computed, so chunk-related rules are not enforced on model output.
+  answer_span_must_be_substring: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  retry_on_invalid: 1

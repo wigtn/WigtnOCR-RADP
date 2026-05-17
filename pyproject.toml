@@ -1,0 +1,54 @@
+[project]
+name = "wigtnocr-radp"
+version = "0.1.0"
+description = "Retrieval-Aware Document Parsing — EMNLP 2026 Industry Track submission"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Harrison Kim", email = "harry@brain-crew.com" },
+]
+keywords = ["RAG", "document-parsing", "OCR", "retrieval", "VLM", "EMNLP"]
+
+dependencies = [
+    "openai>=2.37.0",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pytest>=8.0",
+]
+data = [
+    "datasets>=3.0",
+    "huggingface-hub>=0.24",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wigtnocr_radp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",     # pycodestyle / pyflakes
+    "I",                # isort
+    "B",                # flake8-bugbear
+    "UP",               # pyupgrade
+    "RUF",              # ruff-specific
+]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

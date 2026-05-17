@@ -1,0 +1,40 @@
+# RCPS (Retrieval-Conditional Parsing Score) evaluation config (placeholder)
+# Reference: docs/RADP_RESEARCH_PROPOSAL.md §3.C2
+
+name: rcps_default
+status: placeholder  # implemented in Week 1 after Q-A pairs are ready
+
+qa_pairs:
+  path: output/qa_pairs/kogovdoc_rag_v1.jsonl  # will be produced from full validation run
+
+retrievers:
+  - id: BAAI/bge-m3
+    type: dense
+    pooling: mean
+  - id: intfloat/multilingual-e5-large
+    type: dense
+    pooling: mean
+  - id: jinaai/jina-embeddings-v3
+    type: dense
+    pooling: mean
+
+chunking:
+  strategy: markdown_header  # markdown_header | fixed_size | parser_native
+  fixed_chunk_size: 512
+  overlap: 0
+  preserve_table_boundaries: true
+
+retrieval:
+  top_k_values: [1, 5, 10]
+  similarity: cosine
+
+metrics:
+  - hit_at_k
+  - mrr_at_k
+  - ndcg_at_k
+
+# RCPS formula: mean of MRR@k over (retrievers × k_values)
+rcps:
+  aggregation: mean
+  weight_retrievers: equal
+  weight_k_values: equal

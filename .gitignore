@@ -1,0 +1,79 @@
+# ─── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ─── Jupyter ─────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+# (notebook들은 의도적으로 commit하지 않음 — 결과는 docs/ 또는 output/ 으로)
+
+# ─── Secrets / Environment ──────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# ─── Dataset / Models (재현 가능, HF에서 다운로드) ────────
+data/
+!data/.gitkeep
+output/
+!output/.gitkeep
+
+# Model checkpoints / LoRA adapters
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+*.pth
+checkpoints/
+
+# HuggingFace cache
+.cache/
+~/.cache/huggingface/
+
+# ─── Editor / OS ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─── Logs ────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── 임시 / 로컬 작업 ─────────────────────────────────────
+scratch/
+tmp/
+*.tmp
+
+# ─── 로컬 개인 도구 ───────────────────────────────────────
+# Claude Code 워크스페이스 설정 (개인 설정)
+.claude/
+# Braincrew memory-lake (개인 학습 기록, public repo에 부적합)
+memory-lake/
+# Claude 세션 plan 파일
+*.plan.md

@@ -1,0 +1,59 @@
+# Q-A generation default config (GPT-4o)
+# Reference: docs/qa_generation/PROMPT_v1.md, docs/qa_generation/SCHEMA.md
+
+name: default_gpt4o
+
+# OpenAI API
+model:
+  provider: openai
+  id: gpt-4o-2024-08-06
+  temperature: 0.7
+  # max_tokens is auto-determined; structured output caps it
+  request_timeout_seconds: 60
+  max_retries: 2
+
+# Source dataset
+dataset:
+  config: configs/data/kogovdoc_bench.yaml
+  split: validation
+
+# Sampling strategy for prototype / full runs
+sampling:
+  # If page_indices is null, use random or first num_pages
+  page_indices: null
+  num_pages: 5
+  mode: first  # first | random
+  seed: 42
+
+# Output
+output:
+  path: output/qa_pairs/default_gpt4o.jsonl
+  pretty_log_path: output/qa_pairs/default_gpt4o.log
+
+# Per-page generation targets
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+# Target distribution (informational; enforced by prompt, not hard-coded)
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.30
+
+# Validation rules (post-generation)
+validation:
+  answer_span_must_be_substring: true
+  answer_chunk_must_be_substring: true
+  answer_span_must_be_in_chunk: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  answer_chunk_length_range: [50, 1000]
+  retry_on_invalid: 1  # one retry per page
