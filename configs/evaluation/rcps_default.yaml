@@ -1,37 +1,43 @@
-# RCPS (Retrieval-Conditional Parsing Score) evaluation config (placeholder)
+# RCPS (Retrieval-Conditional Parsing Score) evaluation config
 # Reference: docs/RADP_RESEARCH_PROPOSAL.md §3.C2
 
 name: rcps_default
-status: placeholder  # implemented in Week 1 after Q-A pairs are ready
 
 qa_pairs:
-  path: output/qa_pairs/kogovdoc_rag_v1.jsonl  # will be produced from full validation run
+  path: data/KoGovDoc-RAG/qa_pairs_v1.jsonl  # frozen v1 (663 Q-A from full_v3_5_4 run)
 
 retrievers:
-  - id: BAAI/bge-m3
+  # Implemented (Week 1.3)
+  - id: bge-m3
+    hf_id: BAAI/bge-m3
     type: dense
-    pooling: mean
-  - id: intfloat/multilingual-e5-large
+    max_seq_length: 1024
+    batch_size: 32
+  # Stubs (Week 1.4 baseline grid)
+  - id: ml-e5-large
+    hf_id: intfloat/multilingual-e5-large
     type: dense
-    pooling: mean
-  - id: jinaai/jina-embeddings-v3
+    status: stub
+  - id: jina-v3
+    hf_id: jinaai/jina-embeddings-v3
     type: dense
-    pooling: mean
+    status: stub
 
 chunking:
-  strategy: markdown_header  # markdown_header | fixed_size | parser_native
-  fixed_chunk_size: 512
-  overlap: 0
-  preserve_table_boundaries: true
+  default: parser_native  # parser_native | markdown_header | fixed_size
+  variants:
+    fixed_size:
+      size: 500
+      overlap: 0
+    markdown_header:
+      max_level: 3
+    parser_native:
+      min_chars: 30
 
 retrieval:
   top_k_values: [1, 5, 10]
-  similarity: cosine
-
-metrics:
-  - hit_at_k
-  - mrr_at_k
-  - ndcg_at_k
+  similarity: cosine  # L2-normalized dot product
+  device: cpu  # set to "cuda:0" once torch+cu128 is installed (V2_lesson L2)
 
 # RCPS formula: mean of MRR@k over (retrievers × k_values)
 rcps:

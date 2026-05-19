@@ -1,14 +1,18 @@
 """Q-A pair schema, prompt, validator, and chunk auto-expansion.
 
 Schema: docs/qa_generation/SCHEMA.md
-Prompt: docs/qa_generation/PROMPT_v2.md
+Prompt: docs/qa_generation/PROMPT_v3.md
+
+Design rationale (v3 — 2026-05-18):
+    - v2 full run (294p → 661 Q-A) showed severe easy bias:
+      easy 68.7% / medium 31% / hard 0.3% (target: 40/40/20).
+    - v3 adds STRICT per-page difficulty-mix mandate, concrete hard/medium examples,
+      and explicit anti-fallback instruction.
 
 Design rationale (v2):
-    - GPT-4o returns question + answer_span + question_type + difficulty + rationale only.
+    - GPT returns question + answer_span + question_type + difficulty + rationale only.
     - answer_chunk is auto-computed in Python by locating answer_span in the source
       markdown and expanding to natural boundaries (newlines, ~300 char window).
-    - This decouples Q-A generation from chunking strategy and removes a major
-      source of validation failures observed in v1 (model returning 5-15 char chunks).
 """
 
 from __future__ import annotations
@@ -35,10 +39,45 @@ Your task is to generate retrieval-evaluation Q-A pairs from a given document pa
 - tabular: a value in a table ("표 3에서 Φ1200 흘관의 합계는?", "What is the value in row 5 column 3?")
 - figural: a chart/figure interpretation (only if figures present; usually skip if not)
 
-# DIFFICULTY DISTRIBUTION
-- easy: direct lookup from one sentence/cell
-- medium: requires combining 2-3 facts within page
-- hard: requires cross-referencing multiple sections or implicit reasoning (limit to 20%)
+# DIFFICULTY MIX — STRICT REQUIREMENT (highest priority, do not violate)
+
+You MUST produce a *mix* of difficulties on each page. **All-easy output is a task failure.**
+
+Per-page mandate (apply to the qa_pairs you return):
+- If you generate 3 Q-A → at least 1 medium AND 1 hard (when feasible). At most 1 may be easy.
+- If you generate 2 Q-A → at least 1 must be medium or hard. Two easies is NOT acceptable.
+- If a page genuinely cannot support a hard question (e.g., short single-paragraph),
+  you may substitute with medium — BUT NEVER substitute with easy.
+
+Difficulty definitions (be deliberate; don't conflate):
+- **easy** = single-cell or single-sentence lookup. Surface fact only.
+- **medium** = combines 2+ sentences, OR 2+ table rows, OR section + inline reference,
+  OR comparison between two values stated in the page.
+- **hard** = requires one of:
+  (a) cross-referencing 2+ sections of the page,
+  (b) aggregation across multiple rows/columns (max/min/trend across table),
+  (c) implicit reasoning between text and table together,
+  (d) condition-driven inference ("If X applies, what is responsible?"),
+  (e) computing a derived value (sum, difference, ratio) when not pre-stated.
+
+Examples (study these carefully):
+
+GOOD hard:
+- "표 3과 §2의 시행 조건을 종합할 때, 50인 이상 사업장에 적용되는 검토 부서는?"
+- "Across the three datasets in Table 2, which one has both the highest precision AND
+   the largest sample size?"
+- "전체 응답자 중 '안전' 항목 응답 비율이 가장 높은 연령대는?" (requires reading multiple rows)
+
+BAD ("hard" in name, actually easy):
+- "표 3에서 Φ1200 흘관의 합계는?" (single cell lookup = easy)
+- "What year was this paper published?" (single fact = easy)
+
+GOOD medium:
+- "본문에서 강조한 두 가지 핵심 추진 전략은 무엇인가?" (combines 2+ sentences)
+- "60대 응답자에서 도로안전시설과 가로등 확충의 응답률 차이는?" (compare 2 cells)
+
+TARGET overall distribution (across many pages): easy 40 / medium 40 / hard 20.
+The per-page mandate above is the mechanism — follow it and the aggregate will match.
 
 # PAGE QUALITY FILTER (PRE-CHECK)
 Before generating, check if the page is suitable. SKIP generation (set skip=true, qa_pairs=[]) if:
@@ -68,6 +107,10 @@ USER_TEMPLATE = """# Document Page
 # Task
 
 Generate 2~3 high-quality Q-A pairs for retrieval evaluation, following the constraints above.
+
+**Reminder (critical)**: enforce the DIFFICULTY MIX mandate. Producing only easy questions
+is a task failure. If the page allows, include at least one HARD question. Otherwise include
+at least one MEDIUM. Never default to all-easy.
 
 If the page is unsuitable (per PAGE QUALITY FILTER), set skip=true with reason and empty qa_pairs."""
 

@@ -1,0 +1,57 @@
+# Full Q-A generation — v3 prompt + gpt-5.4-2026-03-05
+# Target: frozen KoGovDoc-RAG validation Q-A set
+# Decision rationale: ablation_v3_4o vs ablation_v3_5_4 (20p paired comparison)
+#   - 5.4 distribution: easy 30 / medium 42 / hard 28 (vs target 40/40/20)
+#   - 5.4 hard quality: ~10/14 真正 hard (vs 4o 2/5)
+#   - cost premium ~+40% ($3.5 → ~$5) justified by hard reasoning quality
+#
+# Estimated cost: ~$5
+# Estimated wall clock: ~33 min (294p × ~7s)
+
+name: full_v3_5_4
+
+model:
+  provider: openai
+  id: gpt-5.4-2026-03-05
+  temperature: 0.7
+  request_timeout_seconds: 90
+  max_retries: 2
+
+dataset:
+  config: configs/data/kogovdoc_bench.yaml
+  split: validation
+
+sampling:
+  page_indices: null
+  num_pages: 294  # full validation set
+  mode: first
+  seed: 42
+
+output:
+  path: output/qa_pairs/full_v3_5_4.jsonl
+  pretty_log_path: output/qa_pairs/full_v3_5_4.log
+
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.0
+
+validation:
+  answer_span_must_be_substring: true
+  answer_chunk_must_be_substring: true
+  answer_span_must_be_in_chunk: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  answer_chunk_length_range: [50, 1000]
+  retry_on_invalid: 1

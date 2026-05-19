@@ -26,6 +26,13 @@ data = [
     "datasets>=3.0",
     "huggingface-hub>=0.24",
 ]
+eval = [
+    "torch>=2.6",
+    "sentence-transformers>=3.3",
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "tqdm>=4.66",
+]
 
 [build-system]
 requires = ["hatchling"]
