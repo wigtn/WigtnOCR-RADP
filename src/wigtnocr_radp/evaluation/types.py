@@ -2,8 +2,22 @@
 
 from __future__ import annotations
 
+import unicodedata
 from dataclasses import dataclass, field
 from typing import Any
+
+# Markdown-structural characters dropped before relevance matching, so a chunk
+# counts as "relevant" by its *content*, not its formatting. Without this the
+# metric is unfair across parser families: the gold `answer_span` is taken from
+# VLM-style GT markdown and rarely appears verbatim in the differently-formatted
+# output of MinerU / PaddleOCR / Marker. See docs/WEEK2_FINDINGS.md.
+_MARKDOWN_NOISE = set("|*#`>~_")
+
+
+def normalize_for_match(s: str) -> str:
+    """Lowercased NFKC text with whitespace and markdown structure removed."""
+    s = unicodedata.normalize("NFKC", s).lower()
+    return "".join(ch for ch in s if ch not in _MARKDOWN_NOISE and not ch.isspace())
 
 
 @dataclass(frozen=True)
@@ -50,12 +64,14 @@ class Chunk:
     text: str
 
     def contains_answer(self, answer_span: str) -> bool:
-        """True if the gold answer_span appears verbatim in this chunk.
+        """True if the gold answer_span is present in this chunk.
 
-        This is the relevance signal: a chunk is "relevant" to a QAPair iff
-        it would let a downstream reader recover the answer span.
+        Relevance signal: a chunk is "relevant" to a QAPair iff it lets a reader
+        recover the answer. Matching is done on `normalize_for_match` form, so
+        whitespace / markdown formatting differences between parsers do not
+        change relevance — only content does.
         """
-        return answer_span in self.text
+        return normalize_for_match(answer_span) in normalize_for_match(self.text)
 
 
 @dataclass(frozen=True)

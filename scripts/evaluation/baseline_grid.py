@@ -26,6 +26,10 @@ from wigtnocr_radp.evaluation import (
     ParserNativeChunker,
     compute_rcps,
 )
+from wigtnocr_radp.evaluation.retrievers import (
+    JinaV3Retriever,
+    MultilingualE5LargeRetriever,
+)
 from wigtnocr_radp.evaluation.parser_outputs import load_parser_outputs
 from wigtnocr_radp.evaluation.rcps import load_qa_pairs
 
@@ -77,14 +81,19 @@ def main() -> int:
     logger.info("loaded %d Q-A pairs", len(qa_pairs))
 
     chunker = CHUNKERS[args.chunker]
-    retriever = BgeM3Retriever(device=args.device, batch_size=32)
+    # PRD §5.3: 3 retrievers — RCPS averages MRR across them.
+    retrievers = [
+        BgeM3Retriever(device=args.device, batch_size=32),
+        MultilingualE5LargeRetriever(device=args.device, batch_size=32),
+        JinaV3Retriever(device=args.device, batch_size=16),
+    ]
 
     grid: dict[str, Any] = {
         "config": {
             "qa_pairs_path": args.qa,
             "num_qa": len(qa_pairs),
             "chunker": chunker.name,
-            "retriever": retriever.name,
+            "retrievers": [r.name for r in retrievers],
             "device": args.device,
         },
         "parsers": [],
@@ -102,11 +111,18 @@ def main() -> int:
         res = compute_rcps(
             qa_pairs=qa_pairs,
             parser_pages=pages,
-            retrievers=[retriever],
+            retrievers=retrievers,
             chunker=chunker,
             k_values=(1, 5, 10),
         )
-        retr_metrics = res["by_retriever"][retriever.name]
+        # Hit@k / MRR / nDCG columns = mean across the 3 retrievers (RCPS itself
+        # is already the cross-retriever aggregate). Per-retriever detail kept.
+        br = res["by_retriever"]
+        names = [r.name for r in retrievers]
+
+        def _avg(metric: str, k: int) -> float:
+            return sum(br[n][metric][k] for n in names) / len(names)
+
         row = {
             "name": display_name,
             "role": role,
@@ -114,11 +130,12 @@ def main() -> int:
             "num_pages": len(pages),
             "num_chunks": res["meta"]["num_chunks"],
             "rcps": res["rcps"],
-            "hit@1": retr_metrics["hit"][1],
-            "hit@5": retr_metrics["hit"][5],
-            "hit@10": retr_metrics["hit"][10],
-            "mrr@10": retr_metrics["mrr"][10],
-            "ndcg@10": retr_metrics["ndcg"][10],
+            "hit@1": _avg("hit", 1),
+            "hit@5": _avg("hit", 5),
+            "hit@10": _avg("hit", 10),
+            "mrr@10": _avg("mrr", 10),
+            "ndcg@10": _avg("ndcg", 10),
+            "by_retriever": br,
             "by_difficulty": res["by_difficulty"],
         }
         print(
@@ -141,7 +158,10 @@ def main() -> int:
     # Markdown table
     md_path = out_dir / f"grid_v1_{chunker.name}.md"
     lines: list[str] = []
-    lines.append(f"# Baseline Grid v1 — chunker={chunker.name}, retriever={retriever.name}")
+    lines.append(
+        f"# Baseline Grid v1 — chunker={chunker.name}, "
+        f"retrievers={'+'.join(r.name for r in retrievers)}"
+    )
     lines.append("")
     lines.append(
         f"Q-A: `{args.qa}` ({len(qa_pairs)} pairs). Pages: KoGovDoc-Bench val (294).\n"

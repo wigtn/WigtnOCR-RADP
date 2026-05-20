@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -121,35 +121,118 @@ class BgeM3Retriever(BaseRetriever):
         return self._encode(texts)
 
 
-# --- Stubs for the baseline grid (PHASE_1.4) -------------------------------
+# --- multilingual-e5-large (PHASE_1.4 / §5.3) ------------------------------
 
 
-class _NotYetImplementedRetriever(BaseRetriever):
-    """Raises on use. Used to reserve the names in the public API."""
+class MultilingualE5LargeRetriever(BaseRetriever):
+    """intfloat/multilingual-e5-large via sentence-transformers.
 
-    _retriever_name: str = "_stub"
+    e5 models require an instruction prefix: 'query: ' for queries and
+    'passage: ' for documents. 1024-dim, multilingual.
+    """
+
+    MODEL_ID = "intfloat/multilingual-e5-large"
+
+    def __init__(
+        self,
+        device: str = "cpu",
+        batch_size: int = 32,
+        max_seq_length: int = 512,
+        cache_folder: str | None = None,
+    ) -> None:
+        from sentence_transformers import SentenceTransformer
+
+        logger.info("Loading multilingual-e5-large on %s ...", device)
+        self.model = SentenceTransformer(self.MODEL_ID, device=device, cache_folder=cache_folder)
+        self.model.max_seq_length = max_seq_length
+        self.batch_size = batch_size
+        self.device = device
 
     @property
     def name(self) -> str:
-        return self._retriever_name
+        return "ml-e5-large"
+
+    def _encode(self, texts: Sequence[str], prefix: str) -> np.ndarray:
+        if not texts:
+            return np.zeros((0, self.model.get_sentence_embedding_dimension()), dtype=np.float32)
+        emb = self.model.encode(
+            [prefix + t for t in texts],
+            batch_size=self.batch_size,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=len(texts) >= 64,
+        )
+        return emb.astype(np.float32)
 
     def encode_documents(self, texts: Sequence[str]) -> np.ndarray:
-        raise NotImplementedError(f"{self.name} retriever is a Week 1.4 task")
+        return self._encode(list(texts), "passage: ")
 
     def encode_queries(self, texts: Sequence[str]) -> np.ndarray:
-        raise NotImplementedError(f"{self.name} retriever is a Week 1.4 task")
+        return self._encode(list(texts), "query: ")
 
 
-class MultilingualE5LargeRetriever(_NotYetImplementedRetriever):
-    _retriever_name = "ml-e5-large"
+# --- jina-embeddings-v3 (PHASE_1.4 / §5.3) ---------------------------------
 
 
-class JinaV3Retriever(_NotYetImplementedRetriever):
-    _retriever_name = "jina-v3"
+class JinaV3Retriever(BaseRetriever):
+    """jinaai/jina-embeddings-v3 via sentence-transformers (trust_remote_code).
+
+    Task-specific adapters: 'retrieval.query' for queries, 'retrieval.passage'
+    for documents. 1024-dim, multilingual.
+    """
+
+    MODEL_ID = "jinaai/jina-embeddings-v3"
+
+    def __init__(
+        self,
+        device: str = "cpu",
+        batch_size: int = 16,
+        cache_folder: str | None = None,
+    ) -> None:
+        from sentence_transformers import SentenceTransformer
+        from transformers import PreTrainedModel
+
+        # transformers 5.8 compat shim: jina-v3's bundled remote modeling code
+        # predates `all_tied_weights_keys` (set per-instance in newer
+        # transformers). Provide a class-level fallback so its custom model
+        # loads — plumbing to run the PRD-specified retriever.
+        if "all_tied_weights_keys" not in vars(PreTrainedModel):
+            PreTrainedModel.all_tied_weights_keys = {}
+
+        logger.info("Loading jina-embeddings-v3 on %s ...", device)
+        self.model = SentenceTransformer(
+            self.MODEL_ID, device=device, trust_remote_code=True, cache_folder=cache_folder
+        )
+        self.batch_size = batch_size
+        self.device = device
+
+    @property
+    def name(self) -> str:
+        return "jina-v3"
+
+    def _encode(self, texts: Sequence[str], task: str) -> np.ndarray:
+        if not texts:
+            return np.zeros((0, 1024), dtype=np.float32)
+        emb = self.model.encode(
+            list(texts),
+            task=task,
+            batch_size=self.batch_size,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=len(texts) >= 64,
+        )
+        return emb.astype(np.float32)
+
+    def encode_documents(self, texts: Sequence[str]) -> np.ndarray:
+        return self._encode(texts, "retrieval.passage")
+
+    def encode_queries(self, texts: Sequence[str]) -> np.ndarray:
+        return self._encode(texts, "retrieval.query")
 
 
-__all__: list[str] = ["BaseRetriever", "BgeM3Retriever", "MultilingualE5LargeRetriever", "JinaV3Retriever"]
-
-
-def _unused(_: Any) -> None:
-    pass
+__all__: list[str] = [
+    "BaseRetriever",
+    "BgeM3Retriever",
+    "MultilingualE5LargeRetriever",
+    "JinaV3Retriever",
+]
