@@ -114,6 +114,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", type=Path, default=Path("configs/training/radp_b_base.yaml"))
     ap.add_argument("--output_dir", type=Path, default=None, help="override logging.output_dir")
+    ap.add_argument("--contrastive_lambda", type=float, default=None,
+                    help="override contrastive.loss_coefficient_lambda (λ sweep); 0 = control")
     ap.add_argument("--smoke", action="store_true", help="4-step pipeline check, no save/eval")
     ap.add_argument("--no_eval", action="store_true", help="skip the eval fold")
     args = ap.parse_args()
@@ -167,11 +169,14 @@ def main() -> int:
         proj_dim=proj_dim,
         dropout=float(con_cfg.get("projection_dropout", 0.1)),
     )
+    lambda_ = (args.contrastive_lambda if args.contrastive_lambda is not None
+               else float(con_cfg["loss_coefficient_lambda"]))
     radp_loss = RadpBLoss(
         projection_head=head,
-        lambda_=float(con_cfg["loss_coefficient_lambda"]),
+        lambda_=lambda_,
         temperature=float(con_cfg["temperature"]),
     )
+    logger.info("contrastive λ = %.3f%s", lambda_, " (CONTROL)" if lambda_ == 0 else "")
     attach_radp_loss(model, radp_loss)
 
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
