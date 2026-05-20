@@ -1,54 +1,64 @@
-# RADP-B training config (placeholder, will be activated in Week 2)
-# Method: chunk-boundary contrastive auxiliary loss on top of v1 LoRA
-# Reference: docs/RADP_RESEARCH_PROPOSAL.md §4.1
+# RADP-B training config — chunk-boundary contrastive auxiliary loss.
+# Method: L_total = L_parse + λ · L_contrast  (docs/RADP_RESEARCH_PROPOSAL.md §4.1)
+# Entry point: scripts/training/train_radp_b.py
+#
+# Framework note (2026-05-20): HF-native (transformers + peft), NOT ms-swift.
+# ms-swift 4.2 is incompatible with the pinned env (transformers 5.8, cu128).
 
 name: radp_b_base
-status: placeholder  # not yet runnable; finalize after Week 2 implementation
+status: runnable
+seed: 42
 
 base_model:
-  hf_id: Wigtn/Qwen3-VL-2B-WigtnOCR
   base_id: Qwen/Qwen3-VL-2B-Instruct
+  # v1 finetuned reference (eval-time comparison only; RADP-B trains from base):
+  v1_id: Wigtn/Qwen3-VL-2B-WigtnOCR
 
+# LoRA — target_modules lists the LLM attention/MLP linears only, which
+# excludes the vision tower + merger by construction (freeze_vit/freeze_aligner).
 lora:
   rank: 8
   alpha: 32
   dropout: 0.05
-  target_modules: all-linear
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
 
 training:
-  framework: ms-swift
-  version: "4.2.0"
   precision: bfloat16
-  deepspeed_stage: 2
   epochs: 3
-  batch_size: 1
-  grad_accum: 4
-  optimizer: adamw_torch
+  # batch_size > 1 is required: InfoNCE in-batch negatives need a real batch.
+  # v1's "batch 1 × accum 4" was parsing-only and does not apply here.
+  contrastive_batch_size: 8
+  grad_accum: 1
+  learning_rate: 1.0e-4        # single LR for LoRA + projection head
   scheduler: cosine
   warmup_ratio: 0.05
   freeze_vit: true
   freeze_aligner: true
+  gradient_checkpointing: true   # required to fit full-page images in memory
+  dataloader_num_workers: 2
 
-# RADP-B specific
 contrastive:
-  loss_coefficient_lambda: 0.3  # sweep: [0.1, 0.3, 0.5, 1.0]
-  embedding_model: BAAI/bge-m3
-  embedding_frozen: true
-  negative_sampling: in_batch  # in_batch | hard_negative | mixed
+  loss_coefficient_lambda: 0.3   # sweep: [0.1, 0.3, 0.5, 1.0]
   temperature: 0.05
+  embedding_model: BAAI/bge-m3
+  proj_dim: 1024                 # must match BGE-M3
+  projection_dropout: 0.1
+  num_in_batch_neg: 7            # capped at contrastive_batch_size - 1
+  num_hard_neg: 1                # same-page, different-chunk
 
-learning_rates:
-  parse_lr: 1.0e-4
-  contrastive_coef_lr: null  # use parse_lr unless tuned
-
-# Hardware
-hardware:
-  gpus: 2
-  gpu_type: RTX_PRO_6000_Blackwell
-  expected_runtime_hours: 6
+data:
+  split: data/KoGovDoc-RAG/page_split_v1.json
+  qa: data/KoGovDoc-RAG/qa_pairs_v1.jsonl
+  val_jsonl: data/KoGovDoc-Bench/val.jsonl
+  images_root: data/KoGovDoc-Bench/images
+  cache_dir: data/KoGovDoc-RAG/bge_m3_cache_v1
+  chunker: md_h3
+  image_max_pixels: 1048576      # ~1024 vision tokens/page; bounds activation memory
+  max_seq_length: 3072           # right-truncate; clips only 1 outlier page (~6.8k tok)
 
 logging:
   output_dir: output/checkpoints/radp_b_base
   log_steps: 10
-  eval_steps: 200
-  save_steps: 500
+  eval_steps: 50
+  save_steps: 100
+  save_total_limit: 2
