@@ -48,13 +48,13 @@ CHUNKERS = {
 }
 
 
-def load_gt_markdown(val_jsonl: Path) -> dict[str, str]:
-    """Return {page_id: gt_markdown} for all val.jsonl rows."""
+def load_gt_markdown(jsonl: Path, prefix: str = "val") -> dict[str, str]:
+    """Return {page_id: gt_markdown} for all rows, page_id = ``{prefix}_{i:04d}``."""
     out: dict[str, str] = {}
-    with val_jsonl.open("r", encoding="utf-8") as f:
+    with jsonl.open("r", encoding="utf-8") as f:
         for i, line in enumerate(f):
             d = json.loads(line)
-            out[f"val_{i:04d}"] = d["messages"][2]["content"]
+            out[f"{prefix}_{i:04d}"] = d["messages"][2]["content"]
     return out
 
 
@@ -68,23 +68,34 @@ def main() -> int:
     ap.add_argument("--fold", choices=("train", "eval", "all"), default="train")
     ap.add_argument("--device", default="cuda:1")
     ap.add_argument("--batch_size", type=int, default=64)
+    ap.add_argument("--pages_jsonl", type=Path, default=None,
+                    help="full-scale mode: use ALL pages from this jsonl "
+                         "(ignores --split/--val_jsonl/--fold; saves to <out_dir>/<chunker>)")
+    ap.add_argument("--page_id_prefix", default="val",
+                    help="page_id namespace for --pages_jsonl mode (e.g. 'train')")
     args = ap.parse_args()
 
-    split = json.loads(args.split.read_text())
-    if args.fold == "train":
-        page_ids = set(split["train_pages"])
-    elif args.fold == "eval":
-        page_ids = set(split["eval_pages"])
+    if args.pages_jsonl:
+        # Full-scale mode: every page in pages_jsonl, no train/eval split.
+        pages = load_gt_markdown(args.pages_jsonl, prefix=args.page_id_prefix)
+        page_ids = set(pages)
+        logger.info("full-scale mode: %d pages from %s", len(pages), args.pages_jsonl)
     else:
-        page_ids = set(split["train_pages"]) | set(split["eval_pages"])
-    logger.info("fold=%s, %d pages", args.fold, len(page_ids))
+        split = json.loads(args.split.read_text())
+        if args.fold == "train":
+            page_ids = set(split["train_pages"])
+        elif args.fold == "eval":
+            page_ids = set(split["eval_pages"])
+        else:
+            page_ids = set(split["train_pages"]) | set(split["eval_pages"])
+        logger.info("fold=%s, %d pages", args.fold, len(page_ids))
 
-    # Load GT markdown only for pages we need
-    gt_all = load_gt_markdown(args.val_jsonl)
-    pages = {pid: gt_all[pid] for pid in page_ids if pid in gt_all}
-    missing = page_ids - pages.keys()
-    if missing:
-        logger.warning("%d pages missing from val.jsonl: %s", len(missing), list(missing)[:5])
+        # Load GT markdown only for pages we need
+        gt_all = load_gt_markdown(args.val_jsonl)
+        pages = {pid: gt_all[pid] for pid in page_ids if pid in gt_all}
+        missing = page_ids - pages.keys()
+        if missing:
+            logger.warning("%d pages missing from val.jsonl: %s", len(missing), list(missing)[:5])
 
     # Chunk
     chunker = CHUNKERS[args.chunker]
@@ -173,7 +184,9 @@ def main() -> int:
             row += 1
 
     cache = BgeM3EmbeddingCache(np.stack(final_embs), final_metas)
-    out_dir = args.out_dir / args.fold / chunker.name
+    # full-scale: <out_dir>/<chunker>  |  split mode: <out_dir>/<fold>/<chunker>
+    out_dir = (args.out_dir / chunker.name if args.pages_jsonl
+               else args.out_dir / args.fold / chunker.name)
     cache.save(out_dir)
     logger.info("wrote cache to %s (rows=%d)", out_dir, len(final_metas))
 

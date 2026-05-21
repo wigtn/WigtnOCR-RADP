@@ -184,11 +184,23 @@ def main() -> int:
     logger.info("trainable params: %d / %d (%.3f%%)", trainable, total, 100 * trainable / total)
 
     # --- Data ----------------------------------------------------------------
-    train_ds = RadpBDataset.from_fold(
-        split_path=data_cfg["split"], qa_path=data_cfg["qa"],
-        val_jsonl=data_cfg["val_jsonl"], fold="train",
-        images_root=data_cfg["images_root"],
-    )
+    # full-scale mode (data.train_qa present): train on the whole 2,667p v1 set;
+    # eval stays the 73p held-out val fold — comparable to the pilot and to v1.
+    full_scale = "train_qa" in data_cfg
+    if full_scale:
+        logger.info("FULL-SCALE mode: training on the 2,667p v1 train set")
+        train_ds = RadpBDataset.from_qa_file(
+            qa_path=data_cfg["train_qa"],
+            pages_jsonl=data_cfg["train_pages_jsonl"],
+            train_images_root=data_cfg["train_images_root"],
+            page_id_prefix=data_cfg.get("train_page_id_prefix", "train"),
+        )
+    else:
+        train_ds = RadpBDataset.from_fold(
+            split_path=data_cfg["split"], qa_path=data_cfg["qa"],
+            val_jsonl=data_cfg["val_jsonl"], fold="train",
+            images_root=data_cfg["images_root"],
+        )
     eval_ds = None
     if not args.no_eval and not args.smoke:
         eval_ds = RadpBDataset.from_fold(
@@ -206,7 +218,10 @@ def main() -> int:
     )
 
     chunker = data_cfg["chunker"]
-    train_cache = BgeM3EmbeddingCache.load(Path(data_cfg["cache_dir"]) / "train" / chunker)
+    if full_scale:
+        train_cache = BgeM3EmbeddingCache.load(Path(data_cfg["train_cache_dir"]) / chunker)
+    else:
+        train_cache = BgeM3EmbeddingCache.load(Path(data_cfg["cache_dir"]) / "train" / chunker)
     eval_cache = (
         BgeM3EmbeddingCache.load(Path(data_cfg["cache_dir"]) / "eval" / chunker)
         if eval_ds is not None else train_cache

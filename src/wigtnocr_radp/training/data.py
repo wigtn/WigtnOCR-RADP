@@ -45,6 +45,22 @@ def remap_image_path(stored_path: str, images_root: str | Path = DEFAULT_IMAGES_
     return Path(images_root) / stored_path[idx + len(marker) :]
 
 
+def remap_train_image_path(stored_path: str, train_images_root: str | Path) -> Path:
+    """Rebase a v1-train-set image path onto a live datasets root.
+
+    train_2667.jsonl stores paths under a now-removed scratch dir, e.g.
+    ``/mnt/.../research-vlm-.../datasets/training/images/documents/kogov_008/
+    page_1593.png``. The live copy lives under wigtnOCR-v1; everything up to and
+    including ``/datasets/`` is dropped and the remainder joined onto
+    `train_images_root` (e.g. ``/mnt/data1/work/wigtnOCR-v1/datasets``).
+    """
+    marker = "/datasets/"
+    idx = stored_path.find(marker)
+    if idx < 0:
+        return Path(stored_path)
+    return Path(train_images_root) / stored_path[idx + len(marker) :]
+
+
 @dataclass(frozen=True)
 class RadpBExample:
     """One (page, Q-A) training example."""
@@ -146,6 +162,61 @@ class RadpBDataset(Dataset[RadpBExample]):
         )
         if not examples:
             raise RuntimeError(f"no usable examples for fold={fold!r}")
+        return cls(examples)
+
+    @classmethod
+    def from_qa_file(
+        cls,
+        *,
+        qa_path: str | Path,
+        pages_jsonl: str | Path,
+        train_images_root: str | Path,
+        page_id_prefix: str = "train",
+    ) -> RadpBDataset:
+        """Build a dataset from a full Q-A file + its pages jsonl (no fold split).
+
+        Used for the full-scale RADP-B run: every Q-A in `qa_path` becomes one
+        example. Pages come from `pages_jsonl` indexed ``{prefix}_{i:04d}`` (the
+        same scheme the Q-A generator used), with images rebased via
+        `remap_train_image_path`. Q-A whose page or image is missing are skipped.
+        """
+        pages: dict[str, dict[str, Any]] = {}
+        with Path(pages_jsonl).open("r", encoding="utf-8") as f:
+            for i, line in enumerate(f):
+                pages[f"{page_id_prefix}_{i:04d}"] = json.loads(line)
+
+        examples: list[RadpBExample] = []
+        n_qa = n_missing_page = n_missing_img = 0
+        with Path(qa_path).open("r", encoding="utf-8") as f:
+            for line in f:
+                d = json.loads(line)
+                n_qa += 1
+                row = pages.get(d["page_id"])
+                if row is None:
+                    n_missing_page += 1
+                    continue
+                messages = row["messages"]
+                user = messages[1]["content"].replace(_IMAGE_PLACEHOLDER, "", 1).lstrip()
+                ex = RadpBExample(
+                    qa_id=d["qa_id"],
+                    page_id=d["page_id"],
+                    image_path=remap_train_image_path(row["images"][0], train_images_root),
+                    system=messages[0]["content"],
+                    user=user,
+                    assistant=messages[2]["content"],
+                )
+                if not ex.image_path.exists():
+                    n_missing_img += 1
+                    logger.warning("qa_id=%s: image not found: %s", d["qa_id"][:8], ex.image_path)
+                    continue
+                examples.append(ex)
+
+        logger.info(
+            "full-scale train: %d/%d Q-A usable (missing page=%d, missing image=%d)",
+            len(examples), n_qa, n_missing_page, n_missing_img,
+        )
+        if not examples:
+            raise RuntimeError(f"no usable examples from {qa_path!r}")
         return cls(examples)
 
 
