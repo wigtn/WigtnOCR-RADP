@@ -1,0 +1,52 @@
+# Smoke test for train Q-A generation — 3 pages of the v1 train set.
+# Verifies the pipeline (resume mode, page_id_prefix, API key, Q-A quality)
+# before the full 2,667p run. Cost ~$0.05.
+
+name: train_smoke
+
+model:
+  provider: openai
+  id: gpt-5.4-2026-03-05
+  temperature: 0.7
+  request_timeout_seconds: 90
+  max_retries: 2
+
+dataset:
+  config: configs/data/kogovdoc_train.yaml
+  split: validation
+
+sampling:
+  page_indices: [0, 1, 2]
+  num_pages: 3
+  mode: first
+  seed: 42
+
+output:
+  path: output/qa_pairs/train_smoke.jsonl
+  pretty_log_path: output/qa_pairs/train_smoke.log
+  page_id_prefix: train
+
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.0
+
+validation:
+  answer_span_must_be_substring: true
+  answer_chunk_must_be_substring: true
+  answer_span_must_be_in_chunk: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  answer_chunk_length_range: [50, 1000]
+  retry_on_invalid: 1

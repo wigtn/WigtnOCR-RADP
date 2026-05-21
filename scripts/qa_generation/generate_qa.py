@@ -33,6 +33,15 @@ def main() -> int:
         help="Print planned execution without API calls",
     )
     parser.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Resume: skip pages already in <output>.done and append new results. "
+            "Each page is flushed to disk as it finishes, so the run can be "
+            "stopped (e.g. to switch API keys) and continued without rework."
+        ),
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable DEBUG logging",
@@ -45,7 +54,9 @@ def main() -> int:
     )
 
     try:
-        summary = generate_for_config(args.config, dry_run=args.dry_run)
+        summary = generate_for_config(
+            args.config, dry_run=args.dry_run, resume=args.resume
+        )
     except RuntimeError as exc:
         sys.stderr.write(f"ERROR: {exc}\n")
         return 1
