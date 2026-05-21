@@ -1,13 +1,15 @@
 # Week 2 Findings — RADP-B is a Negative Result
 
 > **상태**: PHASE_2 (RADP-B training) 종료 후 보고서
-> **작성일**: 2026-05-20
+> **작성일**: 2026-05-20 (최초) · **2026-05-21 갱신** — PHASE_1을 깨끗하게
+> 재완성한 뒤(3-retriever 평가 기준 통일) λ sweep 전체를 **재평가**한 수치로 교체.
 > **TL;DR**: Parsing VLM에 chunk-boundary contrastive auxiliary loss를 더하는
 > RADP-B 방법은 **retrieval을 개선하지 못한다**. λ ∈ {0, 0.1, 0.3, 0.5, 1.0}
-> sweep 결과 RCPS gain은 최선(λ=0.1)이어도 +0.5pp (목표 5pp의 1/10)이고,
+> sweep 결과 RCPS gain은 최선(λ=0.1)이어도 +1.8pp (목표 5pp 미달)이고,
 > λ가 커지면 RCPS·parsing 품질이 **단조 하락**한다 — under-tuning이 아니라
-> objective 자체가 counterproductive. proposal §9 / PHASE_2 리스크에 명시된
-> fallback대로, RADP-B는 정직한 negative result로 보고하고 논문 메인을
+> objective 자체가 counterproductive. 게다가 contrastive를 **전혀 안 쓴** v1
+> 레퍼런스가 모든 RADP-B 체크포인트를 이긴다. proposal §9 / PHASE_2 리스크에
+> 명시된 fallback대로, RADP-B는 정직한 negative result로 보고하고 논문 메인을
 > **C2 (RCPS metric) + C1 (diagnostic)** 으로 pivot한다.
 
 ---
@@ -34,53 +36,62 @@
 ## 2. 결과 — λ Sweep
 
 held-out 73p / 202 Q-A. λ=0은 contrastive를 끈 대조군 (동일 조건, λ만 0).
+평가 = **3-retriever (bge-m3 + multilingual-e5-large + qwen3-emb-8b) RCPS 평균**
+— PHASE_1 baseline/chunking grid와 동일 기준 (2026-05-21 재평가).
 
 ### RCPS (md_h3 chunker — RADP-B가 contrastive로 학습한 chunker)
 
 | λ | RCPS | Hit@1 | MRR@10 | parse↔GT 유사도 |
 |---|:----:|:----:|:----:|:----:|
-| 0.0 (control) | 0.6242 | 0.5990 | 0.6381 | 0.8608 |
-| **0.1** | **0.6291** | **0.6040** | **0.6432** | 0.8431 |
-| 0.3 | 0.6080 | 0.5792 | 0.6236 | 0.8459 |
-| 0.5 | 0.5922 | 0.5693 | 0.6045 | 0.8191 |
-| 1.0 | 0.5458 | 0.5198 | 0.5614 | 0.8214 |
-| v1 (ref, 2,667p) | 0.6282 | 0.5990 | 0.6441 | 0.7890 |
+| 0.0 (control) | 0.6368 | 0.6056 | 0.6539 | 0.8608 |
+| **0.1** | **0.6544** | **0.6271** | **0.6702** | 0.8431 |
+| 0.3 | 0.6340 | 0.6040 | 0.6504 | 0.8459 |
+| 0.5 | 0.6148 | 0.5908 | 0.6281 | 0.8191 |
+| 1.0 | 0.5686 | 0.5380 | 0.5856 | 0.8214 |
+| v1 (ref, 2,667p) | **0.6724** | **0.6386** | **0.6905** | 0.7890 |
 
 ### RCPS (parser_native chunker)
 
 | λ | RCPS | Hit@1 |
 |---|:----:|:----:|
-| 0.0 | 0.5968 | 0.5693 |
-| 0.1 | 0.6110 | 0.5792 |
-| 0.3 | 0.6112 | 0.5842 |
-| 0.5 | 0.5840 | 0.5594 |
-| 1.0 | 0.5717 | 0.5446 |
+| 0.0 | 0.6124 | 0.5776 |
+| 0.1 | 0.6463 | 0.6122 |
+| 0.3 | 0.6305 | 0.5990 |
+| 0.5 | 0.6028 | 0.5743 |
+| 1.0 | 0.5927 | 0.5611 |
+| v1 (ref, 2,667p) | **0.6569** | **0.6254** |
 
-**게이트 판정 (RCPS gain ≥ 5pp 필요)**: best λ=0.1 → λ=0 대비 **+0.005** (md_h3).
-문턱의 1/10. **FAIL.**
+**게이트 판정 (RCPS gain ≥ 5pp 필요)**: best λ=0.1 → λ=0 대비 **+1.8pp** (md_h3),
+**+3.4pp** (parser_native). 두 chunker 모두 5pp 문턱 미달. **FAIL.**
 
-원자료: `output/results/week2_lambda_sweep.json`.
+원자료: `output/results/week2_lambda_sweep.json` (3-retriever 재평가본).
 
 ---
 
 ## 3. 왜 실패했나
 
 1. **단조 하락**. λ를 키울수록 RCPS도 parsing 충실도(parse↔GT)도 떨어진다
-   (RCPS 0.629→0.546, 유사도 0.843→0.821). 효과가 0 근처에서 흔들리는 게
+   (RCPS 0.654→0.569, 유사도 0.843→0.821). 효과가 0 근처에서 흔들리는 게
    아니라 **음의 방향으로 단조** — contrastive gradient가 파서에 도달은 하되,
-   파서를 retrieval에 **나쁜** 쪽으로 민다.
+   파서를 retrieval에 **나쁜** 쪽으로 민다. λ=0.1이라는 가장 약한 nudge만
+   살짝 +이고, 그보다 키우면 전부 손해.
 
 2. **objective mismatch**. decision-A 정식화는 *전체 markdown*의 pooled hidden을
    *하나의 답 chunk* 임베딩에 정렬시킨다. 이는 페이지 전체를 충실히 표현해야 하는
    parsing CE와 경쟁하며, 실제 chunk 경계를 retrieval-friendly하게 바꾸는 것과는
    거리가 먼 간접 신호다.
 
-3. **λ=0.1의 +0.5pp는 noise**. 202 쿼리 기준, chunker에 따라 부호가 흔들리는
-   수준. 의미 있는 gain으로 볼 수 없다.
+3. **λ=0.1의 +1.8~3.4pp는 게이트 미달**. 두 chunker 모두 부호는 +지만 5pp
+   문턱(PHASE_2 리스크가 정한 floor)에 못 미친다. 풀스케일 투자를 정당화할
+   크기가 아니다.
 
-4. **parsing은 손해**. 169p 모델은 v1(2,667p)과 RCPS는 대등하지만(파일럿 규모가
-   치명적이지 않음을 시사), contrastive를 켜면 parse↔GT 유사도가 일관되게 하락 —
-   즉 RADP-B는 **parsing을 깎고 retrieval 이득은 0**.
+4. **결정적: contrastive를 안 쓴 v1 레퍼런스가 모든 RADP-B 체크포인트를 이긴다**.
+   v1(2,667p, contrastive 없음) RCPS = 0.672(md_h3) / 0.657(parser_native) >
+   최고 RADP-B 0.654 / 0.646. contrastive aux loss는 *도움이 안 될 뿐 아니라*,
+   같은 파서를 그냥 더 많은 데이터로 parsing만 학습시킨 것보다 못하다. 또한
+   λ 체크포인트들은 v1보다 teacher 포맷에 더 가까운데(parseSim 0.82~0.86 >
+   v1 0.79) retrieval은 더 나쁘다 — RADP-B 내부에서도 C1(파싱 품질 ≠ retrieval)
+   재확인.
 
 ---
 

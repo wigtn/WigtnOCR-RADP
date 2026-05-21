@@ -29,6 +29,10 @@ from wigtnocr_radp.evaluation import (
 )
 from wigtnocr_radp.evaluation.parser_outputs import load_parser_outputs
 from wigtnocr_radp.evaluation.rcps import load_qa_pairs
+from wigtnocr_radp.evaluation.retrievers import (
+    MultilingualE5LargeRetriever,
+    Qwen3EmbeddingRetriever,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("eval_radp_b")
@@ -99,7 +103,13 @@ def main() -> int:
         logger.info("%s: %d/%d eval pages", label, len(pages), len(eval_pages))
 
     gt = gt_markdown(args.val_jsonl, eval_pages)
-    retriever = BgeM3Retriever(device=args.device, batch_size=32)
+    # 3 retrievers — same clean set as the PHASE_1 baseline/chunking grids.
+    retrievers = [
+        BgeM3Retriever(device=args.device, batch_size=32),
+        MultilingualE5LargeRetriever(device=args.device, batch_size=32),
+        Qwen3EmbeddingRetriever(device=args.device, batch_size=8),
+    ]
+    rnames = [r.name for r in retrievers]
 
     report: dict[str, Any] = {
         "eval_fold": {"num_pages": len(eval_pages), "num_qa": len(eval_qa)},
@@ -112,10 +122,15 @@ def main() -> int:
             "parse_similarity": round(mean_parse_similarity(pages, gt), 4),
         }
         for ck_name in args.chunkers:
-            res = compute_rcps(eval_qa, pages, [retriever], CHUNKERS[ck_name], k_values=(1, 5, 10))
-            m = res["by_retriever"][retriever.name]
-            cell = {"rcps": res["rcps"], "hit@1": m["hit"][1], "hit@5": m["hit"][5],
-                    "mrr@10": m["mrr"][10], "ndcg@10": m["ndcg"][10]}
+            res = compute_rcps(eval_qa, pages, retrievers, CHUNKERS[ck_name], k_values=(1, 5, 10))
+            br = res["by_retriever"]  # Hit@k/MRR/nDCG = mean across the 3 retrievers
+            cell = {
+                "rcps": res["rcps"],
+                "hit@1": sum(br[n]["hit"][1] for n in rnames) / len(rnames),
+                "hit@5": sum(br[n]["hit"][5] for n in rnames) / len(rnames),
+                "mrr@10": sum(br[n]["mrr"][10] for n in rnames) / len(rnames),
+                "ndcg@10": sum(br[n]["ndcg"][10] for n in rnames) / len(rnames),
+            }
             report["by_chunker"][ck_name][label] = cell
             if ck_name == GATE_CHUNKER:
                 row["rcps_md_h3"] = res["rcps"]
