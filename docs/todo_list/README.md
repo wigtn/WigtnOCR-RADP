@@ -8,8 +8,8 @@
 | Phase | 기간 | 상태 | 진행률 |
 |:-----:|------|:----:|:------:|
 | **Phase 0**: Foundation | ~5/17 | ✅ DONE | `[██████████] 100%` |
-| **Phase 1**: Week 1 — Data + RCPS | 5/18 ~ 5/24 | 🔄 IN PROGRESS | `[█░░░░░░░░░] 12%` |
-| **Phase 2**: Week 2 — RADP-B | 5/25 ~ 5/31 | ⏳ PLANNED | `[░░░░░░░░░░] 0%` |
+| **Phase 1**: Week 1 — Data + RCPS | 5/18 ~ 5/24 | ✅ DONE | `[██████████] 100%` |
+| **Phase 2**: Week 2 — RADP-B | 5/25 ~ 5/31 | ✅ DONE (negative → pivot) | `[██████████] 100%` |
 | **Phase 3**: Week 3 — Cross-domain + Writing | 6/1 ~ 6/7 | ⏳ PLANNED | `[░░░░░░░░░░] 0%` |
 | **Phase 4**: Week 4 — Polish & Submit | 6/8 ~ 6/14 | ⏳ PLANNED | `[░░░░░░░░░░] 0%` |
 | **Submission** | 2026-06-16 | 🎯 TARGET | — |
@@ -18,8 +18,8 @@
 ## 📁 Phase Files
 
 - [`PHASE_0_FOUNDATION.md`](PHASE_0_FOUNDATION.md) — 기초 (lit review, prototype) ✅
-- [`PHASE_1_WEEK1.md`](PHASE_1_WEEK1.md) — Data + RCPS Metric 🔄
-- [`PHASE_2_WEEK2.md`](PHASE_2_WEEK2.md) — RADP-B Training ⏳
+- [`PHASE_1_WEEK1.md`](PHASE_1_WEEK1.md) — Data + RCPS Metric ✅ (→ `docs/PHASE1_FINDINGS.md`)
+- [`PHASE_2_WEEK2.md`](PHASE_2_WEEK2.md) — RADP-B Training ✅ (negative → `docs/WEEK2_FINDINGS.md`)
 - [`PHASE_3_WEEK3.md`](PHASE_3_WEEK3.md) — Cross-domain + Writing ⏳
 - [`PHASE_4_WEEK4.md`](PHASE_4_WEEK4.md) — Polish & Submit ⏳
 - [`PHASE_5_FUTURE.md`](PHASE_5_FUTURE.md) — ACL 2027 Main 🔮
@@ -29,11 +29,11 @@
 EMNLP submission까지 무조건 필요한 것:
 
 1. ✅ Q-A pair prototype (5p)
-2. ⏳ Full Q-A generation (294p validation set)
-3. ⏳ RCPS metric implementation + 6 parser × 3 retriever baseline grid
-4. ⏳ RADP-B method 구현 + 1차 학습
-5. ⏳ InSeNT 결합 ablation (orthogonality 증명)
-6. ⏳ Paper writing (4 page)
+2. ✅ Full Q-A generation (294p) + 검증
+3. ✅ RCPS metric + 6 parser × 3 retriever baseline grid + chunking grid
+4. ✅ RADP-B 구현 + λ sweep → **negative result** (`docs/WEEK2_FINDINGS.md`)
+5. ❌ InSeNT 결합 ablation — RADP-B negative로 무의미, drop
+6. ⏳ Paper writing (4 page) — **C1(진단) + C2(RCPS) 중심으로 pivot**
 7. 🎯 Submit (6/16)
 
 ## ⚠️ Risk Watch
@@ -57,4 +57,4 @@ EMNLP submission까지 무조건 필요한 것:
 
 ---
 
-**마지막 업데이트**: 2026-05-18 (Phase 0 완료, Phase 1 진입)
+**마지막 업데이트**: 2026-05-21 (Phase 1 완료 — `docs/PHASE1_FINDINGS.md`; Phase 2 완료 — RADP-B negative result로 pivot, `docs/WEEK2_FINDINGS.md`)
