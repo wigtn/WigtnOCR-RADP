@@ -11,8 +11,11 @@ budget — see memory: api-budget-constraint). The model id is configurable.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
+from collections.abc import Iterable, Mapping
+from pathlib import Path
 
 from wigtnocr_radp.evaluation.types import Chunk
 
@@ -115,4 +118,48 @@ class LumberChunker:
             out.extend(self.chunk(page_id, md))
             if i % 25 == 0:
                 logger.info("LumberChunker: %d/%d pages", i, len(pages))
+        return out
+
+
+def save_chunks(chunks: Iterable[Chunk], path: str | Path) -> None:
+    """Persist chunks to jsonl so an expensive LLM-chunker is run only once."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        for c in chunks:
+            f.write(json.dumps(
+                {"chunk_id": c.chunk_id, "page_id": c.page_id, "text": c.text},
+                ensure_ascii=False,
+            ) + "\n")
+
+
+class PrecomputedChunker:
+    """Replays chunks saved by `save_chunks` — duck-typed as a BaseChunker.
+
+    Lets a costly LLM-chunker (LumberChunker) be run once while its model server
+    is up, then reused in the RCPS grid after the server is taken down.
+    """
+
+    def __init__(self, chunks_path: str | Path, name: str = "lumberchunker") -> None:
+        self._name = name
+        self._by_page: dict[str, list[Chunk]] = {}
+        for line in Path(chunks_path).read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            d = json.loads(line)
+            self._by_page.setdefault(d["page_id"], []).append(
+                Chunk(chunk_id=d["chunk_id"], page_id=d["page_id"], text=d["text"])
+            )
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def chunk(self, page_id: str, markdown: str) -> list[Chunk]:
+        return self._by_page.get(page_id, [])
+
+    def chunk_corpus(self, pages: Mapping[str, str]) -> list[Chunk]:
+        out: list[Chunk] = []
+        for page_id in pages:
+            out.extend(self._by_page.get(page_id, []))
         return out

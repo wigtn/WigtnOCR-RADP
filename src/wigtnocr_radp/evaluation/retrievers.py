@@ -179,6 +179,10 @@ class JinaV3Retriever(BaseRetriever):
 
     Task-specific adapters: 'retrieval.query' for queries, 'retrieval.passage'
     for documents. 1024-dim, multilingual.
+
+    NOT USED — its remote code is incompatible with the pinned transformers 5.8
+    and intermittently yields NaN embeddings (see memory: jina-v3-retriever-broken).
+    Kept for the record; the 3rd RCPS retriever is MultilingualMpnetRetriever.
     """
 
     MODEL_ID = "jinaai/jina-embeddings-v3"
@@ -203,6 +207,9 @@ class JinaV3Retriever(BaseRetriever):
         self.model = SentenceTransformer(
             self.MODEL_ID, device=device, trust_remote_code=True, cache_folder=cache_folder
         )
+        # Force fp32: without flash_attn jina-v3 falls back to a native attention
+        # path that intermittently produces NaN embeddings in fp16/bf16.
+        self.model = self.model.float()
         self.batch_size = batch_size
         self.device = device
 
@@ -230,9 +237,70 @@ class JinaV3Retriever(BaseRetriever):
         return self._encode(texts, "retrieval.query")
 
 
+# --- Qwen3-Embedding-8B (PHASE_1.4 / §5.3) ---------------------------------
+
+
+class Qwen3EmbeddingRetriever(BaseRetriever):
+    """Qwen/Qwen3-Embedding-8B via sentence-transformers.
+
+    A recent (2025) top-tier multilingual embedding model — the 3rd RCPS
+    retriever, replacing jina-v3 (broken on transformers 5.8; see memory:
+    jina-v3-retriever-broken). Standard Qwen3 architecture, no remote code.
+    Queries use the model's instruction 'query' prompt; documents are encoded
+    plain. Last-token pooling (handled by the sentence-transformers module).
+    """
+
+    MODEL_ID = "Qwen/Qwen3-Embedding-8B"
+
+    def __init__(
+        self,
+        device: str = "cpu",
+        batch_size: int = 8,
+        max_seq_length: int = 1024,
+        cache_folder: str | None = None,
+    ) -> None:
+        from sentence_transformers import SentenceTransformer
+
+        logger.info("Loading Qwen3-Embedding-8B on %s ...", device)
+        self.model = SentenceTransformer(
+            self.MODEL_ID,
+            device=device,
+            cache_folder=cache_folder,
+            model_kwargs={"dtype": "bfloat16"},
+        )
+        self.model.max_seq_length = max_seq_length
+        self.batch_size = batch_size
+        self.device = device
+
+    @property
+    def name(self) -> str:
+        return "qwen3-emb-8b"
+
+    def _encode(self, texts: Sequence[str], prompt_name: str | None = None) -> np.ndarray:
+        if not texts:
+            return np.zeros((0, self.model.get_sentence_embedding_dimension()), dtype=np.float32)
+        kwargs = {"prompt_name": prompt_name} if prompt_name else {}
+        emb = self.model.encode(
+            list(texts),
+            batch_size=self.batch_size,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=len(texts) >= 64,
+            **kwargs,
+        )
+        return emb.astype(np.float32)
+
+    def encode_documents(self, texts: Sequence[str]) -> np.ndarray:
+        return self._encode(texts)
+
+    def encode_queries(self, texts: Sequence[str]) -> np.ndarray:
+        return self._encode(texts, prompt_name="query")
+
+
 __all__: list[str] = [
     "BaseRetriever",
     "BgeM3Retriever",
     "MultilingualE5LargeRetriever",
+    "Qwen3EmbeddingRetriever",
     "JinaV3Retriever",
 ]

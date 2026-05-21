@@ -27,8 +27,8 @@ from wigtnocr_radp.evaluation import (
     compute_rcps,
 )
 from wigtnocr_radp.evaluation.retrievers import (
-    JinaV3Retriever,
     MultilingualE5LargeRetriever,
+    Qwen3EmbeddingRetriever,
 )
 from wigtnocr_radp.evaluation.parser_outputs import load_parser_outputs
 from wigtnocr_radp.evaluation.rcps import load_qa_pairs
@@ -85,7 +85,7 @@ def main() -> int:
     retrievers = [
         BgeM3Retriever(device=args.device, batch_size=32),
         MultilingualE5LargeRetriever(device=args.device, batch_size=32),
-        JinaV3Retriever(device=args.device, batch_size=16),
+        Qwen3EmbeddingRetriever(device=args.device, batch_size=8),
     ]
 
     grid: dict[str, Any] = {
