@@ -297,10 +297,104 @@ class Qwen3EmbeddingRetriever(BaseRetriever):
         return self._encode(texts, prompt_name="query")
 
 
+# --- Late Chunking (PHASE_1.5 / §5.3) --------------------------------------
+
+
+class LateChunkingRetriever(BaseRetriever):
+    """Late Chunking (Günther et al., 2024; arXiv:2409.04701).
+
+    Chunk boundaries come from an external chunker, but each chunk's embedding
+    is the mean of its token vectors taken from a single forward pass over the
+    *whole page* — so chunk embeddings carry document context. Query and chunk
+    embeddings both use mean pooling (kept consistent). Backbone: BGE-M3
+    (the paper uses jina, which is broken here — see jina-v3-retriever-broken).
+    """
+
+    MODEL_ID = "BAAI/bge-m3"
+
+    def __init__(
+        self, device: str = "cpu", batch_size: int = 32, max_tokens: int = 8192,
+        late: bool = True, cache_folder: str | None = None,
+    ) -> None:
+        import torch
+        from sentence_transformers import SentenceTransformer
+
+        logger.info("Loading Late-Chunking (BGE-M3, late=%s) on %s ...", late, device)
+        st = SentenceTransformer(self.MODEL_ID, device=device, cache_folder=cache_folder)
+        self.tokenizer = st.tokenizer
+        self.auto_model = st[0].auto_model.eval()  # underlying HF transformer
+        self.device = device
+        self.batch_size = batch_size
+        self.max_tokens = max_tokens
+        self.late = late  # False = naive (each chunk embedded independently)
+        self._torch = torch
+
+    @property
+    def name(self) -> str:
+        return "late-chunk-bge" if self.late else "naive-bge-meanpool"
+
+    def _mean_pool(self, texts: Sequence[str]) -> np.ndarray:
+        """Standard mean-pooled embedding of each text."""
+        torch = self._torch
+        out: list[np.ndarray] = []
+        for i in range(0, len(texts), self.batch_size):
+            enc = self.tokenizer(list(texts[i : i + self.batch_size]), padding=True,
+                                 truncation=True, max_length=self.max_tokens, return_tensors="pt")
+            enc = {k: v.to(self.device) for k, v in enc.items()}
+            with torch.inference_mode():
+                hidden = self.auto_model(**enc).last_hidden_state  # (B, T, D)
+            mask = enc["attention_mask"].unsqueeze(-1).to(hidden.dtype)
+            pooled = (hidden * mask).sum(1) / mask.sum(1).clamp_min(1.0)
+            pooled = torch.nn.functional.normalize(pooled, dim=-1)
+            out.append(pooled.float().cpu().numpy())
+        return np.concatenate(out).astype(np.float32) if out else np.zeros((0, 1024), np.float32)
+
+    def encode_documents(self, texts: Sequence[str]) -> np.ndarray:  # fallback; index() overrides
+        return self._mean_pool(list(texts))
+
+    def encode_queries(self, texts: Sequence[str]) -> np.ndarray:
+        return self._mean_pool(list(texts))
+
+    def index(self, chunks: Sequence[Chunk]) -> None:
+        if not self.late:  # naive: embed each chunk independently
+            BaseRetriever.index(self, chunks)
+            return
+        torch = self._torch
+        self._chunks = list(chunks)
+        if not self._chunks:
+            self._doc_emb = np.zeros((0, 1024), dtype=np.float32)
+            return
+        by_page: dict[str, list[Chunk]] = {}
+        for c in self._chunks:
+            by_page.setdefault(c.page_id, []).append(c)
+        for cs in by_page.values():  # restore document order from chunk_id "...#i"
+            cs.sort(key=lambda c: int(c.chunk_id.rsplit("#", 1)[-1]) if "#" in c.chunk_id else 0)
+
+        emb: dict[str, np.ndarray] = {}
+        for cs in by_page.values():
+            full, spans = "", []
+            for c in cs:
+                spans.append((len(full), len(full) + len(c.text)))
+                full += c.text + "\n"
+            enc = self.tokenizer(full, return_offsets_mapping=True, truncation=True,
+                                 max_length=self.max_tokens, return_tensors="pt")
+            offsets = enc.pop("offset_mapping")[0].tolist()
+            enc = {k: v.to(self.device) for k, v in enc.items()}
+            with torch.inference_mode():
+                hidden = self.auto_model(**enc).last_hidden_state[0]  # (T, D)
+            for c, (cs0, cs1) in zip(cs, spans, strict=True):
+                idx = [i for i, (o0, o1) in enumerate(offsets) if o1 > o0 and o0 < cs1 and o1 > cs0]
+                v = hidden[idx].mean(0) if idx else hidden.mean(0)
+                v = torch.nn.functional.normalize(v, dim=-1)
+                emb[c.chunk_id] = v.float().cpu().numpy()
+        self._doc_emb = np.stack([emb[c.chunk_id] for c in self._chunks]).astype(np.float32)
+
+
 __all__: list[str] = [
     "BaseRetriever",
     "BgeM3Retriever",
     "MultilingualE5LargeRetriever",
     "Qwen3EmbeddingRetriever",
+    "LateChunkingRetriever",
     "JinaV3Retriever",
 ]
