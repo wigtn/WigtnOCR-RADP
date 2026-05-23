@@ -30,6 +30,21 @@ DEFAULT_IMAGES_ROOT = Path("data/KoGovDoc-Bench/images")
 _IMAGE_PLACEHOLDER = "<image>"
 
 
+def _find_subseq(haystack: list[int], needle: list[int]) -> int:
+    """First index where `needle` appears in `haystack` as a contiguous subseq.
+
+    Returns -1 if not found. Used to locate an answer-chunk's token range
+    inside the assistant region of a tokenised batch.
+    """
+    n = len(needle)
+    if n == 0 or n > len(haystack):
+        return -1
+    for i in range(len(haystack) - n + 1):
+        if haystack[i:i + n] == needle:
+            return i
+    return -1
+
+
 def remap_image_path(stored_path: str, images_root: str | Path = DEFAULT_IMAGES_ROOT) -> Path:
     """Rebase a stale absolute image path onto the repo-local images root.
 
@@ -71,6 +86,7 @@ class RadpBExample:
     system: str
     user: str       # user instruction text, with the literal "<image>" stripped
     assistant: str  # GT markdown — the L_parse target
+    answer_chunk: str = ""  # answer-bearing chunk text (per-chunk anchor pooling)
 
 
 def _load_val_pages(val_jsonl: Path) -> dict[str, dict[str, Any]]:
@@ -83,7 +99,8 @@ def _load_val_pages(val_jsonl: Path) -> dict[str, dict[str, Any]]:
 
 
 def _example_from_row(
-    qa_id: str, page_id: str, row: dict[str, Any], images_root: str | Path
+    qa_id: str, page_id: str, row: dict[str, Any], images_root: str | Path,
+    answer_chunk: str = "",
 ) -> RadpBExample:
     messages = row["messages"]
     system = messages[0]["content"]
@@ -99,6 +116,7 @@ def _example_from_row(
         system=system,
         user=user,
         assistant=assistant,
+        answer_chunk=answer_chunk,
     )
 
 
@@ -149,7 +167,10 @@ class RadpBDataset(Dataset[RadpBExample]):
                 if row is None:
                     n_missing_page += 1
                     continue
-                ex = _example_from_row(d["qa_id"], pid, row, images_root)
+                ex = _example_from_row(
+                    d["qa_id"], pid, row, images_root,
+                    answer_chunk=d.get("answer_chunk", ""),
+                )
                 if not ex.image_path.exists():
                     n_missing_img += 1
                     logger.warning("qa_id=%s: image not found: %s", d["qa_id"][:8], ex.image_path)
@@ -204,6 +225,7 @@ class RadpBDataset(Dataset[RadpBExample]):
                     system=messages[0]["content"],
                     user=user,
                     assistant=messages[2]["content"],
+                    answer_chunk=d.get("answer_chunk", ""),
                 )
                 if not ex.image_path.exists():
                     n_missing_img += 1
@@ -291,6 +313,7 @@ class Qwen3VLContrastiveCollator:
         )
         labels = enc["input_ids"].clone()
 
+        prompt_lens: list[int] = []
         for i, ex in enumerate(examples):
             prompt_text = self._render(ex, with_answer=False)
             prompt_len = self.processor(
@@ -302,6 +325,7 @@ class Qwen3VLContrastiveCollator:
                     f"raise max_seq_length or lower image_max_pixels"
                 )
             labels[i, :prompt_len] = -100
+            prompt_lens.append(prompt_len)
         labels[enc["attention_mask"] == 0] = -100
         enc["labels"] = labels
 
@@ -314,7 +338,30 @@ class Qwen3VLContrastiveCollator:
                 if key in enc:
                     enc[key] = enc[key][:, : self.max_seq_length]
 
+        # Per-chunk anchor: find each example's answer_chunk as a token
+        # subsequence inside the assistant region (post-prompt, pre-truncation
+        # bound). Used by --anchor_mode per_chunk; (-1,-1) signals fallback to
+        # full-label pooling.
+        seq_len = enc["input_ids"].shape[1]
+        tok = self.processor.tokenizer
+        chunk_spans: list[tuple[int, int]] = []
+        for i, ex in enumerate(examples):
+            if not ex.answer_chunk:
+                chunk_spans.append((-1, -1))
+                continue
+            chunk_ids = tok(ex.answer_chunk, add_special_tokens=False)["input_ids"]
+            p_len = prompt_lens[i]
+            assist_ids = enc["input_ids"][i, p_len:].tolist()
+            rel = _find_subseq(assist_ids, chunk_ids)
+            if rel < 0:
+                chunk_spans.append((-1, -1))
+                continue
+            start = p_len + rel
+            end = min(start + len(chunk_ids), seq_len)
+            chunk_spans.append((start, end) if end > start else (-1, -1))
+
         batch = dict(enc)
         batch["qa_ids"] = [ex.qa_id for ex in examples]
         batch["page_ids"] = [ex.page_id for ex in examples]
+        batch["chunk_spans"] = chunk_spans
         return batch

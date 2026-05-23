@@ -80,6 +80,29 @@ def mean_pool_hidden(hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
     return summed / denom
 
 
+def mean_pool_span(
+    hidden_states: Tensor,
+    spans: Sequence[tuple[int, int]],
+    fallback_mask: Tensor,
+) -> Tensor:
+    """Mean-pool hidden states over a per-sample (start, end) token range.
+
+    Used by the per-chunk anchor formulation: instead of pooling over the
+    whole assistant region (`mean_pool_hidden`), pool only over the tokens of
+    the answer-bearing chunk. Samples with span (-1, -1) fall back to
+    `mean_pool_hidden` so a missing chunk localisation does not break the loss.
+    """
+    b, _t, d = hidden_states.shape
+    out = hidden_states.new_zeros(b, d)
+    for i, (s, e) in enumerate(spans):
+        if s >= 0 and e > s:
+            out[i] = hidden_states[i, s:e].mean(dim=0)
+        else:
+            m = fallback_mask[i].to(hidden_states.dtype).unsqueeze(-1)
+            out[i] = (hidden_states[i] * m).sum(dim=0) / m.sum().clamp_min(1.0)
+    return out
+
+
 # --- InfoNCE loss -------------------------------------------------------------
 
 

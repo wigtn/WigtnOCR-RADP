@@ -32,6 +32,7 @@ from wigtnocr_radp.training.contrastive import (
     RadpBLoss,
     SamplingStrategy,
     mean_pool_hidden,
+    mean_pool_span,
 )
 
 logger = logging.getLogger("radp_b.trainer")
@@ -62,6 +63,7 @@ class RadpBTrainer(Trainer):
         radp_loss: RadpBLoss,
         hidden_module: nn.Module,
         contrastive_seed: int = 42,
+        anchor_mode: str = "full",
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -72,6 +74,12 @@ class RadpBTrainer(Trainer):
         self.sampler = sampler
         self.radp_loss = radp_loss
         self._rng = np.random.default_rng(contrastive_seed)
+        # "full" — pool over the entire assistant region (decision-A, pilot).
+        # "per_chunk" — pool only over the answer-chunk token span (samples
+        # with missing localisation fall back to full pooling).
+        if anchor_mode not in ("full", "per_chunk"):
+            raise ValueError(f"anchor_mode must be 'full' or 'per_chunk', got {anchor_mode!r}")
+        self.anchor_mode = anchor_mode
         # Capture the final hidden layer without `output_hidden_states=True`.
         self._captured_hidden: torch.Tensor | None = None
         hidden_module.register_forward_hook(self._capture_hook)
@@ -93,6 +101,7 @@ class RadpBTrainer(Trainer):
     ) -> torch.Tensor | tuple[torch.Tensor, Any]:
         qa_ids = inputs.pop("qa_ids")
         page_ids = inputs.pop("page_ids")
+        chunk_spans = inputs.pop("chunk_spans", None)
 
         self._captured_hidden = None
         outputs = model(**inputs)
@@ -102,7 +111,10 @@ class RadpBTrainer(Trainer):
             raise RuntimeError("hidden-state hook did not fire — check hidden_module path")
 
         label_mask = (inputs["labels"] != -100).to(last_hidden.dtype)
-        pooled = mean_pool_hidden(last_hidden, label_mask)  # (B, D)
+        if self.anchor_mode == "per_chunk" and chunk_spans is not None:
+            pooled = mean_pool_span(last_hidden, chunk_spans, label_mask)
+        else:
+            pooled = mean_pool_hidden(last_hidden, label_mask)  # (B, D)
 
         cache = self.train_cache if model.training else self.eval_cache
         pos_np, neg_np = self.sampler.sample(cache, qa_ids, page_ids, self._rng)

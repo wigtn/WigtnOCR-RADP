@@ -118,6 +118,9 @@ def main() -> int:
                     help="override contrastive.loss_coefficient_lambda (λ sweep); 0 = control")
     ap.add_argument("--smoke", action="store_true", help="4-step pipeline check, no save/eval")
     ap.add_argument("--no_eval", action="store_true", help="skip the eval fold")
+    ap.add_argument("--anchor_mode", choices=("full", "per_chunk"), default="full",
+                    help="contrastive anchor pooling: 'full' (whole assistant region, decision-A) "
+                         "or 'per_chunk' (answer-chunk token span)")
     args = ap.parse_args()
 
     cfg = load_yaml_config(args.config)
@@ -284,7 +287,9 @@ def main() -> int:
         radp_loss=radp_loss,
         hidden_module=hidden_module,
         contrastive_seed=int(cfg.get("seed", 42)),
+        anchor_mode=args.anchor_mode,
     )
+    logger.info("anchor_mode = %s", args.anchor_mode)
     if not args.smoke:
         trainer.add_callback(ProjectionHeadSaveCallback(radp_loss))
 
