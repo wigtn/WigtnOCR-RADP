@@ -44,9 +44,21 @@ PARSERS = ("gt", "MinerU", "Qwen2.5-VL")
 CHUNKERS = {"parser_native": ParserNativeChunker(min_chars=30), "fixed500": FixedSizeChunker(size=500)}
 _BAD_ANSWERS = {"yes", "no", "true", "false", "n/a", "none", "not specified"}
 
+# OHR-Bench labels docs differently in its parquet vs. its retrieval_extracted
+# directories. Basenames are unique (1,261/1,261), so we key page_id by basename
+# and only use the prefix maps for the parquet-domain filter.
+RETRIEVAL_TO_PARQUET = {
+    "law": "law", "manual": "manual", "finance": "finance",
+    "textbook": "textbook", "news": "news",
+    "academic": "paper", "administration": "notes",
+}
+
 
 def page_id(doc_name: str, page_idx: int) -> str:
-    return f"{doc_name}__p{int(page_idx)}"
+    """Use only the doc basename — domain prefix differs between parquet
+    (`notes/...`) and retrieval dirs (`administration/...`) for the same doc."""
+    base = doc_name.rsplit("/", 1)[-1]
+    return f"{base}__p{int(page_idx)}"
 
 
 def load_qa(domains: list[str]) -> list[QAPair]:
@@ -57,7 +69,9 @@ def load_qa(domains: list[str]) -> list[QAPair]:
     evidence page (so the score reflects *retrievability*, not unanswerable Q-A).
     """
     df = pd.read_parquet(OHR / "OHR-Bench.parquet")
-    df = df[df["domain"].isin(domains)]
+    # `domains` are retrieval-dir names; map to parquet's domain labels.
+    parquet_doms = {RETRIEVAL_TO_PARQUET.get(d, d) for d in domains}
+    df = df[df["domain"].isin(parquet_doms)]
     # GT text per page_id, for the answerability filter
     gt_text = {page_id(r["doc_name"], r["page_idx"]): (r["gt_text"] or "") for _, r in df.iterrows()}
 

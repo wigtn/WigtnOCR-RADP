@@ -30,12 +30,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger("eval_ohrbench_bc")
 
-DOMAINS = ["law", "manual"]
-RCPS_JSON = Path("output/results/ohrbench_noise.json")  # 15-variant grid
-OUT = Path("output/results/ohrbench_bc_noise.json")
+DEFAULT_DOMAINS = ["law", "manual"]
+DEFAULT_RCPS_JSON = Path("output/results/ohrbench_noise.json")
+DEFAULT_OUT = Path("output/results/ohrbench_bc_noise.json")
 
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--domains", default=",".join(DEFAULT_DOMAINS))
+    ap.add_argument("--rcps-json", type=Path, default=DEFAULT_RCPS_JSON)
+    ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    args = ap.parse_args()
+    DOMAINS = args.domains.split(",")
+    RCPS_JSON = args.rcps_json
+    OUT = args.out
+
     chunker = ParserNativeChunker(min_chars=30)
     ppl = PerplexityLM()
 

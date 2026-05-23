@@ -7,13 +7,15 @@
 
 ## Abstract
 
-Document parsers used in retrieval-augmented generation (RAG) are conventionally optimized for *human-readability* metrics — TEDS, edit distance, boundary clarity — yet the parsing quality these metrics measure does not reliably predict downstream retrieval performance. We diagnose this disconnect quantitatively in Korean government documents (a 6-parser × 3-retriever grid over 663 Q-A pairs), finding that the intrinsic Boundary Clarity metric anti-correlates with retrieval (Pearson r = −0.81, n = 5) — the parser with the cleanest boundaries (MinerU) is the worst retriever. We then propose **RCPS** (Retrieval-Conditional Parsing Score), a retriever-agnostic, task-oriented chunking quality metric, and validate it cross-domain on the English-language OHR-Bench (Law + Manual): RCPS discriminates 15 parser-output variants over a 0.27–0.64 range, and the BC↔RCPS anti-correlation replicates (r = −0.35, n = 15). We further test the natural parser-side fix — augmenting parsing training with a chunk-boundary contrastive auxiliary loss (**RADP-B**) — at full scale, training on the same 2,667 pages as the production parser to remove the data-scale confound. The contrastive loss yields only a marginal +1–3 pp RCPS gain, failing the pre-registered 5 pp gate and matching the production baseline. Our analysis reveals the mechanism: intrinsic boundary metrics cannot perceive semantic content quality (BC remains constant as semantic noise destroys retrieval). We release KoGovDoc-RAG (a Korean RAG benchmark, 663 Q-A) and the RCPS reference implementation.
+Document parsers used in retrieval-augmented generation (RAG) are conventionally optimized for *human-readability* metrics — TEDS, edit distance, Boundary Clarity — yet these metrics do not predict downstream retrieval. In Korean government documents (6 parsers × 3 retrievers × 663 Q-A), MoC Boundary Clarity *anti*-correlates with retrieval at Pearson r = −0.81: the parser scoring highest on the intrinsic metric (MinerU) is the *worst* retriever. We propose **RCPS** (Retrieval-Conditional Parsing Score), a retriever-agnostic task-oriented metric, and validate it cross-domain on the English-language OHR-Bench (15 parser-output variants; r = −0.35). A noise-perturbation analysis reveals the mechanism: intrinsic boundary metrics see only formatting, not content — semantic noise that destroys retrieval leaves BC nearly unchanged. We test the natural parser-side fix — augmenting parsing training with a chunk-boundary contrastive auxiliary loss (**RADP-B**) — at full scale, fair-compared with the production parser. The auxiliary loss yields +1–3 pp RCPS, well below our pre-registered 5 pp gate. The aux-loss formulation is the wrong lever. We release **KoGovDoc-RAG** (a Korean RAG benchmark), the RCPS reference implementation, and the trained checkpoints.
 
 ---
 
 ## 1 Introduction
 
-Building a retrieval-augmented generation (RAG) system on a corpus of PDFs requires a document parser — a model that converts page images into structured text. Practitioners typically select parsers by intrinsic, *human-readability* metrics: text similarity (NED, edit distance), table fidelity (TEDS), or chunk boundary cleanness. These metrics assume that cleaner parsing yields better downstream retrieval. We show this assumption is *wrong*, in two ways that matter for practice.
+Picking a document parser for a retrieval-augmented generation (RAG) system, a practitioner runs MinerU on Korean government PDFs and confirms it tops every intrinsic parsing-quality metric in our grid: highest MoC Boundary Clarity (0.72), competitive on text fidelity. They deploy it. Retrieval Hit@1 is 0.20 — the *worst* of the six parsers evaluated. The cleanest-looking parser is the worst retriever.
+
+This paper documents the disconnect (C1), proposes a task-oriented metric that exposes it (C2), and rigorously shows that the natural parser-side fix does not close the gap (C3).
 
 **First (C1, diagnostic)**, we quantify the disconnect. In a 6-parser × 3-retriever evaluation on Korean government documents, intrinsic Boundary Clarity correlates with retrieval at Pearson r = −0.81 — the parser scoring highest on the intrinsic metric retrieves *worst*. We extend this to English enterprise documents (OHR-Bench Law + Manual, 15 parser-output variants) and find the disconnect replicates (r = −0.35), with a striking mechanism: as semantic noise is added to a parser's output, Boundary Clarity stays constant while RCPS plummets — intrinsic metrics cannot see semantic content quality.
 
@@ -120,9 +122,9 @@ We fine-tune Qwen3-VL-2B-Instruct with LoRA (r = 8, α = 32) on the **full v1 tr
 
 ### 5.3 Result
 
-**The contrastive loss yields only a marginal RCPS gain.** Table 4 reports the λ sweep. λ = 0.1 is the peak (+1.8 pp RCPS for md-h3 chunking; +2.3 pp for parser-native), then RCPS declines monotonically as λ grows. parseSim (parse-to-GT similarity) declines in lockstep. The pre-registered 5 pp gate **fails**; the H2 target of 8 pp is far out of reach.
+**The contrastive loss yields a sub-threshold RCPS gain.** Table 4 reports the λ sweep. λ = 0.1 is the peak (+1.1 pp on md-h3; +2.3 pp on parser-native), and RCPS declines monotonically beyond that. parseSim (parse-to-GT similarity) declines in lockstep. The pre-registered 5 pp gate **fails**; the H2 target of 8 pp is far out of reach.
 
-Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1 by +2.2 pp on parser-native, losing by 0.6 pp on md-h3. The matched control (λ = 0, 2,667 pages) reproduces v1 (0.6557 vs 0.6569), confirming the data-scale confound is removed.
+Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1 by +2.2 pp on parser-native, losing 0.6 pp on md-h3. The matched control (λ = 0, 2,667 pages) reproduces v1 (0.6557 vs 0.6569), confirming the data-scale confound is removed.
 
 | λ | RCPS (md-h3) | RCPS (parser-native) | parseSim |
 |---|:---:|:---:|:---:|
@@ -135,7 +137,7 @@ Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1
 
 ### 5.4 Why It Fails
 
-Two complementary observations: (i) the monotonic decline beyond λ = 0.1 confirms the failure is *not* under-tuning — pushing the contrastive signal harder makes things worse. (ii) parseSim drops with λ even as RCPS gives at most a marginal gain. The two objectives — faithfully reproducing the human-readable target markdown (parse CE) and projecting hidden states toward the retriever's embedding space (contrastive) — compete; the contrastive gradient nudges the parser away from its target with little retrieval benefit. The aux-loss formulation is the wrong lever.
+Two complementary observations: (i) the monotonic decline beyond λ = 0.1 confirms the failure is *not* under-tuning — pushing the contrastive signal harder makes things worse, not better. (ii) parseSim drops with λ while RCPS does not rise in step. The two objectives — faithfully reproducing the human-readable target markdown (parse CE) and projecting hidden states toward the retriever's embedding space (contrastive) — compete; the contrastive gradient nudges the parser away from its target without compensating retrieval benefit. The aux-loss formulation is the wrong lever.
 
 ## 6 Discussion
 
@@ -143,11 +145,17 @@ Two complementary observations: (i) the monotonic decline beyond λ = 0.1 confir
 
 **What would work.** Optimizing the parser's *output* directly against a retrieval signal — i.e., a retrieval-reward objective (DPO/RL) that scores the parser's discrete markdown by downstream RCPS — sidesteps both problems: the gradient flows through the actually-deployed artifact, and the supervision is task-aligned. This is the natural next method; we name it **RADP-A** and leave it to future work, where it requires a months-scale RL/distillation effort beyond an EMNLP cycle.
 
-**Practical takeaway.** Practitioners selecting a parser for RAG should not trust intrinsic boundary or formatting metrics: the MinerU example (BC #1, RCPS last) is a real production trap. RCPS, run on a small held-out Q-A set, changes the decision.
+### Deployment lessons
+
+Three actionable items for teams shipping document-RAG systems:
+
+1. **Do not select parsers by intrinsic metrics alone.** The MinerU vignette in §1 is not contrived — Boundary Clarity (and likewise TEDS, edit distance against a clean GT) ranks parsers in an order that the downstream retriever inverts. A 500-question RCPS evaluation, run on a domain-representative held-out set, takes hours and changes the decision.
+2. **Auxiliary losses on parser hidden states are the wrong lever.** Engineering teams faced with a parsing-retrieval gap may be tempted to bolt a retrieval-oriented auxiliary objective onto the parser (RADP-B is a natural form of this). At full scale, fair-compared with their current production parser, the gain is sub-threshold (+1–3 pp). The investment does not pay off.
+3. **The disconnect is mechanistic, not stochastic.** Figure 2 shows intrinsic structure can look pristine while content is destroyed. Teams deploying OCR/parsing in noisy production environments should monitor retrieval directly, not the parser's surface quality.
 
 ## 7 Conclusion
 
-We documented the parsing-retrieval disconnect in two languages and domains (Korean government, English enterprise); proposed RCPS as a task-oriented metric to measure it; and showed that the natural parser-layer fix — a chunk-boundary contrastive auxiliary loss (RADP-B) — yields only marginal gains under a fair full-scale comparison. The contributions, in order: a diagnostic with a striking BC↔RCPS = −0.81; a retriever-agnostic metric; and a rigorous negative result on parser-aux-loss tuning. Code, data, and checkpoints are released.
+We documented the parsing-retrieval disconnect in two languages and domains (Korean government, English enterprise); proposed RCPS as a task-oriented metric to measure it; and showed that the natural parser-layer fix — a chunk-boundary contrastive auxiliary loss (RADP-B) — yields sub-threshold gains under a fair full-scale comparison. The contributions, in order: a diagnostic with a striking BC↔RCPS = −0.81 and a mechanism (Figure 2) showing intrinsic structure is blind to content noise; a retriever-agnostic task-oriented metric; and a rigorous negative on parser-aux-loss tuning that motivates retrieval-reward training (RADP-A) as the principled next step. Code, data, and checkpoints are released.
 
 ---
 
