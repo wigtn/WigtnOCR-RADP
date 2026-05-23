@@ -110,11 +110,11 @@ We evaluate 15 parser-output variants on OHR-Bench Law+Manual (1,043 Q-A): the t
 
 ### 5.1 Method
 
-We test the natural parser-side fix: jointly train the parser to (a) produce faithful markdown (standard cross-entropy `L_parse`) and (b) make its chunk-boundary representation close to the retriever's space (a chunk-boundary contrastive auxiliary loss `L_contrast`):
+The natural parser-side fix is to *jointly* train the parser to (a) produce faithful markdown — standard parsing cross-entropy `L_parse` — and (b) make its chunk-boundary representation close to the retriever's embedding space — a chunk-boundary contrastive auxiliary loss `L_contrast`:
 
 $$\mathcal{L}_\text{total} = \mathcal{L}_\text{parse} + \lambda \cdot \mathcal{L}_\text{contrast}.$$
 
-`L_contrast` is InfoNCE: the anchor is a projection of the parser's pooled hidden state over the answer-chunk token span; the positive is the BGE-M3 embedding of that chunk; negatives are other chunks in the batch and same-page hard negatives. BGE-M3 is frozen; only the parser (LoRA) and a small projection head are trained. We call this RADP-B.
+For each Q-A pair, the contrastive anchor is the parser's pooled last-layer hidden state over the answer-chunk's token span, passed through a small projection head (1024-d, matching BGE-M3). The InfoNCE positive is the BGE-M3 embedding of that same chunk; negatives are other chunks in the batch and a same-page hard negative. The retriever (BGE-M3) is frozen; only the parser (LoRA) and the projection head are trained. We call this **RADP-B**. The literal "differentiable BGE-encoded chunks" formulation is non-differentiable through the parser's discrete markdown output; aligning the parser's *hidden* representation to the frozen retriever's space is the natural differentiable surrogate.
 
 ### 5.2 Setup
 
@@ -137,7 +137,9 @@ Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1
 
 ### 5.4 Why It Fails
 
-Two complementary observations: (i) the monotonic decline beyond λ = 0.1 confirms the failure is *not* under-tuning — pushing the contrastive signal harder makes things worse, not better. (ii) parseSim drops with λ while RCPS does not rise in step. The two objectives — faithfully reproducing the human-readable target markdown (parse CE) and projecting hidden states toward the retriever's embedding space (contrastive) — compete; the contrastive gradient nudges the parser away from its target without compensating retrieval benefit. The aux-loss formulation is the wrong lever.
+Two complementary observations rule out under-tuning. (i) The monotonic decline beyond λ = 0.1 confirms that pushing the contrastive signal harder makes things worse, not better. (ii) parseSim drops with λ while RCPS does not rise in step — the two objectives compete over the same LoRA parameters: parsing fidelity pulls the parser toward the human-readable target markdown, while contrastive alignment pulls hidden states toward the retriever's space. The contrastive gradient nudges the parser away from its target without compensating retrieval benefit.
+
+This mirrors the C1 mechanism of §4.2. The parser's `L_parse` target is itself a human-readable markdown — exactly the kind of structure whose intrinsic boundary metrics anti-correlate with retrieval. An auxiliary objective on the parser's hidden representations cannot escape the prior its primary objective embeds. The aux-loss formulation is the wrong lever: training signal must enter the parser through its discrete *output*, not its hidden states, if it is to overcome the human-readability prior. We return to this in §6.
 
 ## 6 Discussion
 
