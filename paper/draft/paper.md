@@ -27,7 +27,9 @@ The paper releases a Korean-language RAG benchmark (KoGovDoc-RAG, 663 Q-A on 294
 
 Prior work has documented the OCR/parsing → retrieval gap diagnostically. *OCR Hinders RAG* and OHR-Bench show OCR noise propagates through RAG; EnterpriseDocBench reports a low parsing-quality↔retrieval Pearson r ≈ 0.14; *When Good OCR Is Not Enough* gives concurrent evidence. None of these proposes a *training-time* fix on the parser side.
 
-Existing methods address other layers of the RAG pipeline. **Chunkers**: Late Chunking (Jina), LumberChunker (LLM-narrative), Meta-Chunking and **MoC** (PPL-based) all decide chunk boundaries *post-parsing*. **Embedders**: InSeNT, LMAR train the embedding model contrastively. **Retrievers**: Reward-RAG fine-tunes the retriever on retrieval reward. **Readers**: M-LongDoc, RPO tune the generator. To our knowledge, no prior work trains the **L1 parser** itself on a retrieval signal.
+Existing methods address other layers of the RAG pipeline (Figure 1). **Chunkers**: Late Chunking (Jina), LumberChunker (LLM-narrative), Meta-Chunking and **MoC** (PPL-based) all decide chunk boundaries *post-parsing*. **Embedders**: InSeNT, LMAR train the embedding model contrastively. **Retrievers**: Reward-RAG fine-tunes the retriever on retrieval reward. **Readers**: M-LongDoc, RPO tune the generator. To our knowledge, no prior work trains the **L1 parser** itself on a retrieval signal.
+
+*[Figure 1 — 6-layer RAG pipeline schematic showing where prior methods sit and the empty parser slot. Manually drawn, to be inserted in PHASE_4 LaTeX porting (likely TikZ).]*
 
 Our negative finding on the aux-loss approach (C3) motivates the *next* parser-layer method: retrieval-reward DPO on the parser, which we leave as future work (named RADP-A).
 
@@ -65,15 +67,10 @@ We evaluate 15 parser-output variants on OHR-Bench Law+Manual (1,043 Q-A): the t
 
 **Result.** BC↔RCPS Pearson r = **−0.351** (n = 15). The disconnect replicates in English enterprise documents.
 
-**Mechanism (Figure 1).** Within each semantic-noise family, BC barely moves while RCPS collapses. For MinerU's family: BC stays at 0.63 ± 0.02 across clean → mild → moderate → severe noise; RCPS falls 0.595 → 0.476 → 0.384 → 0.265. Intrinsic boundary metrics see only formatting, not content: noise that destroys retrievable content does not lower BC. This is the disconnect, made visible.
+**Mechanism (Figure 2).** Within each semantic-noise family, BC barely moves while RCPS collapses (Figure 2). For MinerU: BC stays at 0.63 ± 0.02 across clean → mild → moderate → severe noise; RCPS falls 0.595 → 0.476 → 0.384 → 0.265. GOT shows the same pattern. Qwen2.5-VL is more noise-robust. Intrinsic boundary metrics see only formatting, not content: noise that destroys retrievable content does not lower BC. This is the disconnect, made visible.
 
-| MinerU family | BC | RCPS |
-|---|:---:|:---:|
-| (clean) | 0.657 | 0.595 |
-| + sem mild | 0.628 | 0.476 |
-| + sem moderate | 0.651 | 0.384 |
-| + sem severe | 0.631 | 0.265 |
-*Table 2 (illustrative): BC near-flat while RCPS drops 56% under semantic noise.*
+![Figure 2 — noise-family curves](../figures/fig_noise_family.png)
+*Figure 2: OHR-Bench noise-family curves. Top — Boundary Clarity stays roughly flat across noise severity. Bottom — RCPS collapses for MinerU and GOT (Qwen2.5-VL is more robust). The intrinsic boundary metric does not perceive the semantic content quality that retrieval depends on.*
 
 ## 5 RADP-B: A Negative Result on Parser-Layer Tuning (C3)
 
