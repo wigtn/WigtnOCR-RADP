@@ -13,17 +13,17 @@ Document parsers used in retrieval-augmented generation (RAG) are conventionally
 
 ## 1 Introduction
 
-Picking a document parser for a retrieval-augmented generation (RAG) system, a practitioner runs MinerU on Korean government PDFs and confirms it tops every intrinsic parsing-quality metric in our grid: highest MoC Boundary Clarity (0.72), competitive on text fidelity. They deploy it. Retrieval Hit@1 is 0.20 — the *worst* of the six parsers evaluated. The cleanest-looking parser is the worst retriever.
+Picking a document parser for a retrieval-augmented generation (RAG) system, a practitioner runs MinerU on Korean government PDFs and confirms it tops every intrinsic parsing-quality metric in our grid — highest MoC Boundary Clarity (0.72), competitive on text fidelity — and deploys it. Retrieval Hit@1 is 0.20, the *worst* of the six parsers evaluated. The cleanest-looking parser is the worst retriever.
 
-This paper documents the disconnect (C1), proposes a task-oriented metric that exposes it (C2), and rigorously shows that the natural parser-side fix does not close the gap (C3).
+This is not a one-off. In a 6-parser × 3-retriever evaluation on Korean government documents, Boundary Clarity *anti*-correlates with retrieval at Pearson r = −0.81 (n = 5). A cross-domain check on the English-language OHR-Bench (n = 15 parser-output variants, including controlled noise perturbations) replicates the direction (r = −0.35) and reveals the mechanism: as semantic noise is added to a parser's output, Boundary Clarity stays constant while retrieval performance collapses. Intrinsic boundary metrics cannot see semantic content quality, and the practitioner has no way to know this from the metrics they see.
 
-**First (C1, diagnostic)**, we quantify the disconnect. In a 6-parser × 3-retriever evaluation on Korean government documents, intrinsic Boundary Clarity correlates with retrieval at Pearson r = −0.81 — the parser scoring highest on the intrinsic metric retrieves *worst*. We extend this to English enterprise documents (OHR-Bench Law + Manual, 15 parser-output variants) and find the disconnect replicates (r = −0.35), with a striking mechanism: as semantic noise is added to a parser's output, Boundary Clarity stays constant while RCPS plummets — intrinsic metrics cannot see semantic content quality.
+**Contributions.**
 
-**Second (C2, metric)**, we propose **RCPS** (Retrieval-Conditional Parsing Score), a task-oriented metric averaging MRR across multiple retrievers and cutoffs. RCPS discriminates parsers, retrievers, and chunking strategies where intrinsic metrics conflate them.
+- **C1.** A cross-domain diagnostic of the parsing–retrieval disconnect, with a mechanism (noise-family curve, Figure 2) that makes the intrinsic-metric failure mode visible at a glance.
+- **C2. RCPS** (Retrieval-Conditional Parsing Score), a retriever-agnostic, task-oriented metric that discriminates parsers, retrievers, and chunking strategies which intrinsic metrics conflate.
+- **C3.** A rigorous negative on the natural parser-side fix. Training the parser with a chunk-boundary contrastive auxiliary loss (**RADP-B**), at full scale and fair-compared with the production parser, yields +1–3 pp RCPS — below our pre-registered 5 pp gate. The aux-loss formulation is the wrong lever; we argue the right one is retrieval-reward training (RADP-A, future work).
 
-**Third (C3, honest negative)**, we test the natural fix: train the parser end-to-end with a chunk-boundary contrastive auxiliary loss (**RADP-B**). Trained at full scale (2,667 pages, same as the production parser, removing the data-scale confound) and evaluated on a held-out fold, the contrastive loss yields +1–3 pp RCPS — far below our pre-registered 5 pp gate, and matching the production baseline. The aux-loss formulation is the wrong lever; we discuss what the right one looks like.
-
-The paper releases a Korean-language RAG benchmark (KoGovDoc-RAG, 663 Q-A on 294 pages), the RCPS reference implementation, and the full-scale RADP-B checkpoints.
+We release **KoGovDoc-RAG** (663 Q-A over 294 Korean government document pages), the RCPS reference implementation, and the full-scale RADP-B checkpoints (λ ∈ {0, 0.1, 0.3, 0.5}).
 
 ## 2 Related Work
 
