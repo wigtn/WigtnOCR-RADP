@@ -21,7 +21,7 @@ This is not a one-off. In a 6-parser × 3-retriever evaluation on Korean governm
 
 - **C1.** A cross-domain diagnostic of the parsing–retrieval disconnect, with a mechanism (noise-family curve, Figure 2) that makes the intrinsic-metric failure mode visible at a glance.
 - **C2. RCPS** (Retrieval-Conditional Parsing Score), a retriever-agnostic, task-oriented metric that discriminates parsers, retrievers, and chunking strategies which intrinsic metrics conflate.
-- **C3.** A rigorous negative on the natural parser-side fix. Training the parser with a chunk-boundary contrastive auxiliary loss (**RADP**), at full scale and fair-compared with the production parser, yields +1–3 pp RCPS — below our pre-registered 5 pp gate. The aux-loss formulation is the wrong lever; we argue the right one is retrieval-reward training (RADP-A, future work).
+- **C3.** A rigorous negative on the natural parser-side fix. Training the parser with a chunk-boundary contrastive auxiliary loss (**RADP**), at full scale and fair-compared with the production parser, yields +1–3 pp RCPS — below our pre-registered 5 pp gate. The aux-loss formulation is the wrong lever; we argue the right one is retrieval-reward training on the parser's discrete output (future work).
 
 We release **KoGovDoc-RAG** (663 Q-A over 294 Korean government document pages), the RCPS reference implementation, and the full-scale RADP checkpoints (λ ∈ {0, 0.1, 0.3, 0.5}).
 
