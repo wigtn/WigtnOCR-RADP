@@ -43,13 +43,23 @@ We use R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B} (multilingual, va
 
 The retriever-agnostic averaging gives RCPS its robustness: a parser ranked first by RCPS is first across retrievers, not just one. The implementation is released.
 
+**RCPS discriminates chunking strategies (Table 1).** On the v1 parser's output for KoGov, RCPS separates four chunking strategies cleanly: markdown-header chunking (md-h3) > the parser's native paragraphing > LumberChunker (LLM-narrative) > fixed-size. Intrinsic boundary metrics, by contrast, would rank these inconsistently or rank fixed-size first (it has the cleanest boundaries by construction). RCPS captures *retrievability* of the chunking, not appearance.
+
+| Chunker | RCPS | Hit@1 | MRR@10 |
+|---|:---:|:---:|:---:|
+| md-h3 | **0.593** | 0.556 | 0.613 |
+| parser_native | 0.583 | 0.549 | 0.602 |
+| LumberChunker | 0.557 | 0.514 | 0.580 |
+| fixed500 | 0.535 | 0.491 | 0.560 |
+*Table 1: KoGov chunking-strategy grid (663 Q-A, WigtnOCR-2B parser output, 3-retriever RCPS average). RCPS distinguishes strategies that intrinsic boundary metrics conflate.*
+
 ## 4 The Parsing-Retrieval Disconnect (C1)
 
 ### 4.1 Korean Government Documents
 
 We construct KoGovDoc-RAG: 663 Q-A pairs over 294 pages of Korean government documents, generated with GPT-5.4 and verified with an LLM-as-judge stratified sample (94/100 accept). We evaluate six parsers — two general-purpose VLMs (Qwen3-VL-30B teacher, Qwen3-VL-2B base), our task-tuned WigtnOCR-2B (v1), and three OCR systems (MinerU 2.5, PaddleOCR, Marker) — on the full grid.
 
-**Result (Table 1).** RCPS spans 0.07–0.58. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the *intrinsic Boundary Clarity* metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding the 38-page Marker subset). MinerU, the cleanest-boundary parser (BC = 0.72), retrieves worst (RCPS = 0.21).
+**Result (Table 2).** RCPS spans 0.07–0.58. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the *intrinsic Boundary Clarity* metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding the 38-page Marker subset). MinerU, the cleanest-boundary parser (BC = 0.72), retrieves worst (RCPS = 0.21).
 
 | Parser | BC | RCPS | Hit@1 |
 |---|:---:|:---:|:---:|
@@ -59,13 +69,35 @@ We construct KoGovDoc-RAG: 663 Q-A pairs over 294 pages of Korean government doc
 | MinerU | **0.722** | 0.212 | 0.197 |
 | PaddleOCR | 0.649 | 0.140 | 0.125 |
 | Marker (38p) | 0.667 | 0.073 | 0.068 |
-*Table 1: Korean Gov Documents — BC vs RCPS, Pearson r = −0.81 (n = 5, excl. Marker).*
+*Table 2: Korean Gov Documents — BC vs RCPS, Pearson r = −0.81 (n = 5, excl. Marker).*
 
 ### 4.2 Cross-Domain Replication on OHR-Bench
 
 We evaluate 15 parser-output variants on OHR-Bench Law+Manual (1,043 Q-A): the three base parser outputs released by OHR-Bench (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and 9 semantic-noise perturbations (GOT × MinerU × Qwen2.5-VL, mild/moderate/severe).
 
-**Result.** BC↔RCPS Pearson r = **−0.351** (n = 15). The disconnect replicates in English enterprise documents.
+**Result (Table 3).** BC↔RCPS Pearson r = **−0.351** (n = 15). The disconnect replicates in English enterprise documents. RCPS spans 0.265–0.640 across the 15 variants, demonstrating that the metric discriminates in a cross-domain, cross-language setting.
+
+| Variant | BC | RCPS |
+|---|:---:|:---:|
+| *— base parsers —* | | |
+| gt (ground truth) | 0.618 | **0.640** |
+| MinerU | **0.657** | 0.595 |
+| Qwen2.5-VL | 0.563 | 0.545 |
+| *— formatting noise (parser-agnostic) —* | | |
+| mild | 0.525 | 0.545 |
+| moderate | 0.569 | 0.440 |
+| severe | 0.622 | 0.409 |
+| *— semantic noise (per base) —* | | |
+| MinerU + mild | 0.628 | 0.476 |
+| MinerU + moderate | 0.651 | 0.384 |
+| MinerU + severe | 0.631 | 0.265 |
+| GOT + mild | 0.586 | 0.461 |
+| GOT + moderate | 0.620 | 0.385 |
+| GOT + severe | 0.624 | 0.298 |
+| Qwen2.5-VL + mild | 0.563 | 0.534 |
+| Qwen2.5-VL + moderate | 0.563 | 0.523 |
+| Qwen2.5-VL + severe | 0.564 | 0.497 |
+*Table 3: OHR-Bench Law+Manual, 15 parser-output variants × {BC, 3-retriever RCPS} on 1,043 verbatim-answerable Q-A. Pearson BC↔RCPS = −0.351. C1 replicates cross-domain; cleanest-boundary MinerU is not the best retriever (gt is).*
 
 **Mechanism (Figure 2).** Within each semantic-noise family, BC barely moves while RCPS collapses (Figure 2). For MinerU: BC stays at 0.63 ± 0.02 across clean → mild → moderate → severe noise; RCPS falls 0.595 → 0.476 → 0.384 → 0.265. GOT shows the same pattern. Qwen2.5-VL is more noise-robust. Intrinsic boundary metrics see only formatting, not content: noise that destroys retrievable content does not lower BC. This is the disconnect, made visible.
 
@@ -88,7 +120,7 @@ We fine-tune Qwen3-VL-2B-Instruct with LoRA (r = 8, α = 32) on the **full v1 tr
 
 ### 5.3 Result
 
-**The contrastive loss yields only a marginal RCPS gain.** Table 3 reports the λ sweep. λ = 0.1 is the peak (+1.8 pp RCPS for md-h3 chunking; +2.3 pp for parser-native), then RCPS declines monotonically as λ grows. parseSim (parse-to-GT similarity) declines in lockstep. The pre-registered 5 pp gate **fails**; the H2 target of 8 pp is far out of reach.
+**The contrastive loss yields only a marginal RCPS gain.** Table 4 reports the λ sweep. λ = 0.1 is the peak (+1.8 pp RCPS for md-h3 chunking; +2.3 pp for parser-native), then RCPS declines monotonically as λ grows. parseSim (parse-to-GT similarity) declines in lockstep. The pre-registered 5 pp gate **fails**; the H2 target of 8 pp is far out of reach.
 
 Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1 by +2.2 pp on parser-native, losing by 0.6 pp on md-h3. The matched control (λ = 0, 2,667 pages) reproduces v1 (0.6557 vs 0.6569), confirming the data-scale confound is removed.
 
@@ -99,7 +131,7 @@ Compared to the production parser v1, RADP-B λ = 0.1 is **tied** — beating v1
 | 0.3 | 0.6526 | 0.6694 | 0.862 |
 | 0.5 | 0.6407 | 0.6442 | 0.851 |
 | v1 (ref) | 0.6724 | 0.6569 | 0.789 |
-*Table 3: Full-scale λ sweep, 73-page eval fold. Best vs control: +1.13 pp (md-h3) / +2.31 pp (parser-native) — gate (≥5 pp) fails.*
+*Table 4: Full-scale λ sweep, 73-page eval fold. Best vs control: +1.13 pp (md-h3) / +2.31 pp (parser-native) — gate (≥5 pp) fails.*
 
 ### 5.4 Why It Fails
 
