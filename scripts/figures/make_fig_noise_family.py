@@ -20,7 +20,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-SRC = Path("output/results/ohrbench_bc_noise.json")
+SRC = Path("output/results/ohrbench_7dom_bc.json")  # 7-domain (Law/Manual/Finance/News/Textbook/Academic/Administration)
 OUT_DIR = Path("paper/figures")
 SEVERITIES = ["clean", "mild", "moderate", "severe"]
 FAMILIES = {
@@ -65,15 +65,15 @@ def main() -> None:
                      label=family, linewidth=1.6, markersize=6)
 
     ax_bc.set_ylabel("Boundary Clarity")
-    ax_bc.set_ylim(0.50, 0.70)
+    ax_bc.set_ylim(0.45, 0.78)
     ax_bc.grid(True, alpha=0.3, linestyle="--")
     ax_bc.legend(loc="lower right", fontsize=9, frameon=True)
     ax_bc.set_title("Intrinsic boundary metric is blind to content noise",
                     fontsize=10.5, pad=6)
 
     ax_rcps.set_ylabel("RCPS (3-retriever avg)")
-    ax_rcps.set_xlabel("Semantic noise severity (OHR-Bench Law+Manual)")
-    ax_rcps.set_ylim(0.20, 0.65)
+    ax_rcps.set_xlabel("Semantic noise severity (OHR-Bench, 7 domains)")
+    ax_rcps.set_ylim(0.20, 0.70)
     ax_rcps.grid(True, alpha=0.3, linestyle="--")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
