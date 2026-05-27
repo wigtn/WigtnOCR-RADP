@@ -1,6 +1,6 @@
 # ROADMAP — 앞으로 할 것
 
-> 최종 갱신: 2026-05-27. 마감 **2026-06-16** (EMNLP 2026 Industry Track). 각 항목 상세는 `docs/plans/`.
+> 최종 갱신: 2026-05-28. 마감 **2026-06-16** (EMNLP 2026 Industry Track). 각 항목 상세는 `docs/plans/`.
 
 ---
 
@@ -24,10 +24,26 @@
 
 | # | 작업 | 플랜 | 의존 | 담당 |
 |---|---|---|---|---|
-| P0-1 | **DPO 게이트 돌파** — 3-retriever rescoring → 재학습 → (미달 시) multi-round | `PLAN-04` | DPO round1 | 손상우 (진행 중) |
+| P0-1 | **게이트 돌파** — DPO 4변형 +4pp 천장 → length bias 진단 → **SimPO pivot (진행 중)** | `PLAN-04` | — | 손상우 |
 | P0-2 | **표준 retrieval 검증** — 풀코퍼스 vectordb, Hit@1/@5/@10·nDCG·MRR, v1 vs DPO | `PLAN-01` | DPO 출력 | — |
 | P0-3 | **BC/CS 변화** — DPO 전후, "비-상승" 확인 | `PLAN-02` | DPO 출력 | — |
 | P0-4 | **경계 분해** — covered/split/absent, v1 vs DPO (향상이 경계냐 내용이냐) | `PLAN-03` | v1 출력은 지금 가능 / DPO 출력 | — |
+
+### RADP-DPO 진행 현황 (손상우, ~2026-05-28)
+
+DPO 4변형 모두 **+4pp 천장**, 게이트(≥5pp) 미달:
+
+| 변형 | Δ (md_h3) |
+|---|:---:|
+| v1 (BGE 단일, fresh, lr=1e-5) | **+4.12** ✅ best |
+| v2 (3-retriever) | +1.99 |
+| v3 (3-ret curriculum) | +0.22 |
+| v4 (BGE 단일, warmstart) | +3.18 |
+
+- **3-retriever rescoring은 역효과** (가설과 반대 — signal 희석. BGE-M3 단일이 한국어 정부문서에 가장 align). → 그 자체로 ablation 거리.
+- 천장 원인 진단 = **length bias** (markdown 100~12,000자, DPO `log π = Σ log p` 가 긴 출력 편향).
+- → **SimPO pivot** (length-normalized, reference-free, γ margin; β=2.0, γ=1.0). 진행 중, 결과 미기록.
+- ⚠️ parser/RAG/VLM에 SimPO 첫 적용 — 직접 증거 없음.
 
 **판정 기준 (이상적 결과)**: 표준 Hit@1 ↑ **and** BC/CS flat-or-↓ **and** split ↓ → "검색 친화 경계로 이동" 통용 지표 확증.
 
