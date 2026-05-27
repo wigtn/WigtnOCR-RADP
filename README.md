@@ -113,12 +113,16 @@ uv run python scripts/evaluation/coverage_diagnostic.py
 
 ---
 
-## 🤝 공동 연구자
+## 🤝 Authors (WIGTN)
 
-- **Harrison Kim** (harry@brain-crew.com) — 방법·학습·평가 인프라
-- **손상우 (Sangwoo)** — RADP-DPO 파이프라인·실험 (Linear WIG-194)
+이 연구는 **WigtnOCR v1** (Qwen3-VL-2B 기반 문서 파싱 fine-tuning)의 **후속 연구**다.
 
-> 저자 순서·명시는 합의 후 확정 (현 draft는 `Harrison Kim, et al.`).
+| 저자 (OpenReview) | Email | 기여 (CRediT) |
+|------|-------|--------------|
+| **Hyeong-seob Kim**\* | harrison@wigtn.com | Conceptualization, Methodology, Project administration — 연구 계획 수립, 방법·RCPS 메트릭 설계 |
+| **Sang-woo Son**\* | sangwoo@wigtn.com | Software, Validation, Investigation — 구현·실험·테스트 |
+
+> \* **Equal contribution (co-first authors).** Hyeong-seob Kim은 연구 설계·방법론을, Sang-woo Son은 구현·실험을 주도.
 
 ## 📄 License & Citation
 
