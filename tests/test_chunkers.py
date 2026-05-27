@@ -10,7 +10,6 @@ from wigtnocr_radp.evaluation.chunkers import (
     ParserNativeChunker,
 )
 
-
 # --- FixedSizeChunker -------------------------------------------------------
 
 
@@ -36,6 +35,18 @@ def test_fixed_invalid_size() -> None:
         FixedSizeChunker(size=0)
     with pytest.raises(ValueError):
         FixedSizeChunker(size=100, overlap=100)
+
+
+def test_fixed_overlap_terminates_on_whitespace_sparse_text() -> None:
+    # Regression: with overlap>0 on whitespace-sparse text, a word-boundary snap
+    # could land at or before i+overlap, stalling `i = end - overlap` so the loop
+    # never advanced (runaway process). It must terminate and cover the content.
+    text = "머리말 " + "가" * 470 + " 경계답 " + "나" * 470 + " 끝답 여기"
+    chunks = FixedSizeChunker(size=500, overlap=200).chunk("p1", text)
+    assert len(chunks) >= 2
+    joined = " ".join(c.text for c in chunks)
+    assert "경계답" in joined
+    assert "끝답 여기" in joined
 
 
 # --- MarkdownHeaderChunker --------------------------------------------------

@@ -61,10 +61,12 @@ class FixedSizeChunker(BaseChunker):
         n = len(text)
         while i < n:
             end = min(i + self.size, n)
-            # Snap end to next whitespace within ~20 chars if not already there
+            # Snap end back to a word boundary, but only if that still advances
+            # past i+overlap. Otherwise `i = end - overlap` could stall (or move
+            # backwards) and loop forever on whitespace-sparse text with overlap>0.
             if end < n and not text[end].isspace():
                 snap = text.rfind(" ", i + step // 2, end)
-                if snap > 0:
+                if snap > i + self.overlap:
                     end = snap
             piece = text[i:end].strip()
             if piece:
