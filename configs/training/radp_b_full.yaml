@@ -1,0 +1,70 @@
+# RADP-B FULL-SCALE training config — train on the whole 2,667p v1 train set.
+# Method: L_total = L_parse + λ · L_contrast  (docs/RADP_RESEARCH_PROPOSAL.md §4.1)
+# Entry point: scripts/training/train_radp_b.py --config configs/training/radp_b_full.yaml
+#
+# Purpose: remove the data-scale confound of the 169p pilot. RADP-B is now
+# trained on the SAME 2,667p as v1, so "RADP-B vs v1" is a fair H2 test.
+# Run λ=0 (control, reproduces v1) and λ=0.1 (best λ from the pilot sweep).
+#
+# Differs from radp_b_base.yaml only in the data block (full-scale train source);
+# eval stays the 73p held-out val fold, comparable to the pilot and to v1.
+
+name: radp_b_full
+status: runnable
+seed: 42
+
+base_model:
+  base_id: Qwen/Qwen3-VL-2B-Instruct
+  v1_id: Wigtn/Qwen3-VL-2B-WigtnOCR
+
+lora:
+  rank: 8
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  precision: bfloat16
+  epochs: 3
+  contrastive_batch_size: 8
+  grad_accum: 1
+  learning_rate: 1.0e-4
+  scheduler: cosine
+  warmup_ratio: 0.05
+  freeze_vit: true
+  freeze_aligner: true
+  gradient_checkpointing: true
+  dataloader_num_workers: 2
+
+contrastive:
+  loss_coefficient_lambda: 0.1   # pilot sweep best; override per-run via --contrastive_lambda
+  temperature: 0.05
+  embedding_model: BAAI/bge-m3
+  proj_dim: 1024
+  projection_dropout: 0.1
+  num_in_batch_neg: 7
+  num_hard_neg: 1
+
+data:
+  # --- eval side (unchanged — 73p held-out val fold) ---
+  split: data/KoGovDoc-RAG/page_split_v1.json
+  qa: data/KoGovDoc-RAG/qa_pairs_v1.jsonl
+  val_jsonl: data/KoGovDoc-Bench/val.jsonl
+  images_root: data/KoGovDoc-Bench/images
+  cache_dir: data/KoGovDoc-RAG/bge_m3_cache_v1
+  chunker: md_h3
+  # --- full-scale train side (2,667p v1 train set) ---
+  train_qa: output/qa_pairs/train_2667_5_4.jsonl
+  train_pages_jsonl: data/KoGovDoc-RAG/train_2667.jsonl
+  train_page_id_prefix: train
+  train_images_root: /mnt/data1/work/wigtnOCR-v1/datasets
+  train_cache_dir: data/KoGovDoc-RAG/bge_m3_cache_train2667
+  image_max_pixels: 1048576
+  max_seq_length: 3072
+
+logging:
+  output_dir: output/checkpoints/radp_b_full
+  log_steps: 20
+  eval_steps: 250
+  save_steps: 500
+  save_total_limit: 2

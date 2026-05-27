@@ -1,0 +1,51 @@
+# Ablation A: PROMPT v3 + gpt-4o-2024-08-06
+# Purpose: measure v3 prompt's effect on difficulty distribution, model held constant
+# Cost: ~20 × $0.012 = ~$0.24
+
+name: ablation_v3_4o
+
+model:
+  provider: openai
+  id: gpt-4o-2024-08-06
+  temperature: 0.7
+  request_timeout_seconds: 60
+  max_retries: 2
+
+dataset:
+  config: configs/data/kogovdoc_bench.yaml
+  split: validation
+
+sampling:
+  page_indices: null
+  num_pages: 20
+  mode: random
+  seed: 42  # FIXED — same 20 pages across ablations
+
+output:
+  path: output/qa_pairs/ablation_v3_4o.jsonl
+  pretty_log_path: output/qa_pairs/ablation_v3_4o.log
+
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.0  # multi-page out of scope for ablation (handled in v4)
+
+validation:
+  answer_span_must_be_substring: true
+  answer_chunk_must_be_substring: true
+  answer_span_must_be_in_chunk: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  answer_chunk_length_range: [50, 1000]
+  retry_on_invalid: 1

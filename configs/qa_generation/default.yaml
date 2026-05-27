@@ -21,7 +21,7 @@ dataset:
 sampling:
   # If page_indices is null, use random or first num_pages
   page_indices: null
-  num_pages: 5
+  num_pages: 294  # full KoGovDoc-Bench validation set
   mode: first  # first | random
   seed: 42
 

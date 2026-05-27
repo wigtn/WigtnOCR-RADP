@@ -1,0 +1,63 @@
+# Full-scale Q-A generation — v1 training set (2,667 pages), GPT-5.4.
+#
+# Purpose: supply the contrastive-loss Q-A for the full-scale RADP-B run, so
+# RADP-B can be trained on the SAME 2,667p as v1 — removing the data-scale
+# confound and making "RADP-B vs v1" a fair H2 test.
+#
+# Same generator (gpt-5.4) and same 2-3 Q-A/page density as the frozen eval set
+# (full_v3_5_4.yaml) — keeps train/eval Q-A consistent, no generator confound.
+#
+# Estimated cost: ~$45 (2,667p, 5.4, ~2.5 Q-A/page). Run with --resume so it can
+# be stopped and continued across API keys (see generate_qa.py).
+# Estimated wall clock: ~5 h (2,667p × ~7 s).
+
+name: train_2667_5_4
+
+model:
+  provider: openai
+  id: gpt-5.4-2026-03-05
+  temperature: 0.7
+  request_timeout_seconds: 90
+  max_retries: 2
+
+dataset:
+  config: configs/data/kogovdoc_train.yaml
+  split: validation  # loader quirk — means "read paths.validation_jsonl"
+
+sampling:
+  page_indices: null
+  num_pages: 2667  # full v1 train set
+  mode: first
+  seed: 42
+
+output:
+  path: output/qa_pairs/train_2667_5_4.jsonl
+  pretty_log_path: output/qa_pairs/train_2667_5_4.log
+  # page_id namespace — keeps train Q-A from colliding with the eval set's
+  # val_0000..val_0293 page_ids.
+  page_id_prefix: train
+
+generation:
+  num_qa_per_page_min: 2
+  num_qa_per_page_max: 3
+
+target_distribution:
+  question_type:
+    factoid: 0.50
+    procedural: 0.30
+    tabular: 0.15
+    figural: 0.05
+  difficulty:
+    easy: 0.40
+    medium: 0.40
+    hard: 0.20
+  multi_page_ratio: 0.0
+
+validation:
+  answer_span_must_be_substring: true
+  answer_chunk_must_be_substring: true
+  answer_span_must_be_in_chunk: true
+  question_length_range: [5, 200]
+  answer_span_length_range: [1, 100]
+  answer_chunk_length_range: [50, 1000]
+  retry_on_invalid: 1

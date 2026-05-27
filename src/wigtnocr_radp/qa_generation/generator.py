@@ -35,6 +35,16 @@ from wigtnocr_radp.utils.language import (
 logger = logging.getLogger("wigtnocr_radp.qa_generation")
 
 
+class QAApiError(RuntimeError):
+    """Raised when every attempt on a page failed with an API-level error.
+
+    Distinct from a page that the model legitimately skipped or that produced
+    no valid Q-A — those return an empty list. This signals an external fault
+    (budget exhausted, auth, persistent rate limit) so the run can stop cleanly
+    *without* marking the page done, leaving it for `--resume` to retry.
+    """
+
+
 class QAGenerator:
     """Generate Q-A pairs for a single page using a configured OpenAI model."""
 
@@ -69,11 +79,17 @@ class QAGenerator:
         )
         return json.loads(resp.choices[0].message.content)
 
-    def generate_for_page(self, sample: dict[str, Any], val_idx: int) -> list[dict[str, Any]]:
-        """Generate Q-A records for a single validation sample."""
+    def generate_for_page(
+        self, sample: dict[str, Any], val_idx: int, page_id_prefix: str = "val"
+    ) -> list[dict[str, Any]]:
+        """Generate Q-A records for a single page sample.
+
+        `page_id_prefix` namespaces the page_id (e.g. "train" for the v1 train
+        set) so train Q-A do not collide with the eval set's val_* ids.
+        """
         gt_markdown = sample["messages"][2]["content"]
         image_path = sample["images"][0]
-        page_id = f"val_{val_idx:04d}"
+        page_id = f"{page_id_prefix}_{val_idx:04d}"
         doc_id = derive_doc_id(image_path)
         domain = infer_domain(image_path)
         language = detect_language(gt_markdown)
@@ -86,12 +102,14 @@ class QAGenerator:
         )
 
         max_attempts = 1 + self.validation_rules.get("retry_on_invalid", 1)
+        api_ok = False
         for attempt in range(max_attempts):
             try:
                 result = self.call_model(user_prompt)
             except Exception as exc:  # noqa: BLE001
                 logger.error("[%s] API error (attempt %d): %s", page_id, attempt + 1, exc)
                 continue
+            api_ok = True
 
             if result.get("skip"):
                 logger.info("[%s] SKIPPED: %s", page_id, result.get("reason"))
@@ -133,6 +151,12 @@ class QAGenerator:
             if records and attempt == max_attempts - 1:
                 return records
 
+        if not api_ok:
+            # Every attempt hit an API error — external fault, not an empty
+            # page. Raise so the run stops without marking this page done.
+            raise QAApiError(
+                f"[{page_id}] all {max_attempts} attempts failed with API errors"
+            )
         return []
 
     def _to_record(
@@ -179,15 +203,32 @@ def _select_indices(num_samples: int, sampling_cfg: dict[str, Any]) -> list[int]
     return list(range(num))
 
 
+def _read_done_indices(done_path: Path) -> set[int]:
+    """Read the set of already-attempted page indices from a `.done` sidecar."""
+    done: set[int] = set()
+    if done_path.exists():
+        for line in done_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line:
+                done.add(int(line))
+    return done
+
+
 def generate_for_config(
     config_path: str | Path,
     dry_run: bool = False,
+    resume: bool = False,
 ) -> dict[str, Any]:
     """Run Q-A generation for a config file. Returns a summary dict.
 
     Args:
         config_path: Path to a Q-A generation config (configs/qa_generation/*.yaml).
         dry_run: If True, only prints the pages that would be processed; no API calls.
+        resume: If True, skip pages already recorded in ``<output>.done`` and
+            *append* new results. Each page is written to the output file the
+            moment it finishes and its index is appended to the ``.done``
+            sidecar — so a run can be stopped (e.g. to switch API keys) and
+            continued without losing work or re-spending on done pages.
     """
     config = load_yaml_config(config_path)
     data_cfg_path = config["dataset"]["config"]
@@ -205,50 +246,85 @@ def generate_for_config(
 
     output_path = resolve_config_path(config["output"]["path"])
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    done_path = output_path.parent / (output_path.name + ".done")
+    page_id_prefix = config["output"].get("page_id_prefix", "val")
+
+    done_indices = _read_done_indices(done_path) if resume else set()
+    pending = [idx for idx in indices if idx not in done_indices]
 
     if dry_run:
         return {
             "dry_run": True,
+            "resume": resume,
             "config_name": config.get("name"),
             "model": config["model"]["id"],
+            "page_id_prefix": page_id_prefix,
             "num_pages_planned": len(indices),
-            "indices": indices,
+            "num_already_done": len(done_indices),
+            "num_pending": len(pending),
             "output_path": str(output_path),
         }
 
     generator = QAGenerator(config)
-    all_records: list[dict[str, Any]] = []
     skipped = 0
-    type_counter: Counter[str] = Counter()
-    diff_counter: Counter[str] = Counter()
 
+    # Incremental write: each page lands on disk immediately, so an interrupted
+    # run keeps every completed page. `resume` decides append vs truncate.
+    out_mode = "a" if (resume and output_path.exists()) else "w"
+    done_mode = "a" if (resume and done_path.exists()) else "w"
+
+    aborted = False
     start = time.time()
-    for i, idx in enumerate(indices):
-        sys.stdout.write(f"[{i+1}/{len(indices)}] val_idx={idx} ... ")
-        sys.stdout.flush()
-        recs = generator.generate_for_page(samples[idx], idx)
-        if not recs:
-            skipped += 1
-            sys.stdout.write("skipped/failed\n")
-            continue
-        all_records.extend(recs)
-        for r in recs:
-            type_counter[r["question_type"]] += 1
-            diff_counter[r["difficulty"]] += 1
-        sys.stdout.write(f"{len(recs)} Q-A\n")
+    with output_path.open(out_mode, encoding="utf-8") as out_f, \
+            done_path.open(done_mode, encoding="utf-8") as done_f:
+        for i, idx in enumerate(pending):
+            sys.stdout.write(f"[{i+1}/{len(pending)}] {page_id_prefix}_idx={idx} ... ")
+            sys.stdout.flush()
+            try:
+                recs = generator.generate_for_page(samples[idx], idx, page_id_prefix)
+            except QAApiError as exc:
+                # External fault — stop cleanly. This page is NOT marked done,
+                # so `--resume` retries it after the key/budget is fixed.
+                sys.stdout.write("API FAILURE — stopping\n")
+                logger.error("run aborted: %s", exc)
+                aborted = True
+                break
+            for r in recs:
+                out_f.write(json.dumps(r, ensure_ascii=False) + "\n")
+            out_f.flush()
+            done_f.write(f"{idx}\n")
+            done_f.flush()
+            if not recs:
+                skipped += 1
+                sys.stdout.write("skipped/failed\n")
+            else:
+                sys.stdout.write(f"{len(recs)} Q-A\n")
 
     elapsed = time.time() - start
 
-    with output_path.open("w", encoding="utf-8") as f:
-        for r in all_records:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    # Totals are computed over the WHOLE output file so the summary is correct
+    # across resumed runs, not just this invocation.
+    all_records: list[dict[str, Any]] = []
+    with output_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                all_records.append(json.loads(line))
+    type_counter: Counter[str] = Counter(r["question_type"] for r in all_records)
+    diff_counter: Counter[str] = Counter(r["difficulty"] for r in all_records)
 
+    done_total = len(_read_done_indices(done_path))
     summary = {
         "config_name": config.get("name"),
         "model": config["model"]["id"],
-        "pages_processed": len(indices),
-        "pages_skipped": skipped,
-        "qa_pairs_generated": len(all_records),
+        "resume": resume,
+        "aborted_on_api_error": aborted,
+        "pages_planned_total": len(indices),
+        "pages_processed_this_run": done_total - len(done_indices),
+        "pages_skipped_this_run": skipped,
+        "pages_done_total": done_total,
+        "pages_remaining": len(indices) - done_total,
+        "qa_pairs_total": len(all_records),
         "question_type_distribution": dict(type_counter),
         "difficulty_distribution": dict(diff_counter),
         "elapsed_seconds": round(elapsed, 1),
