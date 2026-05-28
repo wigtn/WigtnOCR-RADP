@@ -45,6 +45,15 @@ def write_status(stage: str, **kw):
     log.info("STATUS → %s", payload)
 
 
+def auto_commit(msg: str, *files: str) -> None:
+    """Auto-commit listed paths on the ssw branch (no-op if no changes)."""
+    cmd = ["bash", "scripts/utils/auto_commit.sh", msg, *files]
+    try:
+        subprocess.run(cmd, cwd=ROOT, check=False, capture_output=True)
+    except Exception as e:
+        log.warning("auto_commit failed: %s", e)
+
+
 def assert_a_completed() -> None:
     """Block until (A) K16 pipeline left its expected outputs."""
     pairs = ROOT / PAIRS
@@ -191,8 +200,21 @@ def main() -> int:
         write_status(f"regen_seed{seed}")
         regen_seed(seed, adapter)
         write_status(f"done_seed{seed}")
+        # Auto-commit per seed: status + checkpoint adapter
+        auto_commit(
+            f"feat(dpo): (d) K16-seed{seed} trained + parses regenerated",
+            "output/k16_multiseed_status.json",
+            f"output/checkpoints/radp_dpo_k16_seed{seed}/final/adapter_config.json",
+        )
     write_status("final_bootstrap")
     final_bootstrap()
+    # Final commit: bootstrap results
+    auto_commit(
+        "feat(eval): (d) K16 5-seed merged bootstrap on 242p — final result",
+        "output/results/FULL_HF_ci_242p_k16_5seeds.json",
+        "output/results/FULL_HF_perqa_242p_k16_5seeds.json",
+        "output/k16_multiseed_status.json",
+    )
     log.info("=== K16 multi-seed (d) DONE ===")
     return 0
 
