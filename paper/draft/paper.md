@@ -60,9 +60,7 @@ For each Q-A pair, the contrastive anchor is the parser's pooled last-layer hidd
 
 The aux-loss formulation (§3.2) routes the retrieval signal through the parser's hidden states; the deployed artifact — the parser's discrete markdown — is influenced only via gradient backflow through `L_parse`. The natural complementary formulation is to optimize the discrete output directly with a retrieval-reward objective. We construct preference pairs from the parser's own sampling distribution and apply Direct Preference Optimization (DPO; Rafailov et al., 2023) to the production parser checkpoint.
 
-**Preference-pair construction.** For each of the 2,667 KoGov v1-train pages we sample K = 2 alternative parses from the production parser v1 at temperatures {0.7, 1.2}, producing 5,334 candidate parses. Each candidate is chunked, indexed by the three retrievers, and scored against the page's Q-A subset (6,164 GPT-5.4-generated Q-A on the 2,667-page v1-train set, §4.1) using the page-local RCPS variant — the page's questions retrieved against the parse's own chunks plus 100 distractor chunks sampled uniformly from other pages in the v1-train set. A preference pair (parse_chosen, parse_rejected) is admitted only if the gap exceeds 5 pp page-local RCPS; the K=2 setup yields 922 pairs from the BGE-only scoring and 1,082 pairs from the three-retriever majority-vote scoring.
-
-**Candidate-pool scaling (K↑).** The original DPO formulation (Rafailov et al., 2023) constructs preference pairs from K=2 candidates per prompt. Recent iterative-DPO post-training literature (Dubey et al., LLaMA-3.1, 2024; Lambert et al., Tulu-3, 2024; Liu et al., RSO, 2024; Tunstall et al., Zephyr-β, 2023) reports consistent gains from K↑ in the range K=4–16: a larger candidate pool yields a larger candidate-RCPS spread, which under a fixed ≥5pp filter both raises the number of admissible pairs and increases the average margin of the chosen-vs-rejected gap, both of which are direct DPO-loss inputs. We follow this practice by additionally constructing a K=16 candidate pool — K=14 new samples with diversified (temperature, top_p) settings, merged with the existing K=2 pool — and report the K=2 vs K=16 ablation in §4.4.
+**Preference-pair construction.** For each of the 2,667 KoGov v1-train pages we sample K = 2 alternative parses from the production parser v1 at temperatures {0.7, 1.2}, producing 5,334 candidate parses. Each candidate is chunked, indexed by the three retrievers, and scored against the page's Q-A subset (6,164 GPT-5.4-generated Q-A on the 2,667-page v1-train set, §4.1) using the page-local RCPS variant — the page's questions retrieved against the parse's own chunks plus 100 distractor chunks sampled uniformly from other pages in the v1-train set. A preference pair (parse_chosen, parse_rejected) is admitted only if the gap exceeds 5 pp page-local RCPS; this yields 922 pairs from the BGE-only scoring and 1,082 pairs from the three-retriever majority-vote scoring.
 
 **DPO objective with LoRA-toggle reference.** Standard DPO maintains two model copies — π_θ being trained and a frozen reference π_ref — at 2× memory cost. We avoid the duplication by training a LoRA adapter on the production parser checkpoint and using the *same base weights with the adapter disabled* as the reference: π_θ is the production parser with LoRA on, π_ref is the production parser with LoRA off. The DPO loss is
 
@@ -269,16 +267,9 @@ To be converted to `paper/refs.bib` in PHASE_4. Citations grouped by topic; cite
 - `2025rpo` RPO (2025, arXiv:2501.13726). — preference optimization on the generator, parallel paradigm to our RADP-DPO on the parser.
 
 **Preference learning (RADP-DPO §3.3).**
-- `rafailov2023dpo` Rafailov et al. *Direct Preference Optimization: Your Language Model is Secretly a Reward Model* (NeurIPS 2023, arXiv:2305.18290). — original DPO with K=2 pair-wise.
+- `rafailov2023dpo` Rafailov et al. *Direct Preference Optimization: Your Language Model is Secretly a Reward Model* (NeurIPS 2023, arXiv:2305.18290).
 - `meng2024simpo` Meng et al. *SimPO: Simple Preference Optimization with a Reference-Free Reward* (NeurIPS 2024, arXiv:2405.14734).
 - `hu2021lora` Hu et al. *LoRA: Low-Rank Adaptation of Large Language Models* (ICLR 2022, arXiv:2106.09685). — LoRA-toggle reference trick (§3.3).
-
-**Candidate-pool scaling / Iterative DPO (K↑ motivation, §3.3).**
-- `dubey2024llama31` Dubey et al. *The Llama 3 Herd of Models* (Meta AI, 2024, arXiv:2407.21783). — iterative DPO with K=4–8 candidates per prompt; "best-vs-worst" pair selection.
-- `lambert2024tulu3` Lambert et al. *Tulu 3: Pushing Frontiers in Open Language Model Post-Training* (AllenAI, 2024, arXiv:2411.15124). — K=8 DPO with rejection-sampled candidates; reports K↑ ablation.
-- `liu2024rso` Liu et al. *Statistical Rejection Sampling Improves Preference Optimization* / RSO (ICLR 2024, arXiv:2309.06657). — K=8–16 rejection sampling for informative preference pair construction.
-- `tunstall2023zephyr` Tunstall et al. *Zephyr: Direct Distillation of LM Alignment* (2023, arXiv:2310.16944). — K=4 DPO on UltraFeedback with explicit K-sweep evidence.
-- `dong2024iterdpo` Dong et al. *Self-rewarding Iterative DPO* (2024) [or analogous self-play DPO citation]. — multi-round DPO with K↑ at each round; relevant to RADP-DPO-v3 / v4 (curriculum / warmstart) extensions.
 
 **Foundations cited.**
 - `chen2024bgem3` Chen et al. *BGE-M3* (2024, arXiv:2402.03216). — frozen retriever.
