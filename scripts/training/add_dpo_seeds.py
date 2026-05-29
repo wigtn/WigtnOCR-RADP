@@ -48,6 +48,14 @@ def write_status(stage: str, **kw):
     log.info("STATUS → %s", payload)
 
 
+def auto_commit(msg: str, *files: str) -> None:
+    cmd = ["bash", "scripts/utils/auto_commit.sh", msg, *files]
+    try:
+        subprocess.run(cmd, cwd=ROOT, check=False, capture_output=True)
+    except Exception as e:
+        log.warning("auto_commit failed: %s", e)
+
+
 def train_one_seed(seed: int) -> Path:
     ckpt = ROOT / f"output/checkpoints/radp_dpo_seed{seed}"
     final = ckpt / "final"
@@ -148,9 +156,20 @@ def main() -> int:
         write_status(f"regen_seed{seed}")
         regen_parses(seed, adapter)
         write_status(f"done_seed{seed}")
+        auto_commit(
+            f"feat(dpo): (d') K=2-seed{seed} trained + parses regenerated",
+            "output/add_seeds_status.json",
+            f"output/checkpoints/radp_dpo_seed{seed}/final/adapter_config.json",
+        )
 
     write_status("running_final_bootstrap")
     run_bootstrap()
+    auto_commit(
+        "feat(eval): (d') K=2 7-seed bootstrap on 242p — robust DPO-v1 result",
+        "output/results/FULL_HF_ci_242p_7seeds.json",
+        "output/results/FULL_HF_perqa_242p_7seeds.json",
+        "output/add_seeds_status.json",
+    )
     log.info("ALL DONE")
     return 0
 
