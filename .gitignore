@@ -77,3 +77,4 @@ tmp/
 memory-lake/
 # Claude 세션 plan 파일
 *.plan.md
+PLANNING/
