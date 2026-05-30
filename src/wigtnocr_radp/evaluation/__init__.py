@@ -16,6 +16,11 @@ from wigtnocr_radp.evaluation.chunkers import (
     MarkdownHeaderChunker,
     ParserNativeChunker,
 )
+from wigtnocr_radp.evaluation.coverage import (
+    CoverageReport,
+    classify_answer_location,
+    diagnose_coverage,
+)
 from wigtnocr_radp.evaluation.metrics import hit_at_k, mrr_at_k, ndcg_at_k
 from wigtnocr_radp.evaluation.rcps import compute_rcps
 from wigtnocr_radp.evaluation.retrievers import BaseRetriever, BgeM3Retriever
@@ -27,11 +32,14 @@ __all__ = [
     "BgeM3Retriever",
     "Chunk",
     "ChunkRetrievalResult",
+    "CoverageReport",
     "FixedSizeChunker",
     "MarkdownHeaderChunker",
     "ParserNativeChunker",
     "QAPair",
+    "classify_answer_location",
     "compute_rcps",
+    "diagnose_coverage",
     "hit_at_k",
     "mrr_at_k",
     "ndcg_at_k",
