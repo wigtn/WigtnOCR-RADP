@@ -4,9 +4,10 @@ version = "0.1.0"
 description = "Retrieval-Aware Document Parsing — EMNLP 2026 Industry Track submission"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [
-    { name = "Harrison Kim", email = "harry@brain-crew.com" },
+    { name = "Hyeong-seob Kim", email = "harry@brain-crew.com" },
+    { name = "Sang-woo Son", email = "sangwoo@wigtn.com" },
 ]
 keywords = ["RAG", "document-parsing", "OCR", "retrieval", "VLM", "EMNLP"]
 
