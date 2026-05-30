@@ -114,6 +114,24 @@ EMNLP 2026 Industry Track 제출(6/16)에 필요한 **실험 증거 전부 확�
 
 **논문 활용.** §5 C3 메인 표 (Table 3 λ ablation, full-scale). 핵심 문장: **"공정 full-scale 비교에서 contrastive aux loss는 +1~3pp marginal — parser-layer aux loss는 잘못된 레버."**
 
+### F+. Bootstrap 95% CI (paired, N=1000) — 2026-05-26 추가
+
+같은 73p / 202 Q-A 위에서 paired percentile bootstrap. **모든 Δ-vs-control CI가 0을 포함** → 통계적으로도 유의하지 않음.
+
+| λ | RCPS (md-h3) | Δ vs λ=0 [95% CI] (pp) | RCPS (parser-native) | Δ vs λ=0 [95% CI] (pp) |
+|---|:---:|:---:|:---:|:---:|
+| 0.0 (control) | 0.6551 | — | 0.6557 | — |
+| **0.1** | 0.6664 | +1.13 [−2.53, +4.95] | 0.6788 | +2.31 [−1.59, +6.30] |
+| 0.3 | 0.6526 | −0.25 [−4.03, +3.12] | 0.6694 | +1.37 [−2.35, +5.11] |
+| 0.5 | 0.6407 | −1.44 [−5.92, +2.62] | 0.6442 | −1.15 [−5.78, +3.50] |
+| v1 (ref) | 0.6724 | +1.72 [−4.18, +7.61] | 0.6569 | +0.12 [−6.00, +6.26] |
+
+**구현.** `src/wigtnocr_radp/evaluation/bootstrap.py` (paired bootstrap), `compute_rcps`에 `return_per_qa=True` 추가, `scripts/evaluation/bootstrap_radp_full.py`. 산출물 `output/results/radp_b_full_eval_ci.{json,md}` + `radp_b_full_eval_perqa.json` (per-Q-A MRR 보관).
+
+**왜.** Reviewer의 "is +2.2pp significant?" 봉쇄. CI가 0을 포함한다는 것은 더 강한 negative claim — 게이트 미달이 아니라 *통계적으로도 무의미*.
+
+**논문 활용.** §4.4 Table 4에 CI 컬럼 직접 추가. 핵심 추가 문장: **"all paired Δ-vs-control 95% bootstrap CIs include zero — the gain is not statistically distinguishable from noise."**
+
 ### G. OHRBench cross-domain RCPS (Level 1)
 
 **결과 (Law+Manual, 1,043 verbatim-answerable Q-A, parser_native):**

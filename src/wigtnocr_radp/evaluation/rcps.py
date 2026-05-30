@@ -46,6 +46,8 @@ def compute_rcps(
     retrievers: Sequence[BaseRetriever],
     chunker: BaseChunker,
     k_values: Sequence[int] = (1, 5, 10),
+    *,
+    return_per_qa: bool = False,
 ) -> dict[str, Any]:
     """End-to-end: parser_pages → chunks → retrieve → metrics → RCPS.
 
@@ -57,13 +59,18 @@ def compute_rcps(
         retrievers: one or more dense retrievers. RCPS averages across them.
         chunker: chunking strategy (FixedSize / MarkdownHeader / ParserNative).
         k_values: cutoffs (defaults to {1, 5, 10}).
+        return_per_qa: when True, the result dict gains a `"per_qa"` key
+            mapping `(retriever_name, k)` tuples → length-N lists of per-Q-A
+            MRR@k scores (aligned with `qa_pairs`). Needed for bootstrap CIs.
 
     Returns:
         {
           "rcps": <scalar>,
           "by_retriever": {name: {"hit@k": {k: v}, "mrr@k": {...}, "ndcg@k": {...}}},
           "by_difficulty": {"easy": {"hit@1": v, ...}, ...},  # aggregated across retrievers
-          "meta": {chunker, num_queries, num_chunks, num_pages, k_values}
+          "meta": {chunker, num_queries, num_chunks, num_pages, k_values},
+          # optional, only if return_per_qa=True:
+          "per_qa": {(retriever_name, k): [mrr_i, ...]},
         }
     """
     if not retrievers:
@@ -101,6 +108,7 @@ def compute_rcps(
     rcps_terms: list[float] = []
     # per-(retriever, k) -> per-difficulty buckets of mrr scores
     diff_buckets: dict[tuple[str, int, str], list[float]] = {}
+    per_qa_mrr: dict[tuple[str, int], list[float]] = {}
 
     for retr in retrievers:
         logger.info("indexing %d chunks with retriever=%s", len(chunks), retr.name)
@@ -117,6 +125,8 @@ def compute_rcps(
             retr_metrics["mrr"][k] = aggregate(mrrs)
             retr_metrics["ndcg"][k] = aggregate(ndcgs)
             rcps_terms.append(retr_metrics["mrr"][k])
+            if return_per_qa:
+                per_qa_mrr[(retr.name, k)] = list(mrrs)
             for qa, m in zip(qa_list, mrrs, strict=True):
                 diff_buckets.setdefault((retr.name, k, qa.difficulty), []).append(m)
 
@@ -136,7 +146,7 @@ def compute_rcps(
                     cross.append(aggregate(vals))
             by_difficulty[diff][f"mrr@{k}"] = aggregate(cross) if cross else 0.0
 
-    return {
+    out: dict[str, Any] = {
         "rcps": rcps_score,
         "by_retriever": by_retriever,
         "by_difficulty": by_difficulty,
@@ -149,3 +159,7 @@ def compute_rcps(
             "retrievers": [r.name for r in retrievers],
         },
     }
+    if return_per_qa:
+        out["per_qa"] = per_qa_mrr
+        out["qa_ids"] = [qa.qa_id for qa in qa_list]
+    return out
