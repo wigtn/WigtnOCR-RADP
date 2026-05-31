@@ -2,9 +2,11 @@
 
 **Retrieval-Aware Document Parsing — 사람이 읽기 좋은 파싱 ≠ 검색이 잘 되는 파싱**
 
-> 🎯 EMNLP 2026 Industry Track 투고 준비 (마감 2026-06-16) — 논문 초안 **v0.6**
+> 🎯 **EMNLP 2026 Industry Track** 투고 · 논문 초안 **v0.6** · 마감 2026-06-16
+>
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
-> 🇺🇸 **[English README](README.md)** &nbsp;·&nbsp; 🧭 연구 정의는 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md), 연혁은 [`docs/TIMELINE.md`](docs/TIMELINE.md)
+>
+> 🇺🇸 **[English README](README.md)** · 🧭 연구 정의 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) · 🗓️ 연혁 [`docs/TIMELINE.md`](docs/TIMELINE.md)
 
 ---
 
