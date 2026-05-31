@@ -2,9 +2,11 @@
 
 **Retrieval-Aware Document Parsing — human-readable parsing ≠ retrievable parsing.**
 
-> 🎯 EMNLP 2026 Industry Track submission (deadline 2026-06-16) — paper draft **v0.6**
+> 🎯 **EMNLP 2026 Industry Track** submission · paper draft **v0.6** · deadline 2026-06-16
+>
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
-> 🇰🇷 **[한국어 README](README.ko.md)** &nbsp;·&nbsp; 🧭 Research definition: [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) (KO) &nbsp;·&nbsp; timeline: [`docs/TIMELINE.md`](docs/TIMELINE.md)
+>
+> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 Research direction: [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) (KO) · 🗓️ Timeline: [`docs/TIMELINE.md`](docs/TIMELINE.md)
 
 ---
 
