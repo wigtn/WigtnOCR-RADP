@@ -1,0 +1,134 @@
+{
+  "v1 (ref)": {
+    "n_pages": 242,
+    "parse_len_mean": 1384.9,
+    "parse_len_median": 1039,
+    "chunks_per_page_mean": 4.82,
+    "chunk_len_mean": 273.6,
+    "text_ned_vs_gt_mean": 0.175,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6295,
+    "n_bc_boundaries": 925
+  },
+  "λ=0.0": {
+    "n_pages": 242,
+    "parse_len_mean": 798.9,
+    "parse_len_median": 404,
+    "chunks_per_page_mean": 2.96,
+    "chunk_len_mean": 244.8,
+    "text_ned_vs_gt_mean": 0.5594,
+    "n_ned_pages": 242,
+    "bc_mean": 0.5532,
+    "n_bc_boundaries": 474
+  },
+  "λ=0.1": {
+    "n_pages": 242,
+    "parse_len_mean": 1379.5,
+    "parse_len_median": 818,
+    "chunks_per_page_mean": 4.05,
+    "chunk_len_mean": 321.1,
+    "text_ned_vs_gt_mean": 0.3518,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6518,
+    "n_bc_boundaries": 738
+  },
+  "λ=0.3": {
+    "n_pages": 242,
+    "parse_len_mean": 1929.5,
+    "parse_len_median": 1170,
+    "chunks_per_page_mean": 6.73,
+    "chunk_len_mean": 272.3,
+    "text_ned_vs_gt_mean": 0.2759,
+    "n_ned_pages": 242,
+    "bc_mean": 0.4701,
+    "n_bc_boundaries": 1387
+  },
+  "λ=0.5": {
+    "n_pages": 242,
+    "parse_len_mean": 2034.6,
+    "parse_len_median": 1190,
+    "chunks_per_page_mean": 5.82,
+    "chunk_len_mean": 326.7,
+    "text_ned_vs_gt_mean": 0.2599,
+    "n_ned_pages": 242,
+    "bc_mean": 0.5559,
+    "n_bc_boundaries": 1167
+  },
+  "RADP-DPO-v1": {
+    "n_pages": 242,
+    "parse_len_mean": 1606.2,
+    "parse_len_median": 1079,
+    "chunks_per_page_mean": 4.97,
+    "chunk_len_mean": 310.8,
+    "text_ned_vs_gt_mean": 0.1224,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6461,
+    "n_bc_boundaries": 961
+  },
+  "RADP-DPO-v2": {
+    "n_pages": 242,
+    "parse_len_mean": 1594.1,
+    "parse_len_median": 1079,
+    "chunks_per_page_mean": 5.06,
+    "chunk_len_mean": 303.5,
+    "text_ned_vs_gt_mean": 0.1236,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6476,
+    "n_bc_boundaries": 982
+  },
+  "RADP-DPO-v3": {
+    "n_pages": 242,
+    "parse_len_mean": 1688.6,
+    "parse_len_median": 1090,
+    "chunks_per_page_mean": 5.27,
+    "chunk_len_mean": 304.3,
+    "text_ned_vs_gt_mean": 0.1406,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6014,
+    "n_bc_boundaries": 1034
+  },
+  "RADP-DPO-v4": {
+    "n_pages": 242,
+    "parse_len_mean": 1609.5,
+    "parse_len_median": 1082,
+    "chunks_per_page_mean": 4.83,
+    "chunk_len_mean": 321.4,
+    "text_ned_vs_gt_mean": 0.1188,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6473,
+    "n_bc_boundaries": 926
+  },
+  "RADP-SimPO": {
+    "n_pages": 242,
+    "parse_len_mean": 1703.4,
+    "parse_len_median": 1105,
+    "chunks_per_page_mean": 5.31,
+    "chunk_len_mean": 305.1,
+    "text_ned_vs_gt_mean": 0.1474,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6005,
+    "n_bc_boundaries": 1043
+  },
+  "DPO-v1-seed123": {
+    "n_pages": 242,
+    "parse_len_mean": 1632.8,
+    "parse_len_median": 1082,
+    "chunks_per_page_mean": 4.92,
+    "chunk_len_mean": 320.1,
+    "text_ned_vs_gt_mean": 0.128,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6546,
+    "n_bc_boundaries": 949
+  },
+  "DPO-v1-seed999": {
+    "n_pages": 242,
+    "parse_len_mean": 1619.6,
+    "parse_len_median": 1078,
+    "chunks_per_page_mean": 4.69,
+    "chunk_len_mean": 331.8,
+    "text_ned_vs_gt_mean": 0.1317,
+    "n_ned_pages": 242,
+    "bc_mean": 0.6537,
+    "n_bc_boundaries": 893
+  }
+}
