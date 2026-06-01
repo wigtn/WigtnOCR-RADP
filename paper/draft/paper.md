@@ -1,7 +1,7 @@
 # Retrieval-Aware Document Parsing: Diagnosing and Measuring the Parsing–Retrieval Gap
 
-**Harrison Kim, et al.** (Braincrew AI)
-*EMNLP 2026 Industry Track — Draft v0.6 (2026-05-31)*
+**Hyeong-seob Kim**\*, **Sang-woo Son**\* (WIGTN)
+*\* Equal contribution (co-first authors). EMNLP 2026 Industry Track — Draft v0.6 (2026-05-31).*
 
 ---
 
