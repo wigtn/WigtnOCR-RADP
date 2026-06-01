@@ -13,10 +13,10 @@ head than given no context:
   - CS << 1 : strong within-chunk dependency → high stickiness (good cohesion)
   - CS ≈ 1  : no within-chunk dependency → bad cohesion
 
-Together BC (high = good) + CS (low = good) form the MoC framework. The user's
-13:35-13:40 hypothesis requires BOTH to change in DPO variants compared to v1
-to claim "AI-friendly chunking" — currently BC ≈ v1 for all DPO; we measure CS
-here to complete the half.
+Together BC (high = good) + CS (low = good) form the MoC framework. The boundary
+hypothesis requires BOTH to change in DPO variants compared to v1 to claim
+"AI-friendly chunking"; currently BC ≈ v1 for all DPO, and we measure CS here to
+complete the picture.
 
 Variants: same 12 systems as mechanism_full.py.
 """
@@ -161,7 +161,7 @@ def main() -> int:
         md_lines.append(f"| {label} | {r['cs_mean']:.4f} | {r['cs_median']:.4f} | {r['n_chunks_scored']} |")
     md_lines += [
         "",
-        "**Hypothesis (user 13:35-13:40)**: DPO/SimPO should produce **different BC AND different CS**",
+        "**Boundary hypothesis**: DPO/SimPO should produce **different BC AND different CS**",
         "vs v1 to claim 'AI-friendly chunking style'. BC was ≈ v1 for all DPO (mechanism_242p.md).",
         "If CS is also ≈ v1, the AI-friendly-chunking hypothesis is fully reject: parsing differs",
         "in **content** (TextNED, GT-imitation) but not in **chunkability** signature.",

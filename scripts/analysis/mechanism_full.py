@@ -1,10 +1,14 @@
-"""Mechanism analysis for user's C1 dual-proof hypothesis (Hyeongseob 13:35-13:40).
+"""Mechanism analysis: does parser-side DPO move the chunking signature or text fidelity?
 
-Hypothesis:
-  Human-friendly BC/CS ≠ AI-friendly. DPO learns AI-friendly chunking →
-  BC/CS DIFFER from v1, but RCPS ≈ v1. This proves C1 from the constructive
-  side: there's >1 way to be retrieval-good; DPO finds one that humans
-  wouldn't pick.
+Original (boundary) hypothesis:
+  Human-friendly BC/CS != AI-friendly. DPO learns an AI-friendly chunking that
+  DIFFERS from v1 on BC/CS while keeping RCPS high — i.e. more than one way to be
+  retrieval-good. The measurements below test this.
+
+Finding (paper §4.5):
+  The chunking signature (BC/CS, chunks/page) is essentially UNCHANGED; what moves
+  is parse-to-GT text fidelity (TextNED). The retrieval gain is therefore attributed
+  to text fidelity, not to a boundary shift — refining the original hypothesis.
 
 Measures, per variant on 242p eval fold:
   1. MoC Boundary Clarity (BC) — adjacent-chunk perplexity ratio (Qwen3-VL-2B LM).

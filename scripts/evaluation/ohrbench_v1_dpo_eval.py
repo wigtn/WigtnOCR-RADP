@@ -1,10 +1,12 @@
-"""OHR-Bench cross-domain eval for v1 + DPO models — n boost for two-sided sig.
+"""OHR-Bench cross-domain evaluation for v1 + DPO parsers.
 
-Goal: KoGov 663 Q-A only gives ±1pp CI which barely straddles 0. Adding OHR-Bench
-verbatim-answerable Q-A across 7 English domains (Law, Manual, Finance, News,
-Academic, Textbook, Administration) lifts n to ~2,500+, tightening the CI to
-~±0.5pp — enough to push the +0.8pp DPO Hit@5 effect across the two-sided 95%
-significance line.
+Purpose: validate the KoGov DPO finding on an independent, English-language
+benchmark, testing cross-domain generalisation. The KoGov fold (n=663) is
+underpowered — its two-sided CI straddles zero — so an independent benchmark with
+more verbatim-answerable Q-A across 7 domains (Law, Manual, Finance, News,
+Academic, Textbook, Administration) both (a) tests generalisation to a different
+language and document mix and (b) supplies the sample size for a powered two-sided
+test. We report whatever the cross-domain data show, in either direction.
 
 Pipeline (run as background daemon, ~3h total):
   1. PDF → PNG (pdftoppm, 150 dpi, ~40min CPU for 4,330 pages)

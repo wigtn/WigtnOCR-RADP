@@ -325,7 +325,7 @@ def main() -> int:
     md.append("- 🟡 **1-sided** — P[Δ > 0] ≥ 0.95 (one-sided α=0.05 positive)")
     md.append("- 🔶 **strong-dir** — P[Δ > 0] ≥ 0.85 (strong directional, not yet sig)")
     md.append("")
-    md.append("Industry-track gate (per 13:51 user message): '1pp improvement matters'. ")
+    md.append("Industry-track relevance: a +1pp improvement with CI excluding 0 is meaningful. ")
     md.append("Any 🟢 or 🟡 cell is a publishable positive contribution. ")
     md.append("Multiple 🔶 in the same direction across retrievers/k argues for a robust positive trend.")
     md.append("")
