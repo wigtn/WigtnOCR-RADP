@@ -2,57 +2,67 @@
 
 **Retrieval-Aware Document Parsing — 사람이 읽기 좋은 파싱 ≠ 검색이 잘 되는 파싱**
 
-> 🎯 EMNLP 2026 Industry Track 투고 준비 (마감 2026-06-16)
+> 🎯 **EMNLP 2026 Industry Track** 투고 · 논문 초안 **v0.6** · 마감 2026-06-16
+>
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
-> 🇺🇸 **[English README](README.md)** &nbsp;·&nbsp; 🧭 연구 정의·가설은 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md), 진행은 [`docs/ACHIEVED.md`](docs/ACHIEVED.md) / [`docs/ROADMAP.md`](docs/ROADMAP.md)
+>
+> 🇺🇸 **[English README](README.md)** · 🧭 연구 정의 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) · 🗓️ 연혁 [`docs/TIMELINE.md`](docs/TIMELINE.md)
 
 ---
 
 ## 📌 한 줄 요약
 
-문서 파서는 보통 **사람이 보기 좋은 markdown**을 만들도록 학습된다. 하지만 RAG에서 진짜 중요한 건 **검색이 잘 되는 chunk**다. 우리는 이 둘이 다름을 진단하고(C1), 그 차이를 재는 지표를 만들고(C2), **파서를 검색 신호로 직접 학습**해 그 차이를 좁힐 수 있는지 검증한다(C3 — 정직한 negative).
+문서 파서는 보통 **사람이 보기 좋은 markdown**(TEDS·edit distance·Boundary Clarity)을 만들도록 학습되지만, 이 지표들은 **downstream 검색을 예측하지 못한다**. 한국 정부문서(6 parser × 3 retriever × 663 Q-A)에서 MoC Boundary Clarity는 검색과 **Pearson r = −0.81** 로 역상관 — 내재적 지표 1위(MinerU)가 검색은 꼴찌다.
+
+우리는 (C1) 이 disconnect를 cross-domain으로 진단하고 메커니즘을 드러내며, (C2) retriever-agnostic 지표 **RCPS**를 제안하고, (C3) **RADP-DPO** — 파서의 **discrete markdown 출력**을 retrieval reward로 DPO 학습 — 를 도입한다. RADP-DPO는 **KoGov Hit@5 +2.11 pp**(P[Δ>0]=0.91), 그리고 결정적으로 **영어 OHR-Bench(n=2,264)에서 +1.03 pp, 양측 유의·1 pp 실무 기준 통과**를 달성한다. 더불어 두 개의 경계 negative(hidden-state **RADP-aux**, reference-free **SimPO**)로 retrieval 신호가 파서의 *어디로* 들어가야 하는지를 규명한다.
 
 ---
 
 ## 💡 동기 — Parsing 품질 ≠ Retrieval 성능
 
-WigtnOCR v1 개발 중 발견한 역설:
+> **MoC Boundary Clarity(BC) 1위 파서(MinerU, 0.72)가 retrieval Hit@1 0.20으로 6개 중 꼴찌.** 가장 깨끗해 보이는 파서가 가장 검색이 안 된다.
 
-> **MoC Boundary Clarity(BC) 1위 파서(MinerU)가 retrieval에서는 꼴찌.** KoGov 5-parser에서 BC↔RCPS Pearson = **−0.81** (예쁜 경계일수록 검색이 더 안 됨).
-
-같은 방향을 OHR-Bench(ICCV 2025), EnterpriseDocBench(2026, r≈0.14), When Good OCR Is Not Enough(2026)가 영어·엔터프라이즈에서 독립적으로 보고했다. **선행 연구는 진단에 머물거나 파이프라인의 다른 layer(chunking~generation)를 학습한다. L1 파서 layer를 retrieval 신호로 학습한 사례는 없다 — 그게 우리 niche.**
+같은 방향을 OHR-Bench(ICCV 2025), EnterpriseDocBench(2026, r≈0.14), When Good OCR Is Not Enough(2026)가 영어·엔터프라이즈에서 독립 보고했다. **선행 연구는 진단에 머물거나 다른 layer(chunking~generation)를 학습한다. L1 파서를 retrieval 신호로 학습한 사례는 없다 — 그게 우리 niche.**
 
 ---
 
-## 🔬 핵심 가설 — 증명해야 할 인과 사슬
-
-```
-① 파서를 검색 신호로 학습하면  →  ② 청크 경계가 "사람 친화"에서 "검색 친화"로 이동하고
-                              →  ③ 그 경계의 조각들이 검색(Hit@/MRR)에서 더 높은 점수를 낸다
-```
-
-핵심은 **③이 ②"때문에"** 일어났음을, 그리고 **우리 자체 지표뿐 아니라 기존 통용 지표로도** 보이는 것이다. (자세한 정의·현재 위치는 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md))
-
----
-
-## 🧱 3-Layer Contribution (현재 상태)
+## 🧱 Contributions
 
 | | 기여 | 상태 |
 |---|---|:---:|
-| **C1** | Parsing↔Retrieval disconnect 진단 (BC↔RCPS −0.81 + OHR-Bench cross-domain mechanism) | ✅ |
+| **C1** | Parsing↔Retrieval disconnect cross-domain 진단 + 메커니즘(noise-family 곡선, 그림 2) | ✅ |
 | **C2** | **RCPS** (Retrieval-Conditional Parsing Score) — retriever-agnostic, task-oriented 지표 | ✅ |
-| **C3** | 파서를 retrieval 신호로 학습한 **정직한 negative** — chunk-boundary contrastive aux loss(**RADP**)는 풀스케일·공정비교에서 +1~3pp(사전등록 5pp 게이트 미달). aux-loss는 잘못된 레버 | ✅ |
-| → 다음 | 파서의 **discrete output**을 retrieval reward로 학습(DPO/RL) — C3 negative가 동기 | 🔄 future work |
+| **C3** | **RADP-DPO** — 파서 discrete 출력에 retrieval-reward DPO. **KoGov Hit@5 +2.11 pp**(P=0.91); **영어 OHR-Bench +1.03 pp 양측 유의·1 pp 기준 통과** | ✅ |
+| 경계 | 두 negative가 동작 영역을 규명: hidden-state **RADP-aux**(+1~3 pp, 5 pp 게이트 미달), reference-free **SimPO**(negative). 신호는 *discrete 출력* + reference 정책 anchoring으로 들어가야 함 | ✅ |
 
-RCPS:
+---
+
+## 🔬 Method
+
+### RCPS — Retrieval-Conditional Parsing Score
+
+파서를 "출력이 얼마나 깨끗한가"가 아니라 "downstream 검색이 그 출력으로 무엇을 할 수 있는가"로 평가한다.
+
 ```
-RCPS(parser P, Q-A set D, retrievers R, k_values K) = (1/|R||K|) Σ_{r∈R, k∈K} MRR@k(r, chunks_P(D), questions_D)
+RCPS(P, D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K}  MRR@k( r, chunks_P(D), {qᵢ} )
 ```
 
-RADP:
+`R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`, `K = {1,5,10}`. 청크는 (i) source 페이지 일치 + (ii) 정답 span이 청크의 substring일 때 relevant. retriever 평균으로 embedder 선택에 robust. 구현: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
+
+### RADP-DPO — discrete 출력에 retrieval-reward preference 학습 (C3)
+
+파서의 **discrete markdown 출력**을 retrieval reward로 직접 최적화한다. 각 train 페이지마다 production 파서 v1에서 K개 후보 parse를 샘플링 → chunk·index·scoring(retrieval reward) → page-local RCPS gap이 임계 초과인 `(parse_chosen, parse_rejected)` 선호쌍 구성 → DPO:
+
 ```
-L_total = L_parse + λ · L_contrast
+L_DPO = −log σ( β · [ (log π_θ(c) − log π_θ(r)) − (log π_ref(c) − log π_ref(r)) ] )
 ```
+
+- **LoRA-toggle reference 트릭:** 모델 2벌(2× 메모리) 대신 `π_θ`=파서+LoRA on, `π_ref`=같은 base에 LoRA off. 단일 가속기로 충분.
+- **Reward sharpening R1→R2→R3:** R1(page-local RCPS, BGE, β=0.1) → R2(warmstart iterative, β=0.05) → **R3(full-corpus hard-negative pool, K=14)** — distractor를 "retriever가 실제로 정답과 헷갈리는 다른 페이지 청크"로. 보상을 sharpen하면 효과가 1 pp 위로 올라간다.
+
+### RADP-aux — hidden-state contrastive (경계 negative)
+
+다른 파서측 수정: retrieval 신호를 파서의 *hidden* state로 보낸다. `L_total = L_parse + λ·L_contrast`(파서 answer-chunk pooled hidden ↔ frozen BGE-M3 임베딩 InfoNCE). **게이트 미달** — 신호가 `L_parse`를 통한 diffuse gradient backflow로만 배포 markdown에 닿기 때문.
 
 ---
 
@@ -60,13 +70,13 @@ L_total = L_parse + λ · L_contrast
 
 ### 셋업
 
-- **KoGovDoc-RAG** — 한국 정부문서 294페이지 위 663 Q-A (GPT-5.4 생성, LLM-as-judge 검증 94/100 accept). RADP 풀스케일 학습용으로 2,667페이지 v1 train set에 6,164 Q-A 추가, 평가는 held-out **73페이지 / 202 Q-A** fold 사용.
-- **OHR-Bench** — 7개 도메인(Law·Manual·Finance·Newspaper·Textbook·Academic·Administration; 1,043 verbatim-answerable Q-A) cross-domain 복제. 15개 parser-output variant(실제 3 + formatting-noise 3 + semantic-noise 9).
-- **모델** — Qwen3-VL-2B-Instruct + LoRA(r=8, α=32), 전체 v1 train set; λ ∈ {0, 0.1, 0.3, 0.5} (λ=0 은 production 파서 v1을 재현하는 matched control).
+- **KoGovDoc-RAG** — 한국 정부문서 294p 663 Q-A(GPT-5.4, LLM-judge 94/100). RADP-DPO/SimPO·메커니즘은 통합 **242p / 663 Q-A** fold, RADP-aux는 **73p / 202 Q-A** held-out fold, +2,667p train set에 6,164 Q-A.
+- **OHR-Bench** — 영어 cross-domain, 7 도메인, **2,264 verbatim Q-A**; C1 메커니즘용 15 parser-output variant.
+- **모델** — Qwen3-VL-2B-Instruct + LoRA(r=8, α=32). RCPS는 3 retriever × 3 cutoff, delta는 paired bootstrap(10k).
 
 ### C1 — Parsing↔Retrieval disconnect (한국 정부문서)
 
-RCPS는 6개 파서에서 0.07–0.58 분포. VLM 계열이 상위, OCR 계열이 하위. 내재적 Boundary Clarity가 RCPS와 **Pearson r = −0.81** 로 **역상관**(n=5, 38p Marker 제외). 경계가 가장 깨끗한 MinerU(BC 0.72)가 검색은 **꼴찌**.
+BC가 RCPS와 **Pearson r = −0.81**(n=5) 역상관. 경계 가장 깨끗한 MinerU(BC 0.72)가 검색 **꼴찌**.
 
 | Parser | BC | RCPS | Hit@1 |
 |---|:---:|:---:|:---:|
@@ -81,23 +91,13 @@ RCPS는 6개 파서에서 0.07–0.58 분포. VLM 계열이 상위, OCR 계열�
 
 ### C1 — 메커니즘 (cross-domain, OHR-Bench)
 
-핵심 발견: **각 semantic-noise 패밀리 안에서 Boundary Clarity는 거의 안 움직이는데 RCPS는 붕괴한다.** 내재적 경계 지표는 *형식*만 볼 뿐 *내용*을 못 본다 — 검색 가능한 내용을 파괴하는 의미 노이즈가 BC를 떨어뜨리지 않는다.
+각 semantic-noise 패밀리 안에서 **BC는 거의 안 움직이는데 RCPS는 붕괴**. 내재적 지표는 *형식*만 볼 뿐 *내용*을 못 본다.
 
-![Boundary Clarity는 내용 노이즈에 눈이 먼다 — 상단: 세 파서 패밀리 모두 노이즈 강도에 걸쳐 BC가 평탄; 하단: MinerU·GOT의 RCPS는 붕괴, Qwen2.5-VL은 강건](paper/figures/fig_noise_family.png)
+![Boundary Clarity는 내용 노이즈에 눈이 먼다 — 상단: 세 파서 패밀리 모두 노이즈 강도에 걸쳐 BC 평탄; 하단: MinerU·GOT RCPS 붕괴, Qwen2.5-VL 강건](paper/figures/fig_noise_family.png)
 
-*그림 2 — OHR-Bench 7-도메인 noise-family 곡선. **상단:** Boundary Clarity는 노이즈 강도(clean → mild → moderate → severe)에 걸쳐 거의 평탄. **하단:** RCPS는 MinerU(−51%)·GOT에서 붕괴, Qwen2.5-VL은 더 강건(−8%). 내재적 지표는 검색이 의존하는 의미적 내용 품질을 인지하지 못한다.*
-
-| Family (n) | BC range | RCPS (clean → severe) | ΔRCPS |
-|---|:---:|:---:|:---:|
-| MinerU + semantic noise (4) | 0.708–0.735 | 0.50 → 0.24 | **−51%** |
-| GOT + semantic noise (3) | 0.495–0.650 | (no clean) → 0.26 | — |
-| Qwen2.5-VL + semantic noise (4) | 0.610–0.619 | 0.47 → 0.43 | −8% |
-
-*표 2 — OHR-Bench 패밀리별 noise-perturbation 요약. disconnect(BC 평탄, semantic noise에서 RCPS 하락)는 MinerU·GOT에서 극적, Qwen2.5-VL은 더 강건. 15-variant 전체를 합친 BC↔RCPS scalar는 data-mix에 민감(Law+Manual −0.35, 7-도메인 전체 +0.25)하므로, 견고한 발견은 모든 도메인에서 재현되는 위 패밀리별 메커니즘이다.*
+*그림 2 — OHR-Bench 7-도메인 noise-family 곡선. **상단:** BC는 노이즈 강도(clean→mild→moderate→severe)에 평탄. **하단:** RCPS는 MinerU(−51%)·GOT에서 붕괴, Qwen2.5-VL은 강건(−8%).*
 
 ### C2 — RCPS는 chunking 전략을 변별한다
-
-쓸모 있는 지표는 실무자가 비교할 대안을 갈라줘야 한다. v1 파서의 KoGov 출력에서 RCPS는 네 가지 chunking 전략을 깔끔히 정렬한다 — markdown-header(md-h3) > parser-native > LumberChunker > fixed-size. 표면이 아니라 *검색 가능성*을 포착한다(내재적 지표라면 경계가 가장 깨끗한 fixed-size를 1위로 올렸을 것).
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
@@ -106,31 +106,63 @@ RCPS는 6개 파서에서 0.07–0.58 분포. VLM 계열이 상위, OCR 계열�
 | LumberChunker | 0.557 | 0.514 | 0.580 |
 | fixed500 | 0.535 | 0.491 | 0.560 |
 
-*표 3 — KoGov chunking-strategy 그리드 (663 Q-A, v1 파서 출력, 3-retriever RCPS 평균).*
+*표 3 — KoGov chunking-strategy 그리드 (663 Q-A, v1 출력, 3-retriever RCPS 평균).*
 
-### C3 — 파서 측 수정은 격차를 못 좁힌다 (negative)
+### C3 — RADP-DPO가 Hit@5를 ≈2 pp 올린다 (positive)
 
-RADP를 풀스케일(2,667p) 학습 후 73페이지/202 Q-A held-out fold에서 평가. contrastive loss의 이득은 **게이트 미달**: λ=0.1이 피크(+1.1pp md-h3 / +2.3pp parser-native), 그 이상에서는 RCPS가 단조 감소하고 `parseSim`도 동반 하락 — 두 목적이 **같은 LoRA 파라미터를 두고 경쟁**한다. 사전등록 **5pp 게이트 실패**.
+242p / 663 Q-A KoGov fold에서 모든 RADP-DPO variant가 v1 대비 Hit@5 향상, reward sharpening 축을 따라 증가. n=663에선 양측 CI가 0을 포함(strong-directional, P≈0.90) — 양측 유의는 cross-domain OHR이 보강.
 
-| λ | RCPS (md-h3) | RCPS (parser-native) | parseSim |
+| Variant | Hit@5 (v1=0.6863) | ΔHit@5 vs v1 (pp) [95% CI] | P[Δ>0] | ΔHit@10 | ΔRCPS |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **RADP-DPO-v5** (R3, hard-neg) | 0.7074 | **+2.11 [−0.96, +5.13]** | **0.91** 🔶 | +2.21 | +1.72 |
+| **RADP-DPO-v1** (R1, BGE β=0.1) | 0.7069 | **+2.06 [−0.96, +5.13]** | **0.91** 🔶 | +1.81 | +0.57 |
+| **RADP-DPO-v4** (R2, warmstart β=0.05) | 0.7059 | **+1.96 [−1.06, +5.03]** | **0.90** 🔶 | +1.71 | +0.47 |
+| RADP-SimPO (ref-free 대조) | 0.6793 | −0.70 [−3.77, +2.31] | 0.32 | −0.96 | −1.56 |
+
+*표 5 — RADP-DPO 진행(R1→R2→R3) + SimPO 대조, parser_native, 242p fold, 10k paired bootstrap. 🔶 = P[Δ>0] ≥ 0.85. 3-seed merge는 R1을 +1.16 pp [−0.64, +2.90](P=0.90)로 tighten.*
+
+**Cross-domain 검증 (영어 OHR-Bench, n=2,264) — 1 pp 기준을 양측 유의로 통과.** 한국어로 학습한 v1을 zero-shot 적용(Hit@5=58.5%). hard-negative variant **R3(RADP-DPO-v5)**가 모든 표준 지표를 양측 유의·1 pp 이상으로 개선:
+
+| 지표 | Δ vs v1 (pp) | 95% CI |
+|---|:---:|:---:|
+| Hit@5 | **+1.03** | [+0.24, +1.84] |
+| Hit@1 | **+1.31** | [+0.55, +2.09] |
+| MRR@10 | **+1.17** | [+0.52, +1.86] |
+| nDCG@5 | **+1.15** | [+0.49, +1.86] |
+
+*표 5b — OHR-Bench cross-domain, 3-retriever macro, 1k paired bootstrap, 7개 도메인 모두 positive. 학습 신호(train Q-A retrieval reward)·평가 지표·문서 언어가 상호 disjoint → metric circularity와 domain over-fitting 동시 배제. 보상을 page-local(R2: Hit@5 +0.85 pp)에서 hard-negative(R3)로 sharpen하면 1 pp 위로(R3>R2 Hit@1 +0.78 pp).*
+
+**학습 scorer 밖으로 전이되고, text-precision 질의에 집중된다.** 선호쌍 scoring에 쓴 BGE-M3보다 **held-out retriever에서 효과가 더 큼**(ml-e5 +2.41 pp, Qwen3-Emb +2.26 pp vs BGE +1.51 pp) → BGE-overfit 배제. 그리고 **factoid 질의(+3.07 pp)**에 집중 — 정답 span의 verbatim 텍스트가 검색을 좌우하는 부류(논문 표 6).
+
+### C3 — 메커니즘: DPO는 chunking이 아니라 text fidelity를 높인다
+
+| Variant | BC ↑ | CS ↓ | TextNED ↓ vs GT |
 |---|:---:|:---:|:---:|
-| 0.0 (control) | 0.6551 | 0.6557 | 0.872 |
-| **0.1** | **0.6664** | **0.6788** | 0.874 |
-| 0.3 | 0.6526 | 0.6694 | 0.862 |
-| 0.5 | 0.6407 | 0.6442 | 0.851 |
-| v1 (ref) | 0.6724 | 0.6569 | 0.789 |
+| v1 (ref) | 0.630 | 0.474 | 0.175 |
+| **RADP-DPO-v1** | 0.646 | 0.474 | **0.122** |
+| **RADP-DPO-v4** | 0.647 | 0.476 | **0.119** |
+| RADP-aux λ=0.1 | 0.652 | 0.484 | 0.352 |
 
-*표 4 — 풀스케일 λ sweep, 73페이지 eval fold. control 대비 최고: +1.13pp(md-h3) / +2.31pp(parser-native) — 게이트(≥5pp) 실패. control이 v1을 재현해 data-scale 교란 제거 확인.*
+*표 7(발췌) — RADP-DPO는 TextNED-vs-GT를 19~32% 감소(0.175→0.119)시키되 **chunking signature는 불변**(BC≈0.63, CS≈0.474 모두 v1과 구분 불가). 이득은 *어떻게* 쪼개느냐가 아니라 *무엇을* 파싱하느냐에서 옴 — cross-domain에서도 재현(OHR TextNED −2.5%, 양측 유의).*
 
-**왜 실패하나 (C1 연결).** 파서의 `L_parse` 타깃 자체가 사람이 읽기 좋은 markdown — 바로 그 구조의 내재적 경계 지표가 retrieval과 역상관한다(그림 2). 파서의 *hidden* 표현에 건 보조 목적은 1차 목적이 심은 prior를 벗어날 수 없다. 사람-가독성 prior를 넘으려면 학습 신호가 파서의 **discrete output**으로 들어가야 한다 — 이것이 retrieval-reward(DPO/RL) 학습을 다음 단계로 만든다(future work).
+### 경계 negative — RADP-aux / SimPO
+
+| λ | RCPS (md-h3) | Δ vs control [95% CI] | RCPS (parser-native) | Δ vs control [95% CI] |
+|---|:---:|:---:|:---:|:---:|
+| 0.0 (control) | 0.6551 | — | 0.6557 | — |
+| 0.1 | **0.6664** | +1.13 [−2.53, +4.95] | **0.6788** | +2.31 [−1.59, +6.30] |
+| 0.3 | 0.6526 | −0.25 [−4.03, +3.12] | 0.6694 | +1.37 [−2.35, +5.11] |
+| 0.5 | 0.6407 | −1.44 [−5.92, +2.62] | 0.6442 | −1.15 [−5.78, +3.50] |
+
+*표 4 — RADP-aux λ sweep(73p fold). 피크 +1~3 pp, 모든 Δ-vs-control CI가 0 포함, **사전등록 5 pp 게이트 미달**. reference-free **SimPO**는 전 cell negative(표 5). 둘이 동작 영역을 규명: **discrete 출력 + reference 정책 anchoring preference loss**.*
 
 ---
 
 ## 🚀 배포 교훈 (Deployment lessons)
 
-1. **내재적 지표만으로 파서를 고르지 말 것.** Boundary Clarity(및 TEDS·edit distance)는 downstream retriever가 뒤집는 순서로 파서를 줄 세울 수 있다. 도메인 대표 held-out에서 ~500문항 RCPS 평가는 몇 시간이면 끝나고 결정을 바꾼다.
-2. **파서 hidden state 보조 손실은 잘못된 레버.** 풀스케일·공정비교에서 이득은 게이트 미달(+1~3pp). 투자 대비 효과 없음.
-3. **disconnect은 확률적이 아니라 기계적.** 내재적 구조는 멀쩡해 보여도 내용은 파괴될 수 있다(그림 2) — 파서 표면 품질이 아니라 retrieval을 직접 모니터링하라.
+1. **내재적 지표만으로 파서를 고르지 말 것.** BC(및 TEDS·edit distance)는 retriever가 뒤집는 순서로 파서를 줄 세운다. ~500문항 RCPS 평가가 결정을 바꾼다.
+2. **파서 discrete 출력에 retrieval-reward DPO를 써라.** 이미 ≈0.7 Hit@5인 파서에 선호쌍 수백 개 + LoRA 1회로 +2 pp는 실질 이득이며, 실제 배포 retriever로 전이된다. aux-loss·reference-free SimPO는 피하라(둘 다 실패).
+3. **text precision이 검색을 좌우하는 곳에 예산을 써라.** RADP-DPO는 factoid(+3 pp)에 최대, tabular엔 거의 중립 — 구조질의 비중이 크면 chunker/embedder측 학습으로 보완.
 
 ---
 
@@ -141,38 +173,23 @@ RADP를 풀스케일(2,667p) 학습 후 73페이지/202 Q-A held-out fold에서 
 ├── configs/                  # 실험 설정 (YAML)
 ├── src/wigtnocr_radp/
 │   ├── qa_generation/        # Q-A 생성
-│   ├── evaluation/           # RCPS, chunkers, retrievers, coverage 진단, BC
-│   └── training/             # RADP(contrastive) / DPO
+│   ├── evaluation/           # RCPS, chunkers, retrievers, coverage, BC, bootstrap CI
+│   └── training/             # RADP-aux(contrastive) · RADP-DPO · SimPO (LoRA-toggle reference)
 ├── scripts/
-│   ├── qa_generation/
-│   ├── training/             # train_radp_b, DPO generate/score/build/train
-│   └── evaluation/           # baseline_grid, chunking_grid, coverage_diagnostic, bootstrap
-├── paper/                    # EMNLP 2026 초안 + figures
+│   ├── training/             # 후보 생성(K=2..16), 선호쌍, DPO/SimPO, multi-seed 파이프라인
+│   ├── evaluation/           # baseline_grid, chunking_grid, coverage, OHR-Bench eval chain, combined CI
+│   └── analysis/             # positive_signal_dig, robustness_boost
+├── paper/                    # EMNLP 2026 초안(v0.6) + figures
 ├── data/KoGovDoc-RAG/        # 663 Q-A (frozen, gitignored)
-├── docs/                     # ↓ 아래 Documentation
+├── docs/                     # RESEARCH_DIRECTION · ACHIEVED · ROADMAP · TIMELINE · plans/
 ├── output/                   # 결과·체크포인트 (gitignored, GPU 서버)
 └── tests/
 ```
 
----
-
-## 📚 Documentation (읽기 순서)
-
-| 문서 | 내용 |
-|------|------|
-| [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) | **연구 정의 — 가설, 증명 사슬, 현재 위치, 완결 조건** ★ |
-| [`docs/ACHIEVED.md`](docs/ACHIEVED.md) | 이미 이룬 것 (C1/C2/C3 + 인프라, 근거 링크) |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | 앞으로 할 것 (우선순위·타임라인·게이트) |
-| [`docs/plans/`](docs/plans/) | 각 작업 상세 플랜 (PLAN-01~05) |
-| [`paper/draft/paper.md`](paper/draft/paper.md) | EMNLP 2026 Industry Track 초안 |
-| [`docs/RADP_RESEARCH_PROPOSAL.md`](docs/RADP_RESEARCH_PROPOSAL.md) | 최초 기획서 (역사적 기록) |
-
----
-
 ## 🚀 Quick Start
 
 ```bash
-uv sync                                   # 의존성
+uv sync                                   # 의존성 (extras: eval / train / data)
 cp .env.example .env                      # OPENAI_API_KEY 입력
 hf download Wigtn/KoGovDoc-Bench --repo-type dataset --local-dir data/KoGovDoc-Bench
 
@@ -188,13 +205,13 @@ uv run python scripts/evaluation/coverage_diagnostic.py
 
 | 저자 (OpenReview) | Email | 기여 (CRediT) |
 |------|-------|--------------|
-| **Hyeong-seob Kim**\* | harrison@wigtn.com | Conceptualization, Methodology, Project administration — 연구 계획 수립, 방법·RCPS 메트릭 설계 |
+| **Hyeong-seob Kim**\* | harrison@wigtn.com | Conceptualization, Methodology, Project administration — 연구 계획·방법·RCPS 설계 |
 | **Sang-woo Son**\* | sangwoo@wigtn.com | Software, Validation, Investigation — 구현·실험·테스트 |
 
-> \* **Equal contribution (co-first authors).** Hyeong-seob Kim은 연구 설계·방법론을, Sang-woo Son은 구현·실험을 주도. 기여 가이드는 [CONTRIBUTING.md](CONTRIBUTING.md) 참조.
+> \* **Equal contribution (co-first authors).**
 
 ---
 
 ## 📄 License & Citation
 
-[MIT License](LICENSE)로 배포. *(upstream WigtnOCR v1은 Apache-2.0.)* BibTeX는 [README.md](README.md#license--citation) 참조 (채택 후 확정).
+**MIT License**로 배포. BibTeX는 [README.md](README.md#license--citation) 참조 (채택 후 확정).

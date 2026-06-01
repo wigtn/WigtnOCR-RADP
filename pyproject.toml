@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "Hyeong-seob Kim", email = "harry@brain-crew.com" },
+    { name = "Hyeong-seob Kim", email = "harrison@wigtn.com" },
     { name = "Sang-woo Son", email = "sangwoo@wigtn.com" },
 ]
 keywords = ["RAG", "document-parsing", "OCR", "retrieval", "VLM", "EMNLP"]
