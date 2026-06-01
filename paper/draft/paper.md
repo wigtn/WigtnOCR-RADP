@@ -39,13 +39,13 @@ In this paper we test parser-side training from both natural directions: the hid
 
 ### 3.1 RCPS: Retrieval-Conditional Parsing Score
 
-We need a metric that scores a parser by what *downstream* retrieval can do with its output, not by how clean the output looks. Three design choices follow from this: the metric must be (i) **extrinsic** — operate on the parsed corpus + a Q-A probe rather than on text alone; (ii) **retriever-agnostic** — robust to which embedder happens to be in the production stack; and (iii) **structure-agnostic in its relevance judgment** — a chunk is relevant if its text contains the answer, regardless of how the parser formatted it.
+We need a way to rank parsers by what *downstream* retrieval does with their output, not by how clean that output looks. **RCPS is deliberately *not* a new similarity function — it is an evaluation *protocol* that wraps ordinary retrieval MRR** in three choices that turn it into a reliable parser-selection tool: (i) **extrinsic** — score on the parsed corpus + a held-out Q-A probe, not on text alone; (ii) **retriever-agnostic** — average over several embedders so the ranking does not hinge on which one happens to sit in the production stack; and (iii) **format-invariant relevance** — a chunk counts as relevant iff its text contains the answer span, however the parser formatted it. The contribution is the *protocol* (what to measure, on what probe, and how to judge relevance), not a novel scoring function — which is also why this is not "just MRR": plain single-embedder MRR with format-sensitive matching yields a different, unstable parser ranking.
 
 Given a parser P, a Q-A set D = {(q_i, a_i, page_i)}, a set of retrievers R, and cutoffs K, RCPS averages MRR across the cross-product:
 
 $$\text{RCPS}(P, D, R, K) = \frac{1}{|R||K|} \sum_{r \in R} \sum_{k \in K} \text{MRR}@k(r, \text{chunks}_P(D), \{q_i\}).$$
 
-We use R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B} (multilingual, varied architectures) and K = {1, 5, 10}. A chunk is relevant for a query iff (i) its source page matches the answer's source page, and (ii) the gold answer span is a substring of the chunk under whitespace/markdown-insensitive normalisation. The retriever average makes the score robust to embedder choice: a parser that wins one retriever but loses another does *not* dominate the RCPS ranking. The implementation is released.
+We use R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B} (multilingual, varied architectures) and K = {1, 5, 10}. A chunk is relevant for a query iff (i) its source page matches the answer's source page, and (ii) the gold answer span is a substring of the chunk under whitespace/markdown-insensitive normalisation. The retriever average makes the ranking robust to embedder choice: a parser that wins one retriever but loses another does *not* dominate. In practice a team runs RCPS on a few hundred held-out Q-A in minutes — no training, negligible GPU — to pick a parser or chunker that intrinsic metrics (TEDS, BC) rank wrong; on our data this is the difference between a 0.20 and a 0.55 Hit@1 parser. The implementation is released.
 
 ### 3.2 RADP-aux — Hidden-State Contrastive Auxiliary Loss
 
@@ -145,6 +145,13 @@ We test the parser-side fix from both natural directions on the 242-page / 663-Q
 | RADP-SimPO (ref-free ctrl) | 0.6793 | −0.70 [−3.77, +2.31] | 0.321 | −0.96 | −1.56 |
 
 *Table 5: RADP-DPO progression and the SimPO control on parser_native chunking, 242-page / 663-Q-A combined fold, 10k paired percentile bootstrap. Macro Hit@k averages BGE-M3, multilingual-e5-large, and Qwen3-Embedding-8B with relevance per §3.1. Bold = the three positive RADP-DPO milestones R1 → R2 → R3, with the hard-negative retrieval-reward variant R3 leading. 🔶 = P[Δ>0] ≥ 0.85 (strong directional positive). RADP-SimPO is the reference-free negative control (§4.4). Per-seed variance is small: across three v1 seeds the standard deviation of the mean ΔHit@5 is 0.90 pp, and a 3-seed merge tightens R1 to +1.16 pp [−0.64, +2.90] (P = 0.90). Sub-threshold hyperparameter variants (three-retriever scoring, curriculum schedule) are in supplementary.*
+
+| Δ vs v1 (pp) | Hit@1 | Hit@5 | Hit@10 | MRR@10 | nDCG@5 |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **RADP-DPO-v5** (R3, hard-neg) | **+1.31** | **+1.03** | **+0.81** | **+1.17** | **+1.15** |
+| RADP-DPO-v4 (R2, page-local) | +0.53 | +0.85 | +0.81 | +0.70 | +0.74 |
+
+*Table 5b: OHR-Bench cross-domain Δ vs v1, in pp (2,264 verbatim-answerable Q-A over 7 English domains; three-retriever macro; 1,000-resample paired bootstrap). Every cell is two-sided significant (95% CI excludes 0; e.g. R3 Hit@5 [+0.24, +1.84], Hit@1 [+0.55, +2.09]). Hit@k, MRR@k, and nDCG@k are monotone functions of the same retrieved ranking, **not independent endpoints** — we report them only because practitioners use different ones. R3 (hard-negative retrieval reward) clears the 1 pp practitioner bar; R2 (page-local) is significant but below it.*
 
 **The improvement transfers across retrievers and concentrates on text-precision-dependent queries (Table 6).** BGE-M3 was the embedder used to score DPO preference pairs. If the +2.06 pp Hit@5 gain were an overfit to BGE's idiosyncratic similarity surface, we would expect the effect to weaken or disappear on the held-out retrievers. The opposite happens: the gain is *strongest* on the held-out retrievers (Table 6, top block). Per-question-type analysis (Table 6, bottom block) further shows the effect concentrates on **factoid queries** (+3.07 pp, P = 0.858) — exactly the query class where the retrieval-relevant signal is the verbatim text of the answer span. Procedural queries see a smaller positive effect (+0.40 pp); tabular queries, where structural table layout dominates retrieval, see a small negative effect (−2.16 pp). The mechanism behind this pattern is §4.5.
 
