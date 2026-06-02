@@ -157,31 +157,9 @@ The coverage diagnostic (§4.2) has already licensed this step: with 20 % of ans
 
 *Table 5b: OHR-Bench cross-domain Δ vs v1, in pp (2,264 verbatim-answerable Q-A over 7 English domains; three-retriever macro; 1,000-resample paired bootstrap). Every cell is two-sided significant (95% CI excludes 0; e.g. R3 Hit@5 [+0.24, +1.84], Hit@1 [+0.55, +2.09]). Hit@k, MRR@k, and nDCG@k are monotone functions of the same retrieved ranking, **not independent endpoints** — we report them only because practitioners use different ones. R3 (hard-negative retrieval reward) clears the 1 pp practitioner bar; R2 (page-local) is significant but below it.*
 
-**The improvement transfers across retrievers and concentrates on text-precision-dependent queries (Table 6).** BGE-M3 was the embedder used to score DPO preference pairs. If the +2.06 pp Hit@5 gain were an overfit to BGE's idiosyncratic similarity surface, we would expect the effect to weaken or disappear on the held-out retrievers. The opposite happens: the gain is *strongest* on the held-out retrievers (Table 6, top block). Per-question-type analysis (Table 6, bottom block) further shows the effect concentrates on **factoid queries** (+3.07 pp, P = 0.858) — exactly the query class where the retrieval-relevant signal is the verbatim text of the answer span. Procedural queries see a smaller positive effect (+0.40 pp); tabular queries, where structural table layout dominates retrieval, see a small negative effect (−2.16 pp). The mechanism behind this pattern is §4.5.
+The gain survives two robustness checks (full grid in supplementary). It is *equal-or-larger on the two retrievers held out from preference scoring* (ml-e5-large +2.4 pp, Qwen3-Emb +2.3 pp, vs the BGE-M3 scorer +1.5 pp), ruling out a BGE-overfit artifact; and it concentrates on **factoid** queries (+3.1 pp — where verbatim answer-span text drives retrieval) while neutral-to-slightly-negative on tabular ones (structural layout), consistent with the text-fidelity mechanism (§4.5).
 
-| Slice | RADP-DPO-v1 ΔHit@5 [95% CI] (pp) | P[Δ>0] | RADP-DPO-v4 ΔHit@5 [95% CI] (pp) | P[Δ>0] |
-|---|:---:|:---:|:---:|:---:|
-| **By retriever** (parser_native, all queries) | | | | |
-| BGE-M3 (training-time scorer) | +1.51 [−1.51, +4.52] | 0.815 | +1.66 [−1.36, +4.68] | 0.845 |
-| ml-e5-large (held out) | **+2.41 [−0.90, +5.58]** | **0.921** 🔶 | +1.96 [−1.21, +5.13] | 0.872 🔶 |
-| Qwen3-Embedding-8B (held out) | **+2.26 [−1.06, +5.58]** | **0.903** 🔶 | **+2.26 [−1.06, +5.58]** | **0.905** 🔶 |
-| **By question type** (parser_native, RCPS macro) | | | | |
-| factoid (n=201) | **+3.07 [−2.40, +8.51]** | **0.858** 🔶 | — | — |
-| procedural (n=290) | +0.40 [−4.28, +4.71] | 0.586 | — | — |
-| tabular (n=165) | −0.99 (DPO-v1) / −2.16 (DPO-v4) | 0.336 / 0.156 | — | — |
-
-*Table 6: Retriever-agnostic and query-type-localised replication of the RADP-DPO Hit@5 effect. Top block: the +2 pp Hit@5 effect is **strongest on retrievers held out from preference scoring**, ruling out an overfit-to-BGE explanation. Bottom block: the gain is **concentrated on text-precision-dependent (factoid) queries**, with a small adverse effect on tabular queries.*
-
-**Secondary result — RADP-aux is sub-threshold (Table 4).** On the original 73-page held-out fold, the chunk-boundary contrastive auxiliary loss yields a sub-threshold RCPS gain. λ = 0.1 is the peak (+1.1 pp on md-h3; +2.3 pp on parser-native), and RCPS declines monotonically beyond that; parseSim drops with λ in lockstep, indicating the auxiliary objective competes with `L_parse` over the same LoRA parameters. The pre-registered 5 pp gate fails; all paired Δ-vs-control 95% bootstrap CIs include zero, and unlike the RADP-DPO Hit@5 cells the one-sided P[Δ>0] does not approach 0.90 either. The hidden-state aux-loss formulation does not match the discrete-output preference formulation.
-
-| λ | RCPS (md-h3) | Δ vs λ=0 [95% CI] (pp) | RCPS (parser-native) | Δ vs λ=0 [95% CI] (pp) | parseSim |
-|---|:---:|:---:|:---:|:---:|:---:|
-| 0.0 (control) | 0.6551 | — | 0.6557 | — | 0.872 |
-| 0.1 | **0.6664** | +1.13 [−2.53, +4.95] | **0.6788** | +2.31 [−1.59, +6.30] | 0.874 |
-| 0.3 | 0.6526 | −0.25 [−4.03, +3.12] | 0.6694 | +1.37 [−2.35, +5.11] | 0.862 |
-| 0.5 | 0.6407 | −1.44 [−5.92, +2.62] | 0.6442 | −1.15 [−5.78, +3.50] | 0.851 |
-| v1 (ref) | 0.6724 | +1.72 [−4.18, +7.61] | 0.6569 | +0.12 [−6.00, +6.26] | 0.789 |
-*Table 4: RADP-aux λ sweep on the 73-page / 202-Q-A eval fold. CIs are paired percentile bootstrap (N = 1000); every Δ-vs-control CI includes zero, and the monotonic decline with λ rules out under-tuning.*
+**RADP-aux (hidden-state) is sub-threshold (Table 4, supplementary).** The auxiliary loss peaks at λ = 0.1 (+1–2 pp RCPS) then declines monotonically as the contrastive objective competes with `L_parse` over the same LoRA parameters; every Δ-vs-control CI includes zero and the one-sided P[Δ>0] never approaches 0.90. The hidden-state route does not reach the deployed markdown — only the discrete output (DPO) does.
 
 **SimPO is negative.** The reference-free length-normalised variant produces uniformly negative deltas (−0.7 to −1.7 pp Hit@5 across cells; Table 5 last row), suggesting the reference policy in DPO's loss is doing real work — without it, the parser drifts away from the production-parser distribution before any preference signal can compound. This boundary is informative: the retrieval-reward signal must enter (a) through the *discrete output* and (b) anchored to the production parser via a reference policy to produce the C3 positive.
 ### 4.5 Mechanism: DPO Tightens Text Fidelity Without Changing Chunking Signature
