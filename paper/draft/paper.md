@@ -33,7 +33,7 @@ We release **KoGovDoc-RAG** (663 Q-A over 294 Korean government document pages),
 
 *[Figure 1 — 6-layer RAG pipeline schematic showing where prior methods sit and the empty parser slot. Manually drawn, to be inserted in PHASE_4 LaTeX porting (likely TikZ).]*
 
-In this paper we test parser-side training from both natural directions: the hidden-state aux-loss formulation (RADP-aux, §3.3a) and the discrete-output retrieval-reward preference formulation (RADP-DPO, §3.3). The aux-loss formulation is sub-threshold (§4.4); the discrete-output preference formulation produces a modest, cross-domain-significant Hit@5 gain (§4.4) that we attribute to tighter parse-to-GT text fidelity (§4.5 mechanism). The retrieval-reward signal must enter the parser through the discrete output to reach the deployed artifact.
+Our primary contributions sit *upstream* of any training: a cross-domain diagnosis of the disconnect with a parser-vs-chunker localisation (C1) and a retrieval-grounded protocol for *selecting* parsers and chunkers (RCPS, C2). On top of that we also test parser-side training (C3) from both natural directions — the hidden-state aux-loss (RADP-aux, §3.3a) and the discrete-output DPO (RADP-DPO, §3.3) — and find only the discrete-output route works, and modestly (§4.4): the retrieval-reward signal must enter through the parser's discrete output, and even then it tightens text fidelity (§4.5) rather than transforming the parser. The headline for a practitioner is therefore *how to choose* a parser, with training a smaller, optional gain on top.
 
 ## 3 Method
 
@@ -121,9 +121,9 @@ The mechanism is the headline finding. Within each semantic-noise family, Bounda
 
 *Table 2b: Answer-coverage diagnostic on the v1 parser output (294 pages, 663 KoGov Q-A; pure text matching, no retriever). `absent` (parser fault — answer never produced) is constant at 20.2 % across all eight chunkers tested (boundary-independent, the required sanity check); `split` (chunker fault — answer cut by a boundary) is ≤ 2 % and vanishes under overlap. The parsing–retrieval gap is overwhelmingly a parser problem, which is what licenses the parser-side intervention in §4.4.*
 
-### 4.3 RCPS Discriminates Chunking Strategies (C2)
+### 4.3 RCPS Selects Both Parsers and Chunkers (C2)
 
-A useful metric must separate alternatives a practitioner would compare. On the v1 parser's output for KoGov (Table 3), RCPS separates four chunking strategies cleanly: markdown-header chunking (md-h3) > the parser's native paragraphing > LumberChunker (LLM-narrative) > fixed-size. Intrinsic boundary metrics, by contrast, would rank these inconsistently or rank fixed-size highest (it has the cleanest boundaries by construction). RCPS captures *retrievability* of the chunking, not its surface appearance.
+A selection protocol must separate the alternatives a practitioner actually compares — across *both* knobs they control, the parser and the chunker. **Parsers:** the 6-parser grid of §4.2 (Table 1) *is* an RCPS ranking — it is what tells a team that v1 (RCPS 0.583, Hit@1 0.55) beats MinerU (0.21, 0.20) by 2.8×, the ordering Boundary Clarity inverts. **Chunkers:** on a fixed parser output (Table 3), RCPS separates four strategies cleanly — markdown-header (md-h3) > parser-native > LumberChunker (LLM-narrative) > fixed-size — whereas intrinsic boundary metrics would rank them inconsistently, or rank fixed-size *highest* (cleanest boundaries by construction). In both cases RCPS captures *retrievability*, not surface appearance; and because it is retriever-averaged and format-invariant (§3.1), one ~500-Q-A probe ranks the parser choice and the chunker choice a team makes independently. This is the operational core of C2 — one cheap protocol for the two parser-side decisions that standard metrics get wrong.
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
