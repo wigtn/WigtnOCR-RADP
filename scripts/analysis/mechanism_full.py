@@ -22,7 +22,6 @@ Variants: v1, λ=0/0.1/0.3/0.5, DPO-v1/v2/v3/v4, SimPO, seed123/seed999.
 from __future__ import annotations
 
 import argparse
-import difflib
 import json
 import logging
 import os
@@ -32,6 +31,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "1")
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 import numpy as np  # noqa: E402
+from rapidfuzz.distance import Levenshtein  # noqa: E402
 
 from wigtnocr_radp.evaluation import ParserNativeChunker  # noqa: E402
 from wigtnocr_radp.evaluation.boundary_clarity import PerplexityLM  # noqa: E402
@@ -73,8 +73,10 @@ def gt_markdown(val_jsonl: Path, page_ids: set[str]) -> dict[str, str]:
 
 
 def text_ned(a: str, b: str) -> float:
-    """Normalized edit distance via difflib (1 - similarity ratio)."""
-    return 1.0 - difflib.SequenceMatcher(None, a, b, autojunk=False).ratio()
+    """Normalized edit distance: character-level Levenshtein distance divided by
+    the longer string's length (rapidfuzz), so 0 = identical, 1 = fully disjoint.
+    This is the standard NED that OHR-Bench's text-fidelity metric is based on."""
+    return Levenshtein.normalized_distance(a, b)
 
 
 def compute_bc_for_variant(ppl: PerplexityLM, chunker: ParserNativeChunker,
