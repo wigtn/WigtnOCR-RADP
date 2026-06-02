@@ -54,6 +54,7 @@ VARIANTS = [
     ("RADP-DPO-v2", ROOT / "output/parses_full/radp_dpo_v2_eval"),
     ("RADP-DPO-v3", ROOT / "output/parses_full/radp_dpo_v3_eval"),
     ("RADP-DPO-v4", ROOT / "output/parses_full/radp_dpo_v4_eval"),
+    ("RADP-DPO-v5", ROOT / "output/parses_full/radp_dpo_v5_eval"),
     ("RADP-SimPO", ROOT / "output/parses_full/radp_simpo_eval"),
     ("DPO-v1-seed123", ROOT / "output/parses_full/radp_dpo_seed123_eval"),
     ("DPO-v1-seed999", ROOT / "output/parses_full/radp_dpo_seed999_eval"),
