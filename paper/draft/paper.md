@@ -117,6 +117,16 @@ The mechanism is the headline finding. Within each semantic-noise family, Bounda
 
 **Aggregate cross-variant correlation is data-mix sensitive.** Pearson BC↔RCPS across all 15 variants is **−0.35** on Law+Manual alone but **+0.25** on the full 7-domain corpus — the scalar flips as the document mix broadens. The robust finding is the per-family mechanism above, which reproduces in every domain; the cross-variant scalar conflates parser families with different intrinsic noise robustness and is not a stable signal on its own.
 
+**Locating the gap — parser or chunker? (coverage diagnostic, Table 2b).** The disconnect shows intrinsic metrics mislead, but not *which pipeline layer* is at fault — the parser (wrong content) or the chunker (right content, wrong boundaries). We separate them with no retriever at all: holding the parser output fixed and varying the chunker, we classify each Q-A's gold answer as **covered** (inside a single chunk), **split** (present in the page but cut by a chunk boundary — a *chunker* fault, recoverable with overlap or larger windows), or **absent** (not in the parser's output at all — a *parser* fault, unrecoverable by any chunking). On v1's output (294 pages, 663 Q-A), **20.2 % of answers are absent and only 0–2 % are split**, with the absent rate *constant across all eight chunkers* (boundary-independent, as a parser fault must be). The parsing–retrieval gap is therefore a **parser** problem, not a chunking one: one answer in five is never produced, so no re-chunking can recover it and a parser-side intervention is the correct lever. This both motivates the parser-side training in §4.4 and yields a practitioner rule — run this CPU-seconds diagnostic first: if `absent` dominates, fix the parser; if `split` dominates, fix the chunker.
+
+| Chunker | covered | split (chunker fault) | absent (parser fault) |
+|---|:---:|:---:|:---:|
+| md_h3 | 79.8% | 0.0% | 20.2% |
+| parser_native | 78.1% | 1.7% | 20.2% |
+| fixed500_ov200 | 79.8% | 0.0% | 20.2% |
+
+*Table 2b: Answer-coverage diagnostic on the v1 parser output (294 pages, 663 KoGov Q-A; pure text matching, no retriever). `absent` (parser fault — answer never produced) is constant at 20.2 % across all eight chunkers tested (boundary-independent, the required sanity check); `split` (chunker fault — answer cut by a boundary) is ≤ 2 % and vanishes under overlap. The parsing–retrieval gap is overwhelmingly a parser problem, which is what licenses the parser-side intervention in §4.4.*
+
 ### 4.3 RCPS Discriminates Chunking Strategies (C2)
 
 A useful metric must separate alternatives a practitioner would compare. On the v1 parser's output for KoGov (Table 3), RCPS separates four chunking strategies cleanly: markdown-header chunking (md-h3) > the parser's native paragraphing > LumberChunker (LLM-narrative) > fixed-size. Intrinsic boundary metrics, by contrast, would rank these inconsistently or rank fixed-size highest (it has the cleanest boundaries by construction). RCPS captures *retrievability* of the chunking, not its surface appearance.
