@@ -1,10 +1,14 @@
-"""Mechanism analysis for user's C1 dual-proof hypothesis (Hyeongseob 13:35-13:40).
+"""Mechanism analysis: does parser-side DPO move the chunking signature or text fidelity?
 
-Hypothesis:
-  Human-friendly BC/CS ≠ AI-friendly. DPO learns AI-friendly chunking →
-  BC/CS DIFFER from v1, but RCPS ≈ v1. This proves C1 from the constructive
-  side: there's >1 way to be retrieval-good; DPO finds one that humans
-  wouldn't pick.
+Original (boundary) hypothesis:
+  Human-friendly BC/CS != AI-friendly. DPO learns an AI-friendly chunking that
+  DIFFERS from v1 on BC/CS while keeping RCPS high — i.e. more than one way to be
+  retrieval-good. The measurements below test this.
+
+Finding (paper §4.5):
+  The chunking signature (BC/CS, chunks/page) is essentially UNCHANGED; what moves
+  is parse-to-GT text fidelity (TextNED). The retrieval gain is therefore attributed
+  to text fidelity, not to a boundary shift — refining the original hypothesis.
 
 Measures, per variant on 242p eval fold:
   1. MoC Boundary Clarity (BC) — adjacent-chunk perplexity ratio (Qwen3-VL-2B LM).
@@ -18,7 +22,6 @@ Variants: v1, λ=0/0.1/0.3/0.5, DPO-v1/v2/v3/v4, SimPO, seed123/seed999.
 from __future__ import annotations
 
 import argparse
-import difflib
 import json
 import logging
 import os
@@ -28,6 +31,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "1")
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 import numpy as np  # noqa: E402
+from rapidfuzz.distance import Levenshtein  # noqa: E402
 
 from wigtnocr_radp.evaluation import ParserNativeChunker  # noqa: E402
 from wigtnocr_radp.evaluation.boundary_clarity import PerplexityLM  # noqa: E402
@@ -50,6 +54,7 @@ VARIANTS = [
     ("RADP-DPO-v2", ROOT / "output/parses_full/radp_dpo_v2_eval"),
     ("RADP-DPO-v3", ROOT / "output/parses_full/radp_dpo_v3_eval"),
     ("RADP-DPO-v4", ROOT / "output/parses_full/radp_dpo_v4_eval"),
+    ("RADP-DPO-v5", ROOT / "output/parses_full/radp_dpo_v5_eval"),
     ("RADP-SimPO", ROOT / "output/parses_full/radp_simpo_eval"),
     ("DPO-v1-seed123", ROOT / "output/parses_full/radp_dpo_seed123_eval"),
     ("DPO-v1-seed999", ROOT / "output/parses_full/radp_dpo_seed999_eval"),
@@ -68,8 +73,10 @@ def gt_markdown(val_jsonl: Path, page_ids: set[str]) -> dict[str, str]:
 
 
 def text_ned(a: str, b: str) -> float:
-    """Normalized edit distance via difflib (1 - similarity ratio)."""
-    return 1.0 - difflib.SequenceMatcher(None, a, b, autojunk=False).ratio()
+    """Normalized edit distance: character-level Levenshtein distance divided by
+    the longer string's length (rapidfuzz), so 0 = identical, 1 = fully disjoint.
+    This is the standard NED that OHR-Bench's text-fidelity metric is based on."""
+    return Levenshtein.normalized_distance(a, b)
 
 
 def compute_bc_for_variant(ppl: PerplexityLM, chunker: ParserNativeChunker,

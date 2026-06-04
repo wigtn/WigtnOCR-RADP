@@ -1,0 +1,960 @@
+{
+  "config": {
+    "parser": "WigtnOCR v1",
+    "num_qa": 663,
+    "num_pages": 242,
+    "parser_dir": "output/parses_full/radp_dpo_v5_eval"
+  },
+  "chunkers": [
+    {
+      "chunker": "md_h3",
+      "num_chunks": 549,
+      "coverage": 0.8069381598793364,
+      "split_rate": 0.0,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 535
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 161,
+          "absent": 40
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 226
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 161
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 185
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "md_h2",
+      "num_chunks": 432,
+      "coverage": 0.8069381598793364,
+      "split_rate": 0.0,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 535
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 161,
+          "absent": 40
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 226
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 161
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 185
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "md_h1",
+      "num_chunks": 256,
+      "coverage": 0.8069381598793364,
+      "split_rate": 0.0,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 535
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 161,
+          "absent": 40
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 226
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 161
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 185
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "parser_native",
+      "num_chunks": 1180,
+      "coverage": 0.799396681749623,
+      "split_rate": 0.007541478129713424,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 530,
+        "split": 5
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 142,
+          "split": 1
+        },
+        "factoid": {
+          "covered": 158,
+          "absent": 40,
+          "split": 3
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 225,
+          "split": 1
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 160,
+          "split": 1
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 184,
+          "split": 1
+        },
+        "easy": {
+          "covered": 186,
+          "absent": 40,
+          "split": 3
+        }
+      },
+      "split_examples": [
+        {
+          "qa_id": "5425304e-cf60-414b-91af-f88ce2fe4e4f",
+          "page_id": "val_0100",
+          "question_type": "procedural",
+          "question": "반복적 시공 시 물푸기 시간은 어떻게 계산하는가?",
+          "answer_span": "물푸기 시간 2배 계산한다."
+        },
+        {
+          "qa_id": "f289b962-ba9d-481c-8c51-ef6901575f3b",
+          "page_id": "val_0177",
+          "question_type": "tabular",
+          "question": "적용으로 표시된 항목 수와 해당없음으로 표시된 항목 수의 차이는 얼마인가?",
+          "answer_span": "3"
+        },
+        {
+          "qa_id": "3b541c26-7f60-4570-9ca2-3a98c35b6a09",
+          "page_id": "val_0232",
+          "question_type": "factoid",
+          "question": "이 확인서의 작성일은 언제인가?",
+          "answer_span": "2024년 5월 7일"
+        },
+        {
+          "qa_id": "2f7d10e4-aff4-49e7-92bc-ffb0a6451c69",
+          "page_id": "val_0241",
+          "question_type": "factoid",
+          "question": "등록증에 기재하도록 되어 있는 항목 세 가지는 무엇인가?",
+          "answer_span": "1. 법 인 명 :\n\n2. 대표자성명 :\n\n3. 주 소 :"
+        },
+        {
+          "qa_id": "5bf88cf6-aab5-4cc3-ba05-47d44b329e40",
+          "page_id": "val_0241",
+          "question_type": "factoid",
+          "question": "이 등록증을 발급하는 기관장은 누구로 표시되어 있는가?",
+          "answer_span": "기획재정부 장관"
+        }
+      ],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "fixed500",
+      "num_chunks": 864,
+      "coverage": 0.7918552036199095,
+      "split_rate": 0.015082956259426848,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 525,
+        "split": 10
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 142,
+          "split": 1
+        },
+        "factoid": {
+          "covered": 159,
+          "absent": 40,
+          "split": 2
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 219,
+          "split": 7
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 158,
+          "split": 3
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 179,
+          "split": 6
+        },
+        "easy": {
+          "covered": 188,
+          "absent": 40,
+          "split": 1
+        }
+      },
+      "split_examples": [
+        {
+          "qa_id": "75d676f6-0045-4e23-8e9d-ad5c5954e555",
+          "page_id": "val_0012",
+          "question_type": "procedural",
+          "question": "동바리 점검사항 중 강관지주를 이어서 사용하는 것과 관련해 금지된 기준은 무엇인가?",
+          "answer_span": "강관지주는3본 이상 이어서 사용을 금지하며,높이2m마다 수평이음재를2개방향으로 설치여부"
+        },
+        {
+          "qa_id": "8f0cc474-58e5-47cc-b881-d6d5584deab3",
+          "page_id": "val_0059",
+          "question_type": "factoid",
+          "question": "Which property of RoPE is described as enabling it to work with linear self-attention, unlike previous relative position encoding approaches?",
+          "answer_span": "the capability of equipping the linear self-attention with relative position encoding"
+        },
+        {
+          "qa_id": "5fa0b9c9-d324-4ec4-b978-3f86fe11e690",
+          "page_id": "val_0068",
+          "question_type": "procedural",
+          "question": "계약내용 변경은 언제까지 완료해야 하며, 긴급한 경우에는 어떻게 할 수 있는가?",
+          "answer_span": "변경되는 부분의 이행에 착수하기 전에 완료(긴급한 경우 계약상대자와 협의하여 변경시기 등을 정하고 이행가능)"
+        },
+        {
+          "qa_id": "1c0fe1bd-2d0f-46eb-aa7e-1dacccb32048",
+          "page_id": "val_0069",
+          "question_type": "procedural",
+          "question": "Under what condition on θ is the gradient-expectation identity stated to hold?",
+          "answer_span": "for almost every $\\theta$, and in particular when the right hand side is well defined"
+        },
+        {
+          "qa_id": "4c045fbc-2a41-4fe9-b0fe-735cbf044739",
+          "page_id": "val_0102",
+          "question_type": "tabular",
+          "question": "바. 타이어로울러(자주식) (8~15Ton)보다 합계가 더 큰 장비는 무엇인가?",
+          "answer_span": "아. 아스팔트디스트리뷰터 (3800ℓ)"
+        },
+        {
+          "qa_id": "9c8609b1-7fd4-4760-b3c0-b100ec169630",
+          "page_id": "val_0130",
+          "question_type": "factoid",
+          "question": "What two factors are combined to determine risk in the security risk assessment framework mentioned here?",
+          "answer_span": "likelihood and impact"
+        },
+        {
+          "qa_id": "b4b9a90b-ca0f-403e-988f-1f14e1b5d34a",
+          "page_id": "val_0149",
+          "question_type": "procedural",
+          "question": "앞으로 장기간 및 대규모 사업비가 필요한 경우 어떻게 추진하여야 한다고 했는가?",
+          "answer_span": "계속비 사업으로 지방의회의 의결을 득하여 추진"
+        },
+        {
+          "qa_id": "a33c3c28-57ba-4fd3-99b6-fcccd8e557d7",
+          "page_id": "val_0206",
+          "question_type": "procedural",
+          "question": "시행여부 및 성과 항목에서 평가 성과로 제시된 대상 분야는 무엇인가?",
+          "answer_span": "원가, 공정, 품질, 안전, 환경 등에 대한 성과"
+        }
+      ],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "fixed500_ov200",
+      "num_chunks": 1192,
+      "coverage": 0.8069381598793364,
+      "split_rate": 0.0,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 535
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 161,
+          "absent": 40
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 226
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 161
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 185
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "fixed1000",
+      "num_chunks": 484,
+      "coverage": 0.8024132730015083,
+      "split_rate": 0.004524886877828055,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 532,
+        "split": 3
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 160,
+          "absent": 40,
+          "split": 1
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 224,
+          "split": 2
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 160,
+          "split": 1
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 183,
+          "split": 2
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [
+        {
+          "qa_id": "8f0cc474-58e5-47cc-b881-d6d5584deab3",
+          "page_id": "val_0059",
+          "question_type": "factoid",
+          "question": "Which property of RoPE is described as enabling it to work with linear self-attention, unlike previous relative position encoding approaches?",
+          "answer_span": "the capability of equipping the linear self-attention with relative position encoding"
+        },
+        {
+          "qa_id": "1c0fe1bd-2d0f-46eb-aa7e-1dacccb32048",
+          "page_id": "val_0069",
+          "question_type": "procedural",
+          "question": "Under what condition on θ is the gradient-expectation identity stated to hold?",
+          "answer_span": "for almost every $\\theta$, and in particular when the right hand side is well defined"
+        },
+        {
+          "qa_id": "b4b9a90b-ca0f-403e-988f-1f14e1b5d34a",
+          "page_id": "val_0149",
+          "question_type": "procedural",
+          "question": "앞으로 장기간 및 대규모 사업비가 필요한 경우 어떻게 추진하여야 한다고 했는가?",
+          "answer_span": "계속비 사업으로 지방의회의 의결을 득하여 추진"
+        }
+      ],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    },
+    {
+      "chunker": "fixed1000_ov200",
+      "num_chunks": 525,
+      "coverage": 0.8069381598793364,
+      "split_rate": 0.0,
+      "parser_fault_rate": 0.19306184012066366,
+      "counts": {
+        "absent": 128,
+        "covered": 535
+      },
+      "by_question_type": {
+        "tabular": {
+          "absent": 22,
+          "covered": 143
+        },
+        "factoid": {
+          "covered": 161,
+          "absent": 40
+        },
+        "procedural": {
+          "absent": 64,
+          "covered": 226
+        },
+        "figural": {
+          "absent": 2,
+          "covered": 5
+        }
+      },
+      "by_difficulty": {
+        "hard": {
+          "absent": 35,
+          "covered": 161
+        },
+        "medium": {
+          "absent": 53,
+          "covered": 185
+        },
+        "easy": {
+          "covered": 189,
+          "absent": 40
+        }
+      },
+      "split_examples": [],
+      "absent_examples": [
+        {
+          "qa_id": "b6b16a35-5b07-41e8-a9f8-9a9ab6fc7ffe",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "흘관 Φ1100부터 Φ1800까지 종배 수관부설 항목 중 합계가 가장 큰 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1800)"
+        },
+        {
+          "qa_id": "ed9af8c1-cc5d-4a0d-9671-eee52e7aa07e",
+          "page_id": "val_0000",
+          "question_type": "tabular",
+          "question": "종배 수관부설 항목들 가운데 합계가 20만원을 넘는 규격은 무엇인가?",
+          "answer_span": "종배 수관부설 (흘관 Φ1500)"
+        },
+        {
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
+          "question_type": "procedural",
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
+          "page_id": "val_0002",
+          "question_type": "tabular",
+          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
+          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
+        },
+        {
+          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
+          "page_id": "val_0003",
+          "question_type": "factoid",
+          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
+          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
+        },
+        {
+          "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
+          "page_id": "val_0005",
+          "question_type": "factoid",
+          "question": "Type-II 작업환경은 어떤 경우를 말하는가?",
+          "answer_span": "가설 흙막이, 지장물 등 장애물이 있고 연속작업이 어려거나 이에 준하는 작업환경일 경우"
+        },
+        {
+          "qa_id": "4c6f16ba-269c-420a-8c9c-6f758ee3a6da",
+          "page_id": "val_0006",
+          "question_type": "procedural",
+          "question": "SRPS-M 공법에 포함된 작업으로 본문에 열거된 항목들은 무엇인가?",
+          "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
+        },
+        {
+          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
+          "page_id": "val_0011",
+          "question_type": "factoid",
+          "question": "시간당 시공량 Q는 얼마인가?",
+          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+        }
+      ]
+    }
+  ]
+}

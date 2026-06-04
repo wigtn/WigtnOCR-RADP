@@ -1,0 +1,115 @@
+{
+  "domains": [
+    "law",
+    "manual"
+  ],
+  "rows": [
+    {
+      "parser": "MinerU",
+      "boundary_clarity": 0.65690883161423,
+      "n_boundaries": 1438,
+      "rcps": 0.5945245958189391,
+      "hit@1": 0.5317992968999681
+    },
+    {
+      "parser": "Qwen2.5-VL",
+      "boundary_clarity": 0.5630585411024359,
+      "n_boundaries": 21091,
+      "rcps": 0.5445490724253907,
+      "hit@1": 0.4924896132949825
+    },
+    {
+      "parser": "formatting_noise_mild",
+      "boundary_clarity": 0.5244504219262088,
+      "n_boundaries": 737,
+      "rcps": 0.5449019752071845,
+      "hit@1": 0.4886545222115692
+    },
+    {
+      "parser": "formatting_noise_moderate",
+      "boundary_clarity": 0.5694426537427854,
+      "n_boundaries": 957,
+      "rcps": 0.4397816297784339,
+      "hit@1": 0.39245765420262063
+    },
+    {
+      "parser": "formatting_noise_severe",
+      "boundary_clarity": 0.6219582690502153,
+      "n_boundaries": 1203,
+      "rcps": 0.4091431327688918,
+      "hit@1": 0.3649728347714925
+    },
+    {
+      "parser": "gt",
+      "boundary_clarity": 0.6184173801874963,
+      "n_boundaries": 10393,
+      "rcps": 0.6402518849946143,
+      "hit@1": 0.5752636625119846
+    },
+    {
+      "parser": "semantic_noise_GOT_mild",
+      "boundary_clarity": 0.5861555030023189,
+      "n_boundaries": 555,
+      "rcps": 0.4606444491791248,
+      "hit@1": 0.41514860977948226
+    },
+    {
+      "parser": "semantic_noise_GOT_moderate",
+      "boundary_clarity": 0.6195121074057672,
+      "n_boundaries": 458,
+      "rcps": 0.3848830533953576,
+      "hit@1": 0.34995206136145734
+    },
+    {
+      "parser": "semantic_noise_GOT_severe",
+      "boundary_clarity": 0.6240815999131943,
+      "n_boundaries": 355,
+      "rcps": 0.2983950279092497,
+      "hit@1": 0.26973473953339727
+    },
+    {
+      "parser": "semantic_noise_MinerU_mild",
+      "boundary_clarity": 0.62760718286673,
+      "n_boundaries": 1442,
+      "rcps": 0.475996988405106,
+      "hit@1": 0.4240971556407798
+    },
+    {
+      "parser": "semantic_noise_MinerU_moderate",
+      "boundary_clarity": 0.6508076649114714,
+      "n_boundaries": 1452,
+      "rcps": 0.38368052913434825,
+      "hit@1": 0.3432406519654842
+    },
+    {
+      "parser": "semantic_noise_MinerU_severe",
+      "boundary_clarity": 0.631182862717235,
+      "n_boundaries": 1428,
+      "rcps": 0.26540863673334114,
+      "hit@1": 0.24193032917865132
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_mild",
+      "boundary_clarity": 0.5631359084547896,
+      "n_boundaries": 20782,
+      "rcps": 0.5338548668286603,
+      "hit@1": 0.4825822946628316
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_moderate",
+      "boundary_clarity": 0.5629737683667121,
+      "n_boundaries": 20667,
+      "rcps": 0.5228997887994372,
+      "hit@1": 0.4749121124960051
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_severe",
+      "boundary_clarity": 0.5638620255501532,
+      "n_boundaries": 20286,
+      "rcps": 0.49676278913255584,
+      "hit@1": 0.4483860658357302
+    }
+  ],
+  "pearson_BC_vs_RCPS": -0.3509715908557745,
+  "n": 15
+}

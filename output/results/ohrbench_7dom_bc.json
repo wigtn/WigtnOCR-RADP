@@ -1,0 +1,120 @@
+{
+  "domains": [
+    "law",
+    "manual",
+    "finance",
+    "news",
+    "textbook",
+    "academic",
+    "administration"
+  ],
+  "rows": [
+    {
+      "parser": "MinerU",
+      "boundary_clarity": 0.7345294769691474,
+      "n_boundaries": 6789,
+      "rcps": 0.49603180445715783,
+      "hit@1": 0.44419905771495877
+    },
+    {
+      "parser": "Qwen2.5-VL",
+      "boundary_clarity": 0.6188282049192293,
+      "n_boundaries": 72427,
+      "rcps": 0.4666817988483183,
+      "hit@1": 0.4185806831566549
+    },
+    {
+      "parser": "formatting_noise_mild",
+      "boundary_clarity": 0.7454020110633648,
+      "n_boundaries": 18365,
+      "rcps": 0.550567291273269,
+      "hit@1": 0.4957302709069493
+    },
+    {
+      "parser": "formatting_noise_moderate",
+      "boundary_clarity": 0.748801088981739,
+      "n_boundaries": 18739,
+      "rcps": 0.46401388031982843,
+      "hit@1": 0.4165194346289753
+    },
+    {
+      "parser": "formatting_noise_severe",
+      "boundary_clarity": 0.7487094302046242,
+      "n_boundaries": 19716,
+      "rcps": 0.43245934759848187,
+      "hit@1": 0.3886925795053004
+    },
+    {
+      "parser": "gt",
+      "boundary_clarity": 0.6975882749414682,
+      "n_boundaries": 55833,
+      "rcps": 0.6373380642336767,
+      "hit@1": 0.5746466431095406
+    },
+    {
+      "parser": "semantic_noise_GOT_mild",
+      "boundary_clarity": 0.6338232863953887,
+      "n_boundaries": 1271,
+      "rcps": 0.38251132673983085,
+      "hit@1": 0.34408127208480566
+    },
+    {
+      "parser": "semantic_noise_GOT_moderate",
+      "boundary_clarity": 0.49524518575292076,
+      "n_boundaries": 1396,
+      "rcps": 0.33785244155900807,
+      "hit@1": 0.3044758539458186
+    },
+    {
+      "parser": "semantic_noise_GOT_severe",
+      "boundary_clarity": 0.6501717322005581,
+      "n_boundaries": 919,
+      "rcps": 0.257224847470725,
+      "hit@1": 0.2311542991755006
+    },
+    {
+      "parser": "semantic_noise_MinerU_mild",
+      "boundary_clarity": 0.7075992867316487,
+      "n_boundaries": 6613,
+      "rcps": 0.4125919421230081,
+      "hit@1": 0.3695524146054181
+    },
+    {
+      "parser": "semantic_noise_MinerU_moderate",
+      "boundary_clarity": 0.7148815283832817,
+      "n_boundaries": 6385,
+      "rcps": 0.35131696720698485,
+      "hit@1": 0.31743227326266193
+    },
+    {
+      "parser": "semantic_noise_MinerU_severe",
+      "boundary_clarity": 0.7119064764025521,
+      "n_boundaries": 5912,
+      "rcps": 0.24327957805946618,
+      "hit@1": 0.2215842167255595
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_mild",
+      "boundary_clarity": 0.6138895442422698,
+      "n_boundaries": 71581,
+      "rcps": 0.4621384830270284,
+      "hit@1": 0.41386925795053003
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_moderate",
+      "boundary_clarity": 0.615626709448449,
+      "n_boundaries": 70561,
+      "rcps": 0.4595136824524339,
+      "hit@1": 0.4134275618374558
+    },
+    {
+      "parser": "semantic_noise_Qwen2.5-VL_severe",
+      "boundary_clarity": 0.6101563232770373,
+      "n_boundaries": 69022,
+      "rcps": 0.42937115560790473,
+      "hit@1": 0.3844228504122497
+    }
+  ],
+  "pearson_BC_vs_RCPS": 0.2498646685793464,
+  "n": 15
+}

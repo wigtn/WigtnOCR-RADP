@@ -1,0 +1,42 @@
+{
+  "v1": {
+    "n_pages": 4040,
+    "mean_ned": 0.192
+  },
+  "dpo_v1": {
+    "n_pages": 4040,
+    "mean_ned": 0.1886,
+    "n_paired": 4040,
+    "mean_delta_vs_v1": -0.0034,
+    "ci95": [
+      -0.00527,
+      -0.00169
+    ],
+    "pct_change_vs_v1": -1.77,
+    "two_sided_sig": true
+  },
+  "dpo_v4": {
+    "n_pages": 4040,
+    "mean_ned": 0.1894,
+    "n_paired": 4040,
+    "mean_delta_vs_v1": -0.00262,
+    "ci95": [
+      -0.00427,
+      -0.00101
+    ],
+    "pct_change_vs_v1": -1.36,
+    "two_sided_sig": true
+  },
+  "v5": {
+    "n_pages": 4040,
+    "mean_ned": 0.1843,
+    "n_paired": 4040,
+    "mean_delta_vs_v1": -0.00774,
+    "ci95": [
+      -0.01002,
+      -0.00554
+    ],
+    "pct_change_vs_v1": -4.03,
+    "two_sided_sig": true
+  }
+}

@@ -140,9 +140,9 @@ def compute_per_qa_metrics(qa_list, pages, retrievers, chunker, k_values):
                 [mrr_at_k(r, qa, k) for r, qa in zip(results, qa_list)], dtype=float)
             per_qa[("ndcg", retr.name, k)] = np.array(
                 [ndcg_at_k(r, qa, k) for r, qa in zip(results, qa_list)], dtype=float)
-        # Recall@k: single-relevant per QA in this setup -> identical to Hit@k, but
-        # report explicitly so downstream framing can use "Recall" wording per user's
-        # 13:48 hypothesis ("Recall 성능 끌어올릴 수 있다").
+        # Recall@k: with exactly one relevant chunk per Q-A in this setup, Recall@k
+        # equals Hit@k by definition. Computed explicitly only so both names are
+        # available; Hit and Recall here are the same measurement, not independent.
         for k in k_values:
             per_qa[("recall", retr.name, k)] = per_qa[("hit", retr.name, k)].copy()
     return per_qa

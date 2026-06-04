@@ -1,7 +1,7 @@
 """Paired bootstrap CI of every variant vs v1 (production parser).
 
 The existing FULL_HF_ci_242p.json computes Δ vs λ=0 (RADP-B aux control).
-For the user's hypothesis check we need Δ vs **v1** (the production fine-tuned parser):
+The central check needs Δ vs **v1** (the production fine-tuned parser):
 the question is "does parser-side preference learning improve over v1?".
 
 Outputs (per chunker × {RCPS aggregate, per-retriever MRR@k, standard Hit@k}):
@@ -186,7 +186,7 @@ def main() -> int:
     md_lines.append("- **sig = `-`** → CI upper bound < 0, statistically negative")
     md_lines.append("- **sig = `0`** → CI straddles 0, no significant effect")
     md_lines.append("")
-    md_lines.append("Industry-track gate (per 13:51 message): even **+1pp with CI excluding 0** would be a")
+    md_lines.append("Industry-track relevance: even **+1pp with CI excluding 0** would be a")
     md_lines.append("publishable contribution. If all `sig = 0`, the parser-side preference learning thesis")
     md_lines.append("is genuinely null on 242p — supports comprehensive-negative framing.")
 
