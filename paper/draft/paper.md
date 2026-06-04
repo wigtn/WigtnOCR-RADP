@@ -1,7 +1,7 @@
 # RCPS: Choosing Document Parsers by Retrieval, Not by Appearance — Diagnosing the Parsing–Retrieval Gap
 
 **Hyeong-seob Kim**\*, **Sang-woo Son**\* (WIGTN)
-*\* Equal contribution (co-first authors). EMNLP 2026 Industry Track — Draft v0.6 (2026-05-31).*
+*\* Equal contribution (co-first authors). EMNLP 2026 Industry Track — Draft v0.7 (2026-06-04).*
 
 ---
 
