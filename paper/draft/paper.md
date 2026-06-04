@@ -80,17 +80,17 @@ We fine-tune Qwen3-VL-2B-Instruct with LoRA (r = 8, α = 32) on the full v1 trai
 
 ### 4.2 The Parsing–Retrieval Disconnect and Coverage Diagnostic (C1–C2)
 
-**Korean government documents (Table 1).** RCPS spans 0.07–0.58 across the six parsers. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the intrinsic Boundary Clarity metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding the 38-page Marker subset). MinerU, the cleanest-boundary parser (BC = 0.72), retrieves worst (RCPS = 0.21). MoC's companion intrinsic metric, Chunk Stickiness, is similarly disconnected from retrieval (Pearson r = +0.26, n = 5 — a positive sign by convention, but with CS oriented so that *lower* indicates more cohesive chunks, this is the same direction as BC: more cohesive intrinsic structure tracks *worse* retrieval). Neither intrinsic axis predicts RCPS.
+**Korean government documents (Table 1).** RCPS spans 0.07–0.58 across the six parsers. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the intrinsic Boundary Clarity metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding PaddleOCR, whose Boundary Clarity is undefined — MoC detects zero boundaries in its output). The cleanest-boundary parsers (MinerU and Marker, BC ≈ 0.72) retrieve worst (RCPS 0.07–0.21), while the lower-BC VLM parsers (BC 0.52–0.62) retrieve best. MoC's companion intrinsic metric, Chunk Stickiness, is similarly disconnected from retrieval (Pearson r = +0.26, n = 5 — a positive sign by convention, but with CS oriented so that *lower* indicates more cohesive chunks, this is the same direction as BC: more cohesive intrinsic structure tracks *worse* retrieval). Neither intrinsic axis predicts RCPS.
 
 | Parser | BC | RCPS | Hit@1 |
 |---|:---:|:---:|:---:|
-| Qwen3-VL-30B (teacher) | 0.691 | **0.584** | 0.545 |
-| WigtnOCR-2B (ours, v1) | 0.694 | 0.583 | 0.549 |
-| Qwen3-VL-2B (base) | 0.677 | 0.532 | 0.500 |
-| MinerU | **0.722** | 0.212 | 0.197 |
-| PaddleOCR | 0.649 | 0.140 | 0.125 |
-| Marker (38p) | 0.667 | 0.073 | 0.068 |
-*Table 1: KoGov, BC vs RCPS, Pearson r = −0.81 (n = 5, excl. Marker).*
+| Qwen3-VL-30B (teacher) | 0.623 | **0.584** | 0.545 |
+| WigtnOCR-2B (ours, v1) | 0.610 | 0.583 | 0.549 |
+| Qwen3-VL-2B (base) | 0.520 | 0.532 | 0.500 |
+| MinerU | **0.716** | 0.212 | 0.197 |
+| PaddleOCR | — | 0.140 | 0.125 |
+| Marker (38p) | **0.717** | 0.073 | 0.068 |
+*Table 1: KoGov, BC vs RCPS, Pearson r = −0.81 (n = 5, excl. PaddleOCR — Boundary Clarity undefined, zero detected boundaries; n = 4, r = −0.74 if the 38-page Marker subset is also dropped, same direction). RCPS averaged over 3 retrievers (BGE-M3, mE5-large, Qwen3-Emb-8B).*
 
 A single-domain anti-correlation could be a quirk of one language or document type. We test cross-domain.
 
@@ -216,7 +216,7 @@ The reference-free SimPO control (β=2.0, γ=1.0) removes the reference policy e
 
 ### Appendix B — KoGov DPO progression, RADP-aux sweep, SimPO, and robustness (detail for §4.4)
 
-**KoGov milestone progression and SimPO control (Table 5).** On the 242-page / 663-Q-A KoGov fold (10,000-resample paired bootstrap), the three RADP-DPO milestones improve Hit@5 on parser_native over v1 along the reward-sharpening axis: R1 +2.06 pp [−0.96, +5.13], R2 +1.96 pp [−1.06, +5.03], R3 +2.1 pp (all P[Δ>0] ≈ 0.90). At n = 663 every two-sided CI spans zero, so we treat these KoGov numbers as exploratory: the Hit@5 / parser_native cell was selected from a multi-cell scan over (chunker × retriever × k), with no family-wise correction applied to a chosen cell. Consistent with the mechanism (DPO tightens text fidelity, §4.5), the DPO parser also lowers the absent rate slightly (20.2 % → 19.3 % on its 242-page output), recovering some parser-fault mass (a same-page comparison is left to future work).
+**KoGov milestone progression and SimPO control (Table 5).** On the 242-page / 663-Q-A KoGov fold (10,000-resample paired bootstrap), the three RADP-DPO milestones improve Hit@5 on parser_native over v1 along the reward-sharpening axis: R1 +2.06 pp [−0.96, +5.13], R2 +1.96 pp [−1.06, +5.03], R3 +2.1 pp (all P[Δ>0] ≈ 0.90). At n = 663 every two-sided CI spans zero, so we treat these KoGov numbers as exploratory: the Hit@5 / parser_native cell was selected from a multi-cell scan over (chunker × retriever × k), with no family-wise correction applied to a chosen cell.
 
 | Variant | Hit@5 v1 = 0.6863 | ΔHit@5 vs v1 (pp) [95% CI] | P[Δ>0] | ΔHit@10 (pp) | ΔRCPS (pp) |
 |---|:---:|:---:|:---:|:---:|:---:|
