@@ -69,7 +69,7 @@ def main() -> None:
     arrow(ax, 0.5, 0.527, 0.5, 0.499)
 
     # RCPS score
-    box(ax, 0.20, 0.300, 0.60, 0.070, "RCPS(P) = retriever-averaged MRR",
+    box(ax, 0.08, 0.300, 0.84, 0.070, "RCPS(P) = retriever-averaged MRR",
         "#cfe9cf", 8.6, bold=True)
     arrow(ax, 0.5, 0.429, 0.5, 0.372)
 
