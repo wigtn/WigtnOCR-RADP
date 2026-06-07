@@ -60,7 +60,7 @@ def main() -> None:
     ax.set_xticklabels(names, rotation=30, ha="right", fontsize=7.2)
     ax.set_ylabel("% of gold answers")
     ax.set_ylim(70, 101)
-    ax.set_title("Coverage by chunker (parser fixed = v1): absent is flat → fix the parser",
+    ax.set_title("Coverage by chunker (parser fixed = Prod): absent is flat → fix the parser",
                  fontsize=8.5, pad=22)
     # legend above the axes (clear of the rotated x-tick labels)
     ax.legend(fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.005),

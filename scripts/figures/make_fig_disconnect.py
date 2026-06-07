@@ -31,7 +31,7 @@ _GRID = {p["name"]: p for p in
          json.load(open("output/baselines/grid_v1_parser_native.json"))["parsers"]}
 _SHORT = {
     "Qwen3-VL-30B (teacher)": "Qwen3-VL-30B\n(teacher)",
-    "WigtnOCR-2B (ours, v1)": "WigtnOCR-2B\n(v1, ours)",
+    "WigtnOCR-2B (ours, v1)": "Prod (ours)",
     "Qwen3-VL-2B (base)": "Qwen3-VL-2B\n(base)",
     "MinerU": "MinerU", "PaddleOCR": "PaddleOCR", "Marker": "Marker (38p)",
 }
@@ -69,7 +69,7 @@ def main() -> None:
     # offsets tuned so the three clustered VLM labels fan out without overlap
     label_off = {
         "MinerU": (9, -1), "Marker (38p)": (9, -1),
-        "WigtnOCR-2B\n(v1, ours)": (-8, 9),       # above the cluster
+        "Prod (ours)": (-8, 9),                   # above the cluster
         "Qwen3-VL-30B\n(teacher)": (12, -2),      # to the right
         "Qwen3-VL-2B\n(base)": (-2, -27),         # below
     }
@@ -95,7 +95,7 @@ def main() -> None:
     g = _GRID
     mineru_h1 = g["MinerU"]["hit@1"]
     v1_h1 = g["WigtnOCR-2B (ours, v1)"]["hit@1"]
-    labels = ["Pick by\nappearance\n(MinerU)", "Pick by\nRCPS\n(v1)"]
+    labels = ["Pick by\nappearance\n(MinerU)", "Pick by\nRCPS\n(Prod)"]
     vals = [mineru_h1, v1_h1]
     colors = ["#d62728", "#2ca02c"]
     bars = ax_b.bar(labels, vals, color=colors, width=0.6, zorder=3)
