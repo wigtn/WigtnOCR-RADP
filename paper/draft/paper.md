@@ -1,4 +1,4 @@
-# RCPS: Choosing Document Parsers by Retrieval, Not by Appearance — Diagnosing the Parsing–Retrieval Gap
+# Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance
 
 Hyeong-seob Kim\*, Sang-woo Son\* (WIGTN)
 *\* Equal contribution (co-first authors). EMNLP 2026 Industry Track — Draft v0.8 (2026-06-07).*
