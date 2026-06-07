@@ -44,7 +44,7 @@ Given a parser $P$, a Q-A set $D = \{(q_i, a_i, \text{page}_i)\}$, a set of retr
 
 $$\text{RCPS}(P, D, R, K) = \frac{1}{|R||K|} \sum_{r \in R} \sum_{k \in K} \text{MRR}@k\big(r, \text{chunks}_P(D), \{q_i\}\big).$$
 
-We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant for a query if and only if its source page matches the answer's source page and the gold answer span is a substring of the chunk under whitespace- and markdown-insensitive normalisation. The retriever average makes the ranking robust to embedder choice: a parser that wins on one retriever but loses on another does not dominate. In practice a team runs RCPS on a few hundred held-out Q-A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly. The implementation is released.
+We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant for a query if and only if its source page matches the answer's source page and the gold answer span is a substring of the chunk under whitespace- and markdown-insensitive normalisation. The retriever average makes the ranking robust to embedder choice: a parser that wins on one retriever but loses on another does not dominate. In practice a team runs RCPS on a few hundred held-out Q-A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly; Figure 3 summarises the protocol together with the failure each of its three choices removes. The implementation is released.
 
 ### 3.2 Coverage Diagnostic — Locating the Gap (Parser vs Chunker)
 
@@ -103,11 +103,14 @@ The aggregate cross-variant correlation is sensitive to the document mix: Pearso
 | fixed1000 | 79.3% | 0.5% | 20.2% |
 | fixed1000_ov200 | 79.8% | 0.0% | 20.2% |
 
-*Table 2b: Answer-coverage diagnostic on Prod's output (294 pages, 663 KoGov Q-A; text matching only, no retriever). The absent rate (a parser fault) is constant at 20.2% across all eight chunkers, the required boundary-independence check; the split rate (a chunker fault) is at most 2.3% and vanishes under overlap. The gap is overwhelmingly a parser problem, which licenses the parser-side intervention in §4.4.*
+*Table 2b: Answer-coverage diagnostic on Prod's output (294 pages, 663 KoGov Q-A; text matching only, no retriever). The absent rate (a parser fault) is constant at 20.2% across all eight chunkers, the required boundary-independence check; the split rate (a chunker fault) is at most 2.3% and vanishes under overlap. The gap is overwhelmingly a parser problem, which licenses the parser-side intervention in §4.4. Chunkers: md_h{1,2,3} = markdown-header splitting at heading depth k; parser_native = the parser's own segmentation; fixed N[_ovM] = fixed N-character windows, optionally with M-character overlap.*
 
 ### 4.3 RCPS Selects Both Parsers and Chunkers (C3)
 
 A selection protocol must separate the alternatives a practitioner actually compares, across both knobs they control. For **parsers**, the six-parser grid of §4.2 (Figure 1, Appendix D) is itself an RCPS ranking: it tells a team that Prod (RCPS 0.583, Hit@1 0.55) beats MinerU (0.21, 0.20) by 2.8×, the ordering Boundary Clarity inverts. For **chunkers**, on a fixed parser output (Table 3) RCPS separates four strategies cleanly—markdown-header (md-h3) > parser-native > LumberChunker \citep{duarte2024lumber} > fixed-size—whereas intrinsic boundary metrics would rank them inconsistently, or rank fixed-size highest because its boundaries are clean by construction. Because RCPS is retriever-averaged and format-invariant, one probe set of a few hundred Q-A ranks both the parser choice and the chunker choice a team makes independently.
+
+![Figure 3 — RCPS protocol](../figures/fig_rcps_protocol.png)
+*Figure 3: RCPS as a protocol, not a new scoring function. It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) it scores retrieval on a held-out Q-A probe rather than on the text, since text scores (TEDS, BC) mispredict retrieval; (ii) it averages over retrievers, since a single embedder can flip the top-ranked parser (Table 3b); and (iii) it uses format-invariant relevance, crediting the content a parser keeps rather than its formatting. Run with no training on a probe of a few hundred Q-A, it ranks the parser and chunker a team would deploy.*
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
