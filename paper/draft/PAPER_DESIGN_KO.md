@@ -9,7 +9,8 @@
 
 - **타깃**: EMNLP 2026 Industry Track, 본문 **6쪽**(refs·Limitations·Appendix 미포함), 마감 2026-06-16
 - **제목**: *RCPS: Choosing Document Parsers by Retrieval, Not by Appearance — Diagnosing the Parsing–Retrieval Gap*
-- **한 줄 요지**: **"제일 깨끗해 보이는 파서가 제일 나쁜 retriever다."** → 사람 가독성 지표 말고 **retrieval로 파서/청커를 진단·선택(RCPS)**하라. 파서 학습은 작고 정직한 보조 lever.
+- **한 줄 요지**: **"제일 깨끗해 보이는 파서가 제일 잘 찾는 retriever는 아니다 (오히려 하위권)."** — BC 같은 사람 가독성 지표가 retrieval을 *예측 못 함*(반상관). → **retrieval로 파서/청커를 진단·선택(RCPS)**하라. 파서 학습은 작고 정직한 보조 lever.
+  - ⚠️ **"cleanest = 꼴찌"는 과장 (쓰지 말 것)**: MinerU Hit@1 0.197 = 6개 중 4등(꼴찌는 38p Marker 0.068·PaddleOCR 0.125). 정확한 건 "cleanest = best 아님 = 하위권, VLM 파서보다 한참 아래". 현재 abstract/§1/§5가 "worst"로 과장 → 정정 대상.
 - **명칭 확정**: 우리 프로덕션 파서 = **Prod** (구 "v1", fine-tuned 2B). base=Qwen3-VL-2B(원본), teacher=Qwen3-VL-30B. RADP-DPO 마일스톤=R1/R2/R3. 권장 학습 lever=**RADP-Distill**.
 
 ---
@@ -42,7 +43,7 @@
 
 ### 📊 Figure 1 — disconnect (C1 헤드라인) · 본문 §4.2
 - **무엇**: (a) 6파서 BC↔RCPS scatter(반상관) + (b) Hit@1 2.8× swing 막대
-- **왜**: 논문 한 방 — "깨끗한 파서(MinerU)가 최악 retrieval". 시각적 gut-punch.
+- **왜**: 논문 한 방 — "깨끗한 파서(MinerU/Marker)가 retrieval 하위권, VLM보다 한참 아래". 시각적 gut-punch.
 - **출처**: BC=`moc_bc_correlation.json`, RCPS/Hit@1=`grid_v1_parser_native.json`(3-retriever)
 - **핵심숫자**: r=−0.81(n=5, PaddleOCR 제외=BC undefined), 0.197→0.549
 - ⚠️ scalar r은 "illustrative"로 포지셔닝(데이터-mix 민감, [[ohrbench-7dom-flip]]). 진짜 C1 증거는 Fig2.
