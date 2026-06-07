@@ -50,20 +50,21 @@ def main() -> None:
     b_abs = ax.bar(x, absent, bottom=bottom2, color="#d62728",
                    label="absent (parser fault)", zorder=3)
 
-    # constant-absent reference line
+    # constant-absent reference line + clean label (white box so it reads over red)
     ax.axhline(100 - mean_absent, color="#d62728", ls="--", lw=0.9, zorder=4)
-    ax.text(len(names) - 0.5, 100 - mean_absent + 0.6,
-            f"absent ≈ {mean_absent:.1f}% (≈constant)", color="#d62728",
-            fontsize=7.5, ha="right")
+    ax.text(0.0, 90.0, f"absent ≈ {mean_absent:.1f}%\n(constant across\nall chunkers)",
+            color="#d62728", fontsize=7.2, ha="left", va="center", zorder=6,
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#d62728", lw=0.6))
 
     ax.set_xticks(list(x))
-    ax.set_xticklabels(names, rotation=30, ha="right", fontsize=7.5)
+    ax.set_xticklabels(names, rotation=30, ha="right", fontsize=7.2)
     ax.set_ylabel("% of gold answers")
     ax.set_ylim(70, 101)
-    ax.set_title("Coverage by chunker (parser fixed = v1):\nabsent is flat → fix the parser, not the chunker",
-                 fontsize=8.5)
-    ax.legend(fontsize=7, loc="lower left", ncol=3, frameon=False,
-              bbox_to_anchor=(0.0, -0.42))
+    ax.set_title("Coverage by chunker (parser fixed = v1): absent is flat → fix the parser",
+                 fontsize=8.5, pad=22)
+    # legend above the axes (clear of the rotated x-tick labels)
+    ax.legend(fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.005),
+              ncol=3, frameon=False)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
