@@ -70,7 +70,7 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 \subsection{Parser-Side Training: Auxiliary Loss and Discrete-Output DPO}
 \label{sec:training}
 
-When the diagnostic points to the parser (\S\ref{sec:c1c2}), we train it on a retrieval signal in two natural ways. \textbf{(a) Hidden-state auxiliary loss (RADP-aux):} we add to the parsing loss an InfoNCE term aligning the parser's pooled answer-span hidden state with the frozen BGE-M3 embedding of the gold chunk ($\mathcal{L}_\text{total} = \mathcal{L}_\text{parse} + \lambda\,\mathcal{L}_\text{contrast}$); this differentiable surrogate reaches the deployed markdown only through $\mathcal{L}_\text{parse}$ and is sub-threshold (\S\ref{sec:c4}). \textbf{(b) Discrete-output DPO (RADP-DPO):} we optimise the markdown directly \citep{rafailov2023dpo}---sampling $K$ parses per page, scoring each by a page-local \rcps{}, forming preference pairs (gap $\ge 5$~pp), and training with a LoRA-toggle reference \citep{hu2021lora} ($\pi_\theta$ adapter-on, $\pi_\text{ref}$ adapter-off), the reward sharpened over three milestones R1$\rightarrow$R2$\rightarrow$R3 (Appendix~\ref{app:milestones}); reference-free SimPO \citep{meng2024simpo} is a control. \textbf{(c) Reward-agnostic control (RADP-Distill):} the identical best-of-K pipeline but ranking candidates by edit-distance to the ground-truth markdown instead of \rcps{}; if it matches RADP-DPO, the retrieval reward is unnecessary (\S\ref{sec:c4}).
+When the diagnostic points to the parser (\S\ref{sec:c1c2}), we train it on a retrieval signal---a family we call Retrieval-Aware Document Parsing (RADP)---in two natural ways. \textbf{(a) Hidden-state auxiliary loss (RADP-aux):} we add to the parsing loss an InfoNCE term aligning the parser's pooled answer-span hidden state with the frozen BGE-M3 embedding of the gold chunk ($\mathcal{L}_\text{total} = \mathcal{L}_\text{parse} + \lambda\,\mathcal{L}_\text{contrast}$); this differentiable surrogate reaches the deployed markdown only through $\mathcal{L}_\text{parse}$ and is sub-threshold (\S\ref{sec:c4}). \textbf{(b) Discrete-output DPO (RADP-DPO):} we optimise the markdown directly \citep{rafailov2023dpo}---sampling $K$ parses per page, scoring each by a page-local \rcps{}, forming preference pairs (gap $\ge 5$~pp), and training with a LoRA-toggle reference \citep{hu2021lora} ($\pi_\theta$ adapter-on, $\pi_\text{ref}$ adapter-off), the reward sharpened over three milestones R1$\rightarrow$R2$\rightarrow$R3 (Appendix~\ref{app:milestones}); reference-free SimPO \citep{meng2024simpo} is a control. \textbf{(c) Reward-agnostic control (RADP-Distill):} the identical best-of-K pipeline but ranking candidates by edit-distance to the ground-truth markdown instead of \rcps{}; if it matches RADP-DPO, the retrieval reward is unnecessary (\S\ref{sec:c4}).
 
 \section{Experiments}
 
@@ -124,7 +124,7 @@ A selection protocol must separate the alternatives a practitioner actually comp
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.84\columnwidth]{fig_rcps_protocol.png}
-\caption{\rcps{} as a protocol, not a new scoring function. It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) it scores retrieval on a held-out Q--A probe rather than on the text, since text scores (TEDS, BC) mispredict retrieval; (ii) it averages over retrievers, since a single embedder can flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) it uses format-invariant relevance, crediting the content a parser keeps rather than its formatting. Run with no training on a probe of a few hundred Q--A, it ranks the parser and chunker a team would deploy.}
+\caption{\rcps{} as a protocol, not a new scoring function. It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) it scores retrieval on a held-out Q--A probe rather than on the text, since text scores (edit distance, BC) mispredict retrieval; (ii) it averages over retrievers, since a single embedder can flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) it uses format-invariant relevance, crediting the content a parser keeps rather than its formatting. Run with no training on a probe of a few hundred Q--A, it ranks the parser and chunker a team would deploy.}
 \label{fig:protocol}
 \end{figure}
 
@@ -198,9 +198,9 @@ On the 242-page KoGov fold (10{,}000-resample paired bootstrap), the three RADP-
 \toprule
 Variant (vs Prod $=0.6863$) & Hit@5 & $\Delta$Hit@5 [95\% CI] & $P[\Delta{>}0]$ & $\Delta$\rcps{} \\
 \midrule
-RADP-DPO-v5 (R3) & 0.7074 & $+2.11$ $[{-}0.96, {+}5.13]$ & 0.913 & $+1.72$ \\
-RADP-DPO-v1 (R1) & 0.7069 & $+2.06$ $[{-}0.96, {+}5.13]$ & 0.907 & $+0.57$ \\
-RADP-DPO-v4 (R2) & 0.7059 & $+1.96$ $[{-}1.06, {+}5.03]$ & 0.897 & $+0.47$ \\
+RADP-DPO-R3 & 0.7074 & $+2.11$ $[{-}0.96, {+}5.13]$ & 0.913 & $+1.72$ \\
+RADP-DPO-R1 & 0.7069 & $+2.06$ $[{-}0.96, {+}5.13]$ & 0.907 & $+0.57$ \\
+RADP-DPO-R2 & 0.7059 & $+1.96$ $[{-}1.06, {+}5.03]$ & 0.897 & $+0.47$ \\
 RADP-SimPO (ctrl) & 0.6793 & $-0.70$ $[{-}3.77, {+}2.31]$ & 0.321 & $-1.56$ \\
 \bottomrule
 \end{tabular}
@@ -216,8 +216,8 @@ RADP-SimPO (ctrl) & 0.6793 & $-0.70$ $[{-}3.77, {+}2.31]$ & 0.321 & $-1.56$ \\
 $\Delta$ vs Prod (pp) & Hit@1 & Hit@5 & Hit@10 & MRR@10 & nDCG@5 \\
 \midrule
 RADP-Distill & \textbf{+0.88} & \textbf{+1.22} & \textbf{+1.32} & \textbf{+1.01} & \textbf{+1.05} \\
-RADP-DPO-v4 (R2) & +0.53 & +0.85 & +0.81 & +0.70 & +0.74 \\
-RADP-DPO-v5 (R3) & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
+RADP-DPO-R2 & +0.53 & +0.85 & +0.81 & +0.70 & +0.74 \\
+RADP-DPO-R3 & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 \bottomrule
 \end{tabular}
 \caption{OHR-Bench cross-domain $\Delta$ vs Prod, in pp (2{,}264 Q--A over seven English domains; three-retriever macro; 1{,}000-resample paired bootstrap). The Hit@5 deltas are two-sided significant (95\% CIs: RADP-Distill $[+0.35, +2.15]$, R2 $[+0.35, +1.43]$, R3 $[+0.24, +1.84]$). The other columns are monotone re-cuts of the same per-system ranked list, reported only because practitioners use different cutoffs. RADP-Distill leads at the primary metric Hit@5; R3 reaches higher Hit@1 and MRR@10 point estimates but with overlapping CIs, so the retrieval reward is unnecessary at the powered endpoint (\S\ref{sec:c4}).}
@@ -233,7 +233,7 @@ RADP-DPO-v5 (R3) & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 \section{Chunk-Level Mechanism Statistics}
 \label{app:mechanism}
 
-We measure four chunk-level statistics on the 242-page fold for all 12 systems plus the R3 variant (Table~\ref{tab:mechanism}): MoC Boundary Clarity (BC, adjacent-chunk discontinuity), MoC Chunk Stickiness (CS, within-chunk cohesion), normalised edit distance to the ground-truth markdown (TextNED, character-level Levenshtein distance $\div$ longer-string length), and chunking shape.
+We measure four chunk-level statistics on the 242-page fold for all systems in Table~\ref{tab:mechanism}: MoC Boundary Clarity (BC, adjacent-chunk discontinuity), MoC Chunk Stickiness (CS, within-chunk cohesion), normalised edit distance to the ground-truth markdown (TextNED, character-level Levenshtein distance $\div$ longer-string length), and chunking shape.
 
 \begin{table}[t]
 \centering\small
@@ -248,25 +248,21 @@ aux $\lambda{=}0.0$ & 799 & 2.96 & 245 & 0.553 & 0.473 & 0.626 \\
 aux $\lambda{=}0.1$ & 1380 & 4.05 & 321 & 0.652 & 0.484 & 0.423 \\
 aux $\lambda{=}0.3$ & 1930 & 6.73 & 272 & 0.470 & 0.475 & 0.332 \\
 aux $\lambda{=}0.5$ & 2035 & 5.82 & 327 & 0.556 & 0.470 & 0.318 \\
-DPO-v1 & 1606 & 4.97 & 311 & 0.646 & 0.474 & \textbf{0.167} \\
-DPO-v2 & 1594 & 5.06 & 304 & 0.648 & 0.475 & 0.168 \\
-DPO-v3 & 1689 & 5.27 & 304 & 0.601 & 0.469 & 0.182 \\
-DPO-v4 (R2) & 1610 & 4.83 & 321 & 0.647 & 0.476 & \textbf{0.163} \\
-DPO-v5 (R3) & 1514 & 4.88 & 300 & 0.656 & 0.485 & 0.185 \\
+DPO-R1 & 1606 & 4.97 & 311 & 0.646 & 0.474 & \textbf{0.167} \\
+DPO-R2 & 1610 & 4.83 & 321 & 0.647 & 0.476 & \textbf{0.163} \\
+DPO-R3 & 1514 & 4.88 & 300 & 0.656 & 0.485 & 0.185 \\
 SimPO & 1703 & 5.31 & 305 & 0.601 & 0.470 & 0.186 \\
-DPO-v1-s123 & 1633 & 4.92 & 320 & 0.655 & 0.476 & 0.171 \\
-DPO-v1-s999 & 1620 & 4.69 & 332 & 0.654 & 0.478 & 0.174 \\
 \bottomrule
 \end{tabular}
 \caption{Chunk-level mechanism statistics on the 242-page fold (len $=$ parse length, c/pg $=$ chunks per page, clen $=$ chunk length). RADP-Distill attains the lowest TextNED of all ($0.158 <$ R2's $0.163 <$ Prod's $0.240$) with BC unchanged ($0.641$, within Prod's range), confirming that text fidelity, not chunk structure, is the operative axis (CS was not measured for RADP-Distill, which uses a fixed chunking scheme). Among retrieval-reward variants, R2 has the lowest TextNED ($0.163$); R3's KoGov TextNED ($0.185$) does not beat it.}
 \label{tab:mechanism}
 \end{table}
 
-\paragraph{The signal.} All five RADP-DPO variants reduce TextNED from Prod's $0.240$ to $0.163$--$0.185$, a 23--32\% move toward the ground-truth markdown; the two replicating positive variants (DPO-v1, DPO-v4) achieve the largest reductions ($0.167$, $0.163$). RADP-aux instead increases TextNED ($0.318$--$0.626$) because its hidden-state objective degrades surface text. TextNED is positively associated with Hit@5 (R3 the one DPO-cluster exception), and RADP-Distill reduces it furthest ($0.158$) while leading on retrieval---the cleanest demonstration that text fidelity, not the retrieval reward, is the lever.
+\paragraph{The signal.} All three RADP-DPO milestones reduce TextNED from Prod's $0.240$ to $0.163$--$0.185$, a 23--32\% move toward the ground-truth markdown; R1 and R2 achieve the largest reductions ($0.167$, $0.163$). RADP-aux instead increases TextNED ($0.318$--$0.626$) because its hidden-state objective degrades surface text. TextNED is positively associated with Hit@5 (R3 the one DPO-cluster exception), and RADP-Distill reduces it furthest ($0.158$) while leading on retrieval---the cleanest demonstration that text fidelity, not the retrieval reward, is the lever.
 
 \paragraph{Cross-domain replication.} On all 4{,}040 English OHR-Bench pages, zero-shot Prod reaches TextNED $0.192$---below its $0.240$ on Korean, so English leaves less fidelity headroom. R2 reduces it to $0.1894$ (a $-0.0026$ delta, $-1.36\%$, 95\% CI $[-0.0043, -0.0010]$, two-sided significant). R3 pushes the English value marginally lower ($0.184$) yet does not improve KoGov fidelity, which is why R2 is the headline variant.
 
-\paragraph{The non-signal.} The MoC chunking signature is unchanged on both axes: BC for all DPO variants lands in $0.60$--$0.66$ (Prod $0.63$) and CS in $0.469$--$0.485$ across every DPO and SimPO variant (Prod $0.474$; CS not measured for RADP-Distill); chunks-per-page ($4.69$--$5.27$) sits within Prod's range, and chunk length ($300$--$332$) runs 10--21\% above Prod's $274$ while neither MoC axis (BC, CS) moves. Training does not produce a novel chunking signature; the gain comes from what is parsed, not how chunks are split.
+\paragraph{The non-signal.} The MoC chunking signature is unchanged on both axes: BC for every DPO variant lands in $0.60$--$0.66$ (Prod $0.63$) and CS near $0.47$--$0.49$ (Prod $0.474$; CS not measured for RADP-Distill); chunks-per-page ($\sim$5) and chunk length ($300$--$321$, modestly above Prod's $274$) stay close to Prod's, while neither MoC axis (BC, CS) moves. Training does not produce a novel chunking signature; the gain comes from what is parsed, not how chunks are split.
 
 \paragraph{Secondary patterns.} The gain concentrates on factoid queries---where the verbatim answer span must land inside a chunk---and is neutral on tabular ones. It is larger on the held-out retrievers than on the BGE-M3 scorer, because Prod's text was already BGE-aligned, confirming a parser-level effect rather than a BGE-overfit. RADP-aux stays sub-threshold because its hidden-state signal reaches the deployed markdown only through diffuse $\mathcal{L}_\text{parse}$ back-flow, never localising to the surface tokens the retriever rewards.
 

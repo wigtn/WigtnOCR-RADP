@@ -64,7 +64,7 @@ def main() -> None:
     # The three protocol choices, each with the failure it fixes (a *set*, not a sequence)
     choice(ax, 0.02, 0.672, 0.96, 0.082,
            "(i) extrinsic — score retrieval on the probe, not the text",
-           "fixes: intrinsic text scores (TEDS, BC) mispredict retrieval")
+           "fixes: text scores (edit dist., BC) mispredict retrieval")
     choice(ax, 0.02, 0.566, 0.96, 0.082,
            "(ii) retriever-averaged MRR over {BGE-M3, mE5, Qwen3-Emb}",
            "fixes: a single embedder flips the top-1 parser")
@@ -78,7 +78,7 @@ def main() -> None:
 
     # Select
     box(ax, 0.10, 0.205, 0.80, 0.072,
-        "rank & select parser / chunker\n(picks what TEDS / BC rank wrong)", "#cfe9cf", 7.8, bold=True)
+        "rank & select parser / chunker\n(picks what edit dist. / BC rank wrong)", "#cfe9cf", 7.8, bold=True)
     arrow(ax, 0.5, 0.338, 0.5, 0.279)
 
     # Payoff
