@@ -59,7 +59,7 @@ def main() -> None:
     box(ax, 0.22, 0.792, 0.56, 0.060, "chunk the parsed corpus", "#dbe9f6", 8.2)
     arrow(ax, 0.25, 0.900, 0.37, 0.856)
     arrow(ax, 0.75, 0.900, 0.63, 0.856)
-    arrow(ax, 0.5, 0.792, 0.5, 0.766)
+    arrow(ax, 0.5, 0.790, 0.5, 0.756)
 
     # The three protocol choices, each with the failure it fixes (a *set*, not a sequence)
     choice(ax, 0.02, 0.672, 0.96, 0.082,
