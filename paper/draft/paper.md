@@ -17,7 +17,7 @@ Retrieval-augmented generation (RAG) is increasingly deployed over large collect
 
 The practical question is *how* to choose. Faced with many candidate parsers—OCR engines, layout models, and vision-language models—practitioners rank them by intrinsic parsing-quality metrics that reward clean-looking output: low text-edit distance against a reference, and high boundary clarity \citep{zhao2025moc}. The implicit assumption is that cleaner parser output retrieves better.
 
-On Korean government documents, that assumption fails. A practitioner ranking parsers by intrinsic metrics would deploy MinerU \citep{mineru2025}, which attains the highest text fidelity and a boundary-clarity score (0.72) matched only by Marker; yet its retrieval Hit@1 is 0.20, well below the 0.50–0.55 of three lower-scoring vision-language parsers. The pattern is systematic: across six parsers and three retrievers, Boundary Clarity anti-correlates with retrieval at Pearson r = −0.81 (n = 5). A cross-domain check on the English OHR-Bench \citep{zhang2024ohr} identifies the mechanism—as semantic noise is injected into a parser's output, retrieval degrades sharply while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity that is structurally blind to retrievability.
+On Korean government documents, that assumption fails. A practitioner ranking parsers by intrinsic metrics would deploy MinerU \citep{mineru2025}, a parser built for high-fidelity OCR whose boundary-clarity score (0.72) is matched only by Marker; yet its retrieval Hit@1 is 0.20, well below the 0.50–0.55 of three lower-scoring vision-language parsers. The pattern is systematic: across six parsers and three retrievers, Boundary Clarity anti-correlates with retrieval at Pearson r = −0.81 (n = 5). A cross-domain check on the English OHR-Bench \citep{zhang2024ohr} identifies the mechanism—as semantic noise is injected into a parser's output, retrieval degrades sharply while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity that is structurally blind to retrievability.
 
 We study how a team should instead select—and, where possible, improve—the parser in a production document-RAG system, and report four contributions.
 
@@ -72,7 +72,7 @@ When the coverage diagnostic points to the parser (§4.2), we train it on a retr
 
 We construct **KoGovDoc-RAG**: 663 Q-A pairs over 294 pages of Korean government documents, generated with the OpenAI `gpt-5.4-2026-03-05` model and verified by an LLM-as-judge against the human-curated ground-truth markdown (100 stratified eval Q-A sampled for verification, 94/100 accept). For RADP-aux's full-scale training we additionally generate 6,164 Q-A on the 2,667-page Prod training set. Cross-domain replication uses OHR-Bench \citep{zhang2024ohr} (seven domains, 2,264 verbatim-answerable Q-A; its Law + Manual subset of 1,043 Q-A is used only for the data-mix-sensitivity comparison in §4.2) across the three released parser outputs (gt, MinerU, Qwen2.5-VL) plus twelve controlled noise perturbations.
 
-Throughout, **Prod** denotes our production parser, a Qwen3-VL-2B model \citep{qwen3vl} fine-tuned for Korean document parsing; it is the reference against which all training deltas are measured. RADP-aux is evaluated on a 73-page held-out fold (202 Q-A); RADP-DPO, SimPO, and the §4.5 mechanism analysis use the combined 242-page fold (train ∪ eval, 663 Q-A), which is appropriate for the DPO comparison because preference pairs are built from parses on the 169-page train fold while Prod is held fixed. All parses for the 12-variant comparison in §4.4–§4.5 are regenerated with deterministic decoding (temperature 0, max 1536 tokens) for like-for-like comparison. We fine-tune with LoRA ($r = 8$, $\alpha = 32$); for RADP-aux we sweep $\lambda \in \{0, 0.1, 0.3, 0.5\}$, with $\lambda = 0$ a matched control that reproduces Prod. All RCPS values use the three retrievers and three cutoffs of §3.1. We report paired percentile-bootstrap 95% confidence intervals (1,000 resamples), resampling Q-A indices with replacement and preserving them across systems so deltas inherit the pairing.
+Throughout, **Prod** denotes our production parser, a Qwen3-VL-2B model \citep{qwen3vl} fine-tuned for Korean document parsing; it is the reference against which all training deltas are measured. RADP-aux is evaluated on a 73-page held-out fold (202 Q-A); RADP-DPO, SimPO, and the §4.5 mechanism analysis use the combined 242-page fold (train ∪ eval, 663 Q-A), which is appropriate for the DPO comparison because preference pairs are built from parses on the 169-page train fold while Prod is held fixed. The 663 Q-A occupy 242 of the 294 KoGov pages; the §4.2 coverage diagnostic is run over Prod's full 294-page output, with the remaining 52 Q-A-free pages serving only as retrieval distractors, so the 294-page (coverage) and 242-page (DPO) folds report the same 663 Q-A. All parses for the 12-variant comparison in §4.4–§4.5 are regenerated with deterministic decoding (temperature 0, max 1536 tokens) for like-for-like comparison. We fine-tune with LoRA ($r = 8$, $\alpha = 32$); for RADP-aux we sweep $\lambda \in \{0, 0.1, 0.3, 0.5\}$, with $\lambda = 0$ a matched control that reproduces Prod. All RCPS values use the three retrievers and three cutoffs of §3.1. We report paired percentile-bootstrap 95% confidence intervals (1,000 resamples), resampling Q-A indices with replacement and preserving them across systems so deltas inherit the pairing.
 
 ### 4.2 The Parsing–Retrieval Disconnect and Coverage Diagnostic (C1–C2)
 
@@ -83,7 +83,7 @@ Throughout, **Prod** denotes our production parser, a Qwen3-VL-2B model \citep{q
 
 A single-domain anti-correlation could be a quirk of one language or document type, so we test cross-domain.
 
-**Cross-domain: the mechanism (Figure 2).** Across all seven OHR-Bench domains (2,264 Q-A) we evaluate 15 parser-output variants: three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT, MinerU, Qwen2.5-VL × mild, moderate, severe). Within each semantic-noise family, Boundary Clarity barely moves while RCPS collapses (Figure 2). For the MinerU family, BC stays in 0.71–0.73 from clean to severe while RCPS falls 0.50 → 0.24 (−52%); GOT shows the same pattern (RCPS 0.38 → 0.26, −32%), and Qwen2.5-VL is more noise-robust (0.47 → 0.43, −8%). Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
+**Cross-domain: the mechanism (Figure 2).** Across all seven OHR-Bench domains (2,264 Q-A) we evaluate 15 parser-output variants: three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT, MinerU, Qwen2.5-VL × mild, moderate, severe). Within each semantic-noise family, Boundary Clarity barely moves while RCPS collapses (Figure 2). For the MinerU family, BC stays in 0.71–0.74 from clean to severe while RCPS falls from 0.50 to 0.24 (−51%); GOT shows the same pattern (RCPS 0.38 → 0.26) and Qwen2.5-VL is more noise-robust (0.47 → 0.43, −8%). The per-variant BC and RCPS values are in Appendix E. Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
 
 ![Figure 2 — noise-family curves](../figures/fig_noise_family.png)
 *Figure 2: OHR-Bench seven-domain noise-family curves. Top: Boundary Clarity stays roughly flat across noise severity for all three parser families. Bottom: RCPS collapses for MinerU and GOT, and falls more gently for the noise-robust Qwen2.5-VL. The intrinsic metric does not perceive the content corruption retrieval depends on.*
@@ -140,11 +140,11 @@ On the 242-page KoGov fold, the RADP-DPO milestones improve Hit@5 on parser-nati
 | RADP-Distill (headline) | **+0.88** | **+1.22** | **+1.32** | **+1.01** | **+1.05** |
 | RADP-DPO-v4 (R2, retrieval reward) | +0.53 | +0.85 | +0.81 | +0.70 | +0.74 |
 | RADP-DPO-v5 (R3, hard-negative) | +1.31 | +1.03 | +0.81 | +1.17 | +1.15 |
-*Table 5b: OHR-Bench cross-domain Δ vs Prod, in pp (2,264 Q-A over seven English domains; three-retriever macro; 1,000-resample paired bootstrap). Every cell is two-sided significant (e.g. R2 Hit@5 [+0.35, +1.43], R3 Hit@5 [+0.24, +1.84]). Hit@k, MRR@k, and nDCG@k are monotone functions of the same retrieved ranking, not independent endpoints; we report several only because practitioners use different ones. RADP-Distill, the reward-agnostic control, leads at Hit@5 +1.22 pp; the retrieval-reward route (R2 +0.85, R3 +1.03) reproduces no more, confirming (§4.4a) that the retrieval reward is unnecessary.*
+*Table 5b: OHR-Bench cross-domain Δ vs Prod, in pp (2,264 Q-A over seven English domains; three-retriever macro; 1,000-resample paired bootstrap). The Hit@5 deltas are two-sided significant (95% CIs: RADP-Distill [+0.35, +2.15], R2 [+0.35, +1.43], R3 [+0.24, +1.84]). The remaining columns are monotone functions of the same retrieved ranking, not independent endpoints, and are reported only because practitioners use different cutoffs. RADP-Distill, the reward-agnostic control, leads at Hit@5 +1.22 pp; the retrieval-reward route (R2 +0.85, R3 +1.03) reproduces no more, confirming (§4.4a) that the retrieval reward is unnecessary.*
 
 ### 4.5 Mechanism: Training Tightens Text Fidelity Without Changing the Chunking Signature
 
-The §4.4 gain calls for a mechanism, so we measure four chunk-level statistics on the 242-page fold for all 12 systems—Boundary Clarity, Chunk Stickiness, normalised edit distance to the ground-truth markdown (TextNED), and chunking shape (Appendix C, Table 7). The signal is text fidelity. All four RADP-DPO variants reduce TextNED from Prod's 0.240 to 0.163–0.182 (a 24–32% move toward ground truth), the reward-agnostic RADP-Distill control reduces it furthest of all (0.158) while leading on retrieval, and TextNED tracks Hit@5 monotonically across variants—the cleanest evidence that text fidelity, not the retrieval reward, is the operative lever. RADP-aux, by contrast, *increases* TextNED (0.318–0.626) as its hidden-state objective degrades surface text. The chunking signature does not move: BC for every DPO variant lands in 0.60–0.66 (Prod 0.63), CS in 0.469–0.478 (Prod 0.474; CS is not measured for RADP-Distill), and chunks-per-page and chunk length stay within Prod's range. The Hit@5 gain therefore comes from what is parsed, not how chunks are split—the same fact as §4.2's intrinsic-metric blindness, seen from the training side. The mechanism replicates cross-domain (English TextNED for R2 falls −1.36%, two-sided significant), and the secondary patterns—larger gains on factoid than tabular queries, larger on held-out retrievers, RADP-aux sub-threshold—all follow from text fidelity (Appendix C).
+The §4.4 gain calls for a mechanism, so we measure four chunk-level statistics on the 242-page fold for all 12 systems—Boundary Clarity, Chunk Stickiness, normalised edit distance to the ground-truth markdown (TextNED), and chunking shape (Appendix C, Table 7). The signal is text fidelity. All five RADP-DPO variants reduce TextNED from Prod's 0.240 to 0.163–0.185 (a 23–32% move toward ground truth), the reward-agnostic RADP-Distill control reduces it furthest of all (0.158) while leading on retrieval, and TextNED tracks Hit@5 monotonically across variants—the cleanest evidence that text fidelity, not the retrieval reward, is the operative lever. RADP-aux, by contrast, *increases* TextNED (0.318–0.626) as its hidden-state objective degrades surface text. The chunking signature does not move: BC for every DPO variant lands in 0.60–0.66 (Prod 0.63), CS in 0.469–0.478 (Prod 0.474; CS is not measured for RADP-Distill), and chunks-per-page and chunk length stay within Prod's range. The Hit@5 gain therefore comes from what is parsed, not how chunks are split—the same fact as §4.2's intrinsic-metric blindness, seen from the training side. The mechanism replicates cross-domain (English TextNED for R2 falls −1.36%, two-sided significant), and the secondary patterns—larger gains on factoid than tabular queries, larger on held-out retrievers, RADP-aux sub-threshold—all follow from text fidelity (Appendix C).
 
 ## 5 Discussion and Conclusion
 
@@ -230,7 +230,7 @@ We measure four chunk-level statistics on the 242-page fold for all 12 systems p
 | DPO-v1-seed999 | 1620 | 4.69 | 332 | 0.654 | 0.478 | 0.174 |
 *Table 7: Chunk-level mechanism statistics on the 242-page fold. BC is the mean MoC Boundary Clarity over all adjacent-chunk pairs scored by Qwen3-VL-2B perplexity; CS is the within-chunk-cohesion equivalent; TextNED is the per-page mean normalised edit distance to the human-curated ground-truth markdown. RADP-Distill attains the lowest TextNED of all (0.158 < R2's 0.163 < Prod's 0.240) with BC unchanged (0.641, within Prod's range), directly confirming that text fidelity, not chunk structure, is the operative axis (CS was not measured for RADP-Distill, which uses a fixed chunking scheme). Among retrieval-reward variants, R2 has the lowest TextNED (0.163); R3's KoGov TextNED (0.185) does not beat it, which is why R2 is the representative variant.*
 
-**The signal.** All four RADP-DPO variants reduce TextNED from Prod's 0.240 to 0.163–0.182, a 24–32% move toward the ground-truth markdown; the two replicating positive variants (DPO-v1, DPO-v4) achieve the largest reductions (0.167, 0.163). RADP-aux instead increases TextNED (0.318–0.626) because its hidden-state objective degrades surface text. TextNED tracks Hit@5 monotonically, and RADP-Distill reduces it furthest (0.158) while leading on retrieval—the cleanest demonstration that text fidelity, not the retrieval reward, is the lever.
+**The signal.** All five RADP-DPO variants reduce TextNED from Prod's 0.240 to 0.163–0.185, a 23–32% move toward the ground-truth markdown; the two replicating positive variants (DPO-v1, DPO-v4) achieve the largest reductions (0.167, 0.163). RADP-aux instead increases TextNED (0.318–0.626) because its hidden-state objective degrades surface text. TextNED tracks Hit@5 monotonically, and RADP-Distill reduces it furthest (0.158) while leading on retrieval—the cleanest demonstration that text fidelity, not the retrieval reward, is the lever.
 
 **Cross-domain replication.** On all 4,040 English OHR-Bench pages, zero-shot Prod reaches TextNED 0.192—below its 0.240 on Korean, so English leaves less fidelity headroom. R2 reduces it to 0.189 (−1.36%, 95% CI [−0.0043, −0.0010], two-sided significant). R3 pushes the English value marginally lower (0.184) yet does not improve KoGov fidelity, which is why R2 is the headline variant.
 
@@ -240,16 +240,55 @@ We measure four chunk-level statistics on the 242-page fold for all 12 systems p
 
 ### Appendix D — KoGov parser grid (detail for §4.2, Figure 1)
 
-| Parser | BC | RCPS | Hit@1 |
-|---|:---:|:---:|:---:|
-| Qwen3-VL-30B (teacher) | 0.623 | **0.584** | 0.545 |
-| Prod (ours, 2B) | 0.610 | 0.583 | 0.549 |
-| Qwen3-VL-2B (base) | 0.520 | 0.532 | 0.500 |
-| MinerU | 0.716 | 0.212 | 0.197 |
-| PaddleOCR | — | 0.140 | 0.125 |
-| Marker (38p) | **0.717** | 0.073 | 0.068 |
-*Table D1 (the §4.2 disconnect grid, visualised in Figure 1): KoGov, BC versus RCPS, Pearson r = −0.81 (n = 5, excluding PaddleOCR, whose Boundary Clarity is undefined). Marker is evaluated on a 38-page subset; dropping it gives n = 4, r = −0.74, same direction. RCPS is averaged over three retrievers (BGE-M3, ml-e5-large, Qwen3-Emb-8B).*
+| Parser | BC | CS | RCPS | Hit@1 |
+|---|:---:|:---:|:---:|:---:|
+| Qwen3-VL-30B (teacher) | 0.623 | 3.38 | **0.584** | 0.545 |
+| Prod (ours, 2B) | 0.610 | 3.07 | 0.583 | 0.549 |
+| Qwen3-VL-2B (base) | 0.520 | 3.74 | 0.532 | 0.500 |
+| MinerU | 0.716 | 2.81 | 0.212 | 0.197 |
+| PaddleOCR | — | 3.46 | 0.140 | 0.125 |
+| Marker (38p) | **0.717** | 3.41 | 0.073 | 0.068 |
+*Table D1 (the §4.2 disconnect grid, visualised in Figure 1): KoGov, BC versus RCPS, Pearson r = −0.81 (n = 5, excluding PaddleOCR, whose Boundary Clarity is undefined). Marker is evaluated on a 38-page subset; dropping it gives n = 4, r = −0.74, same direction. Chunk Stickiness (CS, MoC; lower = more cohesive) is similarly uninformative about retrieval—anti-tracking it in the same direction as BC (CS↔RCPS r = +0.26, n = 5). This parser-grid CS is on a different scale from the per-variant mechanism CS in Table 7 and is not directly comparable. RCPS is averaged over three retrievers (BGE-M3, ml-e5-large, Qwen3-Emb-8B).*
+
+### Appendix E — OHR-Bench noise-family grid (detail for §4.2, Figure 2)
+
+| Family | Severity | BC | RCPS |
+|---|---|:---:|:---:|
+| MinerU | clean | 0.735 | 0.496 |
+| MinerU | mild | 0.708 | 0.413 |
+| MinerU | moderate | 0.715 | 0.351 |
+| MinerU | severe | 0.712 | 0.243 |
+| Qwen2.5-VL | clean | 0.619 | 0.467 |
+| Qwen2.5-VL | mild | 0.614 | 0.462 |
+| Qwen2.5-VL | moderate | 0.616 | 0.460 |
+| Qwen2.5-VL | severe | 0.610 | 0.429 |
+| GOT | mild | 0.634 | 0.383 |
+| GOT | moderate | 0.495 | 0.338 |
+| GOT | severe | 0.650 | 0.257 |
+*Table E1: Per-family Boundary Clarity and RCPS across semantic-noise severity on the seven OHR-Bench domains (the source for Figure 2 and the §4.2 noise numbers). Within each family BC stays roughly flat while RCPS falls: MinerU 0.496 → 0.243 (−51%), GOT 0.383 → 0.257, Qwen2.5-VL 0.467 → 0.429 (−8%). GOT has no clean baseline among the released outputs.*
 
 ## References
 
-Compiled in `paper/refs.bib`. The reference list is being verified entry-by-entry against arXiv / venue records; entries not yet confirmed are marked for check before submission.
+Verified 2026-06-07 against arXiv / venue records; the handful of entries still under confirmation (MoC venue; a few lead-author names) are flagged in `paper/refs.bib`. Self-citations are anonymised for the double-blind submission.
+
+- Chen, J. et al. (2024). M3-Embedding (BGE-M3): Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings. arXiv:2402.03216.
+- Chia, Y. K. et al. (2025). M-LongDoc: A Benchmark for Multimodal Super-Long Document Understanding. EMNLP. arXiv:2411.06176.
+- Conti, M. et al. (2025). Context is Gold to find the Gold Passage (InSeNT). arXiv:2505.24782.
+- Duarte, A. V. et al. (2024). LumberChunker: Long-Form Narrative Document Segmentation. Findings of EMNLP. arXiv:2406.17526.
+- *EnterpriseDocBench* (2026). Benchmarking Complex Multimodal Document Processing Pipelines. arXiv:2604.26382.
+- Faysse, M. et al. (2025). ColPali: Efficient Document Retrieval with Vision Language Models. ICLR. arXiv:2407.01449.
+- Günther, M. et al. (2024). Late Chunking: Contextual Chunk Embeddings Using Long-Context Embedding Models. arXiv:2409.04701.
+- Hu, E. J. et al. (2022). LoRA: Low-Rank Adaptation of Large Language Models. ICLR. arXiv:2106.09685.
+- LMAR (2025). Language Model Augmented Retriever for Domain-specific Knowledge Indexing. arXiv:2508.05672.
+- Meng, Y., Xia, M., Chen, D. (2024). SimPO: Simple Preference Optimization with a Reference-Free Reward. NeurIPS. arXiv:2405.14734.
+- *MinerU2.5* (2025). A Decoupled Vision-Language Model for Efficient High-Resolution Document Parsing. arXiv:2509.22186.
+- Nguyen, T. et al. (2024). Reward-RAG: Enhancing RAG with Reward Driven Supervision. arXiv:2410.03780.
+- Ouyang, L. et al. (2025). OmniDocBench: Benchmarking Diverse PDF Document Parsing. CVPR. arXiv:2412.07626.
+- Qwen Team, Alibaba (2025). Qwen3-VL Technical Report. arXiv:2511.21631.
+- Rafailov, R. et al. (2023). Direct Preference Optimization. NeurIPS. arXiv:2305.18290.
+- Wang, L. et al. (2024). Multilingual E5 Text Embeddings: A Technical Report. arXiv:2402.05672.
+- *When Good OCR Is Not Enough* (2026). Benchmarking OCR Robustness for Retrieval-Augmented Generation. arXiv:2605.00911.
+- Yan, S.-Q. et al. (2025). RPO: Retrieval Preference Optimization for Robust RAG. arXiv:2501.13726.
+- Zhang, J. et al. (2025). OCR Hinders RAG: Evaluating the Cascading Impact of OCR on RAG (OHR-Bench). ICCV. arXiv:2412.02592.
+- Zhao, J. et al. (2024). Meta-Chunking: Learning Text Segmentation and Semantic Completion via Logical Perception. arXiv:2410.12788.
+- Zhao, J. et al. (2025). MoC: Mixtures of Text Chunking Learners for RAG. arXiv:2503.09600.
