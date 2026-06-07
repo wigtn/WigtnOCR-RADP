@@ -49,7 +49,7 @@ We release \textbf{KoGovDoc-RAG}, a Korean document-RAG benchmark of 663 questio
 
 \paragraph{Diagnosing the parsing--retrieval gap.} Prior work documents that parser quality affects downstream retrieval but does not close the gap on the parser side. OHR-Bench \citep{zhang2024ohr} evaluates the cascading impact of OCR noise on RAG; EnterpriseDocBench \citep{enterprisedocbench2026} reports a weak parsing-quality--retrieval correlation; and concurrent analyses \citep{goodocr2026} reach similar conclusions. None proposes a training-time intervention on the parser itself.
 
-\paragraph{Training-time methods, by pipeline layer.} Existing parser-adjacent training operates at every layer except the parser. Chunking methods decide boundaries after parsing \citep{jina2024late, duarte2024lumber, zhao2024meta, zhao2025moc}; embedding-side methods train the retriever contrastively \citep{conti2025insent, zhao2025lmar}; and retrieval- or reader-side methods tune the retriever or generator \citep{nguyen2024rewardrag, chia2025mlongdoc, yan2025rpo}. To our knowledge, no prior work trains the parser itself on a retrieval signal, which is the gap our parser-side training (C4) occupies. Our primary contributions, however, sit upstream of any training: a cross-domain diagnosis (C1), a parser-versus-chunker localisation (C2), and a protocol for \emph{selecting} parsers and chunkers by retrieval (C3). On top of these we test parser-side training from both natural directions and find only the discrete-output route works, and only modestly (\S\ref{sec:c4}).
+\paragraph{Training-time methods, by pipeline layer.} Existing parser-adjacent training operates at every layer except the parser. Chunking methods decide boundaries after parsing \citep{jina2024late, duarte2024lumber, zhao2024meta, zhao2025moc}; embedding-side methods train the retriever contrastively \citep{conti2025insent, zhao2025lmar}; and retrieval- or reader-side methods tune the retriever or generator \citep{nguyen2024rewardrag, chia2025mlongdoc, yan2025rpo}. To our knowledge no prior work trains the parser itself on a retrieval signal---the gap our C4 occupies---while our primary contributions (C1--C3) sit upstream of any training.
 
 \section{Method}
 
@@ -67,7 +67,7 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 \subsection{Coverage Diagnostic --- Locating the Gap (Parser vs Chunker)}
 \label{sec:coverage}
 
-\rcps{} scores the parser, chunker, and retriever jointly, so a low score does not say which layer is at fault. Before proposing any fix, we separate the parser from the chunker with a retriever-free diagnostic. Holding the parser output fixed and varying the chunker, we classify each gold answer by where it lands after chunking: \emph{covered} (the span sits inside a single chunk and is retrievable); \emph{split} (the span is present in the page text but no single chunk holds it whole---a chunker fault, recoverable with overlap or larger windows); and \emph{absent} (the span is not in the parser output at all---a parser fault, unrecoverable by any chunking). Coverage, the fraction of answers covered, is the ceiling on retrieval, because split and absent answers score zero for any retriever. Splitting the non-covered mass into a chunker fault (split) and a parser fault (absent) attributes the gap to a pipeline layer and decides whether a parser-side intervention can help at all (\S\ref{sec:c1c2}). Relevance reuses \rcps{}'s format-invariant matching (\S\ref{sec:rcps}).
+\rcps{} scores the parser, chunker, and retriever jointly, so a low score does not localise the fault. We separate the parser from the chunker with a retriever-free diagnostic: holding the parser output fixed and varying the chunker, we classify each gold answer as \emph{covered} (inside a single chunk, retrievable); \emph{split} (present in the page text but cut across chunks---a chunker fault, recoverable with overlap); or \emph{absent} (not in the parser output at all---a parser fault, unrecoverable by chunking). Coverage is the ceiling on retrieval, since split and absent answers score zero; the split/absent breakdown attributes the gap to a pipeline layer and decides whether a parser-side fix can help (\S\ref{sec:c1c2}). Relevance reuses \rcps{}'s format-invariant matching.
 
 \subsection{Parser-Side Training: Auxiliary Loss and Discrete-Output DPO}
 \label{sec:training}
@@ -89,21 +89,14 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.80\textwidth]{fig_disconnect.png}
+\includegraphics[width=0.72\textwidth]{fig_disconnect.png}
 \caption{The parsing--retrieval disconnect on Korean government documents. (a) Boundary Clarity (intrinsic, MoC) anti-correlates with \rcps{} across parsers (Pearson $r = -0.81$, $n = 5$; PaddleOCR excluded as its BC is undefined): the cleanest-boundary parsers MinerU and Marker land near the bottom, while the lower-BC vision--language parsers retrieve best. (b) Choosing the parser by \rcps{} (Prod) rather than by appearance (MinerU) changes retrieval Hit@1 by $2.8\times$ ($0.197 \rightarrow 0.549$).}
 \label{fig:disconnect}
 \end{figure*}
 
 A single-domain anti-correlation could be a quirk of one language or document type, so we test cross-domain.
 
-\paragraph{Cross-domain: the mechanism (Figure~\ref{fig:noise}).} Across all seven OHR-Bench domains (2{,}264 Q--A) we evaluate 15 parser-output variants: three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT, MinerU, Qwen2.5-VL $\times$ mild, moderate, severe). Within each semantic-noise family, Boundary Clarity fails to track noise severity while \rcps{} collapses (Figure~\ref{fig:noise}). For the MinerU family, BC stays in $0.71$--$0.74$ from clean to severe while \rcps{} falls from $0.50$ to $0.24$ ($-51\%$); GOT shows the same pattern (\rcps{} $0.38 \rightarrow 0.26$) and Qwen2.5-VL is more noise-robust ($0.47 \rightarrow 0.43$, $-8\%$). The per-variant BC and \rcps{} values are in Appendix~\ref{app:noise}. Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{fig_noise_family.png}
-\caption{OHR-Bench seven-domain noise-family curves. Top: Boundary Clarity does not track noise severity---flat for MinerU and Qwen2.5-VL, non-monotone for GOT. Bottom: \rcps{} collapses for MinerU and GOT, and falls more gently for the noise-robust Qwen2.5-VL. The intrinsic metric does not perceive the content corruption retrieval depends on.}
-\label{fig:noise}
-\end{figure}
+\paragraph{Cross-domain: the mechanism.} Across all seven OHR-Bench domains (2{,}264 Q--A) we evaluate 15 parser-output variants: three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT, MinerU, Qwen2.5-VL $\times$ mild, moderate, severe). Within each semantic-noise family, Boundary Clarity fails to track noise severity while \rcps{} collapses (per-variant values in Appendix~\ref{app:noise}). For the MinerU family, BC stays in $0.71$--$0.74$ from clean to severe while \rcps{} falls from $0.50$ to $0.24$ ($-51\%$); GOT shows the same pattern (\rcps{} $0.38 \rightarrow 0.26$) and Qwen2.5-VL is more noise-robust ($0.47 \rightarrow 0.43$, $-8\%$). The per-variant BC and \rcps{} values are in Appendix~\ref{app:noise}. Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
 
 The aggregate cross-variant correlation is sensitive to the document mix: Pearson BC$\leftrightarrow$\rcps{} across all 15 variants is $-0.35$ on Law\,$+$\,Manual alone but $+0.25$ on the full seven-domain corpus. We therefore report the per-family mechanism, which reproduces in every domain, as the robust finding, and treat the cross-variant scalar---which conflates parser families of differing noise-robustness---as illustrative only.
 
@@ -132,7 +125,7 @@ A selection protocol must separate the alternatives a practitioner actually comp
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.86\columnwidth]{fig_rcps_protocol.png}
+\includegraphics[width=0.72\columnwidth]{fig_rcps_protocol.png}
 \caption{\rcps{} as a protocol, not a new scoring function. It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) it scores retrieval on a held-out Q--A probe rather than on the text, since text scores (TEDS, BC) mispredict retrieval; (ii) it averages over retrievers, since a single embedder can flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) it uses format-invariant relevance, crediting the content a parser keeps rather than its formatting. Run with no training on a probe of a few hundred Q--A, it ranks the parser and chunker a team would deploy.}
 \label{fig:protocol}
 \end{figure}
@@ -168,7 +161,7 @@ With one answer in five absent from the parser (\S\ref{sec:c1c2}), a parser-side
 
 \paragraph{Selection, not training, is the headline.} The largest and most certain effect here is not a training method: choosing a parser by retrieval (\rcps{}) rather than by intrinsic metrics changes Hit@1 by $2.8\times$ (\S\ref{sec:c1c2}). A team that adopts only the \rcps{} protocol already avoids shipping the parser that looks best yet retrieves near the bottom. Parser-side training is a secondary, bounded lever of about 1~pp Hit@5, and the retrieval reward buys nothing over plain fidelity distillation (\S\ref{sec:c4}).
 
-\paragraph{Why the diagnosis and the mechanism agree.} C1 finds the cleanest-boundary parser retrieves among the worst; \S\ref{sec:mechanism} finds training helps by producing text closer to ground truth. Both follow from splitting ``clean'' into two axes: Boundary Clarity measures formatting (how crisp the edges look), while TextNED measures content fidelity (whether the text holds the answer span). MinerU is formatting-clean but loses content; training leaves the formatting signature unchanged and improves fidelity---so intrinsic boundary metrics, seeing only formatting, mispredict retrieval. This also refines our starting hypothesis: we expected training to move chunk boundaries, but the chunking signature is unchanged and what moves is text fidelity. RADP-DPO is therefore best read as best-of-K self-distillation, which the RADP-Distill control confirms---replacing the retrieval reward with edit-distance to ground truth reproduces the gain.
+\paragraph{Why the diagnosis and the mechanism agree.} C1 finds the cleanest-boundary parser retrieves among the worst; \S\ref{sec:mechanism} finds training helps by producing text closer to ground truth. Both follow from splitting ``clean'' into two axes---Boundary Clarity measures formatting, TextNED measures content fidelity (whether the text holds the answer span). MinerU is formatting-clean but loses content; training improves fidelity while leaving the formatting signature unchanged, which is exactly why intrinsic boundary metrics mispredict retrieval. This also refines our starting hypothesis: we expected training to move chunk boundaries, but what moves is text fidelity.
 
 \paragraph{Playbook and conclusion.} For practitioners: (1) evaluate parsers with \rcps{}, not intrinsic metrics---a few hundred held-out Q--A, no training, reorder parsers as the retriever sees them (on our data a $0.20 \rightarrow 0.55$ Hit@1 decision); (2) if you train, distil the discrete output toward clean ground-truth text---the auxiliary loss and reference-free SimPO are sub-threshold, and a retrieval reward is unnecessary; (3) the gain concentrates on factoid queries and is neutral on tabular ones, so layout-heavy query mixes should instead look to the chunker or embedder. We documented the parsing--retrieval disconnect in two languages, proposed \rcps{} for selecting parsers and chunkers by retrieval rather than appearance, and bounded what parser-side training adds. Code, data, and checkpoints are released.
 
@@ -322,7 +315,7 @@ GOT & moderate & 0.495 & 0.338 \\
 GOT & severe & 0.650 & 0.257 \\
 \bottomrule
 \end{tabular}
-\caption{Per-family Boundary Clarity and \rcps{} across semantic-noise severity on the seven OHR-Bench domains (the source for Figure~\ref{fig:noise} and the \S\ref{sec:c1c2} noise numbers). Within each family BC stays roughly flat while \rcps{} falls: MinerU $0.496 \rightarrow 0.243$ ($-51\%$), GOT $0.383 \rightarrow 0.257$, Qwen2.5-VL $0.467 \rightarrow 0.429$ ($-8\%$). GOT has no clean baseline among the released outputs. The table lists the three semantic-noise families (11 of the 15 evaluated variants); the ground-truth output and the three formatting-noise perturbations, which enter only the aggregate cross-variant scalar (\S\ref{sec:c1c2}), are in the released grid.}
+\caption{Per-family Boundary Clarity and \rcps{} across semantic-noise severity on the seven OHR-Bench domains (the source for the \S\ref{sec:c1c2} noise numbers). Within each family BC stays roughly flat while \rcps{} falls: MinerU $0.496 \rightarrow 0.243$ ($-51\%$), GOT $0.383 \rightarrow 0.257$, Qwen2.5-VL $0.467 \rightarrow 0.429$ ($-8\%$). GOT has no clean baseline among the released outputs. The table lists the three semantic-noise families (11 of the 15 evaluated variants); the ground-truth output and the three formatting-noise perturbations, which enter only the aggregate cross-variant scalar (\S\ref{sec:c1c2}), are in the released grid.}
 \label{tab:noise}
 \end{table}
 
