@@ -28,11 +28,9 @@ Practitioners selecting a document parser for retrieval-augmented generation (RA
 
 \section{Introduction}
 
-Retrieval-augmented generation (RAG) is increasingly deployed over large collections of real-world documents---government records, enterprise reports, technical manuals---where answering a question means retrieving the right passage from a corpus that exists only as scanned or born-digital PDFs. Every such pipeline begins with a document parser that converts each page to text; that output is then chunked, embedded, and retrieved. Because the parser sits at the head of the pipeline, its errors cascade through every downstream stage, and teams building production systems choose it with care.
+Retrieval-augmented generation (RAG) is increasingly deployed over real-world document collections---government records, enterprise reports, technical manuals---that exist only as scanned or born-digital PDFs. Every such pipeline begins with a document parser that converts each page to text, which is then chunked, embedded, and retrieved. Because the parser sits at the head of the pipeline its errors cascade downstream, and production teams choose it with care. The practical question is \emph{how}. Faced with many candidates---OCR engines, layout models, vision--language models---practitioners rank them by intrinsic parsing-quality metrics that reward clean-looking output: low text-edit distance and high boundary clarity \citep{zhao2025moc}, on the assumption that cleaner output retrieves better.
 
-The practical question is \emph{how} to choose. Faced with many candidate parsers---OCR engines, layout models, and vision--language models---practitioners rank them by intrinsic parsing-quality metrics that reward clean-looking output: low text-edit distance against a reference, and high boundary clarity \citep{zhao2025moc}. The implicit assumption is that cleaner parser output retrieves better.
-
-On Korean government documents, that assumption fails. A practitioner ranking parsers by intrinsic metrics would deploy MinerU \citep{mineru2025}, a parser built for high-fidelity OCR whose boundary-clarity score ($0.72$) is matched only by Marker; yet its retrieval Hit@1 is $0.20$, well below the $0.50$--$0.55$ of three lower-scoring vision--language parsers. The pattern is systematic: across six parsers and three retrievers, Boundary Clarity anti-correlates with retrieval at Pearson $r = -0.81$ ($n = 5$). A cross-domain check on the English OHR-Bench \citep{zhang2024ohr} identifies the mechanism---as semantic noise is injected into a parser's output, retrieval degrades sharply while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity that is structurally blind to retrievability.
+On Korean government documents, that assumption fails. A practitioner ranking by intrinsic metrics would deploy MinerU \citep{mineru2025}, whose boundary-clarity score ($0.72$) is matched only by Marker; yet its retrieval Hit@1 is $0.20$, well below the $0.50$--$0.55$ of three lower-scoring vision--language parsers. Across six parsers and three retrievers, Boundary Clarity anti-correlates with retrieval at Pearson $r = -0.81$ ($n = 5$); a cross-domain check on English OHR-Bench \citep{zhang2024ohr} traces the mechanism---as semantic noise is injected, retrieval collapses while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity structurally blind to retrievability.
 
 We study how a team should instead select---and, where possible, improve---the parser in a production document-RAG system, and report four contributions.
 
@@ -56,13 +54,13 @@ We release \textbf{KoGovDoc-RAG}, a Korean document-RAG benchmark of 663 questio
 \subsection{\rcps{}: Retrieval-Conditional Parsing Score}
 \label{sec:rcps}
 
-\rcps{} ranks parsers by what downstream retrieval does with their output rather than by how clean that output looks. It is not a new similarity function but an evaluation protocol that wraps ordinary retrieval MRR in three choices: (i) it is \emph{extrinsic}, scoring on the parsed corpus together with a held-out Q--A probe rather than on text alone; (ii) it is \emph{retriever-agnostic}, averaging over several embedders so the ranking does not hinge on which one sits in the production stack; and (iii) it uses \emph{format-invariant relevance}, counting a chunk as relevant if and only if its text contains the answer span, however the parser formatted it. The contribution is the protocol---what to measure, on what probe, and how to judge relevance---not the scoring function; this is also why \rcps{} is not single-embedder MRR, which yields a different and less stable parser ranking (\S\ref{sec:c3}).
+\rcps{} ranks parsers by what downstream retrieval does with their output, not by how clean it looks. It is not a new similarity function but an evaluation protocol wrapping ordinary retrieval MRR in three choices: (i) it is \emph{extrinsic}, scoring on the parsed corpus with a held-out Q--A probe rather than on text alone; (ii) it is \emph{retriever-agnostic}, averaging over several embedders so the ranking does not hinge on the production one; and (iii) it uses \emph{format-invariant relevance}, counting a chunk relevant iff its text contains the answer span, however formatted. The contribution is the protocol---what to measure, on what probe, how to judge relevance---not the scoring function, which is why \rcps{} is not single-embedder MRR (\S\ref{sec:c3}).
 
 Given a parser $P$, a Q--A set $D = \{(q_i, a_i, \text{page}_i)\}$, a set of retrievers $R$, and cutoffs $K$, \rcps{} averages MRR across the cross-product:
 \begin{equation}
-\text{RCPS}(P, D, R, K) = \frac{1}{|R||K|} \sum_{r \in R} \sum_{k \in K} \text{MRR}@k\big(r, \text{chunks}_P(D), \{q_i\}\big).
+\text{RCPS}(P) = \frac{1}{|R|\,|K|} \sum_{r \in R} \sum_{k \in K} \text{MRR}@k(r, P, D).
 \end{equation}
-We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant for a query if and only if its source page matches the answer's source page and the gold answer span is a substring of the chunk under whitespace- and markdown-insensitive normalisation. The retriever average makes the ranking robust to embedder choice: a parser that wins on one retriever but loses on another does not dominate. In practice a team runs \rcps{} on a few hundred held-out Q--A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly; Figure~\ref{fig:protocol} summarises the protocol together with the failure each of its three choices removes. The implementation is released.
+We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant iff its source page matches the answer's and the gold span is a substring under whitespace- and markdown-insensitive normalisation. In practice a team runs \rcps{} on a few hundred held-out Q--A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly; Figure~\ref{fig:protocol} summarises the protocol and the failure each choice removes. The implementation is released.
 
 \subsection{Coverage Diagnostic --- Locating the Gap (Parser vs Chunker)}
 \label{sec:coverage}
@@ -89,7 +87,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.72\textwidth]{fig_disconnect.png}
+\includegraphics[width=0.85\textwidth]{fig_disconnect.png}
 \caption{The parsing--retrieval disconnect on Korean government documents. (a) Boundary Clarity (intrinsic, MoC) anti-correlates with \rcps{} across parsers (Pearson $r = -0.81$, $n = 5$; PaddleOCR excluded as its BC is undefined): the cleanest-boundary parsers MinerU and Marker land near the bottom, while the lower-BC vision--language parsers retrieve best. (b) Choosing the parser by \rcps{} (Prod) rather than by appearance (MinerU) changes retrieval Hit@1 by $2.8\times$ ($0.197 \rightarrow 0.549$).}
 \label{fig:disconnect}
 \end{figure*}
@@ -125,7 +123,7 @@ A selection protocol must separate the alternatives a practitioner actually comp
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.72\columnwidth]{fig_rcps_protocol.png}
+\includegraphics[width=0.84\columnwidth]{fig_rcps_protocol.png}
 \caption{\rcps{} as a protocol, not a new scoring function. It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) it scores retrieval on a held-out Q--A probe rather than on the text, since text scores (TEDS, BC) mispredict retrieval; (ii) it averages over retrievers, since a single embedder can flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) it uses format-invariant relevance, crediting the content a parser keeps rather than its formatting. Run with no training on a probe of a few hundred Q--A, it ranks the parser and chunker a team would deploy.}
 \label{fig:protocol}
 \end{figure}
