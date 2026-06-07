@@ -4,8 +4,7 @@ RCPS is not a new scoring function; it is a *protocol* wrapping ordinary MRR in
 three choices (§3.1): (i) extrinsic — score on a held-out Q-A probe over the
 parsed corpus; (ii) retriever-agnostic — average MRR over several embedders;
 (iii) format-invariant relevance — a chunk is relevant iff it contains the gold
-answer span under markdown/whitespace-insensitive matching. Output: a parser/
-chunker ranking that intrinsic metrics (TEDS, BC) get wrong.
+answer span. Output: a parser/chunker ranking that intrinsic metrics get wrong.
 
 A simple, information-bearing schematic (single column). No external data.
 Output: paper/figures/fig_rcps_protocol.{pdf,png}
@@ -20,63 +19,70 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUT_DIR = Path("paper/figures")
 
-plt.rcParams.update({"font.family": "serif", "font.size": 8.5})
+plt.rcParams.update({"font.family": "serif"})
 
 
-def box(ax, x, y, w, h, text, fc, ec="#333333", fs=8.0, bold=False):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.012,rounding_size=0.02",
-                                linewidth=1.0, edgecolor=ec, facecolor=fc, zorder=2))
+def box(ax, x, y, w, h, text, fc, fs, ec="#333333", bold=False):
+    ax.add_patch(FancyBboxPatch(
+        (x, y), w, h, boxstyle="round,pad=0.008,rounding_size=0.018",
+        linewidth=1.0, edgecolor=ec, facecolor=fc, zorder=2))
     ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs,
             fontweight="bold" if bold else "normal", zorder=3)
 
 
 def arrow(ax, x1, y1, x2, y2):
     ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>",
-                                 mutation_scale=11, lw=1.1, color="#333333", zorder=1))
+                                 mutation_scale=10, lw=1.1, color="#333333", zorder=1))
 
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(3.3, 4.4))
+    fig, ax = plt.subplots(figsize=(4.7, 5.3))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
 
     # Inputs
-    box(ax, 0.04, 0.88, 0.42, 0.085, "Parser / chunker\ncandidates", "#eaeaea", fs=7.8)
-    box(ax, 0.54, 0.88, 0.42, 0.085, "Held-out Q–A probe\n(~few hundred, no training)", "#eaeaea", fs=7.2)
+    box(ax, 0.03, 0.885, 0.44, 0.085, "Parser / chunker\ncandidates", "#eaeaea", 8.0)
+    box(ax, 0.53, 0.885, 0.44, 0.085, "Held-out Q–A probe\n(few hundred, no training)", "#eaeaea", 7.6)
 
     # Parse + chunk
-    box(ax, 0.18, 0.72, 0.64, 0.075, "chunk the parsed corpus", "#dbe9f6", fs=8)
-    arrow(ax, 0.25, 0.88, 0.35, 0.795)
-    arrow(ax, 0.75, 0.88, 0.62, 0.795)
+    box(ax, 0.22, 0.755, 0.56, 0.072, "chunk the parsed corpus", "#dbe9f6", 8.5)
+    arrow(ax, 0.24, 0.885, 0.36, 0.83)
+    arrow(ax, 0.76, 0.885, 0.64, 0.83)
+
+    # bracket label for the 3 protocol choices (clear gap, no overlap)
+    ax.text(0.5, 0.722, "the protocol — three choices, not a new metric",
+            ha="center", va="center", fontsize=7.0, style="italic", color="#a0610a")
 
     # The three protocol choices (the contribution)
-    box(ax, 0.06, 0.60, 0.88, 0.066,
-        "(iii) format-invariant relevance:\nchunk relevant iff it contains the gold answer span", "#fde7c9", fs=7.0)
-    box(ax, 0.06, 0.495, 0.88, 0.066,
-        "(i) extrinsic: score retrieval on the probe, not the text", "#fde7c9", fs=7.4)
-    box(ax, 0.06, 0.39, 0.88, 0.066,
-        "(ii) retriever-agnostic: average MRR@{1,5,10}\nover R = {BGE-M3, mE5-large, Qwen3-Emb-8B}", "#fde7c9", fs=7.0)
-    arrow(ax, 0.5, 0.72, 0.5, 0.668)
-    arrow(ax, 0.5, 0.60, 0.5, 0.562)
-    arrow(ax, 0.5, 0.495, 0.5, 0.457)
-
-    # bracket label for the 3 choices
-    ax.text(0.5, 0.665, "the protocol (not a new metric)", ha="center", va="bottom",
-            fontsize=6.6, style="italic", color="#a0610a")
+    box(ax, 0.02, 0.625, 0.96, 0.068,
+        "(iii) format-invariant relevance:\nchunk relevant iff it contains the gold answer span",
+        "#fde7c9", 7.6)
+    box(ax, 0.02, 0.527, 0.96, 0.062,
+        "(i) extrinsic: score retrieval on the probe, not the text",
+        "#fde7c9", 7.6)
+    box(ax, 0.02, 0.429, 0.96, 0.068,
+        "(ii) retriever-agnostic: average MRR@{1,5,10}\nover R = {BGE-M3, mE5, Qwen3-Emb}",
+        "#fde7c9", 7.6)
+    arrow(ax, 0.5, 0.755, 0.5, 0.695)
+    arrow(ax, 0.5, 0.625, 0.5, 0.591)
+    arrow(ax, 0.5, 0.527, 0.5, 0.499)
 
     # RCPS score
-    box(ax, 0.22, 0.265, 0.56, 0.072, "RCPS(P)  =  retriever-averaged MRR", "#cfe9cf", fs=8.2, bold=True)
-    arrow(ax, 0.5, 0.39, 0.5, 0.337)
+    box(ax, 0.20, 0.300, 0.60, 0.070, "RCPS(P) = retriever-averaged MRR",
+        "#cfe9cf", 8.6, bold=True)
+    arrow(ax, 0.5, 0.429, 0.5, 0.372)
 
     # Output: ranking / selection
-    box(ax, 0.13, 0.13, 0.74, 0.075, "rank & select parser / chunker\n(picks what TEDS / BC rank wrong)", "#cfe9cf", fs=7.6, bold=True)
-    arrow(ax, 0.5, 0.265, 0.5, 0.205)
+    box(ax, 0.10, 0.160, 0.80, 0.072,
+        "rank & select parser / chunker\n(picks what TEDS / BC rank wrong)",
+        "#cfe9cf", 7.8, bold=True)
+    arrow(ax, 0.5, 0.300, 0.5, 0.234)
 
     # payoff
-    ax.text(0.5, 0.055, "0.20 → 0.55 Hit@1 on our data", ha="center", va="center",
-            fontsize=8, color="#1a6b1a", fontweight="bold")
-    arrow(ax, 0.5, 0.13, 0.5, 0.085)
+    ax.text(0.5, 0.065, "0.20 → 0.55 Hit@1 on our data", ha="center", va="center",
+            fontsize=8.5, color="#1a6b1a", fontweight="bold")
+    arrow(ax, 0.5, 0.160, 0.5, 0.092)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
