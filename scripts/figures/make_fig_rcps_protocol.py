@@ -50,11 +50,7 @@ def main() -> None:
     arrow(ax, 0.24, 0.885, 0.36, 0.83)
     arrow(ax, 0.76, 0.885, 0.64, 0.83)
 
-    # bracket label for the 3 protocol choices (clear gap, no overlap)
-    ax.text(0.5, 0.722, "the protocol — three choices, not a new metric",
-            ha="center", va="center", fontsize=7.0, style="italic", color="#a0610a")
-
-    # The three protocol choices (the contribution)
+    # The three protocol choices (the contribution) — grouped by shared colour + (i)(ii)(iii)
     box(ax, 0.02, 0.625, 0.96, 0.068,
         "(iii) format-invariant relevance:\nchunk relevant iff it contains the gold answer span",
         "#fde7c9", 7.6)
