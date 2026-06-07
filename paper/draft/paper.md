@@ -30,9 +30,7 @@ We release **KoGovDoc-RAG** (663 Q-A over 294 Korean government document pages),
 
 **Diagnostic prior art.** The parsing–retrieval gap has been documented but not closed: OHR-Bench (*OCR Hinders RAG*), *EnterpriseDocBench* (parsing-quality↔retrieval r ≈ 0.14), and *When Good OCR Is Not Enough* all diagnose OCR noise cascading through the RAG pipeline, but none proposes a training-time fix on the parser side.
 
-**Training-time methods, by layer (Figure 1).** Existing parser-adjacent training operates at every layer *except* the parser: chunking methods (Late Chunking, LumberChunker, Meta-Chunking, MoC) decide boundaries post-parsing; embedding-side methods (InSeNT, LMAR) train the embedder contrastively; and retrieval/reader-side methods (Reward-RAG, M-LongDoc, RPO) tune the retriever or generator. To our knowledge, **no prior work trains the L1 parser itself on a retrieval signal**, which is the gap our paper occupies.
-
-*[Figure 1 — 6-layer RAG pipeline schematic showing where prior methods sit and the empty parser slot. Manually drawn, to be inserted in PHASE_4 LaTeX porting (likely TikZ).]*
+**Training-time methods, by layer.** Existing parser-adjacent training operates at every layer *except* the parser: chunking methods (Late Chunking, LumberChunker, Meta-Chunking, MoC) decide boundaries post-parsing; embedding-side methods (InSeNT, LMAR) train the embedder contrastively; and retrieval/reader-side methods (Reward-RAG, M-LongDoc, RPO) tune the retriever or generator. To our knowledge, **no prior work trains the L1 parser itself on a retrieval signal**, which is the gap our paper occupies.
 
 Our primary contributions sit *upstream* of any training: a cross-domain diagnosis of the disconnect (C1) with a parser-vs-chunker localisation (C2) and a retrieval-grounded protocol for *selecting* parsers and chunkers (RCPS, C3). On top of that we also test parser-side training (C4) from both natural directions — the hidden-state aux-loss (RADP-aux, §3.3a) and the discrete-output DPO (RADP-DPO, §3.3) — and find only the discrete-output route works, and modestly (§4.4): the retrieval-reward signal must enter through the parser's discrete output, and even then it tightens text fidelity (§4.5) rather than transforming the parser. The headline for a practitioner is therefore *how to choose* a parser, with training a smaller, optional gain on top.
 
@@ -72,7 +70,7 @@ When the coverage diagnostic points to the parser (§4.2), we train it on a retr
 
 ### 4.1 Setup
 
-We construct **KoGovDoc-RAG**: 663 Q-A pairs over 294 pages of Korean government documents, generated with GPT-5.4 and verified with an LLM-as-judge stratified sample (94/100 accept). For RADP-aux's full-scale training, we additionally generate 6,164 GPT-5.4 Q-A on the 2,667-page v1 train set. Cross-domain replication uses **OHR-Bench** (Law + Manual, 1,043 verbatim-answerable Q-A) across the three released parser outputs (gt, MinerU, Qwen2.5-VL) plus twelve controlled noise perturbations.
+We construct **KoGovDoc-RAG**: 663 Q-A pairs over 294 pages of Korean government documents, generated with GPT-5.4 and verified with an LLM-as-judge stratified sample (94/100 accept). For RADP-aux's full-scale training, we additionally generate 6,164 GPT-5.4 Q-A on the 2,667-page v1 train set. Cross-domain replication uses **OHR-Bench** (seven domains, 2,264 verbatim-answerable Q-A; the Law + Manual subset, 1,043 Q-A, is used only for the data-mix-sensitivity comparison in §4.2) across the three released parser outputs (gt, MinerU, Qwen2.5-VL) plus twelve controlled noise perturbations.
 
 **Eval folds.** RADP-aux is evaluated on the 73-page held-out fold (202 Q-A) of KoGovDoc-RAG. RADP-DPO/SimPO and the §4.5 mechanism analysis use the *combined* 242-page fold (train ∪ eval, 663 Q-A) of KoGovDoc-RAG. The combined fold is appropriate for the DPO comparison because the DPO preference pairs are constructed from parses on the 169-page train fold but the v1 production parser is held fixed; evaluating both on the union therefore measures system-level differences without favouring either. All parses for the 12-variant comparison in §4.4-§4.5 are regenerated with HuggingFace `transformers` deterministic decoding (temperature 0.0, max_tokens 1536) for fair like-for-like comparison.
 
@@ -80,33 +78,19 @@ We fine-tune Qwen3-VL-2B-Instruct with LoRA (r = 8, α = 32) on the full v1 trai
 
 ### 4.2 The Parsing–Retrieval Disconnect and Coverage Diagnostic (C1–C2)
 
-**Korean government documents (Table 1).** RCPS spans 0.07–0.58 across the six parsers. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the intrinsic Boundary Clarity metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding PaddleOCR, whose Boundary Clarity is undefined — MoC detects zero boundaries in its output). The cleanest-boundary parsers (MinerU and Marker, BC ≈ 0.72) retrieve worst (RCPS 0.07–0.21), while the lower-BC VLM parsers (BC 0.52–0.62) retrieve best. MoC's companion intrinsic metric, Chunk Stickiness, is similarly disconnected from retrieval (Pearson r = +0.26, n = 5 — a positive sign by convention, but with CS oriented so that *lower* indicates more cohesive chunks, this is the same direction as BC: more cohesive intrinsic structure tracks *worse* retrieval). Neither intrinsic axis predicts RCPS.
+**Korean government documents (Figure 1; full per-parser grid in Appendix D).** RCPS spans 0.07–0.58 across the six parsers. The VLM-family parsers cluster at the top (0.53–0.58); the OCR systems trail (0.07–0.21). Crucially, the intrinsic Boundary Clarity metric (MoC) anti-correlates with RCPS at **Pearson r = −0.81** (n = 5, excluding PaddleOCR, whose Boundary Clarity is undefined — MoC detects zero boundaries in its output). The cleanest-boundary parsers (MinerU and Marker, BC ≈ 0.72) retrieve worst (RCPS 0.07–0.21), while the lower-BC VLM parsers (BC 0.52–0.62) retrieve best. MoC's companion intrinsic metric, Chunk Stickiness, is similarly disconnected from retrieval (Pearson r = +0.26, n = 5 — a positive sign by convention, but with CS oriented so that *lower* indicates more cohesive chunks, this is the same direction as BC: more cohesive intrinsic structure tracks *worse* retrieval). Neither intrinsic axis predicts RCPS.
 
-| Parser | BC | RCPS | Hit@1 |
-|---|:---:|:---:|:---:|
-| Qwen3-VL-30B (teacher) | 0.623 | **0.584** | 0.545 |
-| WigtnOCR-2B (ours, v1) | 0.610 | 0.583 | 0.549 |
-| Qwen3-VL-2B (base) | 0.520 | 0.532 | 0.500 |
-| MinerU | **0.716** | 0.212 | 0.197 |
-| PaddleOCR | — | 0.140 | 0.125 |
-| Marker (38p) | **0.717** | 0.073 | 0.068 |
-*Table 1: KoGov, BC vs RCPS, Pearson r = −0.81 (n = 5, excl. PaddleOCR — Boundary Clarity undefined, zero detected boundaries; n = 4, r = −0.74 if the 38-page Marker subset is also dropped, same direction). RCPS averaged over 3 retrievers (BGE-M3, mE5-large, Qwen3-Emb-8B).*
+![Figure 1 — parsing–retrieval disconnect](../figures/fig_disconnect.png)
+*Figure 1: The parsing–retrieval disconnect on Korean government documents. **(a)** Boundary Clarity (intrinsic, MoC) anti-correlates with RCPS across parsers (Pearson r = −0.81, n = 5; PaddleOCR excluded — its BC is undefined): the cleanest-boundary parsers (MinerU, Marker) retrieve worst, while the lower-BC VLM parsers retrieve best. **(b)** Choosing the parser by RCPS (v1) instead of by appearance (MinerU) swings retrieval Hit@1 by 2.8× (0.197 → 0.549).*
 
 A single-domain anti-correlation could be a quirk of one language or document type. We test cross-domain.
 
-**Cross-domain — the mechanism (Figure 2, Table 2).** On OHR-Bench's Law and Manual domains (1,043 verbatim-answerable Q-A; consistent with §4.1), we evaluate 15 parser-output variants: the three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT/MinerU/Qwen2.5-VL × mild/moderate/severe).
+**Cross-domain — the mechanism (Figure 2).** Across all seven OHR-Bench domains (2,264 verbatim-answerable Q-A; consistent with §4.1), we evaluate 15 parser-output variants: the three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT/MinerU/Qwen2.5-VL × mild/moderate/severe).
 
 The mechanism is the headline finding. Within each semantic-noise family, Boundary Clarity barely moves while RCPS collapses (Figure 2). For MinerU's family, BC stays in **0.71–0.73** across clean → mild → moderate → severe; RCPS falls **0.50 → 0.41 → 0.35 → 0.24** (−51%). GOT shows the same pattern (RCPS 0.38 → 0.34 → 0.26, −32%). Qwen2.5-VL is more noise-robust (RCPS 0.47 → 0.43, −8%). **Intrinsic boundary metrics see only formatting, not content**: semantic noise that destroys retrievable content does not lower BC.
 
 ![Figure 2 — noise-family curves](../figures/fig_noise_family.png)
 *Figure 2: OHR-Bench 7-domain noise-family curves. Top — Boundary Clarity stays roughly flat across noise severity for all three parser families. Bottom — RCPS collapses for MinerU and GOT (Qwen2.5-VL is more noise-robust). The intrinsic metric does not perceive the semantic content quality that retrieval depends on.*
-
-| Family (n) | BC range | RCPS (clean → severe) | ΔRCPS |
-|---|:---:|:---:|:---:|
-| MinerU + semantic noise (4) | 0.708–0.735 | 0.50 → 0.24 | **−51%** |
-| GOT + semantic noise (3) | 0.495–0.650 | (no clean) → 0.26 | — |
-| Qwen2.5-VL + semantic noise (4) | 0.610–0.619 | 0.47 → 0.43 | −8% |
-*Table 2: OHR-Bench 7-domain per-family noise-perturbation summary. The disconnect (BC flat, RCPS dropping under semantic noise) is dramatic for MinerU and GOT; Qwen2.5-VL is more robust. Full 15-variant grid in supplementary.*
 
 **Aggregate cross-variant correlation is data-mix sensitive.** Pearson BC↔RCPS across all 15 variants is **−0.35** on Law+Manual alone but **+0.25** on the full 7-domain corpus — the scalar flips as the document mix broadens. The robust finding is the per-family mechanism above, which reproduces in every domain; the cross-variant scalar conflates parser families with different intrinsic noise robustness and is not a stable signal on its own.
 
@@ -122,7 +106,7 @@ The mechanism is the headline finding. Within each semantic-noise family, Bounda
 
 ### 4.3 RCPS Selects Both Parsers and Chunkers (C3)
 
-A selection protocol must separate the alternatives a practitioner actually compares — across *both* knobs they control, the parser and the chunker. **Parsers:** the 6-parser grid of §4.2 (Table 1) *is* an RCPS ranking — it is what tells a team that v1 (RCPS 0.583, Hit@1 0.55) beats MinerU (0.21, 0.20) by 2.8×, the ordering Boundary Clarity inverts. **Chunkers:** on a fixed parser output (Table 3), RCPS separates four strategies cleanly — markdown-header (md-h3) > parser-native > LumberChunker (LLM-narrative) > fixed-size — whereas intrinsic boundary metrics would rank them inconsistently, or rank fixed-size *highest* (cleanest boundaries by construction). In both cases RCPS captures *retrievability*, not surface appearance; and because it is retriever-averaged and format-invariant (§3.1), one ~500-Q-A probe ranks the parser choice and the chunker choice a team makes independently. This is the operational core of C3 — one cheap protocol for the two parser-side decisions that standard metrics get wrong.
+A selection protocol must separate the alternatives a practitioner actually compares — across *both* knobs they control, the parser and the chunker. **Parsers:** the 6-parser grid of §4.2 (Figure 1; full numbers in Appendix D) *is* an RCPS ranking — it is what tells a team that v1 (RCPS 0.583, Hit@1 0.55) beats MinerU (0.21, 0.20) by 2.8×, the ordering Boundary Clarity inverts. **Chunkers:** on a fixed parser output (Table 3), RCPS separates four strategies cleanly — markdown-header (md-h3) > parser-native > LumberChunker (LLM-narrative) > fixed-size — whereas intrinsic boundary metrics would rank them inconsistently, or rank fixed-size *highest* (cleanest boundaries by construction). In both cases RCPS captures *retrievability*, not surface appearance; and because it is retriever-averaged and format-invariant (§3.1), one ~500-Q-A probe ranks the parser choice and the chunker choice a team makes independently. This is the operational core of C3 — one cheap protocol for the two parser-side decisions that standard metrics get wrong.
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
@@ -263,6 +247,18 @@ We measure four chunk-level statistics on the 242-page fold for all 12 systems (
 **The non-signal — the MoC chunking signature is unchanged on both axes.** BC for all four RADP-DPO variants lands in 0.60–0.66, statistically the same as v1's 0.63. CS (within-chunk cohesion) is even tighter: every DPO/SimPO variant lands in **0.469–0.478, indistinguishable from v1's 0.474** (the spread across all 12 systems including RADP-aux is only 0.470–0.484). Chunks per page (4.69–5.27) and mean chunk length (304–332) are also within v1's range (4.82, 274). RADP-DPO does *not* produce a novel "AI-friendly" chunking signature that a human reader would call out as different — both axes of the MoC framework (between-chunk discontinuity *and* within-chunk cohesion) are unchanged from the production parser, as is the chunking shape. This rules out a chunking-style explanation for the gain: it comes from *what* is parsed, not *how* the chunks are split. The intrinsic-metric blindness documented in §4.2 (BC anti-correlates with retrieval) and the §4.5 finding (CS, BC, chunk shape all invariant under DPO while retrieval moves) are two faces of the same fact: MoC's chunkability axes do not reach the surface property that retrieval depends on.
 
 **Why factoid, why held-out, why aux fails.** Three secondary patterns all follow from text fidelity. The gain concentrates on **factoid** queries — fidelity tightening helps exactly where the verbatim answer span must land inside a chunk — and is neutral on tabular ones (structural, not text, fidelity). It is *larger* on the retrievers held out from preference scoring (ml-e5-large, Qwen3-Emb) than on the BGE-M3 scorer: v1's text was already BGE-aligned, so the fidelity gain has more room elsewhere — confirming a parser-level effect, not a BGE-overfit. And **RADP-aux** stays sub-threshold because its hidden-state signal reaches the deployed markdown only via diffuse `L_parse` backflow, never localising to the surface tokens the retriever rewards — the boundary that makes *discrete-output* DPO the parameterisation that works.
+
+### Appendix D — KoGov parser grid (detail for §4.2, Figure 1)
+
+| Parser | BC | RCPS | Hit@1 |
+|---|:---:|:---:|:---:|
+| Qwen3-VL-30B (teacher) | 0.623 | **0.584** | 0.545 |
+| WigtnOCR-2B (ours, v1) | 0.610 | 0.583 | 0.549 |
+| Qwen3-VL-2B (base) | 0.520 | 0.532 | 0.500 |
+| MinerU | **0.716** | 0.212 | 0.197 |
+| PaddleOCR | — | 0.140 | 0.125 |
+| Marker (38p) | **0.717** | 0.073 | 0.068 |
+*Table D1 (the §4.2 disconnect grid, visualised in Figure 1): KoGov, BC vs RCPS, Pearson r = −0.81 (n = 5, excl. PaddleOCR — Boundary Clarity undefined, zero detected boundaries; n = 4, r = −0.74 if the 38-page Marker subset is also dropped, same direction). RCPS averaged over 3 retrievers (BGE-M3, mE5-large, Qwen3-Emb-8B).*
 
 ## References (BibTeX-ready outline)
 
