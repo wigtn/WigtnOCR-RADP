@@ -50,24 +50,23 @@ def main() -> None:
     arrow(ax, 0.24, 0.885, 0.36, 0.83)
     arrow(ax, 0.76, 0.885, 0.64, 0.83)
 
-    # The three protocol choices (the contribution) — grouped by shared colour + (i)(ii)(iii)
-    box(ax, 0.02, 0.625, 0.96, 0.068,
-        "(iii) format-invariant relevance:\nchunk relevant iff it contains the gold answer span",
-        "#fde7c9", 7.6)
-    box(ax, 0.02, 0.527, 0.96, 0.062,
+    # Three protocol choices (the contribution) — a *set*, not a sequence:
+    # ordered (i)(ii)(iii), grouped by shared colour; one arrow in, one out (no inter-box arrows).
+    box(ax, 0.02, 0.622, 0.96, 0.060,
         "(i) extrinsic: score retrieval on the probe, not the text",
         "#fde7c9", 7.6)
-    box(ax, 0.02, 0.429, 0.96, 0.068,
+    box(ax, 0.02, 0.520, 0.96, 0.068,
         "(ii) retriever-agnostic: average MRR@{1,5,10}\nover R = {BGE-M3, mE5, Qwen3-Emb}",
         "#fde7c9", 7.6)
-    arrow(ax, 0.5, 0.755, 0.5, 0.695)
-    arrow(ax, 0.5, 0.625, 0.5, 0.591)
-    arrow(ax, 0.5, 0.527, 0.5, 0.499)
+    box(ax, 0.02, 0.418, 0.96, 0.068,
+        "(iii) format-invariant relevance:\nchunk relevant iff it contains the gold answer span",
+        "#fde7c9", 7.6)
+    arrow(ax, 0.5, 0.755, 0.5, 0.688)   # chunk -> protocol choices (single arrow in)
 
     # RCPS score
     box(ax, 0.08, 0.300, 0.84, 0.070, "RCPS(P) = retriever-averaged MRR",
         "#cfe9cf", 8.6, bold=True)
-    arrow(ax, 0.5, 0.429, 0.5, 0.372)
+    arrow(ax, 0.5, 0.418, 0.5, 0.374)   # protocol choices -> RCPS (single arrow out)
 
     # Output: ranking / selection
     box(ax, 0.10, 0.160, 0.80, 0.072,
