@@ -69,8 +69,8 @@ def main() -> None:
     # offsets tuned so the three clustered VLM labels fan out without overlap
     label_off = {
         "MinerU": (9, -1), "Marker (38p)": (9, -1),
-        "Prod (ours)": (-8, 9),                   # above the cluster
-        "Qwen3-VL-30B\n(teacher)": (12, -2),      # to the right
+        "Prod (ours)": (-9, 11),                  # above-left of the cluster
+        "Qwen3-VL-30B\n(teacher)": (11, 5),       # above-right, clear of Prod
         "Qwen3-VL-2B\n(base)": (-2, -27),         # below
     }
     for bc, rc, name in valid:

@@ -20,6 +20,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+plt.rcParams["font.family"] = "serif"
+
 SRC = Path("output/results/ohrbench_7dom_bc.json")  # 7-domain (Law/Manual/Finance/News/Textbook/Academic/Administration)
 OUT_DIR = Path("paper/figures")
 SEVERITIES = ["clean", "mild", "moderate", "severe"]
@@ -67,9 +69,12 @@ def main() -> None:
     ax_bc.set_ylabel("Boundary Clarity")
     ax_bc.set_ylim(0.45, 0.78)
     ax_bc.grid(True, alpha=0.3, linestyle="--")
-    ax_bc.legend(loc="lower right", fontsize=9, frameon=True)
     ax_bc.set_title("Intrinsic boundary metric is blind to content noise",
                     fontsize=10.5, pad=6)
+    # Legend placed below both panels (horizontal) to avoid covering any curve.
+    handles, labels = ax_bc.get_legend_handles_labels()
+    leg = fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=9,
+                     frameon=True, bbox_to_anchor=(0.5, -0.09))
 
     ax_rcps.set_ylabel("RCPS (3-retriever avg)")
     ax_rcps.set_xlabel("Semantic noise severity (OHR-Bench, 7 domains)")
@@ -79,7 +84,7 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
         out = OUT_DIR / f"fig_noise_family.{ext}"
-        fig.savefig(out, bbox_inches="tight", dpi=200)
+        fig.savefig(out, bbox_inches="tight", bbox_extra_artists=(leg,), dpi=200)
         print(f"wrote {out}")
 
 
