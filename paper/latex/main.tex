@@ -191,7 +191,7 @@ The reference-free SimPO control ($\beta = 2.0$, $\gamma = 1.0$) removes the ref
 
 On the 242-page KoGov fold (10{,}000-resample paired bootstrap), the three RADP-DPO milestones improve Hit@5 on parser-native chunking over Prod along the reward-sharpening axis: R1 $+2.06$~pp $[-0.96, +5.13]$, R2 $+1.96$~pp $[-1.06, +5.03]$, R3 $+2.11$~pp $[-0.96, +5.13]$ (all $P[\Delta{>}0] \approx 0.90$). At $n = 663$ every two-sided interval spans zero, so these are exploratory: the Hit@5 / parser-native cell was selected from a multi-cell scan over (chunker $\times$ retriever $\times$ $k$) with no family-wise correction. The reward-agnostic RADP-Distill control, evaluated on the same fold, reaches $+2.61$~pp and is the headline; its powered confirmation is the OHR-Bench result (Table~\ref{tab:ohr}, $+1.22$~pp).
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering\small
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcccc}
@@ -206,9 +206,9 @@ RADP-SimPO (ctrl) & 0.6793 & $-0.70$ $[{-}3.77, {+}2.31]$ & 0.321 & $-1.56$ \\
 \end{tabular}
 \caption{RADP-DPO milestone progression and the SimPO control on parser-native chunking, 242-page / 663-Q--A fold, 10k paired percentile bootstrap, all against the same Prod baseline (Hit@5 $= 0.6863$). Macro Hit@$k$ averages the three retrievers of \S\ref{sec:rcps}. All three milestones are strong directional positives ($P[\Delta{>}0] \ge 0.90$) but two-sided non-significant at this fold size; RADP-SimPO is uniformly negative. The RADP-Distill headline (KoGov $\Delta$Hit@5 $+2.61$~pp) is in \S\ref{sec:c4} and Table~\ref{tab:ohr}. Across three Prod seeds the standard deviation of the mean $\Delta$Hit@5 is 0.90~pp.}
 \label{tab:kogov}
-\end{table}
+\end{table*}
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
@@ -222,7 +222,7 @@ RADP-DPO-R3 & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 \end{tabular}
 \caption{OHR-Bench cross-domain $\Delta$ vs Prod, in pp (2{,}264 Q--A over seven English domains; three-retriever macro; 1{,}000-resample paired bootstrap). The Hit@5 deltas are two-sided significant (95\% CIs: RADP-Distill $[+0.35, +2.15]$, R2 $[+0.35, +1.43]$, R3 $[+0.24, +1.84]$). The other columns are monotone re-cuts of the same per-system ranked list, reported only because practitioners use different cutoffs. RADP-Distill leads at the primary metric Hit@5; R3 reaches higher Hit@1 and MRR@10 point estimates but with overlapping CIs, so the retrieval reward is unnecessary at the powered endpoint (\S\ref{sec:c4}).}
 \label{tab:ohr}
-\end{table}
+\end{table*}
 
 \paragraph{RADP-aux is sub-threshold.} The auxiliary loss peaks at $\lambda = 0.1$ ($+1$--$2$~pp \rcps{}) then declines monotonically as the contrastive objective competes with $\mathcal{L}_\text{parse}$ over the same LoRA parameters; every $\Delta$-versus-control interval includes zero and the one-sided $P[\Delta{>}0]$ never approaches 0.90. The hidden-state route does not reach the deployed markdown---only the discrete output does.
 
@@ -235,7 +235,7 @@ RADP-DPO-R3 & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 
 We measure four chunk-level statistics on the 242-page fold for all systems in Table~\ref{tab:mechanism}: MoC Boundary Clarity (BC, adjacent-chunk discontinuity), MoC Chunk Stickiness (CS, within-chunk cohesion), normalised edit distance to the ground-truth markdown (TextNED, character-level Levenshtein distance $\div$ longer-string length), and chunking shape.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering\small
 \setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{lcccccc}
@@ -256,7 +256,7 @@ SimPO & 1703 & 5.31 & 305 & 0.601 & 0.470 & 0.186 \\
 \end{tabular}
 \caption{Chunk-level mechanism statistics on the 242-page fold (len $=$ parse length, c/pg $=$ chunks per page, clen $=$ chunk length). RADP-Distill attains the lowest TextNED of all ($0.158 <$ R2's $0.163 <$ Prod's $0.240$) with BC unchanged ($0.641$, within Prod's range), confirming that text fidelity, not chunk structure, is the operative axis (CS was not measured for RADP-Distill, which uses a fixed chunking scheme). Among retrieval-reward variants, R2 has the lowest TextNED ($0.163$); R3's KoGov TextNED ($0.185$) does not beat it.}
 \label{tab:mechanism}
-\end{table}
+\end{table*}
 
 \paragraph{The signal.} All three RADP-DPO milestones reduce TextNED from Prod's $0.240$ to $0.163$--$0.185$, a 23--32\% move toward the ground-truth markdown; R1 and R2 achieve the largest reductions ($0.167$, $0.163$). RADP-aux instead increases TextNED ($0.318$--$0.626$) because its hidden-state objective degrades surface text. TextNED is positively associated with Hit@5 (R3 the one DPO-cluster exception), and RADP-Distill reduces it furthest ($0.158$) while leading on retrieval---the cleanest demonstration that text fidelity, not the retrieval reward, is the lever.
 
