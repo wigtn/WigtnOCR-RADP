@@ -1,0 +1,13 @@
+# keep only the PNGs consumed by make_overview_pptx.py; drop build intermediates
+_*.svg
+logos/_*.svg
+logos/montage.png
+# raw (pre-normalisation) logo downloads — only logos/norm/ is used
+logos/qwen.png
+logos/mineru.png
+logos/paddle.png
+logos/marker.png
+logos/marker_datalab.png
+logos/bge_baai.png
+logos/me5_ms.png
+logos/intfloat.png
