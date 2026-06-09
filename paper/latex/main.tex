@@ -34,16 +34,9 @@ On Korean government documents, that assumption fails. A practitioner ranking by
 
 We study how a team should instead select---and, where possible, improve---the parser in a production document-RAG system, and report four contributions.
 
-Figure~\ref{fig:overview} lays out all four as the paper's arc, with the pipeline stage each acts on. \textbf{C1} characterises the parsing--retrieval disconnect and traces its mechanism (intrinsic boundary metrics track formatting, not content). \textbf{C2}, a retriever-free coverage diagnostic, localises the gap to the parser ($20.2\%$ of answers absent, constant across chunkers). \textbf{C3} is \rcps{}, a no-training protocol for selecting parsers and chunkers that intrinsic metrics misorder; an ablation shows it is not single-embedder MRR. \textbf{C4} maps parser-side training and finds it bounded: best-of-K fidelity distillation is the lever, while the retrieval reward is unnecessary and two natural formulations (a hidden-state auxiliary loss, reference-free SimPO) fail.
+Each is illustrated by its own figure at the relevant section. \textbf{C1} characterises the parsing--retrieval disconnect and traces its mechanism (intrinsic boundary metrics track formatting, not content; Figure~\ref{fig:disconnect}). \textbf{C2}, a retriever-free coverage diagnostic, localises the gap to the parser ($20.2\%$ of answers absent, constant across chunkers). \textbf{C3} is \rcps{}, a no-training protocol for selecting parsers and chunkers that intrinsic metrics misorder; an ablation shows it is not single-embedder MRR. \textbf{C4} maps parser-side training and finds it bounded: best-of-K fidelity distillation is the lever, while the retrieval reward is unnecessary and two natural formulations (a hidden-state auxiliary loss, reference-free SimPO) fail.
 
 We release \textbf{KoGovDoc-RAG}, a Korean document-RAG benchmark of 663 question--answer pairs over 294 pages, together with a reference implementation of \rcps{}, the RADP-Distill checkpoint (the recommended parser-side lever), and the RADP-aux\,/\,RADP-DPO checkpoints used for the negative and controlled comparisons.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{fig1_overview.pdf}
-\caption{The four contributions as the paper's arc, with the document-RAG stage each acts on. \textbf{C1} (problem): appearance (Boundary Clarity, edit distance) and retrieval (\rcps{}) rank parsers oppositely---$r = -0.81$, parser choice swings Hit@1 by $2.8\times$. \textbf{C2} (diagnose): a retriever-free check labels each answer covered\,/\,split\,/\,absent; $20.2\%$ absent (constant across chunkers) is a parser fault. \textbf{C3} (select): \rcps{} ranks parsers and chunkers by retrieval on a held-out Q--A probe---retriever-averaged, format-invariant, no training. \textbf{C4} (improve): best-of-K fidelity distillation toward ground-truth text lifts Hit@5 $+1.22$~pp; the retrieval reward is unnecessary.}
-\label{fig:overview}
-\end{figure*}
 
 \section{Related Work}
 
@@ -62,12 +55,19 @@ Given a parser $P$, a Q--A set $D = \{(q_i, a_i, \text{page}_i)\}$, a set of ret
 \begin{equation}
 \text{RCPS}(P) = \frac{1}{|R|\,|K|} \sum_{r \in R} \sum_{k \in K} \text{MRR}@k(r, P, D).
 \end{equation}
-We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant iff its source page matches the answer's and the gold span is a substring under whitespace- and markdown-insensitive normalisation. In practice a team runs \rcps{} on a few hundred held-out Q--A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly; Figure~\ref{fig:overview} (C3) sketches the protocol and the failure each choice removes. The implementation is released.
+We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang2024me5}, Qwen3-Embedding-8B \citep{qwen3emb}$\}$ and $K = \{1, 5, 10\}$. A chunk is relevant iff its source page matches the answer's and the gold span is a substring under whitespace- and markdown-insensitive normalisation. In practice a team runs \rcps{} on a few hundred held-out Q--A, with no training, to choose a parser or chunker that intrinsic metrics rank incorrectly; Figure~\ref{fig:protocol} sketches the protocol and the failure each choice removes. The implementation is released.
 
 \subsection{Coverage Diagnostic --- Locating the Gap (Parser vs Chunker)}
 \label{sec:coverage}
 
 \rcps{} scores the parser, chunker, and retriever jointly, so a low score does not localise the fault. We separate the parser from the chunker with a retriever-free diagnostic: holding the parser output fixed and varying the chunker, we classify each gold answer as \emph{covered} (inside a single chunk, retrievable); \emph{split} (present in the page text but cut across chunks---a chunker fault, recoverable with overlap); or \emph{absent} (not in the parser output at all---a parser fault, unrecoverable by chunking). Coverage is the ceiling on retrieval, since split and absent answers score zero; the split/absent breakdown attributes the gap to a pipeline layer and decides whether a parser-side fix can help (\S\ref{sec:c1c2}). Relevance reuses \rcps{}'s format-invariant matching.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\columnwidth]{fig_c2_coverage.pdf}
+\caption{The coverage diagnostic (C2): each gold answer is \emph{covered}, \emph{split} (a chunker fault, recoverable with overlap), or \emph{absent} (a parser fault, unrecoverable by chunking). On Prod, $20.2\%$ are absent and at most $2.3\%$ split, the absent rate constant across all eight chunkers (\S\ref{sec:c1c2})---so the gap is a parser problem.}
+\label{fig:coverage}
+\end{figure}
 
 \section{Experiments}
 
@@ -119,6 +119,13 @@ fixed500\_ov200 & 79.8\% & 0.0\% & 20.2\% \\
 A selection protocol must separate the alternatives a practitioner actually compares, across both knobs they control. For \textbf{parsers}, the six-parser grid of \S\ref{sec:c1c2} (Figure~\ref{fig:disconnect}, Appendix~\ref{app:grid}) is itself an \rcps{} ranking: it tells a team that Prod (\rcps{} $0.583$, Hit@1 $0.55$) beats MinerU ($0.21$, $0.20$) by $2.8\times$, the ordering Boundary Clarity inverts. For \textbf{chunkers}, on a fixed Prod output \rcps{} separates four strategies cleanly---markdown-header (md-h3, \rcps{} $0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-size ($0.535$)---whereas intrinsic boundary metrics rank them inconsistently, or rank fixed-size highest because its boundaries are clean by construction. Because \rcps{} is retriever-averaged and format-invariant, one probe set of a few hundred Q--A ranks both the parser choice and the chunker choice a team makes independently.
 
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\columnwidth]{fig_rcps_protocol.png}
+\caption{\rcps{} as a protocol, not a new scoring function (C3). It wraps ordinary retrieval MRR in three choices, each removing a failure mode of intrinsic metrics: (i) a held-out Q--A probe rather than the text, since text scores (edit distance, BC) mispredict retrieval; (ii) retriever-averaging, since a single embedder can flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) format-invariant relevance, crediting the content a parser keeps. Run with no training, it ranks the parser and chunker a team would deploy.}
+\label{fig:protocol}
+\end{figure}
+
 \paragraph{\rcps{} is not single-embedder MRR (Table~\ref{tab:ablation}).} Stripping the three protocol choices from the six-parser KoGov grid shows they are not cosmetic. Dropping retriever-averaging---scoring on a single embedder (BGE-M3)---inverts the top parser choice: naive single-embedder MRR ranks Prod first, while full \rcps{} ranks the Qwen3-VL-30B teacher first (Table~\ref{tab:ablation}). Format-invariant matching, by contrast, shifts every parser's score by about $0.02$--$0.03$ but does not reorder the grid. The inversion is between two near-tied parsers (\rcps{} $0.584$ versus $0.583$), so the operational claim is precise: single-embedder MRR cannot reliably resolve the top parser a team would deploy---exactly the decision \rcps{} is run to make. The ordering disagreement (Kendall $\tau = 0.87$) substantiates the claim that \rcps{} is a protocol, not a relabelled MRR.
 
 \begin{table}[t]
@@ -145,6 +152,13 @@ When the coverage diagnostic points to the parser (\S\ref{sec:c1c2}), we train i
 With one answer in five absent from the parser (\S\ref{sec:c1c2}), a parser-side fix is the right lever. Of these directions, only discrete-output preference training (RADP-DPO) produces a deployable effect---the hidden-state auxiliary loss is sub-threshold and reference-free SimPO is uniformly negative (Appendix~\ref{app:dpo}). On KoGov, RADP-DPO improves Hit@5 by $+1.96$ to $+2.11$~pp, but at $n = 663$ every two-sided interval spans zero, so we treat KoGov as exploratory and rely on the pre-specified OHR-Bench replication, where training signal, metric, and language are disjoint. There the representative variant R2 gives Hit@5 $+0.85$~pp $[+0.35, +1.43]$, two-sided significant across all seven domains (Table~\ref{tab:ohr}).
 
 \paragraph{The retrieval reward is unnecessary.} A matched RADP-Distill control---identical but ranking pairs by edit-distance to ground truth rather than \rcps{}---reproduces the gain (OHR Hit@5 $+1.22$~pp $[+0.35, +2.15]$; KoGov $+2.61$~pp), indistinguishable from RADP-DPO at the powered endpoint. The lever is therefore fidelity distillation, not the retrieval reward---a cheaper route to the same target.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.80\columnwidth]{fig_c4_training.pdf}
+\caption{Parser-side training (C4), a best-of-K pipeline. Ranking candidates by edit-distance to ground truth (RADP-Distill) reproduces ranking by page-local \rcps{} (RADP-DPO), so the retrieval reward is unnecessary---the deployable lever is fidelity distillation ($+1.22$~pp Hit@5, OHR-Bench).}
+\label{fig:training}
+\end{figure}
 
 \paragraph{The mechanism is text fidelity, not chunk boundaries.} Across the 12 systems (Appendix~\ref{app:mechanism}, Table~\ref{tab:mechanism}), every DPO variant cuts TextNED from Prod's $0.240$ to $0.16$--$0.19$ and RADP-Distill cuts it furthest ($0.158$), while the MoC chunking signature (BC $0.60$--$0.66$, CS $\approx 0.47$) does not move; RADP-aux, which instead \emph{raises} TextNED, stays sub-threshold. The gain comes from \emph{what} is parsed, not \emph{how} it is chunked---\S\ref{sec:c1c2}'s intrinsic-metric blindness seen from the training side---and replicates cross-domain (English R2 TextNED $-1.36\%$, significant). RADP-DPO is thus best read as best-of-K self-distillation: training amortises into the weights the higher-fidelity parses the model could already occasionally produce.
 
