@@ -51,7 +51,7 @@ We release \textbf{KoGovDoc-RAG}, a Korean document-RAG benchmark of 663 questio
 
 \paragraph{Training-time methods, by pipeline layer.} Existing parser-adjacent training operates at every layer except the parser. Chunking methods decide boundaries after parsing \citep{jina2024late, duarte2024lumber, zhao2024meta, zhao2025moc}; embedding-side methods train the retriever contrastively \citep{conti2025insent, zhao2025lmar}; and retrieval- or reader-side methods tune the retriever or generator \citep{nguyen2024rewardrag, chia2025mlongdoc, yan2025rpo}. To our knowledge no prior work trains the parser itself on a retrieval signal---the gap our C4 occupies---while our primary contributions (C1--C3) sit upstream of any training.
 
-\section{Method}
+\section{The RCPS Protocol}
 
 \subsection{\rcps{}: Retrieval-Conditional Parsing Score}
 \label{sec:rcps}
@@ -68,11 +68,6 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 \label{sec:coverage}
 
 \rcps{} scores the parser, chunker, and retriever jointly, so a low score does not localise the fault. We separate the parser from the chunker with a retriever-free diagnostic: holding the parser output fixed and varying the chunker, we classify each gold answer as \emph{covered} (inside a single chunk, retrievable); \emph{split} (present in the page text but cut across chunks---a chunker fault, recoverable with overlap); or \emph{absent} (not in the parser output at all---a parser fault, unrecoverable by chunking). Coverage is the ceiling on retrieval, since split and absent answers score zero; the split/absent breakdown attributes the gap to a pipeline layer and decides whether a parser-side fix can help (\S\ref{sec:c1c2}). Relevance reuses \rcps{}'s format-invariant matching.
-
-\subsection{Parser-Side Training: Auxiliary Loss and Discrete-Output DPO}
-\label{sec:training}
-
-When the diagnostic points to the parser (\S\ref{sec:c1c2}), we train it on a retrieval signal---a family we call Retrieval-Aware Document Parsing (RADP)---in two natural ways. \textbf{(a) Hidden-state auxiliary loss (RADP-aux):} we add to the parsing loss an InfoNCE term aligning the parser's pooled answer-span hidden state with the frozen BGE-M3 embedding of the gold chunk ($\mathcal{L}_\text{total} = \mathcal{L}_\text{parse} + \lambda\,\mathcal{L}_\text{contrast}$); this differentiable surrogate reaches the deployed markdown only through $\mathcal{L}_\text{parse}$ and is sub-threshold (\S\ref{sec:c4}). \textbf{(b) Discrete-output DPO (RADP-DPO):} we optimise the markdown directly \citep{rafailov2023dpo}---sampling $K$ parses per page, scoring each by a page-local \rcps{}, forming preference pairs (gap $\ge 5$~pp), and training with a LoRA-toggle reference \citep{hu2021lora} ($\pi_\theta$ adapter-on, $\pi_\text{ref}$ adapter-off), the reward sharpened over three milestones R1$\rightarrow$R2$\rightarrow$R3 (Appendix~\ref{app:milestones}); reference-free SimPO \citep{meng2024simpo} is a control. \textbf{(c) Reward-agnostic control (RADP-Distill):} the identical best-of-K pipeline but ranking candidates by edit-distance to the ground-truth markdown instead of \rcps{}; if it matches RADP-DPO, the retrieval reward is unnecessary (\S\ref{sec:c4}).
 
 \section{Experiments}
 
@@ -143,9 +138,11 @@ full \rcps{} (3 retrievers, fmt-invariant) & 30B $\succ$ Prod & --- \\
 \end{table}
 
 \subsection{Parser-Side Training Is a Bounded, Reward-Agnostic Lever (C4)}
-\label{sec:c4}\label{sec:mechanism}
+\label{sec:c4}\label{sec:mechanism}\label{sec:training}
 
-With one answer in five absent from the parser (\S\ref{sec:c1c2}), a parser-side fix is the right lever. Of the two natural directions, only discrete-output preference training (RADP-DPO, \S\ref{sec:training}) produces a deployable effect---the hidden-state auxiliary loss is sub-threshold and reference-free SimPO is uniformly negative (Appendix~\ref{app:dpo}). On KoGov, RADP-DPO improves Hit@5 by $+1.96$ to $+2.11$~pp, but at $n = 663$ every two-sided interval spans zero, so we treat KoGov as exploratory and rely on the pre-specified OHR-Bench replication, where training signal, metric, and language are disjoint. There the representative variant R2 gives Hit@5 $+0.85$~pp $[+0.35, +1.43]$, two-sided significant across all seven domains (Table~\ref{tab:ohr}).
+When the coverage diagnostic points to the parser (\S\ref{sec:c1c2}), we train it on a retrieval signal---a family we call Retrieval-Aware Document Parsing (RADP)---in two natural ways. \textbf{(a) Hidden-state auxiliary loss (RADP-aux):} an InfoNCE term aligns the parser's pooled answer-span hidden state with the frozen BGE-M3 embedding of the gold chunk ($\mathcal{L}_\text{total} = \mathcal{L}_\text{parse} + \lambda\,\mathcal{L}_\text{contrast}$); this differentiable surrogate reaches the deployed markdown only through $\mathcal{L}_\text{parse}$. \textbf{(b) Discrete-output DPO (RADP-DPO):} we optimise the markdown directly \citep{rafailov2023dpo}---sampling $K$ parses per page, scoring each by a page-local \rcps{}, forming preference pairs (gap $\ge 5$~pp), and training with a LoRA-toggle reference \citep{hu2021lora} ($\pi_\theta$ adapter-on, $\pi_\text{ref}$ adapter-off), the reward sharpened over three milestones R1$\rightarrow$R2$\rightarrow$R3 (Appendix~\ref{app:milestones}); reference-free SimPO \citep{meng2024simpo} is a control. \textbf{(c) Reward-agnostic control (RADP-Distill):} the identical best-of-K pipeline but ranking candidates by edit-distance to the ground-truth markdown instead of \rcps{}.
+
+With one answer in five absent from the parser (\S\ref{sec:c1c2}), a parser-side fix is the right lever. Of these directions, only discrete-output preference training (RADP-DPO) produces a deployable effect---the hidden-state auxiliary loss is sub-threshold and reference-free SimPO is uniformly negative (Appendix~\ref{app:dpo}). On KoGov, RADP-DPO improves Hit@5 by $+1.96$ to $+2.11$~pp, but at $n = 663$ every two-sided interval spans zero, so we treat KoGov as exploratory and rely on the pre-specified OHR-Bench replication, where training signal, metric, and language are disjoint. There the representative variant R2 gives Hit@5 $+0.85$~pp $[+0.35, +1.43]$, two-sided significant across all seven domains (Table~\ref{tab:ohr}).
 
 \paragraph{The retrieval reward is unnecessary.} A matched RADP-Distill control---identical but ranking pairs by edit-distance to ground truth rather than \rcps{}---reproduces the gain (OHR Hit@5 $+1.22$~pp $[+0.35, +2.15]$; KoGov $+2.61$~pp), indistinguishable from RADP-DPO at the powered endpoint. The lever is therefore fidelity distillation, not the retrieval reward---a cheaper route to the same target.
 
