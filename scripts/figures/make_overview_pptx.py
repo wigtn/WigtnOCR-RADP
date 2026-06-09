@@ -267,14 +267,12 @@ def main():
         line([run("+1.22 pp Hit@5 (OHR-Bench)", 8.5, True, "E65100")], sa=1),
     ], fill="FCEEE0", line=None, radius=0.16)
 
-    # arc arrows between panels
-    a = COL  # noqa
+    # arc arrows: within-row (C1->C2, C3->C4) + a centred down arrow joining the
+    # "diagnose" row to the "act" row (cleaner than a diagonal C2->C3 wrap)
     arrow(slide, pos["C1"][0] + pw + 0.02, gy + ph / 2, pos["C2"][0] - 0.02, gy + ph / 2, color="6b7780", w=2.0)
     arrow(slide, pos["C3"][0] + pw + 0.02, gy + ph + gap + ph / 2, pos["C4"][0] - 0.02,
           gy + ph + gap + ph / 2, color="6b7780", w=2.0)
-    # wrap arrow C2 -> C3 (down)
-    arrow(slide, pos["C2"][0] + pw / 2, gy + ph + 0.02, pos["C3"][0] + pw / 2, gy + ph + gap - 0.02,
-          color="6b7780", w=2.0)
+    arrow(slide, W / 2, gy + ph + 0.005, W / 2, gy + ph + gap - 0.005, color="6b7780", w=2.0)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))
