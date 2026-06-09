@@ -1,13 +1,14 @@
-"""Figure 1 (overview) — the document-RAG pipeline and where C1-C4 act.
+"""Figure 1 (overview) — detailed 2x2 architecture for contributions C1-C4.
 
-Editable PowerPoint deliverable: phase band (Document->Generate) + component
-boxes (real model brand logos for the Parser / Retriever stages, clean icons
-elsewhere) + three colour-coded contribution zones that read on their own:
-Diagnose (C1, C2) / Select (C3) / Improve (C4). No badges, no bottom band.
+Editable PowerPoint deliverable. A single full-width figure with four detailed
+panels arranged 2x2 as the paper's arc:
+    PROBLEM (C1)  ->  DIAGNOSE (C2)
+        |                 |
+    SELECT  (C3)  <-  IMPROVE  (C4)   (reading arc C1->C2->C3->C4)
+Each panel is a real mini-architecture (boxes + arrows + the headline number),
+so each Cn reads on its own and the body prose can shrink drastically.
 
-Brand logos: official GitHub org avatars (Qwen, OpenDataLab/MinerU, PaddlePaddle,
-Datalab/Marker, FlagOpen/BGE, Microsoft/mE5), trimmed + squared under
-icons/logos/norm/.  Generic icons: Bootstrap Icons (MIT) under icons/.
+Real logos: official GitHub org avatars under icons/logos/norm/.
 Output: paper/figures/fig1_overview.pptx
 """
 from __future__ import annotations
@@ -22,30 +23,35 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 from pptx.oxml.ns import qn
 
 HERE = Path(__file__).resolve().parent
-ICON = HERE / "icons"
 LOGO = HERE / "icons" / "logos" / "norm"
 OUT = HERE.parent.parent / "paper" / "figures" / "fig1_overview.pptx"
 
-SLATE = "37474F"
-GREY_LN = "B0BEC5"
-GREY_TX = "546E7A"
-ARROW = "78909C"
-RED = "C62828"
-DIAG_H, DIAG_F = "1565C0", "E8F0FE"
-SEL_H, SEL_F = "2E7D32", "E7F5EA"
-IMP_H, IMP_F = "E65100", "FFF3E0"
-FOOT_F = "ECEFF1"
+FONT = "Calibri"
 INK = "1F3247"
+GREY_TX = "55636E"
+GREY_LN = "C2CBD2"
+ARROW = "8A98A4"
+
+# arc colours
+COL = {
+    "C1": ("C62828", "FBE9EA", "FDF4F4"),   # PROBLEM  red   (header, fill, soft)
+    "C2": ("1565C0", "E7EFFB", "F3F7FD"),   # DIAGNOSE blue
+    "C3": ("2E7D32", "E6F3E9", "F2F9F3"),   # SELECT   green
+    "C4": ("E65100", "FCEEE0", "FDF6EF"),   # IMPROVE  amber
+}
 
 
 def C(h):
     return RGBColor.from_string(h)
 
 
-def rrect(slide, x, y, w, h, fill, line=None, lw=1.0, radius=0.09):
+def rrect(slide, x, y, w, h, fill, line=None, lw=1.0, radius=0.10):
     sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
                                 Inches(x), Inches(y), Inches(w), Inches(h))
-    sp.fill.solid(); sp.fill.fore_color.rgb = C(fill)
+    if fill is None:
+        sp.fill.background()
+    else:
+        sp.fill.solid(); sp.fill.fore_color.rgb = C(fill)
     if line:
         sp.line.color.rgb = C(line); sp.line.width = Pt(lw)
     else:
@@ -58,32 +64,41 @@ def rrect(slide, x, y, w, h, fill, line=None, lw=1.0, radius=0.09):
     return sp
 
 
-def set_rich(shape, paras, anchor=MSO_ANCHOR.MIDDLE, wrap=True, m=0.06, space_after=3.0):
+def txt(shape, paras, anchor=MSO_ANCHOR.MIDDLE, m=0.04, space_after=1.5):
     tf = shape.text_frame
-    tf.word_wrap = wrap
+    tf.word_wrap = True
     tf.auto_size = MSO_AUTO_SIZE.NONE
     tf.vertical_anchor = anchor
     tf.margin_left = tf.margin_right = Inches(m)
-    tf.margin_top = tf.margin_bottom = Inches(min(m, 0.04))
+    tf.margin_top = tf.margin_bottom = Inches(0.015)
     for i, para in enumerate(paras):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = para.get("align", PP_ALIGN.CENTER)
         p.space_after = Pt(para.get("space_after", space_after))
         p.space_before = Pt(0)
-        for (txt, size, bold, color) in para["runs"]:
-            r = p.add_run(); r.text = txt
-            r.font.size = Pt(size); r.font.bold = bold
-            r.font.name = "Calibri"; r.font.color.rgb = C(color)
+        if para.get("line_spacing"):
+            p.line_spacing = para["line_spacing"]
+        for (t, s, b, c) in para["runs"]:
+            r = p.add_run(); r.text = t
+            r.font.size = Pt(s); r.font.bold = b
+            r.font.name = FONT; r.font.color.rgb = C(c)
     return tf
 
 
-def textbox(slide, x, y, w, h, paras, anchor=MSO_ANCHOR.TOP, m=0.03, space_after=4.0):
-    tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
-    set_rich(tb, paras, anchor=anchor, m=m, space_after=space_after)
-    return tb
+def box(slide, x, y, w, h, lines, fill="FFFFFF", line=GREY_LN, lw=1.0, radius=0.12,
+        anchor=MSO_ANCHOR.MIDDLE):
+    sp = rrect(slide, x, y, w, h, fill, line=line, lw=lw, radius=radius)
+    txt(sp, lines, anchor=anchor)
+    return sp
 
 
-def arrow(slide, x1, y1, x2, y2, color=ARROW, w=1.6):
+def tbox(slide, x, y, w, h, lines, anchor=MSO_ANCHOR.MIDDLE):
+    sp = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
+    txt(sp, lines, anchor=anchor)
+    return sp
+
+
+def arrow(slide, x1, y1, x2, y2, color=ARROW, w=1.5):
     cn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
                                     Inches(x1), Inches(y1), Inches(x2), Inches(y2))
     cn.line.color.rgb = C(color); cn.line.width = Pt(w)
@@ -92,125 +107,174 @@ def arrow(slide, x1, y1, x2, y2, color=ARROW, w=1.6):
     return cn
 
 
-def badge(slide, x, y, text, w=0.38, h=0.21, fs=9):
-    sp = rrect(slide, x, y, w, h, RED, line="FFFFFF", lw=1.1, radius=0.5)
-    set_rich(sp, [{"runs": [(text, fs, True, "FFFFFF")], "align": PP_ALIGN.CENTER}],
-             anchor=MSO_ANCHOR.MIDDLE, m=0.0)
-    return sp
+def run(t, s, b, c):
+    return (t, s, b, c)
 
 
-def logo_tile(slide, path, x, y, w, h, name, name_sz=6.5):
-    lsz = min(w * 0.92, h * 0.66)
-    slide.shapes.add_picture(str(path), Inches(x + (w - lsz) / 2), Inches(y),
-                             Inches(lsz), Inches(lsz))
-    textbox(slide, x, y + lsz + 0.01, w, h - lsz - 0.01,
-            [{"runs": [(name, name_sz, False, GREY_TX)], "align": PP_ALIGN.CENTER}],
-            anchor=MSO_ANCHOR.TOP, m=0.0)
+def line(runs, align=PP_ALIGN.CENTER, sa=1.5, ls=None):
+    d = {"runs": runs, "align": align, "space_after": sa}
+    if ls:
+        d["line_spacing"] = ls
+    return d
 
 
-def icon_box(slide, i, xs, bw, cb_y, cb_h, icon, label, detail):
-    rrect(slide, xs[i], cb_y, bw, cb_h, "FFFFFF", line=GREY_LN, lw=1.1, radius=0.06)
-    isz = 0.56
-    slide.shapes.add_picture(str(ICON / icon),
-                             Inches(xs[i] + bw / 2 - isz / 2), Inches(cb_y + 0.16),
-                             Inches(isz), Inches(isz))
-    textbox(slide, xs[i], cb_y + cb_h - 0.50, bw, 0.46, [
-        {"runs": [(label, 11, True, INK)], "align": PP_ALIGN.CENTER, "space_after": 1.0},
-        {"runs": [(detail, 8.5, False, GREY_TX)], "align": PP_ALIGN.CENTER},
-    ], anchor=MSO_ANCHOR.TOP, m=0.05)
+def panel_header(slide, x, y, w, key, verb, title):
+    hcol = COL[key][0]
+    hd = rrect(slide, x, y, w, 0.46, hcol, radius=0.12)
+    txt(hd, [
+        line([run(verb + "   ", 8.5, True, "FFFFFF"), run(title, 11.5, True, "FFFFFF")]),
+    ])
 
 
 def main():
     prs = Presentation()
-    prs.slide_width = Inches(11.3)
-    prs.slide_height = Inches(4.3)
+    W, H = 9.6, 6.7
+    prs.slide_width = Inches(W)
+    prs.slide_height = Inches(H)
     slide = prs.slides.add_slide(prs.slide_layouts[6])
 
-    xs = [0.2 + 2.25 * i for i in range(5)]
-    bw = 1.85
-    ph_y, ph_h = 0.16, 0.34
-    cb_y, cb_h = 0.60, 1.46
+    # title banner
+    ban = rrect(slide, 0.2, 0.12, W - 0.4, 0.40, "37474F", radius=0.16)
+    txt(ban, [line([
+        run("RADP — choose the parser by ", 11.5, True, "FFFFFF"),
+        run("retrieval", 11.5, True, "FFD54F"),
+        run(", not by appearance; train only where it helps", 11.5, True, "FFFFFF"),
+    ])])
 
-    phases = ["Document", "Parse", "Chunk", "Retrieve", "Generate"]
-    for i, name in enumerate(phases):
-        hp = rrect(slide, xs[i], ph_y, bw, ph_h, SLATE, radius=0.18)
-        set_rich(hp, [{"runs": [(name, 12.5, True, "FFFFFF")], "align": PP_ALIGN.CENTER}],
-                 anchor=MSO_ANCHOR.MIDDLE, m=0.02)
+    gx, gy = 0.2, 0.66
+    pw, ph = 4.50, 2.86
+    gap = 0.30
+    pos = {
+        "C1": (gx, gy),
+        "C2": (gx + pw + gap, gy),
+        "C3": (gx, gy + ph + gap),
+        "C4": (gx + pw + gap, gy + ph + gap),
+    }
 
-    # generic-icon stages
-    icon_box(slide, 0, xs, bw, cb_y, cb_h, "document.png", "Korean gov doc", "PDF / scanned page")
-    icon_box(slide, 2, xs, bw, cb_y, cb_h, "chunk.png", "Chunker", "md-header · native · fixed")
-    icon_box(slide, 4, xs, bw, cb_y, cb_h, "answer.png", "RAG answer", "grounded generation")
+    # panel frames + headers
+    titles = {
+        "C1": ("PROBLEM", "C1 · The disconnect"),
+        "C2": ("DIAGNOSE", "C2 · Coverage diagnostic"),
+        "C3": ("SELECT", "C3 · RCPS protocol"),
+        "C4": ("IMPROVE", "C4 · Bounded training"),
+    }
+    for k, (px, py) in pos.items():
+        rrect(slide, px, py, pw, ph, COL[k][2], line=COL[k][0], lw=1.3, radius=0.04)
+        panel_header(slide, px, py, pw, k, *titles[k])
 
-    # ---- Parse stage: real parser logos (2x2) -> Prod 2B ----
-    px = xs[1]
-    rrect(slide, px, cb_y, bw, cb_h, "FFFFFF", line=GREY_LN, lw=1.1, radius=0.06)
-    textbox(slide, px, cb_y + 0.05, bw, 0.22,
-            [{"runs": [("Parsers", 10, True, INK)], "align": PP_ALIGN.CENTER}],
-            anchor=MSO_ANCHOR.MIDDLE, m=0.02)
-    plogos = [("qwen.png", "Qwen-VL"), ("mineru.png", "MinerU"),
-              ("paddle.png", "PaddleOCR"), ("marker.png", "Marker")]
-    gx, gy, gw, gh = px + 0.06, cb_y + 0.30, (bw - 0.12) / 2, 0.46
-    for k, (lg, nm) in enumerate(plogos):
-        r, c = divmod(k, 2)
-        logo_tile(slide, LOGO / lg, gx + c * gw, gy + r * gh, gw, gh, nm)
-    textbox(slide, px, cb_y + cb_h - 0.31, bw, 0.24,
-            [{"runs": [("fine-tune → Prod (2B)", 9, True, "00695C")], "align": PP_ALIGN.CENTER}],
-            anchor=MSO_ANCHOR.MIDDLE, m=0.02)
+    def body(k):
+        px, py = pos[k]
+        return px + 0.14, py + 0.46 + 0.10, pw - 0.28, ph - 0.46 - 0.22
 
-    # ---- Retrieve stage: real retriever logos (row of 3) ----
-    rx = xs[3]
-    rrect(slide, rx, cb_y, bw, cb_h, "FFFFFF", line=GREY_LN, lw=1.1, radius=0.06)
-    textbox(slide, rx, cb_y + 0.05, bw, 0.22,
-            [{"runs": [("Retrievers ×3", 10, True, INK)], "align": PP_ALIGN.CENTER}],
-            anchor=MSO_ANCHOR.MIDDLE, m=0.02)
-    rlogos = [("bge.png", "BGE-M3"), ("me5.png", "mE5"), ("qwen.png", "Qwen3-Emb")]
-    rw = (bw - 0.10) / 3
-    for k, (lg, nm) in enumerate(rlogos):
-        logo_tile(slide, LOGO / lg, rx + 0.05 + k * rw, cb_y + 0.34, rw, 0.62, nm)
-    textbox(slide, rx, cb_y + cb_h - 0.30, bw, 0.26,
-            [{"runs": [("k ∈ {1, 5, 10}", 8.5, False, GREY_TX)], "align": PP_ALIGN.CENTER}],
-            anchor=MSO_ANCHOR.MIDDLE, m=0.02)
+    # ---------------- C1 : disconnect ----------------
+    bx, by, bw, bh = body("C1")
+    box(slide, bx + bw / 2 - 0.62, by, 1.24, 0.34,
+        [line([run("Parser output", 9, True, INK)])])
+    # two opposing axes
+    cwid = (bw - 0.18) / 2
+    lx, rx = bx, bx + cwid + 0.18
+    ay = by + 0.34
+    box(slide, lx, ay + 0.30, cwid, 0.78, [
+        line([run("Appearance", 8.5, True, "8a8f96")]),
+        line([run("BC · edit-dist", 7.5, False, GREY_TX)], sa=2),
+        line([run("MinerU ranks #1", 8, True, "C62828")]),
+    ], fill="F4F5F6", anchor=MSO_ANCHOR.MIDDLE)
+    box(slide, rx, ay + 0.30, cwid, 0.78, [
+        line([run("Retrieval", 8.5, True, "2E7D32")]),
+        line([run("RCPS", 7.5, False, GREY_TX)], sa=2),
+        line([run("MinerU ranks LAST", 8, True, "2E7D32")]),
+    ], fill="EAF4EC")
+    arrow(slide, bx + bw / 2 - 0.30, ay, lx + cwid / 2, ay + 0.30)
+    arrow(slide, bx + bw / 2 + 0.30, ay, rx + cwid / 2, ay + 0.30)
+    box(slide, bx, by + bh - 0.40, bw, 0.38, [
+        line([run("BC ↔ RCPS  r = −0.81", 9, True, "C62828"),
+              run("   ·   parser choice → Hit@1 ", 8.5, False, INK),
+              run("2.8×", 9.5, True, "C62828"),
+              run(" (0.20→0.55)", 8.5, False, INK)]),
+    ], fill="FBE9EA", line=None, radius=0.18)
 
-    # pipeline arrows
-    ay = cb_y + cb_h / 2
-    for i in range(4):
-        arrow(slide, xs[i] + bw + 0.02, ay, xs[i + 1] - 0.02, ay)
+    # ---------------- C2 : coverage decision tree ----------------
+    bx, by, bw, bh = body("C2")
+    box(slide, bx + bw / 2 - 0.72, by, 1.44, 0.32,
+        [line([run("gold answer span", 8.5, True, INK)])])
+    q1y = by + 0.42
+    box(slide, bx + 0.30, q1y, bw - 0.60, 0.30,
+        [line([run("in parser output?", 8.5, True, "1565C0")])], fill="E7EFFB")
+    # NO -> absent
+    box(slide, bx + bw - 1.62, q1y + 0.40, 1.62, 0.34,
+        [line([run("ABSENT  20.2%", 8.5, True, "FFFFFF"), run("  parser fault", 7.5, False, "FFFFFF")])],
+        fill="C62828", line=None)
+    q2y = q1y + 0.40
+    box(slide, bx, q2y, 1.86, 0.30,
+        [line([run("fits one chunk?", 8.5, True, "1565C0")])], fill="E7EFFB")
+    box(slide, bx, q2y + 0.40, 1.86, 0.34,
+        [line([run("SPLIT  ≤2.3%", 8.5, True, "FFFFFF"), run("  chunker fault", 7.5, False, "FFFFFF")])],
+        fill="E68A00", line=None)
+    box(slide, bx + bw - 1.62, q2y + 0.40, 1.62, 0.34,
+        [line([run("COVERED", 8.5, True, "FFFFFF")])], fill="2E7D32", line=None)
+    arrow(slide, bx + bw / 2, by + 0.32, bx + bw / 2, q1y)
+    arrow(slide, bx + bw - 0.55, q1y + 0.30, bx + bw - 0.80, q1y + 0.40, color="C62828")
+    arrow(slide, bx + 0.6, q1y + 0.30, bx + 0.6, q2y, color="1565C0")
+    arrow(slide, bx + 0.55, q2y + 0.30, bx + 0.55, q2y + 0.40, color="E68A00")
+    arrow(slide, bx + 1.5, q2y + 0.30, bx + bw - 1.0, q2y + 0.40, color="2E7D32")
+    tbox(slide, bx, by + bh - 0.26, bw, 0.24,
+         [line([run("absent constant across 8 chunkers → fix the parser, not the chunker", 7.5, False, GREY_TX)])])
 
-    # ---- zones (the contributions read here; no badges on the pipeline) ----
-    zy, zh, zhh = 2.18, 1.96, 0.34
+    # ---------------- C3 : RCPS protocol ----------------
+    bx, by, bw, bh = body("C3")
+    box(slide, bx, by, bw, 0.30,
+        [line([run("held-out Q–A probe  +  parsed corpus", 8.5, True, INK)])])
+    box(slide, bx + bw / 2 - 0.9, by + 0.40, 1.8, 0.28,
+        [line([run("chunk → retrieve (MRR)", 8, True, "2E7D32")])], fill="EAF4EC")
+    cy = by + 0.78
+    cw3 = (bw - 0.16) / 3
+    for i, t in enumerate(["✓ extrinsic\n(probe)", "✓ retriever-avg\n×3", "✓ format-\ninvariant"]):
+        a, b2 = t.split("\n")
+        box(slide, bx + i * (cw3 + 0.08), cy, cw3, 0.52,
+            [line([run(a, 7.8, True, "2E7D32")], sa=1), line([run(b2, 7.2, False, GREY_TX)])],
+            fill="F2F9F3")
+    box(slide, bx + 0.2, by + bh - 0.62, bw - 0.4, 0.34,
+        [line([run("RCPS ranking → pick parser + chunker  (no training)", 8.3, True, "2E7D32")])],
+        fill="E6F3E9", line=None)
+    tbox(slide, bx, by + bh - 0.24, bw, 0.22,
+         [line([run("retriever-avg flips the top parser a single embedder gets wrong (τ = 0.87)", 7.3, False, GREY_TX)])])
+    arrow(slide, bx + bw / 2, by + 0.30, bx + bw / 2, by + 0.40, color="2E7D32")
+    arrow(slide, bx + bw / 2, by + 0.68, bx + bw / 2, cy, color="2E7D32")
 
-    def zone(x, w, hcol, fcol, title, body):
-        rrect(slide, x, zy, w, zh, fcol, line=hcol, lw=1.1, radius=0.05)
-        hd = rrect(slide, x, zy, w, zhh, hcol, radius=0.10)
-        set_rich(hd, [{"runs": [(title, 10.5, True, "FFFFFF")], "align": PP_ALIGN.CENTER}],
-                 anchor=MSO_ANCHOR.MIDDLE, m=0.03)
-        textbox(slide, x + 0.08, zy + zhh + 0.05, w - 0.16, zh - zhh - 0.12,
-                body, anchor=MSO_ANCHOR.TOP, m=0.04, space_after=5.0)
+    # ---------------- C4 : training pipeline ----------------
+    bx, by, bw, bh = body("C4")
+    sw = (bw - 3 * 0.22) / 4
+    yy = by + 0.06
+    steps = ["Prod\nparser", "sample K\nparses", "rank\ncandidates", "LoRA-toggle\nDPO"]
+    for i, t in enumerate(steps):
+        a, b2 = t.split("\n")
+        box(slide, bx + i * (sw + 0.22), yy, sw, 0.56,
+            [line([run(a, 7.8, True, INK)], sa=1), line([run(b2, 7.2, False, GREY_TX)])],
+            fill="FDF6EF" if i else "FFFFFF")
+        if i:
+            arrow(slide, bx + i * (sw + 0.22) - 0.21, yy + 0.28, bx + i * (sw + 0.22) + 0.01, yy + 0.28,
+                  color="E65100")
+    # ranking routes annotation
+    tbox(slide, bx, yy + 0.60, bw, 0.40, [
+        line([run("rank by: ", 7.8, True, INK),
+              run("edit-dist → GT", 8, True, "2E7D32"),
+              run("  (RADP-Distill ✓)", 7.8, True, "2E7D32")]),
+        line([run("vs  page-RCPS  (RADP-DPO) — same result", 7.8, False, GREY_TX)], sa=1),
+    ], anchor=MSO_ANCHOR.TOP)
+    box(slide, bx, by + bh - 0.42, bw, 0.40, [
+        line([run("retrieval reward unnecessary", 8.5, True, "E65100"),
+              run("  →  distil to clean GT text", 8.3, False, INK)]),
+        line([run("+1.22 pp Hit@5 (OHR-Bench)", 8.5, True, "E65100")], sa=1),
+    ], fill="FCEEE0", line=None, radius=0.16)
 
-    def cline(tag, tagcol, text):
-        return {"align": PP_ALIGN.LEFT,
-                "runs": [(tag + "  ", 9.5, True, tagcol), (text, 9.5, False, INK)]}
-
-    zone(0.2, 4.9, DIAG_H, DIAG_F, "DIAGNOSE  —  locate the real fault", [
-        cline("C1", DIAG_H,
-              "Disconnect — parsers that look clean don’t retrieve. Boundary Clarity "
-              "anti-correlates with retrieval (r = −0.81); parser choice alone swings "
-              "Hit@1 2.8× (0.197 → 0.549)."),
-        cline("C2", DIAG_H,
-              "Coverage (no retriever) — 20.2% of answers are absent from the parser "
-              "output, constant across 8 chunkers → fix the parser before the retriever."),
-    ])
-    zone(5.25, 2.90, SEL_H, SEL_F, "SELECT", [
-        cline("C3", SEL_H,
-              "RCPS — rank parsers & chunkers by what retrieval does, on a held-out "
-              "Q–A probe. Retriever-averaged & format-invariant. No training."),
-    ])
-    zone(8.30, 2.75, IMP_H, IMP_F, "IMPROVE  (bounded)", [
-        cline("C4", IMP_H,
-              "Best-of-K fidelity distillation: +1.22 pp Hit@5 (OHR-Bench). A matched "
-              "control shows the retrieval reward is unnecessary."),
-    ])
+    # arc arrows between panels
+    a = COL  # noqa
+    arrow(slide, pos["C1"][0] + pw + 0.02, gy + ph / 2, pos["C2"][0] - 0.02, gy + ph / 2, color="6b7780", w=2.0)
+    arrow(slide, pos["C3"][0] + pw + 0.02, gy + ph + gap + ph / 2, pos["C4"][0] - 0.02,
+          gy + ph + gap + ph / 2, color="6b7780", w=2.0)
+    # wrap arrow C2 -> C3 (down)
+    arrow(slide, pos["C2"][0] + pw / 2, gy + ph + 0.02, pos["C3"][0] + pw / 2, gy + ph + gap - 0.02,
+          color="6b7780", w=2.0)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))
