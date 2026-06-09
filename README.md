@@ -12,10 +12,6 @@
 
 ---
 
-![RADP overview — the document-RAG pipeline and where contributions C1–C4 act](paper/figures/fig1_overview_preview.png)
-
----
-
 ## TL;DR
 
 Document parsers used in retrieval-augmented generation (RAG) are conventionally chosen by *intrinsic*

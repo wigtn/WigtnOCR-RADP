@@ -12,10 +12,6 @@
 
 ---
 
-![RADP 개요 — 문서-RAG 파이프라인과 C1–C4 기여가 작용하는 지점](paper/figures/fig1_overview_preview.png)
-
----
-
 ## 📌 한 줄 요약
 
 RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지표**(edit distance·Boundary Clarity)로 고른다 — 깨끗한 출력이 검색도 잘 될 거라는 가정. **틀렸다.** 한국 정부문서(6 parser × 3 retriever × 663 Q–A)에서 MoC Boundary Clarity는 검색과 **Pearson r = −0.81 (n = 5)** 로 역상관 — BC 1위(MinerU)가 검색은 꼴찌고, 파서를 *외형*이 아니라 *검색*으로 고르면 **Hit@1이 2.8× (0.197 → 0.549)** 바뀐다.
