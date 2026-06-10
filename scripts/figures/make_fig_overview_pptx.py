@@ -34,6 +34,8 @@ BLUE = RGBColor(0x1F, 0x5F, 0xA8); BLUEF = RGBColor(0xEC, 0xF2, 0xFB)
 AMBER = RGBColor(0x9A, 0x5A, 0x00); AMBERF = RGBColor(0xFC, 0xF3, 0xE6)
 GREEN = RGBColor(0x1A, 0x6B, 0x1A); GREENF = RGBColor(0xEC, 0xF6, 0xEC)
 RED = RGBColor(0x8F, 0x1B, 0x1B); REDF = RGBColor(0xF9, 0xEC, 0xEC)
+GBAR = RGBColor(0x4A, 0x9A, 0x4A); ABAR = RGBColor(0xD9, 0x8A, 0x2B)
+RBAR = RGBColor(0xBE, 0x3A, 0x3A)
 
 
 def _ea(run, name):
@@ -83,6 +85,15 @@ def chevron(s, x, y, w, h, color):
                             Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = color
     sp.line.fill.background(); sp.shadow.inherit = False
+    return sp
+
+
+def bar(s, x, y, w, h, color):
+    sp = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y),
+                            Inches(max(w, 0.03)), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = color
+    sp.line.color.rgb = WHITE; sp.line.width = Pt(0.75)
+    sp.shadow.inherit = False
     return sp
 
 
@@ -182,11 +193,26 @@ def main():
     # ================= COLUMN 2 (C2/C3) =================
     h2a = 2.55
     subzone(s, x2, top, cw, h2a, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
-    pic_fit(s, FIG / "fig_coverage.png", x2 + 0.1, top + 0.4, cw - 0.2, h2a - 1.0)
-    tbox(s, x2 + 0.12, top + h2a - 0.6, cw - 0.24, 0.55,
-         [[R("20.2% of answers absent = parser fault", 10.5, RED, bold=True)],
-          [R("flat across 8 chunkers → fix the parser, not the chunker", 8.8,
-             GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.1)
+    tbox(s, x2 + 0.14, top + 0.4, cw - 0.28, 0.3,
+         [[R("where does each gold answer land?", 9.5, DARK)]])
+    bx, bw, by, bh = x2 + 0.25, cw - 0.5, top + 0.84, 0.6
+    cx = bx
+    for frac, col in [(0.775, GBAR), (0.023, ABAR), (0.202, RBAR)]:
+        bar(s, cx, by, bw * frac, bh, col); cx += bw * frac
+    tbox(s, bx, by, bw * 0.775, bh, [[R("77.5%", 9.5, WHITE, bold=True)]],
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    tbox(s, bx + bw * 0.798, by, bw * 0.202, bh,
+         [[R("20.2%", 9.5, WHITE, bold=True)]], align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE)
+    tbox(s, bx, by + bh + 0.04, bw * 0.775, 0.24,
+         [[R("covered", 8.5, GBAR, bold=True)]], align=PP_ALIGN.CENTER)
+    tbox(s, bx + bw * 0.70, by + bh + 0.04, bw * 0.30, 0.24,
+         [[R("absent", 8.5, RBAR, bold=True)]], align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.14, by + bh + 0.34, cw - 0.28, 0.66,
+         [[R("absent = answer never made it into the parser output ", 9, DARK),
+           R("(parser fault)", 9, RED, bold=True)],
+          [R("constant across all 8 chunkers → chunking can't recover it", 8.8,
+             GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
 
     y2b = top + h2a + 0.16; h2b = 1.85
     subzone(s, x2, y2b, cw, h2b, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
@@ -219,12 +245,21 @@ def main():
 
     y3b = top + h3a + 0.16; h3b = 2.45
     subzone(s, x3, y3b, cw, h3b, "Result", GREEN, GREENF)
-    pic_fit(s, FIG / "fig_c4_training.png", x3 + 0.1, y3b + 0.4, cw - 0.2, h3b - 1.0)
-    tbox(s, x3 + 0.12, y3b + h3b - 0.6, cw - 0.24, 0.55,
-         [[R("the two signals tie → retrieval reward unnecessary", 9.5, GREEN,
-             bold=True)],
-          [R("the deployable lever is fidelity distillation", 8.8, GREY,
-             italic=True)]], align=PP_ALIGN.CENTER, lead=1.1)
+    tbox(s, x3 + 0.14, y3b + 0.42, cw - 0.28, 0.3,
+         [[R("Hit@5 gain over the untuned parser:", 9.5, DARK)]])
+    blx, sc = x3 + 1.42, 1.45 / 1.22
+    for ry, nm, val, col in [(y3b + 0.95, "RADP-Distill", 1.22, GBAR),
+                             (y3b + 1.42, "RADP-DPO", 0.85, ABAR)]:
+        tbox(s, x3 + 0.16, ry - 0.03, 1.22, 0.32,
+             [[R(nm, 9, col, bold=True)]], anchor=MSO_ANCHOR.MIDDLE)
+        bar(s, blx, ry, val * sc, 0.3, col)
+        tbox(s, blx + val * sc + 0.05, ry - 0.03, 0.85, 0.32,
+             [[R(f"+{val:.2f} pp", 9.5, DARK, bold=True)]],
+             anchor=MSO_ANCHOR.MIDDLE)
+    tbox(s, x3 + 0.14, y3b + h3b - 0.66, cw - 0.28, 0.6,
+         [[R("≈  overlapping CIs → equal gain", 9.5, DARK, bold=True)],
+          [R("retrieval reward unnecessary; lever = fidelity distillation", 9,
+             GREEN, bold=True)]], align=PP_ALIGN.CENTER, lead=1.28)
 
     # ---- flow chevrons between columns ----
     chevron(s, x1 + cw + 0.01, 2.75, GAP - 0.02, 0.6, AMBER)
