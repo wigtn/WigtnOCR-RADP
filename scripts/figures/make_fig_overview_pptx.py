@@ -151,14 +151,16 @@ def main():
 
     top = 0.82
     # ================= COLUMN 1 =================
-    # 1a candidate parsers (logos in one row + "+GOT"; no overlapping caption)
-    h1a = 0.95
+    # 1a candidate parsers (logo + name under each; no stray "+GOT" text)
+    h1a = 1.18
     subzone(s, x1, top, cw, h1a, "Candidate parsers", BLUE, BLUEF)
-    for nm, dx in [("qwen.png", 0.28), ("mineru.png", 1.02),
-                   ("marker_datalab.png", 1.76), ("paddle.png", 2.5)]:
-        logo(s, nm, x1 + dx, top + 0.42, 0.46)
-    tbox(s, x1 + 3.05, top + 0.42, cw - 3.15, 0.46,
-         [[R("+ GOT", 10, GREY, italic=True)]], anchor=MSO_ANCHOR.MIDDLE)
+    for i, (nm, lab) in enumerate([("qwen.png", "Qwen3-VL"),
+            ("mineru.png", "MinerU"), ("marker_datalab.png", "Marker"),
+            ("paddle.png", "PaddleOCR")]):
+        dx = 0.45 + i * 0.9
+        logo(s, nm, x1 + dx, top + 0.40, 0.42)
+        tbox(s, x1 + dx - 0.27, top + 0.86, 0.96, 0.24,
+             [[R(lab, 7.5, GREY)]], align=PP_ALIGN.CENTER)
 
     # 1b cleaner-looking != better retrieval (clean comparison table; no
     # page screenshot, no raw multilingual parse text)
@@ -214,16 +216,16 @@ def main():
           [R("constant across all 8 chunkers → chunking can't recover it", 8.8,
              GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
 
-    y2b = top + h2a + 0.16; h2b = 1.85
+    y2b = top + h2a + 0.16; h2b = 2.05
     subzone(s, x2, y2b, cw, h2b, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
     tbox(s, x2 + 0.12, y2b + 0.42, cw - 0.24, 0.4,
          [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
-    for nm, dx in [("bge_baai.png", 0.7), ("me5_ms.png", 1.85), ("qwen.png", 2.85)]:
-        logo(s, nm, x2 + dx, y2b + 0.82, 0.5)
-    tbox(s, x2 + 0.1, y2b + 1.34, cw - 0.2, 0.24,
-         [[R("BGE-M3 · mE5 · Qwen3-Emb", 8.5, GREY, italic=True)]],
-         align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, y2b + h2b - 0.4, cw - 0.24, 0.34,
+    for nm, dx, lab in [("bge_baai.png", 0.6, "BGE-M3"),
+                        ("me5_ms.png", 1.7, "mE5"), ("qwen.png", 2.8, "Qwen3-Emb")]:
+        logo(s, nm, x2 + dx, y2b + 0.8, 0.48)
+        tbox(s, x2 + dx - 0.21, y2b + 1.3, 0.9, 0.22,
+             [[R(lab, 8, GREY, italic=True)]], align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.12, y2b + h2b - 0.36, cw - 0.24, 0.32,
          [[R("→ rank parsers & chunkers by retrieval", 10.5, AMBER, bold=True)]],
          align=PP_ALIGN.CENTER)
 
