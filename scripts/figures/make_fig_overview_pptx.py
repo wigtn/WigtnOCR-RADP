@@ -107,9 +107,23 @@ def subzone(s, x, y, w, h, title, color, fill):
          anchor=MSO_ANCHOR.MIDDLE)
 
 
+def cell(tbl, r, c, text, *, size=9, color=DARK, bold=False, fill=None,
+         font=CF, align=PP_ALIGN.CENTER):
+    cl = tbl.cell(r, c)
+    cl.vertical_anchor = MSO_ANCHOR.MIDDLE
+    cl.margin_left = cl.margin_right = Pt(3)
+    cl.margin_top = cl.margin_bottom = Pt(1)
+    if fill is not None:
+        cl.fill.solid(); cl.fill.fore_color.rgb = fill
+    p = cl.text_frame.paragraphs[0]; p.alignment = align
+    run = p.add_run(); run.text = text
+    run.font.size = Pt(size); run.font.bold = bold
+    run.font.color.rgb = color; _ea(run, font)
+
+
 def main():
     prs = Presentation()
-    prs.slide_width = Inches(13.3); prs.slide_height = Inches(6.3)
+    prs.slide_width = Inches(13.3); prs.slide_height = Inches(5.7)
     s = prs.slides.add_slide(prs.slide_layouts[6])
 
     M, GAP = 0.22, 0.26
@@ -135,30 +149,35 @@ def main():
     tbox(s, x1 + 3.05, top + 0.42, cw - 3.15, 0.46,
          [[R("+ GOT", 10, GREY, italic=True)]], anchor=MSO_ANCHOR.MIDDLE)
 
-    # 1b same page -> two parses (the concrete disconnect, given real room)
-    y1b = top + h1a + 0.16; h1b = 3.55
-    subzone(s, x1, y1b, cw, h1b, "Same page → two parses (appearance lies)",
-            BLUE, BLUEF)
-    pic_fit(s, PAGE, x1 + 0.12, y1b + 0.48, 1.45, h1b - 1.15)
-    pcx = x1 + 1.72; pcw = cw - 1.86
-    rrect(s, pcx, y1b + 0.52, pcw, 1.06, REDF, RED, 1.1)
-    tbox(s, pcx + 0.09, y1b + 0.52, pcw - 0.18, 1.06,
-         [[R("MinerU — BC 0.72 (cleanest)", 9.5, RED, bold=True)],
-          [R("(2) 即个张号 Sand Mat音斗个张叶", 9, DARK, font=KFONT)],
-          [R("clean structure, garbled text", 8.5, GREY, italic=True),
-           R("   MISS", 9.5, RED, bold=True)]],
-         anchor=MSO_ANCHOR.MIDDLE, lead=1.18)
-    rrect(s, pcx, y1b + 1.72, pcw, 1.06, GREENF, GREEN, 1.1)
-    tbox(s, pcx + 0.09, y1b + 1.72, pcw - 0.18, 1.06,
-         [[R("Prod (Qwen3-VL-2B) — lower BC", 9.5, GREEN, bold=True)],
-          [R("모래수량은 Sand Mat층을 제외한 수량", 9, DARK, font=KFONT)],
-          [R("messier metric, answer kept", 8.5, GREY, italic=True),
-           R("   HIT", 9.5, GREEN, bold=True)]],
-         anchor=MSO_ANCHOR.MIDDLE, lead=1.18)
-    tbox(s, x1 + 0.12, y1b + h1b - 0.5, cw - 0.24, 0.44,
-         [[R("cleanest-looking parse retrieves worst — ", 9.5, DARK),
-           R("r = −0.81", 10.5, RED, bold=True)]],
-         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    # 1b cleaner-looking != better retrieval (clean comparison table; no
+    # page screenshot, no raw multilingual parse text)
+    y1b = top + h1a + 0.16; h1b = 3.4
+    subzone(s, x1, y1b, cw, h1b, "Cleaner-looking ≠ better retrieval", BLUE, BLUEF)
+    tw = cw - 0.4
+    gt = s.shapes.add_table(3, 4, Inches(x1 + 0.2), Inches(y1b + 0.55),
+                            Inches(tw), Inches(1.7)).table
+    gt.first_row = False; gt.horz_banding = False
+    wts = [1.05, 1.30, 0.62, 0.78]
+    for i, wv in enumerate(wts):
+        gt.columns[i].width = Inches(tw * wv / sum(wts))
+    GH = RGBColor(0xEC, 0xEC, 0xEC)
+    rows = [
+        [("parser", DARK, True, GH), ("Boundary Clarity", DARK, True, GH),
+         ("answer", DARK, True, GH), ("retrieval", DARK, True, GH)],
+        [("MinerU", DARK, True, REDF), ("0.72  (highest)", DARK, False, REDF),
+         ("no", RED, True, REDF), ("MISS", RED, True, REDF)],
+        [("Prod (ours)", DARK, True, GREENF), ("lower", DARK, False, GREENF),
+         ("yes", GREEN, True, GREENF), ("HIT", GREEN, True, GREENF)],
+    ]
+    for r, row in enumerate(rows):
+        for c, (txt, col, bd, fl) in enumerate(row):
+            cell(gt, r, c, txt, size=(8.5 if r == 0 else 9.5), color=col,
+                 bold=bd, fill=fl)
+    tbox(s, x1 + 0.14, y1b + h1b - 1.0, cw - 0.28, 0.9,
+         [[R("highest Boundary Clarity, yet worst retrieval:", 9.5, DARK)],
+          [R("appearance metrics measure formatting, not content", 9.5, DARK)],
+          [R("anti-correlation   r = −0.81", 10.5, RED, bold=True)]],
+         align=PP_ALIGN.CENTER, lead=1.32)
 
     # ================= COLUMN 2 (C2/C3) =================
     h2a = 2.55
@@ -208,18 +227,8 @@ def main():
              italic=True)]], align=PP_ALIGN.CENTER, lead=1.1)
 
     # ---- flow chevrons between columns ----
-    chevron(s, x1 + cw + 0.01, 3.0, GAP - 0.02, 0.62, AMBER)
-    chevron(s, x2 + cw + 0.01, 3.0, GAP - 0.02, 0.62, GREEN)
-
-    # ---- bottom takeaway: thin rule + one bold line (no heavy bar) ----
-    ln = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(M), Inches(5.78),
-                                Inches(13.3 - M), Inches(5.78))
-    ln.line.color.rgb = RGBColor(0xCC, 0xCC, 0xCC); ln.line.width = Pt(1.0)
-    tbox(s, M, 5.84, 13.3 - 2 * M, 0.4,
-         [[R("The parser — not the chunker — is the under-examined lever:  "
-             "choose it by retrieval, not by appearance   ", 13, DARK, bold=True),
-           R("(Hit@1 0.20 → 0.55, 2.8×)", 13, BLUE, bold=True)]],
-         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    chevron(s, x1 + cw + 0.01, 2.75, GAP - 0.02, 0.6, AMBER)
+    chevron(s, x2 + cw + 0.01, 2.75, GAP - 0.02, 0.6, GREEN)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))
