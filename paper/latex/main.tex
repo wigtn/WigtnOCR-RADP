@@ -64,8 +64,8 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.74\columnwidth]{fig_c2_coverage.pdf}
-\caption{The coverage diagnostic (C2): each gold answer is \emph{covered}, \emph{split} (a chunker fault, recoverable with overlap), or \emph{absent} (a parser fault, unrecoverable by chunking). On Prod, $20.2\%$ are absent and at most $2.3\%$ split, the absent rate constant across all eight chunkers (\S\ref{sec:c1c2})---so the gap is a parser problem.}
+\includegraphics[width=\columnwidth]{fig_coverage.pdf}
+\caption{The coverage diagnostic (C2): with the parser fixed (Prod) and the chunker varied, each gold answer is \emph{covered}, \emph{split} (a chunker fault, recoverable with overlap), or \emph{absent} (a parser fault, unrecoverable by chunking). The absent rate is $\approx\!20.2\%$ and essentially constant across all eight chunkers, while split is at most $2.3\%$ (\S\ref{sec:c1c2})---chunking cannot close a gap the parser already lost, so the fix must be parser-side.}
 \label{fig:coverage}
 \end{figure}
 
@@ -155,8 +155,8 @@ With one answer in five absent from the parser (\S\ref{sec:c1c2}), a parser-side
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.80\columnwidth]{fig_c4_training.pdf}
-\caption{Parser-side training (C4), a best-of-K pipeline. Ranking candidates by edit-distance to ground truth (RADP-Distill) reproduces ranking by page-local \rcps{} (RADP-DPO), so the retrieval reward is unnecessary---the deployable lever is fidelity distillation ($+1.22$~pp Hit@5, OHR-Bench).}
+\includegraphics[width=\columnwidth]{fig_c4_training.pdf}
+\caption{Parser-side training (C4): OHR-Bench Hit@5 gain over the untuned parser for the two ways of ranking best-of-K candidates. Ranking by edit-distance to ground truth (RADP-Distill, $+1.22$~pp) and by page-local \rcps{} (RADP-DPO, $+0.85$~pp) are both significant and their confidence intervals overlap---a statistically indistinguishable gain. The retrieval reward is therefore unnecessary; the deployable lever is fidelity distillation (3-retriever avg, $n{=}2264$).}
 \label{fig:training}
 \end{figure}
 

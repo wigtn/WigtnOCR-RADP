@@ -1,9 +1,12 @@
-"""Figure (C4) — parser-side training: the retrieval reward is unnecessary.
+"""Figure (C4) — parser-side training: the retrieval reward is unnecessary (data).
 
-Convergence layout (distinct from C2's decision tree): best-of-K candidates are
-ranked two ways --- by edit-distance to ground truth (RADP-Distill) or by
-page-local RCPS (RADP-DPO) --- and the "≈" shows they give the same gain, so both
-feed the same LoRA-toggle DPO and reach +1.22 pp; the retrieval reward adds nothing.
+Both ways of ranking the best-of-K candidates give a real, significant, and
+statistically indistinguishable OHR-Bench Hit@5 gain over the untuned parser:
+  RADP-Distill  edit-distance to GT   +1.22 pp  CI[0.35, 2.15]
+  RADP-DPO      page-local RCPS       +0.85 pp  CI[0.35, 1.43]
+The overlapping CIs are the evidence for "≈": the cheap fidelity signal matches
+the retrieval reward, so the retrieval reward adds nothing.
+Source: output/results/arm_b_ohr_ci.json (n_qa=2264, 3-retriever avg).
 Output: paper/figures/fig_c4_training.{pdf,png}
 """
 from __future__ import annotations
@@ -11,58 +14,61 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUT_DIR = Path("paper/figures")
 plt.rcParams.update({"font.family": "serif"})
 
-GREY = "#ececec"
-GREEN = "#cfe9cf"
-TAN = "#fce3c4"
+GREEN = "#4a9a4a"
+TAN = "#d98a2b"
 DGREEN = "#1a6b1a"
 DAMBER = "#8a5200"
-EC = "#444444"
 
-
-def box(ax, cx, cy, w, h, text, fc, fs=8.0, bold=False, tc="#111111"):
-    ax.add_patch(FancyBboxPatch((cx - w / 2, cy - h / 2), w, h,
-                                boxstyle="round,pad=0.006,rounding_size=0.02",
-                                linewidth=1.0, edgecolor=EC, facecolor=fc, zorder=2))
-    ax.text(cx, cy, text, ha="center", va="center", fontsize=fs,
-            fontweight="bold" if bold else "normal", color=tc, zorder=3)
-
-
-def arrow(ax, x1, y1, x2, y2, color=EC):
-    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>",
-                                 mutation_scale=10, lw=1.2, color=color, zorder=1))
+# (label, sublabel, delta_pp, ci_lo, ci_hi, color)
+ROWS = [
+    ("RADP-Distill", "edit-dist → GT", 1.22, 0.35, 2.15, GREEN),
+    ("RADP-DPO", "page-RCPS", 0.85, 0.35, 1.43, TAN),
+]
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(3.3, 2.95))
-    ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis("off")
+    fig, ax = plt.subplots(figsize=(3.3, 2.05))
 
-    # source
-    box(ax, 0.5, 0.905, 0.76, 0.115, "best-of-$K$ parses from Prod", GREY, 8.2)
+    ys = [1.0, 0.0]
+    for y, (_, _, d, lo, hi, c) in zip(ys, ROWS):
+        ax.barh(y, d, height=0.46, color=c, edgecolor="#333333", linewidth=0.8, zorder=2)
+        ax.errorbar(d, y, xerr=[[d - lo], [hi - d]], fmt="none", ecolor="#333333",
+                    elinewidth=1.1, capsize=4, capthick=1.1, zorder=3)
+        ax.text(d + 0.07, y + 0.20, f"+{d:.2f} pp", va="center", ha="left",
+                fontsize=8.0, fontweight="bold", color="#222222")
 
-    # two ranking routes (the comparison), with "≈" between them
-    lx, ry, rw, rh = 0.255, 0.66, 0.40, 0.155
-    box(ax, lx, ry, rw, rh, "RADP-Distill\nedit-dist → GT", GREEN, 7.8, bold=True, tc=DGREEN)
-    box(ax, 0.745, ry, rw, rh, "RADP-DPO\npage-RCPS", TAN, 7.8, bold=True, tc=DAMBER)
-    ax.text(0.5, ry, "≈", ha="center", va="center", fontsize=17, color="#333333", zorder=3)
+    ax.axvline(0, color="#888888", lw=1.0, ls="--", zorder=1)
+    ax.text(0, 1.62, "untuned parser (v1)", ha="center", va="bottom",
+            fontsize=6.8, color="#777777")
 
-    # converge into shared training
-    box(ax, 0.5, 0.405, 0.50, 0.115, "LoRA-toggle DPO", GREY, 8.2)
-    box(ax, 0.5, 0.195, 0.66, 0.125, "improved parser\n$+1.22$ pp Hit@5", GREEN, 8.2,
-        bold=True, tc=DGREEN)
+    # two-line y tick labels (name + ranking signal)
+    ax.set_yticks(ys)
+    ax.set_yticklabels(
+        [f"{ROWS[0][0]}\n{ROWS[0][1]}", f"{ROWS[1][0]}\n{ROWS[1][1]}"],
+        fontsize=8.0)
+    for tick, c in zip(ax.get_yticklabels(), (DGREEN, DAMBER)):
+        tick.set_color(c)
+        tick.set_fontweight("bold")
 
-    arrow(ax, 0.42, 0.848, lx + 0.06, ry + rh / 2)        # source -> Distill
-    arrow(ax, 0.58, 0.848, 0.745 - 0.06, ry + rh / 2)     # source -> DPO
-    arrow(ax, lx + 0.06, ry - rh / 2, 0.45, 0.405 + 0.06)  # Distill -> DPO-train
-    arrow(ax, 0.745 - 0.06, ry - rh / 2, 0.55, 0.405 + 0.06)  # DPO -> DPO-train
-    arrow(ax, 0.5, 0.405 - 0.115 / 2, 0.5, 0.195 + 0.125 / 2)
+    ax.set_xlim(0, 2.5)
+    ax.set_ylim(-0.6, 1.75)
+    ax.set_xlabel("$\\Delta$ Hit@5 (pp) vs untuned  —  OHR-Bench, $n{=}2264$",
+                  fontsize=7.8)
+    ax.set_xticks([0, 1, 2])
+    ax.tick_params(axis="x", labelsize=7.5)
+    for s in ("top", "right", "left"):
+        ax.spines[s].set_visible(False)
+    ax.tick_params(axis="y", length=0)
 
-    ax.text(0.5, 0.045, "retrieval reward unnecessary — lever is fidelity distillation",
-            ha="center", va="center", fontsize=7.4, fontweight="bold", color=DAMBER)
+    # the takeaway: overlapping CIs => equal gain => reward unnecessary
+    ax.annotate("CIs overlap → equal gain:\nretrieval reward unnecessary",
+                xy=(1.43, 0.0), xytext=(1.62, 0.66),
+                fontsize=7.2, color=DAMBER, fontweight="bold", va="center",
+                ha="left")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
