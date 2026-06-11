@@ -237,7 +237,7 @@ def main():
          [[R("best-of-K parses from Prod, ranked two ways:", 9.5, DARK)]])
     rrect(s, x3 + 0.2, top + 0.86, cw - 0.4, 0.46, GREENF, GREEN, 1.0)
     tbox(s, x3 + 0.22, top + 0.86, cw - 0.44, 0.46,
-         [[R("RADP-Distill — edit-distance → GT", 9.5, GREEN, bold=True)]],
+         [[R("RADP-Distill — edit-distance → ref", 9.5, GREEN, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
     tbox(s, x3, top + 1.34, cw, 0.22, [[R("≈", 13, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
