@@ -170,27 +170,28 @@ def main():
     gt = s.shapes.add_table(3, 4, Inches(x1 + 0.2), Inches(y1b + 0.55),
                             Inches(tw), Inches(1.7)).table
     gt.first_row = False; gt.horz_banding = False
-    wts = [1.05, 1.30, 0.62, 0.78]
+    wts = [1.05, 1.35, 0.58, 0.70]
     for i, wv in enumerate(wts):
         gt.columns[i].width = Inches(tw * wv / sum(wts))
     GH = RGBColor(0xEC, 0xEC, 0xEC)
     rows = [
         [("parser", DARK, True, GH), ("Boundary Clarity", DARK, True, GH),
-         ("answer", DARK, True, GH), ("retrieval", DARK, True, GH)],
-        [("MinerU", DARK, True, REDF), ("0.72  (highest)", DARK, False, REDF),
-         ("no", RED, True, REDF), ("MISS", RED, True, REDF)],
+         ("answer", DARK, True, GH), ("Hit@1", DARK, True, GH)],
+        [("MinerU", DARK, True, REDF), ("0.72  (top)", DARK, False, REDF),
+         ("no", RED, True, REDF), ("0.20", RED, True, REDF)],
         [("Prod (ours)", DARK, True, GREENF), ("lower", DARK, False, GREENF),
-         ("yes", GREEN, True, GREENF), ("HIT", GREEN, True, GREENF)],
+         ("yes", GREEN, True, GREENF), ("0.55", GREEN, True, GREENF)],
     ]
     for r, row in enumerate(rows):
         for c, (txt, col, bd, fl) in enumerate(row):
             cell(gt, r, c, txt, size=(8.5 if r == 0 else 9.5), color=col,
                  bold=bd, fill=fl)
-    tbox(s, x1 + 0.14, y1b + h1b - 1.0, cw - 0.28, 0.9,
-         [[R("highest Boundary Clarity, yet worst retrieval:", 9.5, DARK)],
-          [R("appearance metrics measure formatting, not content", 9.5, DARK)],
-          [R("anti-correlation   r = −0.81", 10.5, RED, bold=True)]],
-         align=PP_ALIGN.CENTER, lead=1.32)
+    tbox(s, x1 + 0.14, y1b + h1b - 1.05, cw - 0.28, 0.95,
+         [[R("parser choice alone swings Hit@1 by ", 10.5, DARK),
+           R("2.8×", 12.5, BLUE, bold=True)],
+          [R("appearance metrics measure formatting, not content", 9, DARK)],
+          [R("(anti-correlation  r = −0.81,  n = 5)", 8.5, GREY, italic=True)]],
+         align=PP_ALIGN.CENTER, lead=1.4)
 
     # ================= COLUMN 2 (C2/C3) =================
     h2a = 2.55
