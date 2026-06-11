@@ -2,7 +2,7 @@
 
 Both ways of ranking the best-of-K candidates give a real, significant, and
 statistically indistinguishable OHR-Bench Hit@5 gain over the untuned parser:
-  RADP-Distill  edit-distance to GT   +1.22 pp  CI[0.35, 2.15]
+  RADP-Distill  edit-distance to reference   +1.22 pp  CI[0.35, 2.15]
   RADP-DPO      page-local RCPS       +0.85 pp  CI[0.35, 1.43]
 The overlapping CIs are the evidence for "≈": the cheap fidelity signal matches
 the retrieval reward, so the retrieval reward adds nothing.
@@ -25,7 +25,7 @@ DAMBER = "#8a5200"
 
 # (label, sublabel, delta_pp, ci_lo, ci_hi, color)
 ROWS = [
-    ("RADP-Distill", "edit-dist → GT", 1.22, 0.35, 2.15, GREEN),
+    ("RADP-Distill", "edit-dist → ref", 1.22, 0.35, 2.15, GREEN),
     ("RADP-DPO", "page-RCPS", 0.85, 0.35, 1.43, TAN),
 ]
 
