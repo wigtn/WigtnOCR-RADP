@@ -242,7 +242,7 @@ RADP-DPO-R3 & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 
 \paragraph{SimPO is negative.} The reference-free length-normalised variant gives uniformly negative deltas ($-0.7$ to $-1.7$~pp Hit@5), indicating the DPO reference policy is load-bearing: without it the parser drifts from the production distribution before any preference signal can compound.
 
-\paragraph{Robustness.} The OHR-Bench gain survives two checks. It is equal or larger on the two retrievers held out from preference scoring (ml-e5-large $+2.4$~pp, Qwen3-Emb $+2.3$~pp, versus the BGE-M3 scorer $+1.5$~pp), ruling out a BGE-overfit artefact; and it concentrates on factoid queries ($+3.1$~pp) while neutral-to-slightly-negative on tabular ones, consistent with the text-fidelity mechanism.
+\paragraph{Robustness.} The headline RADP-Distill OHR-Bench gain survives two checks. Because it ranks candidates by edit-distance and uses no retriever, it cannot overfit any embedder; its Hit@5 gain is near-uniform across the three (BGE-M3 $+1.06$, ml-e5-large $+1.10$, Qwen3-Emb $+1.50$~pp). And it concentrates on text-evidence (factoid) queries ($+1.19$~pp) while near-neutral on table-evidence ones ($+0.32$~pp), consistent with the text-fidelity mechanism.
 
 \section{Chunk-Level Mechanism Statistics}
 \label{app:mechanism}
@@ -278,7 +278,7 @@ SimPO & 1703 & 5.31 & 305 & 0.601 & 0.470 & 0.186 \\
 
 \paragraph{The non-signal.} The MoC chunking signature is unchanged on both axes: BC for every DPO variant lands in $0.60$--$0.66$ (Prod $0.63$) and CS near $0.47$--$0.49$ (Prod $0.474$; CS not measured for RADP-Distill); chunks-per-page ($\sim$5) and chunk length ($300$--$321$, modestly above Prod's $274$) stay close to Prod's, while neither MoC axis (BC, CS) moves. Training does not produce a novel chunking signature; the gain comes from what is parsed, not how chunks are split.
 
-\paragraph{Secondary patterns.} The gain concentrates on factoid queries---where the verbatim answer span must land inside a chunk---and is neutral on tabular ones. It is larger on the held-out retrievers than on the BGE-M3 scorer, because Prod's text was already BGE-aligned, confirming a parser-level effect rather than a BGE-overfit. RADP-aux stays sub-threshold because its hidden-state signal reaches the deployed markdown only through diffuse $\mathcal{L}_\text{parse}$ back-flow, never localising to the surface tokens the retriever rewards.
+\paragraph{Secondary patterns.} The gain concentrates on text-evidence (factoid) queries ($+1.19$~pp)---where the verbatim answer span must land inside a chunk---and is near-neutral on table-evidence ones ($+0.32$~pp). Because RADP-Distill ranks by edit-distance and uses no retriever, its gain is near-uniform across the three embedders, confirming a parser-level effect rather than an embedder artefact. RADP-aux stays sub-threshold because its hidden-state signal reaches the deployed markdown only through diffuse $\mathcal{L}_\text{parse}$ back-flow, never localising to the surface tokens the retriever rewards.
 
 \section{KoGov Parser Grid}
 \label{app:grid}
