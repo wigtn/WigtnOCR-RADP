@@ -42,8 +42,6 @@ def main():
                 fontsize=8.0, fontweight="bold", color="#222222")
 
     ax.axvline(0, color="#888888", lw=1.0, ls="--", zorder=1)
-    ax.text(0, 1.62, "untuned parser (v1)", ha="center", va="bottom",
-            fontsize=6.8, color="#777777")
 
     # two-line y tick labels (name + ranking signal)
     ax.set_yticks(ys)
@@ -55,7 +53,7 @@ def main():
         tick.set_fontweight("bold")
 
     ax.set_xlim(0, 2.5)
-    ax.set_ylim(-0.6, 1.75)
+    ax.set_ylim(-0.6, 1.4)
     ax.set_xlabel("$\\Delta$ Hit@5 (pp) vs untuned  —  OHR-Bench, $n{=}2264$",
                   fontsize=7.8)
     ax.set_xticks([0, 1, 2])
