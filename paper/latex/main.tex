@@ -80,7 +80,7 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 
 \subsection{Setup}
 
-We construct \textbf{KoGovDoc-RAG}: 663 Q--A pairs over 294 pages of Korean government documents, generated with the OpenAI \texttt{gpt-5.4-2026-03-05} model and verified by an LLM-as-judge against the teacher-distilled reference markdown (Qwen3-VL-30B pseudo-labels, manually de-noised; 100 stratified eval Q--A sampled, 94/100 accept). For RADP-aux's full-scale training we additionally generate 6{,}164 Q--A on the 2{,}667-page Prod training set. Cross-domain replication uses OHR-Bench \citep{zhang2024ohr} (seven domains, 2{,}264 verbatim-answerable Q--A; its Law\,$+$\,Manual subset of 1{,}043 Q--A is used only for the data-mix-sensitivity comparison in \S\ref{sec:c1c2}) across the three released parser outputs (gt, MinerU, Qwen2.5-VL) plus twelve controlled noise perturbations.
+We construct \textbf{KoGovDoc-RAG}: 663 Q--A pairs over 294 pages of Korean government documents, generated with the OpenAI \texttt{gpt-5.4-2026-03-05} model and verified by an LLM-as-judge against the teacher-distilled reference markdown (Qwen3-VL-30B pseudo-labels; 100 eval Q--A sampled, 94/100 accept). For RADP-aux's full-scale training we additionally generate 6{,}164 Q--A on the 2{,}667-page Prod training set. Cross-domain replication uses OHR-Bench \citep{zhang2024ohr} (seven domains, 2{,}264 verbatim-answerable Q--A; its Law\,$+$\,Manual subset of 1{,}043 Q--A is used only for the data-mix-sensitivity comparison in \S\ref{sec:c1c2}) across the three released parser outputs (gt, MinerU, Qwen2.5-VL) plus twelve controlled noise perturbations.
 
 Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \citep{qwen3vl} fine-tuned for Korean document parsing; all training deltas are measured against it. RADP-aux uses a 73-page held-out fold (202 Q--A); RADP-DPO, SimPO, and the \S\ref{sec:mechanism} analysis use the combined 242-page fold (train $\cup$ eval, 663 Q--A), with preference pairs built only from the 169-page train fold. The same 663 Q--A occupy 242 of the 294 KoGov pages; the coverage diagnostic (\S\ref{sec:c1c2}) runs over Prod's full 294-page output, the extra 52 Q--A-free pages acting as distractors. Parses for the 12-variant comparison (\S\ref{sec:c4}--\S\ref{sec:mechanism}) use deterministic decoding (temperature 0, max 1536 tokens). We fine-tune with LoRA ($r = 8$, $\alpha = 32$), sweeping $\lambda \in \{0, 0.1, 0.3, 0.5\}$ for RADP-aux ($\lambda = 0$ drops the contrastive term; the aux recipe itself shifts output from Prod, Table~\ref{tab:mechanism}, so the sweep is read within the aux family). \rcps{} uses the three retrievers and cutoffs of \S\ref{sec:rcps}; we report paired percentile-bootstrap 95\% CIs (1{,}000 resamples), preserving Q--A pairing across systems.
 
@@ -305,25 +305,18 @@ Marker (38p) & \textbf{0.717} & 3.41 & 0.073 & 0.068 \\
 \label{app:noise}
 
 \begin{table}[h]
-\centering\small
-\begin{tabular}{llcc}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
 \toprule
-Family & Severity & BC & \rcps{} \\
+Family & BC (clean$\to$severe) & \rcps{} (clean$\to$severe) \\
 \midrule
-MinerU & clean & 0.735 & 0.496 \\
-MinerU & mild & 0.708 & 0.413 \\
-MinerU & moderate & 0.715 & 0.351 \\
-MinerU & severe & 0.712 & 0.243 \\
-Qwen2.5-VL & clean & 0.619 & 0.467 \\
-Qwen2.5-VL & mild & 0.614 & 0.462 \\
-Qwen2.5-VL & moderate & 0.616 & 0.460 \\
-Qwen2.5-VL & severe & 0.610 & 0.429 \\
-GOT & mild & 0.634 & 0.383 \\
-GOT & moderate & 0.495 & 0.338 \\
-GOT & severe & 0.650 & 0.257 \\
+MinerU & 0.735/0.708/0.715/0.712 & 0.496/0.413/0.351/0.243 \\
+Qwen2.5-VL & 0.619/0.614/0.616/0.610 & 0.467/0.462/0.460/0.429 \\
+GOT & --/0.634/0.495/0.650 & --/0.383/0.338/0.257 \\
 \bottomrule
 \end{tabular}
-\caption{Per-family Boundary Clarity and \rcps{} across semantic-noise severity on the seven OHR-Bench domains (the source for the \S\ref{sec:c1c2} noise numbers). Within each family BC stays roughly flat while \rcps{} falls: MinerU $0.496 \rightarrow 0.243$ ($-51\%$), GOT $0.383 \rightarrow 0.257$, Qwen2.5-VL $0.467 \rightarrow 0.429$ ($-8\%$). GOT has no clean baseline among the released outputs. The table lists the three semantic-noise families (11 of the 15 evaluated variants); the ground-truth output and the three formatting-noise perturbations, which enter only the aggregate cross-variant scalar (\S\ref{sec:c1c2}), are in the released grid.}
+\caption{Per-family Boundary Clarity and \rcps{} across semantic-noise severity (clean/mild/moderate/severe) on the seven OHR-Bench domains---the source for the \S\ref{sec:c1c2} noise numbers. Within each family BC stays roughly flat while \rcps{} falls (MinerU $-51\%$). GOT has no clean baseline; the GT output and three formatting-noise variants enter only the aggregate scalar (\S\ref{sec:c1c2}) and are in the released grid.}
 \label{tab:noise}
 \end{table}
 
