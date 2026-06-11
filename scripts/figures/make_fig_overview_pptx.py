@@ -167,20 +167,20 @@ def main():
     y1b = top + h1a + 0.16; h1b = BOT - y1b
     subzone(s, x1, y1b, cw, h1b, "Cleaner-looking ≠ better retrieval", BLUE, BLUEF)
     tw = cw - 0.4
-    gt = s.shapes.add_table(3, 4, Inches(x1 + 0.2), Inches(y1b + 0.55),
-                            Inches(tw), Inches(1.7)).table
+    gt = s.shapes.add_table(3, 3, Inches(x1 + 0.2), Inches(y1b + 0.58),
+                            Inches(tw), Inches(1.6)).table
     gt.first_row = False; gt.horz_banding = False
-    wts = [1.05, 1.35, 0.58, 0.70]
+    wts = [1.05, 1.45, 0.95]
     for i, wv in enumerate(wts):
         gt.columns[i].width = Inches(tw * wv / sum(wts))
     GH = RGBColor(0xEC, 0xEC, 0xEC)
     rows = [
         [("parser", DARK, True, GH), ("Boundary Clarity", DARK, True, GH),
-         ("answer", DARK, True, GH), ("Hit@1", DARK, True, GH)],
-        [("MinerU", DARK, True, REDF), ("0.72", DARK, False, REDF),
-         ("no", RED, True, REDF), ("0.20", RED, True, REDF)],
+         ("Hit@1", DARK, True, GH)],
+        [("MinerU", DARK, True, REDF), ("0.72  (highest)", DARK, False, REDF),
+         ("0.20", RED, True, REDF)],
         [("Prod (ours)", DARK, True, GREENF), ("0.61", DARK, False, GREENF),
-         ("yes", GREEN, True, GREENF), ("0.55", GREEN, True, GREENF)],
+         ("0.55", GREEN, True, GREENF)],
     ]
     for r, row in enumerate(rows):
         for c, (txt, col, bd, fl) in enumerate(row):
