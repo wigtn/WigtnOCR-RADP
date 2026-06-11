@@ -149,7 +149,7 @@ def main():
         tbox(s, x, 0.2, cw, 0.46, [[R(txt, 12.5, WHITE, bold=True)]],
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
-    top = 0.82
+    top, BOT = 0.82, 5.56   # all three columns share this bottom edge
     # ================= COLUMN 1 =================
     # 1a candidate parsers (logo + name under each; no stray "+GOT" text)
     h1a = 1.18
@@ -164,7 +164,7 @@ def main():
 
     # 1b cleaner-looking != better retrieval (clean comparison table; no
     # page screenshot, no raw multilingual parse text)
-    y1b = top + h1a + 0.16; h1b = 3.4
+    y1b = top + h1a + 0.16; h1b = BOT - y1b
     subzone(s, x1, y1b, cw, h1b, "Cleaner-looking ≠ better retrieval", BLUE, BLUEF)
     tw = cw - 0.4
     gt = s.shapes.add_table(3, 4, Inches(x1 + 0.2), Inches(y1b + 0.55),
@@ -177,9 +177,9 @@ def main():
     rows = [
         [("parser", DARK, True, GH), ("Boundary Clarity", DARK, True, GH),
          ("answer", DARK, True, GH), ("Hit@1", DARK, True, GH)],
-        [("MinerU", DARK, True, REDF), ("0.72  (top)", DARK, False, REDF),
+        [("MinerU", DARK, True, REDF), ("0.72", DARK, False, REDF),
          ("no", RED, True, REDF), ("0.20", RED, True, REDF)],
-        [("Prod (ours)", DARK, True, GREENF), ("lower", DARK, False, GREENF),
+        [("Prod (ours)", DARK, True, GREENF), ("0.61", DARK, False, GREENF),
          ("yes", GREEN, True, GREENF), ("0.55", GREEN, True, GREENF)],
     ]
     for r, row in enumerate(rows):
@@ -217,7 +217,7 @@ def main():
           [R("constant across all 8 chunkers → chunking can't recover it", 8.8,
              GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
 
-    y2b = top + h2a + 0.16; h2b = 2.05
+    y2b = top + h2a + 0.16; h2b = BOT - y2b
     subzone(s, x2, y2b, cw, h2b, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
     tbox(s, x2 + 0.12, y2b + 0.42, cw - 0.24, 0.4,
          [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
@@ -246,7 +246,7 @@ def main():
          [[R("RADP-DPO — page-local RCPS", 9.5, AMBER, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
 
-    y3b = top + h3a + 0.16; h3b = 2.45
+    y3b = top + h3a + 0.16; h3b = BOT - y3b
     subzone(s, x3, y3b, cw, h3b, "Result", GREEN, GREENF)
     tbox(s, x3 + 0.14, y3b + 0.42, cw - 0.28, 0.3,
          [[R("Hit@5 gain over the untuned parser:", 9.5, DARK)]])
