@@ -188,7 +188,7 @@ def main():
                  bold=bd, fill=fl)
     tbox(s, x1 + 0.14, y1b + h1b - 1.05, cw - 0.28, 0.95,
          [[R("parser choice alone moves Hit@1 by ", 10.5, DARK),
-           R("+35.2pp (0.20→0.55; 2.8×)", 12, BLUE, bold=True)],
+           R("+35.1pp (0.20→0.55; 2.8×)", 12, BLUE, bold=True)],
           [R("appearance metrics measure formatting, not content", 9, DARK)],
           [R("(anti-correlation  r = −0.81,  n = 5)", 8.5, GREY, italic=True)]],
          align=PP_ALIGN.CENTER, lead=1.4)

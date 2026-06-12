@@ -67,9 +67,9 @@ def main() -> None:
            "fixes: text scores (edit dist., BC) mispredict retrieval")
     choice(ax, 0.02, 0.566, 0.96, 0.082,
            "(ii) retriever-averaged MRR over {BGE-M3, mE5, Qwen3-Emb}",
-           "fixes: a single embedder flips the top-1 parser")
+           "fixes: a single embedder can flip the near-tied top parser")
     choice(ax, 0.02, 0.460, 0.96, 0.082,
-           "(iii) format-invariant relevance — chunk holds the answer span",
+           "(iii) format-normalised relevance — chunk holds the answer span",
            "fixes: credits content the parser kept, not its formatting")
 
     # RCPS score

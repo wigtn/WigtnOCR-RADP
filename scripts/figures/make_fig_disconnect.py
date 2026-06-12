@@ -104,10 +104,10 @@ def main() -> None:
                   ha="center", fontsize=8.5, fontweight="bold")
     ax_b.set_ylabel("Retrieval Hit@1")
     ax_b.set_ylim(0, 0.66)
-    ax_b.set_title(f"(b) Parser choice swings\nHit@1 by {v1_h1/mineru_h1:.1f}×", fontsize=8.5)
+    ax_b.set_title(f"(b) Parser choice moves Hit@1 by\n+{(v1_h1 - mineru_h1) * 100:.1f}pp ({v1_h1/mineru_h1:.1f}×)", fontsize=8.5)
     ax_b.annotate("", xy=(1, v1_h1), xytext=(0, v1_h1),
                   arrowprops=dict(arrowstyle="<->", color="#333333", lw=1.0))
-    ax_b.text(0.5, v1_h1 + 0.026, f"{v1_h1/mineru_h1:.1f}×", ha="center",
+    ax_b.text(0.38, v1_h1 + 0.026, f"+{(v1_h1 - mineru_h1) * 100:.1f}pp", ha="center",
               fontsize=9, fontweight="bold")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
