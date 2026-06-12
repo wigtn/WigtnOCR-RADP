@@ -186,6 +186,10 @@ hf download Wigtn/KoGovDoc-Bench --repo-type dataset --local-dir data/KoGovDoc-B
 uv run python scripts/evaluation/coverage_diagnostic.py
 ```
 
+> **그림 로고 안내:** `make_fig_overview_pptx.py`(Figure 1)는 `scripts/figures/icons/logos/`의 타사 브랜드 로고
+> (`qwen.png`, `mineru.png`, `marker_datalab.png`, `paddle.png`, `bge_baai.png`, `me5_ms.png`)를 사용한다.
+> 라이선스 문제로 **repo에 포함하지 않음** — 재생성하려면 각 프로젝트 공식 사이트에서 받아 넣을 것. 나머지 그림은 로고 없이 재생성된다.
+
 ---
 
 ## 👥 저자 (WIGTN)

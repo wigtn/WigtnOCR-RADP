@@ -8,6 +8,8 @@ it reads as densely as OHR-Bench Fig.2 while staying organised:
 
 No heavy bottom bar -- a thin rule + one bold takeaway line.
 Korean is set as latin+EA font (Noto Sans CJK KR here; swap in PowerPoint).
+NOTE: brand logos under scripts/figures/icons/logos/ are NOT committed (licensing);
+download from each project's official site before running. See README "figure logos".
 Output: paper/figures/fig_overview.pptx
 """
 from __future__ import annotations

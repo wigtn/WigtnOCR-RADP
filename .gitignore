@@ -78,3 +78,6 @@ memory-lake/
 # Claude 세션 plan 파일
 *.plan.md
 PLANNING/
+
+# 타사 브랜드 로고 (라이선스 문제로 미커밋 — 재현 시 각 프로젝트 사이트에서 수동 다운로드, README 참고)
+scripts/figures/icons/

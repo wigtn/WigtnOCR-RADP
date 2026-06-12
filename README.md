@@ -234,6 +234,11 @@ instead *increases* TextNED (its hidden-state objective degrades surface text).*
 └── tests/
 ```
 
+> **Note (figure logos):** `scripts/figures/make_fig_overview_pptx.py` expects third-party brand logos under
+> `scripts/figures/icons/logos/` (`qwen.png`, `mineru.png`, `marker_datalab.png`, `paddle.png`, `bge_baai.png`, `me5_ms.png`).
+> These are **not committed** for licensing reasons — download them from each project's official site/repo before regenerating Figure 1.
+> All other figures regenerate without them.
+
 ## Quick start
 
 ```bash
