@@ -197,19 +197,19 @@ def main():
          align=PP_ALIGN.CENTER, lead=1.4)
 
     # ================= COLUMN 2 (C3 central, C2 support) =================
-    h2a = 2.70   # C3 = central contribution -> the larger, top box
+    h2a = 2.58   # C3 = central contribution -> the larger, top box
     subzone(s, x2, top, w2, h2a, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF, lw=2.0, tsize=11)
-    tbox(s, x2 + 0.12, top + 0.42, w2 - 0.24, 0.4,
+    tbox(s, x2 + 0.12, top + 0.40, w2 - 0.24, 0.36,
          [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
     for nm, dx, lab in [("bge_baai.png", 1.0, "BGE-M3"),
                         ("me5_ms.png", 2.1, "mE5"), ("qwen.png", 3.2, "Qwen3-Emb")]:
-        logo(s, nm, x2 + dx, top + 0.82, 0.48)
-        tbox(s, x2 + dx - 0.21, top + 1.32, 0.9, 0.22,
+        logo(s, nm, x2 + dx, top + 0.76, 0.46)
+        tbox(s, x2 + dx - 0.21, top + 1.24, 0.9, 0.22,
              [[R(lab, 8, GREY, italic=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, top + 1.64, w2 - 0.24, 0.26,
+    tbox(s, x2 + 0.12, top + 1.54, w2 - 0.24, 0.24,
          [[R("extrinsic · retriever-averaged · format-normalised", 9.2, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, top + 1.92, w2 - 0.24, 0.24,
+    tbox(s, x2 + 0.12, top + 1.80, w2 - 0.24, 0.22,
          [[R("no training · no manual relevance labels", 8.8, GREY, italic=True)]],
          align=PP_ALIGN.CENTER)
     tbox(s, x2 + 0.12, top + h2a - 0.52, w2 - 0.24, 0.46,
@@ -217,7 +217,12 @@ def main():
           [R("picks Prod (RCPS 0.583) over MinerU (0.212)", 9, DARK)]],
          align=PP_ALIGN.CENTER, lead=1.25)
 
-    y2b = top + h2a + 0.16; h2b = BOT - y2b   # C2 = compact support box
+    # C3 -> C2 connector: C2 is the follow-up step when the C3 score is low
+    tbox(s, x2 + 0.12, top + h2a + 0.015, w2 - 0.24, 0.26,
+         [[R("▼  score low? locate which layer is at fault  ▼", 8.8, AMBER,
+             bold=True, italic=True)]], align=PP_ALIGN.CENTER)
+
+    y2b = top + h2a + 0.30; h2b = BOT - y2b   # C2 = compact support box
     subzone(s, x2, y2b, w2, h2b, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
     bx, bw, by, bh = x2 + 0.25, w2 - 0.5, y2b + 0.46, 0.5
     cx = bx
