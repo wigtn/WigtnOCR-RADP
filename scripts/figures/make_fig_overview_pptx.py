@@ -113,10 +113,10 @@ def logo(s, name, x, y, h):
                                 height=Inches(h))
 
 
-def subzone(s, x, y, w, h, title, color, fill):
-    rrect(s, x, y, w, h, WHITE, color, lw=1.25)
+def subzone(s, x, y, w, h, title, color, fill, lw=1.25, tsize=10.5):
+    rrect(s, x, y, w, h, WHITE, color, lw=lw)
     rrect(s, x, y, w, 0.34, fill, None, radius=0.10)
-    tbox(s, x + 0.05, y, w - 0.1, 0.34, [[R(title, 10.5, color, bold=True)]],
+    tbox(s, x + 0.05, y, w - 0.1, 0.34, [[R(title, tsize, color, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
 
 
@@ -140,22 +140,23 @@ def main():
     s = prs.slides.add_slide(prs.slide_layouts[6])
 
     M, GAP = 0.22, 0.26
-    cw = (13.3 - 2 * M - 2 * GAP) / 3
-    x1 = M; x2 = M + cw + GAP; x3 = M + 2 * (cw + GAP)
+    TOT = 13.3 - 2 * M - 2 * GAP
+    w1, w2, w3 = TOT * 0.95 / 3, TOT * 1.20 / 3, TOT * 0.85 / 3   # C3 column widest
+    x1 = M; x2 = M + w1 + GAP; x3 = M + w1 + GAP + w2 + GAP
 
-    # ---- column header bars ----
-    for x, txt, c in [(x1, "C1 · Parsing–Retrieval Disconnect", BLUE),
-                      (x2, "C3 / C2 · Select + Diagnose", AMBER),
-                      (x3, "C4 · Bounded Parser Training", GREEN)]:
-        rrect(s, x, 0.2, cw, 0.46, c, None, radius=0.12)
-        tbox(s, x, 0.2, cw, 0.46, [[R(txt, 12.5, WHITE, bold=True)]],
+    # ---- column header bars (C3 = central contribution -> widest, biggest type) ----
+    for x, w, txt, c, fs in [(x1, w1, "C1 · Parsing–Retrieval Disconnect", BLUE, 11.5),
+                             (x2, w2, "C3 · RCPS Selection  (+ C2 Diagnose)", AMBER, 13),
+                             (x3, w3, "C4 · Bounded Parser Training", GREEN, 11.5)]:
+        rrect(s, x, 0.2, w, 0.46, c, None, radius=0.12)
+        tbox(s, x, 0.2, w, 0.46, [[R(txt, fs, WHITE, bold=True)]],
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
     top, BOT = 0.82, 5.56   # all three columns share this bottom edge
     # ================= COLUMN 1 =================
     # 1a candidate parsers (logo + name under each; no stray "+GOT" text)
     h1a = 1.18
-    subzone(s, x1, top, cw, h1a, "Candidate parsers", BLUE, BLUEF)
+    subzone(s, x1, top, w1, h1a, "Candidate parsers", BLUE, BLUEF)
     for i, (nm, lab) in enumerate([("qwen.png", "Qwen3-VL"),
             ("mineru.png", "MinerU"), ("marker_datalab.png", "Marker"),
             ("paddle.png", "PaddleOCR")]):
@@ -167,8 +168,8 @@ def main():
     # 1b cleaner-looking != better retrieval (clean comparison table; no
     # page screenshot, no raw multilingual parse text)
     y1b = top + h1a + 0.16; h1b = BOT - y1b
-    subzone(s, x1, y1b, cw, h1b, "Cleaner-looking ≠ better retrieval", BLUE, BLUEF)
-    tw = cw - 0.4
+    subzone(s, x1, y1b, w1, h1b, "Cleaner-looking ≠ better retrieval", BLUE, BLUEF)
+    tw = w1 - 0.4
     gt = s.shapes.add_table(3, 3, Inches(x1 + 0.2), Inches(y1b + 0.58),
                             Inches(tw), Inches(1.6)).table
     gt.first_row = False; gt.horz_banding = False
@@ -188,7 +189,7 @@ def main():
         for c, (txt, col, bd, fl) in enumerate(row):
             cell(gt, r, c, txt, size=(8.5 if r == 0 else 9.5), color=col,
                  bold=bd, fill=fl)
-    tbox(s, x1 + 0.14, y1b + h1b - 1.05, cw - 0.28, 0.95,
+    tbox(s, x1 + 0.14, y1b + h1b - 1.05, w1 - 0.28, 0.95,
          [[R("parser choice alone moves Hit@1 by ", 10.5, DARK),
            R("+35.1pp (0.20→0.55; 2.8×)", 12, BLUE, bold=True)],
           [R("appearance metrics measure formatting, not content", 9, DARK)],
@@ -197,28 +198,28 @@ def main():
 
     # ================= COLUMN 2 (C3 central, C2 support) =================
     h2a = 2.70   # C3 = central contribution -> the larger, top box
-    subzone(s, x2, top, cw, h2a, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
-    tbox(s, x2 + 0.12, top + 0.42, cw - 0.24, 0.4,
+    subzone(s, x2, top, w2, h2a, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF, lw=2.0, tsize=11)
+    tbox(s, x2 + 0.12, top + 0.42, w2 - 0.24, 0.4,
          [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
-    for nm, dx, lab in [("bge_baai.png", 0.6, "BGE-M3"),
-                        ("me5_ms.png", 1.7, "mE5"), ("qwen.png", 2.8, "Qwen3-Emb")]:
+    for nm, dx, lab in [("bge_baai.png", 1.0, "BGE-M3"),
+                        ("me5_ms.png", 2.1, "mE5"), ("qwen.png", 3.2, "Qwen3-Emb")]:
         logo(s, nm, x2 + dx, top + 0.82, 0.48)
         tbox(s, x2 + dx - 0.21, top + 1.32, 0.9, 0.22,
              [[R(lab, 8, GREY, italic=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, top + 1.64, cw - 0.24, 0.26,
+    tbox(s, x2 + 0.12, top + 1.64, w2 - 0.24, 0.26,
          [[R("extrinsic · retriever-averaged · format-normalised", 9.2, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, top + 1.92, cw - 0.24, 0.24,
+    tbox(s, x2 + 0.12, top + 1.92, w2 - 0.24, 0.24,
          [[R("no training · no manual relevance labels", 8.8, GREY, italic=True)]],
          align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, top + h2a - 0.52, cw - 0.24, 0.46,
+    tbox(s, x2 + 0.12, top + h2a - 0.52, w2 - 0.24, 0.46,
          [[R("→ rank parsers & chunkers by retrieval", 10.5, AMBER, bold=True)],
           [R("picks Prod (RCPS 0.583) over MinerU (0.212)", 9, DARK)]],
          align=PP_ALIGN.CENTER, lead=1.25)
 
     y2b = top + h2a + 0.16; h2b = BOT - y2b   # C2 = compact support box
-    subzone(s, x2, y2b, cw, h2b, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
-    bx, bw, by, bh = x2 + 0.25, cw - 0.5, y2b + 0.46, 0.5
+    subzone(s, x2, y2b, w2, h2b, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
+    bx, bw, by, bh = x2 + 0.25, w2 - 0.5, y2b + 0.46, 0.5
     cx = bx
     for frac, col in [(0.775, GBAR), (0.023, ABAR), (0.202, RBAR)]:
         bar(s, cx, by, bw * frac, bh, col); cx += bw * frac
@@ -231,7 +232,7 @@ def main():
          [[R("covered", 8.5, GBAR, bold=True)]], align=PP_ALIGN.CENTER)
     tbox(s, bx + bw * 0.70, by + bh + 0.03, bw * 0.30, 0.22,
          [[R("absent", 8.5, RBAR, bold=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.14, by + bh + 0.28, cw - 0.28, 0.5,
+    tbox(s, x2 + 0.14, by + bh + 0.28, w2 - 0.28, 0.5,
          [[R("absent = ", 9, DARK), R("parser-side failure", 9, RED, bold=True),
            R(", set before chunking", 9, DARK)],
           [R("no chunker can recover it → fix the parser (C4)", 8.8,
@@ -239,41 +240,41 @@ def main():
 
     # ================= COLUMN 3 (C4) =================
     h3a = 1.95
-    subzone(s, x3, top, cw, h3a, "C4 · Parser-side training", GREEN, GREENF)
-    tbox(s, x3 + 0.14, top + 0.44, cw - 0.28, 0.4,
+    subzone(s, x3, top, w3, h3a, "C4 · Parser-side training", GREEN, GREENF)
+    tbox(s, x3 + 0.14, top + 0.44, w3 - 0.28, 0.4,
          [[R("best-of-K parses from Prod, ranked two ways:", 9.5, DARK)]])
-    rrect(s, x3 + 0.2, top + 0.86, cw - 0.4, 0.46, GREENF, GREEN, 1.0)
-    tbox(s, x3 + 0.22, top + 0.86, cw - 0.44, 0.46,
+    rrect(s, x3 + 0.2, top + 0.86, w3 - 0.4, 0.46, GREENF, GREEN, 1.0)
+    tbox(s, x3 + 0.22, top + 0.86, w3 - 0.44, 0.46,
          [[R("RADP-Distill — edit-distance → ref", 9.5, GREEN, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
-    tbox(s, x3, top + 1.34, cw, 0.22, [[R("≈", 13, DARK, bold=True)]],
+    tbox(s, x3, top + 1.34, w3, 0.22, [[R("≈", 13, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
-    rrect(s, x3 + 0.2, top + 1.42, cw - 0.4, 0.42, AMBERF, AMBER, 1.0)
-    tbox(s, x3 + 0.22, top + 1.42, cw - 0.44, 0.42,
+    rrect(s, x3 + 0.2, top + 1.42, w3 - 0.4, 0.42, AMBERF, AMBER, 1.0)
+    tbox(s, x3 + 0.22, top + 1.42, w3 - 0.44, 0.42,
          [[R("RADP-DPO — page-local RCPS", 9.5, AMBER, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
 
     y3b = top + h3a + 0.16; h3b = BOT - y3b
-    subzone(s, x3, y3b, cw, h3b, "Result", GREEN, GREENF)
-    tbox(s, x3 + 0.14, y3b + 0.42, cw - 0.28, 0.3,
+    subzone(s, x3, y3b, w3, h3b, "Result", GREEN, GREENF)
+    tbox(s, x3 + 0.14, y3b + 0.42, w3 - 0.28, 0.3,
          [[R("Hit@5 gain over the untuned parser:", 9.5, DARK)]])
-    blx, sc = x3 + 1.42, 1.45 / 1.22
+    blx, sc = x3 + 1.25, 1.30 / 1.22
     for ry, nm, val, col in [(y3b + 0.95, "RADP-Distill", 1.22, GBAR),
                              (y3b + 1.42, "RADP-DPO", 0.85, ABAR)]:
-        tbox(s, x3 + 0.16, ry - 0.03, 1.22, 0.32,
+        tbox(s, x3 + 0.14, ry - 0.03, 1.05, 0.32,
              [[R(nm, 9, col, bold=True)]], anchor=MSO_ANCHOR.MIDDLE)
         bar(s, blx, ry, val * sc, 0.3, col)
         tbox(s, blx + val * sc + 0.05, ry - 0.03, 0.85, 0.32,
              [[R(f"+{val:.2f} pp", 9.5, DARK, bold=True)]],
              anchor=MSO_ANCHOR.MIDDLE)
-    tbox(s, x3 + 0.14, y3b + h3b - 0.66, cw - 0.28, 0.6,
+    tbox(s, x3 + 0.14, y3b + h3b - 0.66, w3 - 0.28, 0.6,
          [[R("substantially overlapping CIs", 9.5, DARK, bold=True)],
           [R("no evidence reward helps; lever = fidelity distillation", 9,
              GREEN, bold=True)]], align=PP_ALIGN.CENTER, lead=1.28)
 
     # ---- flow chevrons between columns ----
-    chevron(s, x1 + cw + 0.01, 2.75, GAP - 0.02, 0.6, AMBER)
-    chevron(s, x2 + cw + 0.01, 2.75, GAP - 0.02, 0.6, GREEN)
+    chevron(s, x1 + w1 + 0.01, 2.75, GAP - 0.02, 0.6, AMBER)
+    chevron(s, x2 + w2 + 0.01, 2.75, GAP - 0.02, 0.6, GREEN)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))
