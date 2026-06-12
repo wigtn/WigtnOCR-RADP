@@ -145,7 +145,7 @@ def main():
 
     # ---- column header bars ----
     for x, txt, c in [(x1, "C1 · Parsing–Retrieval Disconnect", BLUE),
-                      (x2, "C2 / C3 · Diagnose + Select", AMBER),
+                      (x2, "C3 / C2 · Select + Diagnose", AMBER),
                       (x3, "C4 · Bounded Parser Training", GREEN)]:
         rrect(s, x, 0.2, cw, 0.46, c, None, radius=0.12)
         tbox(s, x, 0.2, cw, 0.46, [[R(txt, 12.5, WHITE, bold=True)]],
@@ -195,12 +195,30 @@ def main():
           [R("(anti-correlation  r = −0.81,  n = 5)", 8.5, GREY, italic=True)]],
          align=PP_ALIGN.CENTER, lead=1.4)
 
-    # ================= COLUMN 2 (C2/C3) =================
-    h2a = 2.55
-    subzone(s, x2, top, cw, h2a, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
-    tbox(s, x2 + 0.14, top + 0.4, cw - 0.28, 0.3,
-         [[R("where does each gold answer land?", 9.5, DARK)]])
-    bx, bw, by, bh = x2 + 0.25, cw - 0.5, top + 0.84, 0.6
+    # ================= COLUMN 2 (C3 central, C2 support) =================
+    h2a = 2.70   # C3 = central contribution -> the larger, top box
+    subzone(s, x2, top, cw, h2a, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
+    tbox(s, x2 + 0.12, top + 0.42, cw - 0.24, 0.4,
+         [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
+    for nm, dx, lab in [("bge_baai.png", 0.6, "BGE-M3"),
+                        ("me5_ms.png", 1.7, "mE5"), ("qwen.png", 2.8, "Qwen3-Emb")]:
+        logo(s, nm, x2 + dx, top + 0.82, 0.48)
+        tbox(s, x2 + dx - 0.21, top + 1.32, 0.9, 0.22,
+             [[R(lab, 8, GREY, italic=True)]], align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.12, top + 1.64, cw - 0.24, 0.26,
+         [[R("extrinsic · retriever-averaged · format-normalised", 9.2, DARK, bold=True)]],
+         align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.12, top + 1.92, cw - 0.24, 0.24,
+         [[R("no training · no manual relevance labels", 8.8, GREY, italic=True)]],
+         align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.12, top + h2a - 0.52, cw - 0.24, 0.46,
+         [[R("→ rank parsers & chunkers by retrieval", 10.5, AMBER, bold=True)],
+          [R("picks Prod (RCPS 0.583) over MinerU (0.212)", 9, DARK)]],
+         align=PP_ALIGN.CENTER, lead=1.25)
+
+    y2b = top + h2a + 0.16; h2b = BOT - y2b   # C2 = compact support box
+    subzone(s, x2, y2b, cw, h2b, "C2 · Coverage diagnostic (no retriever)", AMBER, AMBERF)
+    bx, bw, by, bh = x2 + 0.25, cw - 0.5, y2b + 0.46, 0.5
     cx = bx
     for frac, col in [(0.775, GBAR), (0.023, ABAR), (0.202, RBAR)]:
         bar(s, cx, by, bw * frac, bh, col); cx += bw * frac
@@ -209,28 +227,15 @@ def main():
     tbox(s, bx + bw * 0.798, by, bw * 0.202, bh,
          [[R("20.2%", 9.5, WHITE, bold=True)]], align=PP_ALIGN.CENTER,
          anchor=MSO_ANCHOR.MIDDLE)
-    tbox(s, bx, by + bh + 0.04, bw * 0.775, 0.24,
+    tbox(s, bx, by + bh + 0.03, bw * 0.775, 0.22,
          [[R("covered", 8.5, GBAR, bold=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, bx + bw * 0.70, by + bh + 0.04, bw * 0.30, 0.24,
+    tbox(s, bx + bw * 0.70, by + bh + 0.03, bw * 0.30, 0.22,
          [[R("absent", 8.5, RBAR, bold=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.14, by + bh + 0.34, cw - 0.28, 0.66,
-         [[R("absent = answer never made it into the parser output ", 9, DARK),
-           R("(parser-side failure)", 9, RED, bold=True)],
-          [R("set before chunking → no chunker can recover it", 8.8,
-             GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
-
-    y2b = top + h2a + 0.16; h2b = BOT - y2b
-    subzone(s, x2, y2b, cw, h2b, "C3 · RCPS selection protocol (no training)", AMBER, AMBERF)
-    tbox(s, x2 + 0.12, y2b + 0.42, cw - 0.24, 0.4,
-         [[R("held-out Q–A probe, scored over 3 retrievers:", 9.5, DARK)]])
-    for nm, dx, lab in [("bge_baai.png", 0.6, "BGE-M3"),
-                        ("me5_ms.png", 1.7, "mE5"), ("qwen.png", 2.8, "Qwen3-Emb")]:
-        logo(s, nm, x2 + dx, y2b + 0.8, 0.48)
-        tbox(s, x2 + dx - 0.21, y2b + 1.3, 0.9, 0.22,
-             [[R(lab, 8, GREY, italic=True)]], align=PP_ALIGN.CENTER)
-    tbox(s, x2 + 0.12, y2b + h2b - 0.36, cw - 0.24, 0.32,
-         [[R("→ rank parsers & chunkers by retrieval", 10.5, AMBER, bold=True)]],
-         align=PP_ALIGN.CENTER)
+    tbox(s, x2 + 0.14, by + bh + 0.28, cw - 0.28, 0.5,
+         [[R("absent = ", 9, DARK), R("parser-side failure", 9, RED, bold=True),
+           R(", set before chunking", 9, DARK)],
+          [R("no chunker can recover it → fix the parser (C4)", 8.8,
+             GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.25)
 
     # ================= COLUMN 3 (C4) =================
     h3a = 1.95
