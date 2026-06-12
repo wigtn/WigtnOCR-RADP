@@ -3,6 +3,9 @@
 Hyeong-seob Kim\*, Sang-woo Son\* (WIGTN)
 *\* Equal contribution (co-first authors). EMNLP 2026 Industry Track — Draft v0.8 (2026-06-07).*
 
+> **⚠️ DEPRECATED (2026-06-12):** 이 마크다운 초안은 v0.8 시점 스냅샷이며 이후의 구조 개편·표현 수정(C3 보강, Marker subset 분리, 35.1pp, "no evidence" 표현 등)이 반영되어 있지 않다.
+> **정본은 `paper/latex/main.tex`** (제출본, content freeze `72722ca` + refs `ce7004d`). 수치·주장 인용은 반드시 LaTeX/PDF 기준.
+
 ---
 
 ## Abstract

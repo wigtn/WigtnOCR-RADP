@@ -19,14 +19,14 @@ Document parsers used in retrieval-augmented generation (RAG) are conventionally
 retrieves better. **It doesn't.** On Korean government documents (6 parsers × 3 retrievers × 663 Q–A),
 MoC Boundary Clarity **anti-correlates** with retrieval at **Pearson r = −0.81 (n = 5)**: the
 cleanest-boundary parser (MinerU) is the *worst* retriever, and choosing the parser by retrieval rather
-than by appearance changes **Hit@1 by 2.8× (0.197 → 0.549)**.
+than by appearance changes **Hit@1 by +35.1 pp (0.197 → 0.549; 2.8× relative)**.
 
 **Selection, not training, is the headline.** We make four contributions:
 
 - **C1** — diagnose the parsing↔retrieval disconnect and its mechanism (intrinsic metrics see *formatting*, not *content*).
 - **C2** — a **retriever-free coverage diagnostic** that localizes the fault to a pipeline layer: **20.2%** of answers are *absent* from the parser output (a parser fault), constant across 8 chunkers.
 - **C3** — **RCPS** (Retrieval-Conditional Parsing Score): a no-training, retriever-grounded **protocol** for choosing parsers *and* chunkers; an ablation shows it is not single-embedder MRR.
-- **C4** — a bounded map of parser-side training: best-of-K **fidelity distillation (RADP-Distill)** gives **+1.22 pp OHR-Bench Hit@5**, and a matched control shows the **retrieval reward itself is unnecessary**. A hidden-state auxiliary loss (RADP-aux) is sub-threshold and reference-free SimPO is negative.
+- **C4** — a bounded map of parser-side training: best-of-K **fidelity distillation (RADP-Distill)** gives **+1.22 pp OHR-Bench Hit@5**, and a matched control shows **no evidence the retrieval reward improves over fidelity-based selection** (substantially overlapping CIs). A hidden-state auxiliary loss (RADP-aux) is sub-threshold and reference-free SimPO is negative.
 
 We release **KoGovDoc-RAG** (663 Q–A over 294 Korean government pages) with a reference implementation of RCPS and the RADP-Distill checkpoint.
 
@@ -50,9 +50,9 @@ generator). No prior work selects, or trains, the L1 parser itself on a retrieva
 
 | | Contribution | Headline result |
 |---|---|---|
-| **C1** | The parsing↔retrieval **disconnect** and its mechanism. Under controlled semantic-noise perturbations on English OHR-Bench, Boundary Clarity stays flat while retrieval collapses — intrinsic boundary metrics track *formatting*, not *content*. | BC↔RCPS **r = −0.81** (n=5); parser choice swings **Hit@1 2.8×** (0.197→0.549) |
+| **C1** | The parsing↔retrieval **disconnect** and its mechanism. Under controlled semantic-noise perturbations on English OHR-Bench, Boundary Clarity stays flat while retrieval collapses — intrinsic boundary metrics track *formatting*, not *content*. | BC↔RCPS **r = −0.81** (n=5); parser choice alone moves **Hit@1 by +35.1 pp** (0.197→0.549; 2.8×) |
 | **C2** | A **retriever-free coverage diagnostic** — classify each answer *covered / split (chunker fault) / absent (parser fault)*; a rule computable *before* any retriever runs. | **20.2% absent** vs ≤2.3% split, constant across 8 chunkers ⇒ fix the parser |
-| **C3** | **RCPS** — a retriever-averaged, format-invariant, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. Ablation: it is **not** single-embedder MRR. | retriever-averaging flips the top parser; **Kendall τ = 0.87** vs naive MRR |
+| **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. Ablation: it is **not** single-embedder MRR. | retriever-averaging flips the top parser; **Kendall τ = 0.87** vs naive MRR |
 | **C4** | A **bounded** map of parser-side training. Best-of-K **fidelity distillation** is the lever; the retrieval-reward apparatus adds nothing over it. RADP-aux sub-threshold, SimPO negative. | **RADP-Distill +1.22 pp** OHR-Bench Hit@5 [+0.35, +2.15] (n=2,264) |
 
 ---
@@ -64,7 +64,7 @@ generator). No prior work selects, or trains, the L1 parser itself on a retrieva
 Score a parser by what *downstream retrieval* does with its output, not by how clean the output looks.
 RCPS is **not a new similarity function** but a protocol wrapping ordinary retrieval MRR in three choices:
 **(i) extrinsic** (score on a held-out Q–A probe, not on the text), **(ii) retriever-averaged** (over
-several embedders, so the ranking does not hinge on the production one), **(iii) format-invariant**
+several embedders, so the ranking does not hinge on the production one), **(iii) format-normalised**
 relevance (a chunk is relevant iff its text contains the answer span, however formatted).
 
 ```
@@ -96,7 +96,7 @@ When the coverage diagnostic points to the parser, we test parser-side training 
   on, `π_ref` = LoRA off — one accelerator, no model copy). Reward sharpened across milestones **R1 → R2 → R3**.
 - **RADP-Distill** *(reward-agnostic control — the recommended lever).* The **identical** best-of-K pipeline,
   but candidates are ranked by **edit-distance to the ground-truth markdown** instead of page-local RCPS.
-  It matches/exceeds RADP-DPO ⇒ **the retrieval reward is unnecessary**; the lever is fidelity distillation.
+  Its CI substantially overlaps RADP-DPO's ⇒ **no evidence the retrieval reward helps**; the lever is fidelity distillation.
 - **SimPO** *(reference-free control — negative).* Removing the reference policy is uniformly negative,
   confirming the reference anchoring is load-bearing.
 
@@ -206,7 +206,7 @@ instead *increases* TextNED (its hidden-state objective degrades surface text).*
    training, is a 0.20 → 0.55 Hit@1 decision. *This is the highest-leverage takeaway.*
 2. **Run the coverage diagnostic first.** If *absent* dominates, fix the parser; if *split* dominates, fix the chunker.
 3. **If you train the parser, distil its discrete output toward clean ground-truth text.** Expect ≈ +1 pp Hit@5
-   cross-domain, largest on retrievers *not* used for scoring. A retrieval reward is unnecessary; avoid the
+   cross-domain, largest on retrievers *not* used for scoring. A retrieval reward showed no gain over this control; avoid the
    hidden-state auxiliary loss and reference-free SimPO (both fail).
 4. **Spend where text precision drives retrieval.** The gain concentrates on factoid queries (+3 pp) and is
    roughly neutral on tabular ones — layout-heavy stacks should look to the chunker or embedder.

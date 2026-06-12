@@ -14,14 +14,14 @@
 
 ## 📌 한 줄 요약
 
-RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지표**(edit distance·Boundary Clarity)로 고른다 — 깨끗한 출력이 검색도 잘 될 거라는 가정. **틀렸다.** 한국 정부문서(6 parser × 3 retriever × 663 Q–A)에서 MoC Boundary Clarity는 검색과 **Pearson r = −0.81 (n = 5)** 로 역상관 — BC 1위(MinerU)가 검색은 꼴찌고, 파서를 *외형*이 아니라 *검색*으로 고르면 **Hit@1이 2.8× (0.197 → 0.549)** 바뀐다.
+RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지표**(edit distance·Boundary Clarity)로 고른다 — 깨끗한 출력이 검색도 잘 될 거라는 가정. **틀렸다.** 한국 정부문서(6 parser × 3 retriever × 663 Q–A)에서 MoC Boundary Clarity는 검색과 **Pearson r = −0.81 (n = 5)** 로 역상관 — BC 1위(MinerU)가 검색은 꼴찌고, 파서를 *외형*이 아니라 *검색*으로 고르면 **Hit@1이 +35.1 pp (0.197 → 0.549; 2.8×)** 바뀐다.
 
 **헤드라인은 학습이 아니라 "선택(selection)"이다.** 기여는 네 가지:
 
 - **C1** — parsing↔retrieval **disconnect**와 그 메커니즘 진단 (내재적 지표는 *내용*이 아니라 *형식*만 본다).
 - **C2** — **retriever-free coverage 진단**: 결함이 어느 layer인지 국소화. 답의 **20.2%** 가 파서 출력에 *absent*(파서 결함), 8개 chunker 전반에서 일정.
 - **C3** — **RCPS** (Retrieval-Conditional Parsing Score): 학습 없이 검색 기반으로 파서·청커를 고르는 **프로토콜**. ablation으로 single-embedder MRR이 아님을 보임.
-- **C4** — 파서측 학습의 **경계(bounded)** 지도: best-of-K **fidelity distillation (RADP-Distill)** 이 **OHR-Bench Hit@5 +1.22 pp**, matched control로 **retrieval reward는 불필요**함을 보임. hidden-state aux는 sub-threshold, reference-free SimPO는 negative.
+- **C4** — 파서측 학습의 **경계(bounded)** 지도: best-of-K **fidelity distillation (RADP-Distill)** 이 **OHR-Bench Hit@5 +1.22 pp**, matched control과 CI가 크게 겹쳐 **retrieval reward가 fidelity 기반 선택보다 낫다는 증거 없음**. hidden-state aux는 sub-threshold, reference-free SimPO는 negative.
 
 **KoGovDoc-RAG**(한국 정부문서 294페이지 / 663 Q–A) + RCPS 레퍼런스 구현 + RADP-Distill 체크포인트를 공개한다.
 
@@ -39,9 +39,9 @@ RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지�
 
 | | 기여 | 헤드라인 결과 |
 |---|---|---|
-| **C1** | parsing↔retrieval **disconnect**와 메커니즘. 영어 OHR-Bench에 semantic-noise를 주입하면 BC는 평평한데 검색은 붕괴 — 내재적 지표는 *형식*만 보고 *내용*을 못 본다. | BC↔RCPS **r = −0.81** (n=5); 파서 선택만으로 **Hit@1 2.8×** (0.197→0.549) |
+| **C1** | parsing↔retrieval **disconnect**와 메커니즘. 영어 OHR-Bench에 semantic-noise를 주입하면 BC는 평평한데 검색은 붕괴 — 내재적 지표는 *형식*만 보고 *내용*을 못 본다. | BC↔RCPS **r = −0.81** (n=5); 파서 선택만으로 **Hit@1 +35.1 pp** (0.197→0.549; 2.8×) |
 | **C2** | **retriever-free coverage 진단** — 답을 *covered / split(청커 결함) / absent(파서 결함)* 로 분류. retriever 돌리기 *전에* 쓰는 규칙. | **20.2% absent** vs ≤2.3% split, 8개 chunker 전반 일정 ⇒ 파서를 고쳐라 |
-| **C3** | **RCPS** — retriever-평균·format-invariant·held-out Q–A **프로토콜**, 학습 없이 파서·청커 선택. ablation: single-embedder MRR이 **아님**. | retriever-평균이 top 파서를 뒤집음; naive MRR 대비 **Kendall τ = 0.87** |
+| **C3** | **RCPS** — retriever-평균·format-normalised·held-out Q–A **프로토콜**, 학습 없이 파서·청커 선택. ablation: single-embedder MRR이 **아님**. | retriever-평균이 top 파서를 뒤집음; naive MRR 대비 **Kendall τ = 0.87** |
 | **C4** | 파서측 학습의 **경계** 지도. best-of-K **fidelity distillation**이 lever, retrieval-reward 장치는 그 위에 아무것도 더하지 않음. RADP-aux sub-threshold, SimPO negative. | **RADP-Distill +1.22 pp** OHR-Bench Hit@5 [+0.35, +2.15] (n=2,264) |
 
 ---
@@ -50,7 +50,7 @@ RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지�
 
 ### RCPS — Retrieval-Conditional Parsing Score (C3)
 
-파서를 *출력이 얼마나 깨끗한가*가 아니라 *downstream 검색이 그 출력으로 무엇을 하는가*로 점수 매긴다. RCPS는 **새 유사도 함수가 아니라** 보통의 retrieval MRR을 세 가지 선택으로 감싼 **프로토콜**이다: **(i) extrinsic** (텍스트가 아니라 held-out Q–A probe로 채점), **(ii) retriever-평균** (여러 embedder 평균 — 프로덕션 embedder 하나에 순위가 좌우되지 않게), **(iii) format-invariant** relevance (형식 무관, chunk 텍스트가 답 span을 포함하면 relevant).
+파서를 *출력이 얼마나 깨끗한가*가 아니라 *downstream 검색이 그 출력으로 무엇을 하는가*로 점수 매긴다. RCPS는 **새 유사도 함수가 아니라** 보통의 retrieval MRR을 세 가지 선택으로 감싼 **프로토콜**이다: **(i) extrinsic** (텍스트가 아니라 held-out Q–A probe로 채점), **(ii) retriever-평균** (여러 embedder 평균 — 프로덕션 embedder 하나에 순위가 좌우되지 않게), **(iii) format-normalised** relevance (whitespace/markdown 정규화 후 chunk 텍스트가 답 span을 포함하면 relevant).
 
 ```
 RCPS(P, D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K}  MRR@k( r, chunks_P(D), {qᵢ} )
@@ -68,7 +68,7 @@ coverage 진단이 파서를 가리키면, 두 가지 자연스러운 방향으�
 
 - **RADP-aux** *(hidden-state 보조손실 — sub-threshold).* `L_total = L_parse + λ·L_contrast` (파서의 답-span pooled hidden state와 frozen BGE-M3 임베딩 간 InfoNCE). 신호가 배포 markdown엔 diffuse gradient backflow로만 도달 — **threshold 미달**.
 - **RADP-DPO** *(discrete-output retrieval-reward DPO).* 프로덕션 파서에서 K개 parse를 샘플 → page-local RCPS로 채점 → preference pair 구성 → **LoRA-toggle 레퍼런스**로 학습 (`π_θ`=LoRA on, `π_ref`=LoRA off — 가속기 하나, 모델 복제 없음). reward를 **R1 → R2 → R3** 마일스톤으로 sharpening.
-- **RADP-Distill** *(reward-agnostic control — 권장 lever).* **동일한** best-of-K 파이프라인이되, 후보를 page-local RCPS 대신 **GT markdown과의 edit-distance**로 순위. RADP-DPO를 매칭/초과 ⇒ **retrieval reward 불필요**, lever는 fidelity distillation.
+- **RADP-Distill** *(reward-agnostic control — 권장 lever).* **동일한** best-of-K 파이프라인이되, 후보를 page-local RCPS 대신 **GT markdown과의 edit-distance**로 순위. RADP-DPO와 CI가 크게 겹침 ⇒ **retrieval reward가 더 낫다는 증거 없음**, lever는 fidelity distillation.
 - **SimPO** *(reference-free control — negative).* 레퍼런스 정책 제거 시 전 cell에서 음수 — reference anchoring이 load-bearing임을 확인.
 
 ---
@@ -149,7 +149,7 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 답의 **20.2%�
 
 1. **파서는 내재적 지표가 아니라 RCPS로 평가하라.** Boundary Clarity(나아가 edit distance)는 downstream retriever가 뒤집는 순서로 파서를 매길 수 있다. 수백 개 held-out Q–A를 학습 없이 채점하는 것이 0.20 → 0.55 Hit@1 결정. *가장 레버리지 큰 교훈.*
 2. **coverage 진단을 먼저 돌려라.** *absent*가 지배적이면 파서를, *split*이 지배적이면 청커를 고쳐라.
-3. **파서를 학습한다면 discrete 출력을 깨끗한 GT 텍스트로 distill하라.** cross-domain ≈ +1 pp Hit@5 기대, 채점에 안 쓴 retriever에서 가장 큼. retrieval reward는 불필요; hidden-state aux와 reference-free SimPO는 피하라(둘 다 실패).
+3. **파서를 학습한다면 discrete 출력을 깨끗한 GT 텍스트로 distill하라.** cross-domain ≈ +1 pp Hit@5 기대, 채점에 안 쓴 retriever에서 가장 큼. retrieval reward는 이 control 대비 이득이 없었음; hidden-state aux와 reference-free SimPO는 피하라(둘 다 실패).
 4. **텍스트 정밀도가 검색을 좌우하는 곳에 예산을 써라.** 이득은 factoid 질의(+3 pp)에 집중되고 tabular엔 대체로 중립 — layout 무거운 스택은 청커·embedder를 보라.
 
 ---
