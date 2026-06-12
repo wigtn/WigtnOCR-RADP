@@ -87,7 +87,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 \subsection{The Parsing--Retrieval Disconnect and Coverage Diagnostic (C1--C2)}
 \label{sec:c1c2}
 
-\paragraph{Korean government documents (Figure~\ref{fig:disconnect}; full grid in Table~\ref{tab:grid}, Appendix~\ref{app:grid}).} \rcps{} spans $0.07$--$0.58$ across the six parsers: the vision--language parsers cluster at the top ($0.53$--$0.58$) and the OCR systems trail ($0.07$--$0.21$). Within that top cluster the 30B teacher ranks first (\rcps{} $0.584$), with the deployable 2B Prod a negligible $0.001$ behind ($0.583$); Figure~\ref{fig:disconnect}b therefore contrasts Prod, the model a team would ship, against the appearance-ranked MinerU. The intrinsic Boundary Clarity metric \citep{zhao2025moc} anti-correlates with \rcps{} at Pearson $r = -0.81$ ($n = 5$, excluding PaddleOCR, whose Boundary Clarity is undefined because MoC detects zero boundaries in its output). The two cleanest-boundary parsers (MinerU, Marker; BC $\approx 0.72$) land near the bottom, while the lower-BC vision--language parsers retrieve best. Marker is evaluated on a 38-page subset; dropping it leaves the anti-correlation unchanged in sign and magnitude ($n = 4$, $r = -0.74$). MoC's companion metric, Chunk Stickiness, is similarly disconnected ($r = +0.26$, $n = 5$). Neither intrinsic axis predicts \rcps{}.
+\paragraph{Korean government documents (Figure~\ref{fig:disconnect}; full grid in Table~\ref{tab:grid}, Appendix~\ref{app:grid}).} \rcps{} spans $0.07$--$0.58$ across the six parsers---vision--language parsers on top, OCR systems trailing. The 30B teacher ranks first (\rcps{} $0.584$) with the deployable 2B Prod $0.001$ behind ($0.583$), so Figure~\ref{fig:disconnect}b contrasts Prod against the appearance-ranked MinerU. The intrinsic Boundary Clarity metric \citep{zhao2025moc} anti-correlates with \rcps{} at Pearson $r = -0.81$ ($n = 5$, excluding PaddleOCR, whose BC is undefined): the two cleanest-boundary parsers (MinerU, Marker; BC $\approx 0.72$) land near the bottom, while the lower-BC vision--language parsers retrieve best (dropping the 38-page Marker subset leaves this unchanged, $n = 4$, $r = -0.74$). MoC's Chunk Stickiness is similarly disconnected ($r = +0.26$); neither intrinsic axis predicts \rcps{}.
 
 \begin{figure*}[t]
 \centering
@@ -96,11 +96,11 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 \label{fig:disconnect}
 \end{figure*}
 
-\paragraph{Cross-domain: the mechanism.} Across all seven OHR-Bench domains (2{,}264 Q--A) we evaluate 15 parser-output variants: three released parser outputs (gt, MinerU, Qwen2.5-VL), three formatting-noise perturbations, and nine semantic-noise perturbations (GOT, MinerU, Qwen2.5-VL $\times$ mild, moderate, severe). Within each semantic-noise family, Boundary Clarity fails to track noise severity while \rcps{} collapses (per-variant values in Table~\ref{tab:noise}, Appendix~\ref{app:noise}). For the MinerU family, BC stays in $0.71$--$0.74$ from clean to severe while \rcps{} falls from $0.50$ to $0.24$ ($-51\%$); GOT shows the same pattern (\rcps{} $0.38 \rightarrow 0.26$) and Qwen2.5-VL is more noise-robust ($0.47 \rightarrow 0.43$, $-8\%$). Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
+\paragraph{Cross-domain: the mechanism.} Across all seven OHR-Bench domains (2{,}264 Q--A) we evaluate 15 parser-output variants---three released outputs plus twelve controlled noise perturbations (Appendix~\ref{app:noise}). Within each semantic-noise family, Boundary Clarity stays flat while \rcps{} collapses: for the MinerU family BC holds at $0.71$--$0.74$ from clean to severe while \rcps{} falls $-51\%$, with GOT and Qwen2.5-VL showing the same direction (Table~\ref{tab:noise}). Semantic noise that destroys retrievable content does not lower Boundary Clarity: the intrinsic metric sees formatting, not content.
 
 The aggregate cross-variant correlation is sensitive to the document mix: Pearson BC$\leftrightarrow$\rcps{} across all 15 variants is $-0.35$ on Law\,$+$\,Manual alone but $+0.25$ on the full seven-domain corpus. We therefore report the per-family mechanism, which reproduces in every domain, as the robust finding, and treat the cross-variant scalar---which conflates parser families of differing noise-robustness---as illustrative only.
 
-\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}, Table~\ref{tab:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever, on Prod's output (294 pages, 663 Q--A) $20.2\%$ of answers are absent and at most $2.3\%$ are split, and the absent rate is constant across all eight chunkers we test---exactly the boundary-independence a parser fault must show. The gap is therefore a parser problem: roughly one answer in five is never produced, so no re-chunking can recover it, and a parser-side intervention is the correct lever---motivating the training in \S\ref{sec:c4}.
+\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}, Table~\ref{tab:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of answers are absent and at most $2.3\%$ split, with the absent rate constant across all eight chunkers---the boundary-independence a parser fault must show. Roughly one answer in five is never produced, so no re-chunking recovers it: the gap is a parser problem, motivating the training in \S\ref{sec:c4}.
 
 \begin{table}[t]
 \centering\small
@@ -132,6 +132,23 @@ A selection protocol must separate the alternatives a practitioner actually comp
 \end{figure}
 
 \paragraph{\rcps{} is not single-embedder MRR (Table~\ref{tab:ablation}).} Stripping the three protocol choices from the six-parser KoGov grid shows they are not cosmetic. Dropping retriever-averaging---scoring on a single embedder (BGE-M3)---inverts the top parser choice: naive single-embedder MRR ranks Prod first, while full \rcps{} ranks the Qwen3-VL-30B teacher first (Table~\ref{tab:ablation}). Format-invariant matching, by contrast, shifts every parser's score by about $0.02$--$0.03$ but does not reorder the grid. The inversion is between two near-tied parsers (\rcps{} $0.584$ versus $0.583$), so the operational claim is precise: single-embedder MRR cannot reliably resolve the top parser a team would deploy. The two rankings otherwise agree (Kendall $\tau = 0.87$)---\rcps{}'s value is not a wholesale reordering but resolving the one comparison, the deployable top pair, that a single embedder gets wrong.
+
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+Protocol configuration & Top pair & $\tau$ vs \rcps{} \\
+\midrule
+naive MRR (1 embedder) & Prod $\succ$ 30B & 0.87 \\
+$+$ retriever-averaging & 30B $\succ$ Prod & 1.00 \\
+$+$ format-invariant & Prod $\succ$ 30B & 0.87 \\
+full \rcps{} (3 retr., fmt-inv.) & 30B $\succ$ Prod & --- \\
+\bottomrule
+\end{tabular}
+\caption{\rcps{} protocol ablation on the KoGov six-parser grid: only the inverted top pair is shown---the lower ranks Qwen3-VL-2B $\succ$ MinerU $\succ$ PaddleOCR $\succ$ Marker are identical across all configurations. Retriever-averaging is the single choice that flips the top pair (rows 2,4 vs 1,3); format-invariance shifts scores but not order. Kendall $\tau$ is over the full six-parser ranking; ``30B'' is the Qwen3-VL-30B teacher.}
+\label{tab:ablation}
+\end{table}
 
 \subsection{Parser-Side Training Is a Bounded, Reward-Agnostic Lever (C4)}
 \label{sec:c4}\label{sec:mechanism}
@@ -268,23 +285,6 @@ Marker (38p) & \textbf{0.717} & 3.41 & 0.073 & 0.068 \\
 \end{tabular}
 \caption{The \S\ref{sec:c1c2} disconnect grid, visualised in Figure~\ref{fig:disconnect}: KoGov, BC versus \rcps{}, Pearson $r = -0.81$ ($n = 5$, excluding PaddleOCR, whose Boundary Clarity is undefined). Chunk Stickiness (CS, MoC; lower $=$ more cohesive) is similarly uninformative ($r = +0.26$, $n = 5$); its scale differs from the per-variant CS in Table~\ref{tab:mechanism}. \rcps{} is averaged over three retrievers.}
 \label{tab:grid}
-\end{table}
-
-\begin{table}[h]
-\centering\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcc}
-\toprule
-Protocol configuration & Top pair & $\tau$ vs \rcps{} \\
-\midrule
-naive MRR (1 embedder) & Prod $\succ$ 30B & 0.87 \\
-$+$ retriever-averaging & 30B $\succ$ Prod & 1.00 \\
-$+$ format-invariant & Prod $\succ$ 30B & 0.87 \\
-full \rcps{} (3 retr., fmt-inv.) & 30B $\succ$ Prod & --- \\
-\bottomrule
-\end{tabular}
-\caption{\rcps{} protocol ablation on the KoGov six-parser grid (\S\ref{sec:c3}; only the inverted top pair is shown---the lower ranks Qwen3-VL-2B $\succ$ MinerU $\succ$ PaddleOCR $\succ$ Marker are identical across all configurations). Retriever-averaging is the single choice that flips the top pair (rows 2,4 vs 1,3); format-invariance shifts scores but not order. Kendall $\tau$ is over the full six-parser ranking; ``30B'' is the Qwen3-VL-30B teacher.}
-\label{tab:ablation}
 \end{table}
 
 \section{OHR-Bench Noise-Family Grid}
