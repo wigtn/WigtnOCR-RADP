@@ -45,10 +45,10 @@ def main() -> None:
 
     b_cov = ax.bar(x, covered, color="#cfe8cf", label="covered", zorder=3)
     b_split = ax.bar(x, split, bottom=covered, color="#ff7f0e",
-                     label="split (chunker fault)", zorder=3)
+                     label="split (chunker-side failure)", zorder=3)
     bottom2 = [c + s for c, s in zip(covered, split)]
     b_abs = ax.bar(x, absent, bottom=bottom2, color="#d62728",
-                   label="absent (parser fault)", zorder=3)
+                   label="absent (parser-side failure)", zorder=3)
 
     # constant-absent reference line + clean label (white box so it reads over red)
     ax.axhline(100 - mean_absent, color="#d62728", ls="--", lw=0.9, zorder=4)

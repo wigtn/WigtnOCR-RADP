@@ -188,7 +188,7 @@ def main():
                  bold=bd, fill=fl)
     tbox(s, x1 + 0.14, y1b + h1b - 1.05, cw - 0.28, 0.95,
          [[R("parser choice alone moves Hit@1 by ", 10.5, DARK),
-           R("+35.2pp (2.8×)", 12.5, BLUE, bold=True)],
+           R("+35.2pp (0.20→0.55; 2.8×)", 12, BLUE, bold=True)],
           [R("appearance metrics measure formatting, not content", 9, DARK)],
           [R("(anti-correlation  r = −0.81,  n = 5)", 8.5, GREY, italic=True)]],
          align=PP_ALIGN.CENTER, lead=1.4)
@@ -213,7 +213,7 @@ def main():
          [[R("absent", 8.5, RBAR, bold=True)]], align=PP_ALIGN.CENTER)
     tbox(s, x2 + 0.14, by + bh + 0.34, cw - 0.28, 0.66,
          [[R("absent = answer never made it into the parser output ", 9, DARK),
-           R("(parser fault)", 9, RED, bold=True)],
+           R("(parser-side failure)", 9, RED, bold=True)],
           [R("constant across all 8 chunkers → chunking can't recover it", 8.8,
              GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
 
@@ -260,7 +260,7 @@ def main():
              [[R(f"+{val:.2f} pp", 9.5, DARK, bold=True)]],
              anchor=MSO_ANCHOR.MIDDLE)
     tbox(s, x3 + 0.14, y3b + h3b - 0.66, cw - 0.28, 0.6,
-         [[R("≈  overlapping CIs → equal gain", 9.5, DARK, bold=True)],
+         [[R("substantially overlapping CIs", 9.5, DARK, bold=True)],
           [R("no evidence reward helps; lever = fidelity distillation", 9,
              GREEN, bold=True)]], align=PP_ALIGN.CENTER, lead=1.28)
 
