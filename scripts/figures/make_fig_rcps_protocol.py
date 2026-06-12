@@ -5,7 +5,7 @@ three choices (§3.1). This figure shows each choice together with the failure
 mode it removes — the information that distinguishes RCPS from plain MRR:
   (i)  extrinsic            — intrinsic text scores (TEDS, BC) mispredict retrieval
   (ii) retriever-averaged   — a single embedder flips the top-1 parser (Table 3b)
-  (iii) format-invariant    — credit content the parser kept, not its formatting
+  (iii) format-normalised   — credit content the parser kept, not its formatting
 
 Single information-bearing schematic. No external data.
 Output: paper/figures/fig_rcps_protocol.{pdf,png}

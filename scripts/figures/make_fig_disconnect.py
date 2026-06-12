@@ -4,7 +4,7 @@ Two panels on Korean government documents (KoGov, Table 1):
   (a) BC vs RCPS scatter: the cleanest-boundary parsers (MinerU, Marker; highest
       BC) retrieve worst. Pearson r = -0.81 (n=5; PaddleOCR excluded — MoC
       detects zero boundaries so its Boundary Clarity is undefined).
-  (b) Parser choice swings retrieval Hit@1 by 2.8x: picking by appearance
+  (b) Parser choice moves retrieval Hit@1 by +35.1pp (2.8x): picking by appearance
       (MinerU, 0.197) vs by RCPS (v1, 0.549).
 
 Single source of truth (reproducible):

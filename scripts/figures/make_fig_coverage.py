@@ -1,9 +1,9 @@
 """Figure 3 — Coverage diagnostic (C2): localising the gap to a pipeline layer.
 
 Parser output fixed (WigtnOCR v1); chunker varied. For each chunker we classify
-every gold answer as covered, split (cut by a chunk boundary — a *chunker* fault,
-recoverable) or absent/parser-fault (missing from parser output — a *parser*
-fault, unrecoverable by re-chunking). The parser-fault rate is ~constant across
+every gold answer as covered, split (cut by a chunk boundary — a chunker-side
+failure, recoverable) or absent (missing from the full parser output — a
+parser-side coverage failure, set before chunking). The absent rate is therefore
 chunkers while split stays near zero → the gap is a PARSER problem.
 
 Actionable rule: if absent dominates, fix the parser; if split dominates, fix the chunker.
