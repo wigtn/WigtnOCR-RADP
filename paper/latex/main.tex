@@ -23,7 +23,7 @@
 \maketitle
 
 \begin{abstract}
-Practitioners selecting a document parser for retrieval-augmented generation (RAG) typically rank candidates by intrinsic quality metrics---boundary clarity, text-edit fidelity---on the assumption that cleaner parser output retrieves better. On Korean government documents the opposite holds, and the parser choice alone is decisive: in a six-parser, three-retriever evaluation, selecting by retrieval rather than by appearance swings Hit@1 by $2.8\times$ ($0.197 \rightarrow 0.549$), with the two cleanest-boundary parsers retrieving far below the messier vision--language ones. Our central contribution is \rcps{}, a retrieval-grounded selection protocol that requires no training and ranks the parser and chunker a team should deploy by what downstream retrieval does with their output rather than by how clean it looks; an ablation shows it is not equivalent to single-embedder MRR (C3). Three contributions surround it. We characterise the parsing--retrieval disconnect that makes such a protocol necessary---boundary clarity even anti-correlates with retrieval (Pearson $r = -0.81$, $n = 5$; sign-sensitive to the corpus)---and trace its more robust mechanism: under controlled semantic-noise perturbations, boundary clarity stays flat (MinerU, Qwen2.5-VL) or moves non-monotonically (GOT) while retrieval collapses in every family, indicating that intrinsic boundary metrics measure formatting rather than content (C1). A retriever-free coverage diagnostic localises the gap to a single pipeline layer---$20.2\%$ of answers are absent from the parser output, a rate constant across eight chunkers---telling a team whether a parser-side fix can help before any retriever is run (C2). And we bound parser-side training: a hidden-state auxiliary loss is sub-threshold and reference-free preference optimisation is negative, while best-of-K fidelity distillation yields a small but reproducible gain (OHR-Bench Hit@5 $+1.22$~pp) and a matched control shows the retrieval reward itself is unnecessary (C4). We release KoGovDoc-RAG, a Korean document-RAG benchmark, with a reference implementation of \rcps{}.
+Document parsers for retrieval-augmented generation (RAG) are commonly selected by intrinsic quality metrics---text fidelity, boundary clarity---although a production pipeline ultimately depends on whether the parsed content can be \emph{retrieved}. Building a RAG system over Korean government documents, we find the assumption fails operationally: parser selection alone moves retrieval Hit@1 by $35.2$ absolute points ($0.197 \rightarrow 0.549$, a $2.8\times$ relative change), and the parsers with the cleanest chunk boundaries rank near the bottom under retrieval. We introduce the Retrieval-Conditional Parsing Score (\rcps{}), a training-free selection protocol that ranks the parsers and chunkers a team should deploy using a held-out Q--A probe, averaging over multiple retrievers, with format-invariant answer matching; and a retriever-free coverage diagnostic that attributes missing answers to parser omission versus chunk-boundary splitting before any retriever is run. On our production pipeline $20.2\%$ of gold answers are absent from the parser output---constant across eight chunkers---while at most $2.3\%$ are split, so re-chunking cannot recover the loss; parser choice spans an \rcps{} range of $0.51$ against $0.06$ for chunker choice. Controlled cross-domain perturbations (OHR-Bench) confirm the mechanism: semantic noise collapses retrieval while boundary metrics barely move. Finally, we bound parser-side training: retrieval-aware preference optimisation lifts OHR-Bench Hit@5 by $+0.85$~pp, but a simpler fidelity-distillation control achieves $+1.22$~pp with overlapping confidence intervals---we find no evidence that a retrieval reward improves over a strong fidelity control. We release KoGovDoc-RAG, a Korean document-RAG benchmark, with a reference implementation of \rcps{}.
 \end{abstract}
 
 \section{Introduction}
@@ -31,15 +31,15 @@ Practitioners selecting a document parser for retrieval-augmented generation (RA
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{fig_overview.pdf}
-\caption{\textbf{Overview.} \textbf{(C1)} Selecting a document parser by appearance (Boundary Clarity) rather than retrieval is a trap: MinerU has the highest Boundary Clarity yet the lowest Hit@1, and parser choice alone swings Hit@1 by $2.8\times$ (scalar correlations illustrative; \S\ref{sec:c1c2}). \textbf{(C2)} A retriever-free coverage diagnostic localises the gap to the parser---$20.2\%$ of answers are absent from the parser output, constant across all eight chunkers. \textbf{(C3)} \rcps{} selects parsers and chunkers by retrieval over a held-out Q--A probe and three retrievers, with no training. \textbf{(C4)} Parser-side training is a bounded lever: fidelity distillation matches the retrieval-reward variant (overlapping CIs), so the retrieval reward is unnecessary.}
+\caption{\textbf{Overview.} \textbf{(C1)} Selecting a document parser by appearance (Boundary Clarity) rather than retrieval is a trap: MinerU has the highest Boundary Clarity yet the lowest Hit@1, and parser choice alone swings Hit@1 by $2.8\times$ (scalar correlations illustrative; \S\ref{sec:c1c2}). \textbf{(C2)} A retriever-free coverage diagnostic localises the gap to the parser---$20.2\%$ of answers are absent from the parser output, constant across all eight chunkers. \textbf{(C3)} \rcps{} selects parsers and chunkers by retrieval over a held-out Q--A probe and three retrievers, with no training. \textbf{(C4)} Parser-side training is a bounded lever: fidelity distillation matches the retrieval-reward variant (overlapping CIs)---no evidence the retrieval reward helps.}
 \label{fig:overview}
 \end{figure*}
 
 Retrieval-augmented generation (RAG) is increasingly deployed over real-world document collections---government records, enterprise reports, technical manuals---that exist only as scanned or born-digital PDFs. Every such pipeline begins with a document parser that converts each page to text, which is then chunked, embedded, and retrieved. Because the parser sits at the head of the pipeline its errors cascade downstream; the practical question is how to choose it. Faced with many candidates---OCR engines, layout models, vision--language models---practitioners rank them by intrinsic parsing-quality metrics that reward clean-looking output: low text-edit distance and high boundary clarity \citep{zhao2025moc}, on the assumption that cleaner output retrieves better.
 
-On Korean government documents, that assumption fails, and which parser a team picks is decisive on its own. A practitioner ranking by intrinsic metrics would deploy MinerU \citep{mineru2025}, whose boundary-clarity score ($0.72$) is matched only by Marker; yet its retrieval Hit@1 is $0.20$, against the $0.50$--$0.55$ of three lower-scoring vision--language parsers---a $2.8\times$ gap from parser selection alone. Boundary Clarity even anti-correlates with retrieval across these parsers (Pearson $r = -0.81$, $n = 5$; sensitive in sign to the corpus), but the robust signal is the mechanism: on a cross-domain English check (OHR-Bench, \citealp{zhang2024ohr}), injecting semantic noise collapses retrieval while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity structurally blind to retrievability---at least for the scanned, layout-heavy documents we study.
+We hit this problem building a production RAG system over Korean government documents, and found the assumption fails operationally. A team ranking by intrinsic metrics would deploy MinerU \citep{mineru2025}, whose boundary-clarity score ($0.72$) is matched only by Marker; yet its retrieval Hit@1 is $0.20$, against the $0.50$--$0.55$ of three lower-scoring vision--language parsers---$35.2$ absolute Hit@1 points ($2.8\times$ relative) from parser selection alone. On our parser set, Boundary Clarity ranks the candidates in nearly the opposite order from retrieval (Pearson $r = -0.81$, $n = 5$; sensitive in sign to the corpus), but the robust signal is the mechanism: on a cross-domain English check (OHR-Bench, \citealp{zhang2024ohr}), injecting semantic noise collapses retrieval while Boundary Clarity barely moves, so the intrinsic metric cannot perceive the content corruption retrieval depends on. Selection by appearance optimises a quantity structurally blind to retrievability---at least for the scanned, layout-heavy documents we study.
 
-We answer this with \rcps{}, a training-free protocol that selects the parser and chunker by what retrieval does with their output---this paper's central contribution (C3)---surrounded by the disconnect that motivates it (C1), a retriever-free coverage diagnostic that localises the bottleneck (C2), and an honest bound on what parser-side training adds (C4).
+The question this paper answers is operational: \emph{given candidate parsers and chunkers, how should a production team pick what to deploy---and is parser training worth the cost?} We answer with \rcps{}, a training-free protocol that selects the parser and chunker by what retrieval does with their output---this paper's central contribution (C3)---surrounded by the disconnect that motivates it (C1), a retriever-free coverage diagnostic that localises the bottleneck (C2), and an honest bound on what parser-side training adds (C4).
 
 Figure~\ref{fig:overview} previews all four.
 
@@ -47,16 +47,16 @@ We release \textbf{KoGovDoc-RAG}, a Korean document-RAG benchmark of 663 questio
 
 \section{Related Work}
 
-\paragraph{Diagnosing the parsing--retrieval gap.} Prior work documents that parser quality affects downstream retrieval but does not close the gap on the parser side. OHR-Bench \citep{zhang2024ohr} evaluates the cascading impact of OCR noise on RAG; EnterpriseDocBench \citep{enterprisedocbench2026} reports a weak parsing-quality--retrieval correlation; and concurrent analyses \citep{goodocr2026, song2026ocr} reach similar conclusions. Parsing benchmarks meanwhile rank parsers by intrinsic fidelity \citep{ouyang2025omnidocbench}---the signal C1 shows is misleading---and vision-based retrieval sidesteps text parsing entirely \citep{faysse2024colpali}, orthogonal to the text pipelines we target. These diagnose the gap but give no reusable selection protocol or fault-localisation---which our coverage diagnostic (C2) and \rcps{} (C3) provide.
+\paragraph{Diagnosing the parsing--retrieval gap.} OHR-Bench \citep{zhang2024ohr} measures the cascading impact of OCR noise on RAG; EnterpriseDocBench \citep{enterprisedocbench2026} reports a weak parsing-quality--retrieval correlation; concurrent analyses agree \citep{goodocr2026, song2026ocr}. Parsing benchmarks still rank parsers by intrinsic fidelity \citep{ouyang2025omnidocbench}---the signal C1 shows is misleading---and vision-based retrieval \citep{faysse2024colpali} sidesteps text parsing, orthogonal to the text pipelines we target. None provides a reusable selection protocol or fault localisation---which our \rcps{} (C3) and coverage diagnostic (C2) supply.
 
-\paragraph{Training-time methods, by pipeline layer.} Existing retrieval-oriented training operates at every layer except the parser. Chunking methods set boundaries or filter chunks after parsing \citep{jina2024late, duarte2024lumber, zhao2024meta, zhao2025moc, singh2024chunkrag}; embedding-side methods train the retriever contrastively \citep{conti2025insent, zhao2025lmar}; and retrieval- or reader-side methods tune the retriever or generator \citep{nguyen2024rewardrag, chia2025mlongdoc, yan2025rpo}. Parsers are themselves trained---recently with RL on edit-distance and layout rewards \citep{infinity_parser} or query-driven for efficient RAG \citep{agenticocr}---but not on a retrieval signal; we test that signal and find it bounded---adding nothing over the fidelity reward such training already uses (C4). Our primary contributions (C1--C3) sit upstream of any training.
+\paragraph{Training-time methods, by pipeline layer.} Retrieval-oriented training exists at every layer except the parser: chunking \citep{jina2024late, duarte2024lumber, zhao2024meta, zhao2025moc, singh2024chunkrag}, contrastive embedding \citep{conti2025insent, zhao2025lmar}, and retriever- or reader-side tuning \citep{nguyen2024rewardrag, chia2025mlongdoc, yan2025rpo}. Parsers are themselves trained---with RL on edit-distance and layout rewards \citep{infinity_parser} or query-driven for efficient RAG \citep{agenticocr}---but not on a retrieval signal; we test that signal and find it adds nothing over the fidelity reward such training already uses (C4). Our primary contributions (C1--C3) sit upstream of any training.
 
 \section{The RCPS Protocol}
 
 \subsection{\rcps{}: Retrieval-Conditional Parsing Score}
 \label{sec:rcps}
 
-\rcps{} ranks parsers by what downstream retrieval does with their output, not by how clean it looks. It is not a new similarity function but an evaluation protocol wrapping ordinary retrieval MRR in three choices: (i) it is \emph{extrinsic}, scoring on the parsed corpus with a held-out Q--A probe rather than on text alone; (ii) it is \emph{retriever-agnostic}, averaging over several embedders so the ranking does not hinge on the production one; and (iii) it uses \emph{format-invariant relevance}, counting a chunk relevant iff its text contains the answer span, however formatted. The contribution is the protocol---what to measure, on what probe, how to judge relevance---not the scoring function, which is why \rcps{} is not single-embedder MRR (\S\ref{sec:c3}).
+\rcps{} ranks parsers by what downstream retrieval does with their output, not by how clean it looks. It is not a new similarity function but an evaluation protocol wrapping ordinary retrieval MRR in three choices, each removing a failure mode our experiments exhibit: (i) it is \emph{extrinsic}, scoring a held-out Q--A probe on the parsed corpus, because intrinsic text metrics reward formatting that retrieval does not depend on (\S\ref{sec:c1c2}); (ii) it is \emph{retriever-agnostic}, averaging over several embedders, because a single embedder can silently flip the top-ranked parser (Table~\ref{tab:ablation}); and (iii) it uses \emph{format-invariant relevance}, counting a chunk relevant iff its text contains the answer span however formatted---on our grid this shifts scores by $0.02$--$0.03$ without reordering, insurance rather than a ranking driver. The contribution is the protocol---what to measure, on what probe, how to judge relevance---not the scoring function (\S\ref{sec:c3}).
 
 Given a parser $P$, a Q--A set $D = \{(q_i, a_i, \text{page}_i)\}$, a set of retrievers $R$, and cutoffs $K$, \rcps{} averages MRR across the cross-product:
 \begin{equation}
@@ -71,8 +71,6 @@ We use $R = \{$BGE-M3 \citep{chen2024bgem3}, multilingual-e5-large \citep{wang20
 \caption{\rcps{} as a protocol, not a new scoring function (C3): ordinary retrieval MRR wrapped in a held-out Q--A probe, retriever-averaging, and format-invariant relevance. Run with no training, it ranks the parser and chunker a team would deploy.}
 \label{fig:protocol}
 \end{figure}
-
-\paragraph{What each choice removes.} Each choice targets a failure mode our experiments exhibit. \emph{Extrinsic scoring} addresses the disconnect of \S\ref{sec:c1c2}: intrinsic metrics reward formatting that retrieval does not depend on, so no text-side score can substitute for the probe. \emph{Retriever-averaging} addresses embedder idiosyncrasy: scored on BGE-M3 alone, the protocol returns a different top parser than under the three-retriever average (Table~\ref{tab:ablation}). \emph{Format-invariant relevance} credits the content a parser keeps rather than its markdown conventions; on our grid it shifts scores by $0.02$--$0.03$ without reordering---insurance rather than a ranking driver.
 
 \paragraph{Running the protocol.} A team with $m$ candidate parsers (1) holds out a probe of a few hundred Q--A whose answers occur verbatim in the corpus (ours are LLM-generated and judge-filtered, \S\ref{sec:setup}); (2) parses the evaluation pages once per candidate; (3) chunks, embeds with the $|R|$ retrievers, and computes Equation~\ref{eq:rcps}; (4) deploys the arg-max---$m$ parse passes plus $m\,|R|$ embed-and-retrieve runs, no training, no human relevance labels. Holding the parse fixed instead ranks chunkers with the same probe. \rcps{} returns a ranking under a fixed probe, not an absolute score.
 
@@ -105,7 +103,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.78\textwidth]{fig_disconnect.png}
-\caption{The parsing--retrieval disconnect on Korean government documents. (a) Boundary Clarity (intrinsic, MoC) anti-correlates with \rcps{} across parsers (Pearson $r = -0.81$, $n = 5$; PaddleOCR excluded as its BC is undefined): the cleanest-boundary parsers MinerU and Marker land near the bottom, while the lower-BC vision--language parsers retrieve best. (b) Choosing the parser by \rcps{} (Prod) rather than by appearance (MinerU) changes retrieval Hit@1 by $2.8\times$ ($0.197 \rightarrow 0.549$).}
+\caption{The parsing--retrieval disconnect on Korean government documents. (a) Boundary Clarity (intrinsic, MoC) anti-correlates with \rcps{} across parsers (Pearson $r = -0.81$, $n = 5$; PaddleOCR excluded as its BC is undefined): the cleanest-boundary parsers MinerU and Marker land near the bottom, while the lower-BC vision--language parsers retrieve best. (b) Choosing the parser by \rcps{} (Prod) rather than by appearance (MinerU) improves retrieval Hit@1 by $35.2$ absolute points ($0.197 \rightarrow 0.549$; $2.8\times$ relative).}
 \label{fig:disconnect}
 \end{figure*}
 
@@ -119,7 +117,8 @@ The aggregate cross-variant correlation is sensitive to the document mix: Pearso
 \label{sec:c3}
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize
+\setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{lcccc}
 \toprule
 Parser & BC & CS & \rcps{} & Hit@1 \\
@@ -140,11 +139,11 @@ Marker (38p) & \textbf{0.717} & 3.41 & 0.073 & 0.068 \\
 
 \paragraph{Selecting chunkers.} On a fixed Prod output, the same probe separates four chunking strategies cleanly---markdown-header (md-h3, \rcps{} $0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-size ($0.535$)---whereas intrinsic boundary metrics rank them inconsistently, or rank fixed-size highest because its boundaries are clean by construction. The chunker spread ($0.06$) is nearly an order of magnitude smaller than the parser spread ($0.51$), as the coverage diagnostic predicts: at most $2.3\%$ of answers are chunker-recoverable (\S\ref{sec:c1c2}), so chunking moves retrieval only within the band the parser sets. One probe set thus ranks both knobs---and says which is worth turning first.
 
-\paragraph{\rcps{} is not single-embedder MRR (Table~\ref{tab:ablation}).} Dropping retriever-averaging---scoring on a single embedder (BGE-M3)---inverts the top parser choice: naive single-embedder MRR ranks Prod first, while full \rcps{} ranks the Qwen3-VL-30B teacher first (Table~\ref{tab:ablation}). Format-invariant matching, by contrast, shifts every parser's score by about $0.02$--$0.03$ but does not reorder the grid. The inversion is between two near-tied parsers (\rcps{} $0.584$ versus $0.583$), so the operational claim is precise: single-embedder MRR cannot reliably resolve the top parser a team would deploy. The two rankings otherwise agree (Kendall $\tau = 0.87$)---\rcps{}'s value is resolving the one comparison a single embedder gets wrong: the deployable top pair.
+\paragraph{\rcps{} is not single-embedder MRR (Table~\ref{tab:ablation}).} \rcps{}'s value is the operational package---extrinsic, retriever-averaged, format-invariant, no training (\S\ref{sec:rcps})---not a wholesale reordering: stripped to a single embedder (BGE-M3), the ranking still agrees at Kendall $\tau = 0.87$. What the single embedder cannot do is resolve the deployment decision at the top: it inverts the near-tied top pair (naive MRR ranks Prod first, full \rcps{} the 30B teacher; $0.583$ vs $0.584$), a flip a team trusting its production embedder inherits silently. Format-invariant matching shifts every score by $0.02$--$0.03$ without reordering. We claim the ablation as evidence the protocol choices are not redundant, not as a large ranking change.
 
 \begin{table}[t]
-\centering\small
-\setlength{\tabcolsep}{4pt}
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcc}
 \toprule
 Protocol configuration & Top pair & $\tau$ vs \rcps{} \\
@@ -152,7 +151,7 @@ Protocol configuration & Top pair & $\tau$ vs \rcps{} \\
 naive MRR (1 embedder) & Prod $\succ$ 30B & 0.87 \\
 $+$ retriever-averaging & 30B $\succ$ Prod & 1.00 \\
 $+$ format-invariant & Prod $\succ$ 30B & 0.87 \\
-full \rcps{} (3 retr., fmt-inv.) & 30B $\succ$ Prod & --- \\
+full \rcps{} & 30B $\succ$ Prod & --- \\
 \bottomrule
 \end{tabular}
 \caption{\rcps{} protocol ablation on the KoGov six-parser grid: only the inverted top pair is shown---the lower ranks Qwen3-VL-2B $\succ$ MinerU $\succ$ PaddleOCR $\succ$ Marker are identical throughout. Retriever-averaging alone flips the top pair; format-invariance shifts scores but not order. Kendall $\tau$ is over the full ranking; ``30B'' $=$ the Qwen3-VL-30B teacher.}
@@ -162,15 +161,31 @@ full \rcps{} (3 retr., fmt-inv.) & 30B $\succ$ Prod & --- \\
 \subsection{Parser-Side Training Is a Bounded, Reward-Agnostic Lever (C4)}
 \label{sec:c4}\label{sec:mechanism}
 
-Does training the parser on a retrieval signal help? We test three Retrieval-Aware Document Parsing (RADP) variants---a hidden-state auxiliary loss (RADP-aux), discrete-output DPO on a page-local \rcps{} reward (RADP-DPO) \citep{rafailov2023dpo}, and a reward-agnostic best-of-$K$ control ranking by edit-distance to the reference markdown (RADP-Distill). Only RADP-DPO is deployable---the auxiliary loss is sub-threshold and reference-free SimPO \citep{meng2024simpo} negative---lifting OHR-Bench Hit@5 by $+0.85$~pp $[+0.35, +1.43]$, significant across all seven domains (KoGov $+1.96$ to $+2.11$~pp, exploratory). But the matched RADP-Distill control reproduces it ($+1.22$~pp $[+0.35, +2.15]$), statistically indistinguishable, so \textbf{the retrieval reward is unnecessary}: the lever is text fidelity, not chunking. Recipe, per-variant results, the full OHR-Bench grid (Table~\ref{tab:ohr}), and mechanism statistics: Appendices~\ref{app:milestones}--\ref{app:mechanism}.
+Does training the parser on a retrieval signal help? We test three Retrieval-Aware Document Parsing (RADP) variants---a hidden-state auxiliary loss (RADP-aux), discrete-output DPO on a page-local \rcps{} reward (RADP-DPO) \citep{rafailov2023dpo}, and a reward-agnostic best-of-$K$ control ranking candidates by edit distance to the reference markdown (RADP-Distill). Among the retrieval-aware variants only RADP-DPO yields a reliable positive---the auxiliary loss is sub-threshold and reference-free SimPO \citep{meng2024simpo} negative---lifting OHR-Bench Hit@5 by $+0.85$~pp $[+0.35, +1.43]$, significant across all seven domains (KoGov $+1.96$ to $+2.11$~pp, exploratory). But the RADP-Distill control matches or exceeds it ($+1.22$~pp $[+0.35, +2.15]$; Table~\ref{tab:c4}), statistically indistinguishable: \textbf{we find no evidence that the retrieval reward improves over fidelity-based candidate selection} at the powered endpoint. The lever is text fidelity, not chunking. Recipe, per-variant results, full metric grid (Table~\ref{tab:ohr}), and mechanism statistics: Appendices~\ref{app:milestones}--\ref{app:mechanism}.
+
+\begin{table}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{llc}
+\toprule
+Variant & Selection signal & $\Delta$Hit@5 [95\% CI] \\
+\midrule
+RADP-Distill & ref.\ edit dist. & $\mathbf{+1.22}$ $[{+}0.35, {+}2.15]$ \\
+RADP-DPO-R2 & page-local \rcps{} & $+0.85$ $[{+}0.35, {+}1.43]$ \\
+RADP-DPO-R3 & $+$ hard negatives & $+1.03$ $[{+}0.24, {+}1.84]$ \\
+\bottomrule
+\end{tabular}
+\caption{C4 at the powered endpoint: OHR-Bench $\Delta$Hit@5 vs Prod, in pp (2{,}264 Q--A, seven English domains, three-retriever macro, paired bootstrap). The reward-agnostic RADP-Distill control matches or exceeds the retrieval-reward variants, with overlapping CIs. RADP-aux is sub-threshold and SimPO negative on KoGov (Appendix~\ref{app:dpo}).}
+\label{tab:c4}
+\end{table}
 
 \section{Discussion and Conclusion}
 
-\paragraph{Selection, not training, is the headline.} The largest, most certain effect here is not a training method: choosing a parser by retrieval (\rcps{}) rather than by intrinsic metrics changes Hit@1 by $2.8\times$ (\S\ref{sec:c1c2}). Parser-side training is a secondary, bounded lever of about 1~pp Hit@5, and the retrieval reward buys nothing over plain fidelity distillation (\S\ref{sec:c4}).
+\paragraph{Selection, not training, is the headline.} The largest, most certain effect here is not a training method: choosing a parser by retrieval (\rcps{}) rather than by intrinsic metrics changes Hit@1 by $35.2$ absolute points ($2.8\times$, \S\ref{sec:c1c2}). Parser-side training is a secondary, bounded lever of about 1~pp Hit@5, and we find no evidence the retrieval reward improves over plain fidelity distillation (\S\ref{sec:c4}).
 
 \paragraph{Why the diagnosis and the mechanism agree.} C1 finds the cleanest-boundary parser retrieves among the worst; \S\ref{sec:mechanism} finds training helps by raising text fidelity. Both follow from splitting ``clean'' into two axes---Boundary Clarity measures formatting, TextNED measures content fidelity. MinerU is formatting-clean but loses content; training improves fidelity while leaving the formatting signature unchanged (TextNED $0.240 \rightarrow 0.158$, BC $0.630 \rightarrow 0.641$; Table~\ref{tab:mechanism})---the same blindness, seen from both ends.
 
-\paragraph{Playbook and conclusion.} For practitioners: (1) evaluate parsers with \rcps{}, not intrinsic metrics---a few hundred held-out Q--A, no training; (2) if you train, distil the discrete output toward clean reference text---a retrieval reward is unnecessary; (3) training gains concentrate on factoid queries---for layout-heavy mixes, tune the chunker or embedder.
+\paragraph{Playbook and conclusion.} For practitioners: (1) select parsers with \rcps{}, not intrinsic metrics---a few hundred held-out Q--A, no training; (2) run the coverage diagnostic---chunker fix if answers are \emph{split}, parser fix if \emph{absent}; (3) if you train, distil toward clean reference text and require any retrieval-aware method to beat that control; (4) gains concentrate on factoid queries---for layout-heavy mixes, tune the chunker or embedder.
 
 \section*{Limitations}
 
@@ -193,8 +208,9 @@ This appendix gives the full recipe for the RADP-DPO preference data of \S\ref{s
 
 For each train page we sample $K$ alternative parses from the production parser, chunk and score each by a page-local \rcps{} (the page's questions against the parse's own chunks plus distractors), and form preference pairs (chosen $=$ higher-\rcps{} parse, gap $\ge 5$~pp). The reward is sharpened across three milestones: \textbf{R1} ($K = 2$ parses, uniform distractors, $\beta = 0.1$) $\rightarrow$ \textbf{R2} (a warm-started iterative round, $\beta = 0.05$) $\rightarrow$ \textbf{R3} ($K = 14$ parses with a full-corpus hard-negative pool---the other-page chunks closest to the page's queries---widening the candidate-score gap from about $0.05$ to $0.56$). We train with a LoRA-toggle reference ($\pi_\theta =$ LoRA on, $\pi_\text{ref} =$ LoRA off):
 \begin{equation}
-\mathcal{L}_\text{DPO} = -\log \sigma\Big(\beta \big[(\log \pi_\theta(c) - \log \pi_\theta(r)) - (\log \pi_\text{ref}(c) - \log \pi_\text{ref}(r))\big]\Big).
+\mathcal{L}_\text{DPO} = -\log \sigma\big(\beta\,[\Delta_\theta - \Delta_\text{ref}]\big),
 \end{equation}
+where $\Delta_\bullet = \log \pi_\bullet(c) - \log \pi_\bullet(r)$ for the chosen ($c$) and rejected ($r$) parse.
 The reference-free SimPO control ($\beta = 2.0$, $\gamma = 1.0$) removes the reference policy entirely.
 
 \section{KoGov DPO Progression, RADP-aux Sweep, SimPO, and Robustness}
@@ -216,7 +232,7 @@ RADP-DPO-R2 & +0.53 & +0.85 & +0.81 & +0.70 & +0.74 \\
 RADP-DPO-R3 & +1.31 & +1.03 & +0.81 & +1.17 & +1.15 \\
 \bottomrule
 \end{tabular}
-\caption{OHR-Bench cross-domain $\Delta$ vs Prod, in pp (2{,}264 Q--A over seven English domains; three-retriever macro; 1{,}000-resample paired bootstrap). The Hit@5 deltas are two-sided significant (95\% CIs: RADP-Distill $[+0.35, +2.15]$, R2 $[+0.35, +1.43]$, R3 $[+0.24, +1.84]$). The other columns are monotone re-cuts of the same per-system ranked list, reported only because practitioners use different cutoffs. RADP-Distill leads at the primary metric Hit@5; R3 reaches higher Hit@1 and MRR@10 point estimates but with overlapping CIs, so the retrieval reward is unnecessary at the powered endpoint (\S\ref{sec:c4}).}
+\caption{OHR-Bench cross-domain $\Delta$ vs Prod, in pp (2{,}264 Q--A over seven English domains; three-retriever macro; 1{,}000-resample paired bootstrap). The Hit@5 deltas are two-sided significant (95\% CIs: RADP-Distill $[+0.35, +2.15]$, R2 $[+0.35, +1.43]$, R3 $[+0.24, +1.84]$). The other columns are monotone re-cuts of the same per-system ranked list, reported only because practitioners use different cutoffs. RADP-Distill leads at the primary metric Hit@5; R3 reaches higher Hit@1 and MRR@10 point estimates but with overlapping CIs---no evidence the retrieval reward helps at the powered endpoint (\S\ref{sec:c4}).}
 \label{tab:ohr}
 \end{table*}
 
@@ -306,11 +322,11 @@ fixed500\_ov200 & 79.8\% & 0.0\% & 20.2\% \\
 This appendix tabulates the controlled-noise grid behind the cross-domain mechanism finding of \S\ref{sec:c1c2}: twelve OHR-Bench parser-output perturbations (three parser families $\times$ four semantic-noise severities), each scored for Boundary Clarity and \rcps{} over all seven domains (2{,}264 Q--A, three-retriever average).
 
 \begin{table}[h]
-\centering\footnotesize
-\setlength{\tabcolsep}{4pt}
+\centering\scriptsize
+\setlength{\tabcolsep}{1pt}
 \begin{tabular}{lcc}
 \toprule
-Family & BC (clean$\to$severe) & \rcps{} (clean$\to$severe) \\
+Family & BC (clean$\to$sev.) & \rcps{} (clean$\to$sev.) \\
 \midrule
 MinerU & 0.735/0.708/0.715/0.712 & 0.496/0.413/0.351/0.243 \\
 Qwen2.5-VL & 0.619/0.614/0.616/0.610 & 0.467/0.462/0.460/0.429 \\

@@ -187,8 +187,8 @@ def main():
             cell(gt, r, c, txt, size=(8.5 if r == 0 else 9.5), color=col,
                  bold=bd, fill=fl)
     tbox(s, x1 + 0.14, y1b + h1b - 1.05, cw - 0.28, 0.95,
-         [[R("parser choice alone swings Hit@1 by ", 10.5, DARK),
-           R("2.8×", 12.5, BLUE, bold=True)],
+         [[R("parser choice alone moves Hit@1 by ", 10.5, DARK),
+           R("+35.2pp (2.8×)", 12.5, BLUE, bold=True)],
           [R("appearance metrics measure formatting, not content", 9, DARK)],
           [R("(anti-correlation  r = −0.81,  n = 5)", 8.5, GREY, italic=True)]],
          align=PP_ALIGN.CENTER, lead=1.4)
@@ -261,7 +261,7 @@ def main():
              anchor=MSO_ANCHOR.MIDDLE)
     tbox(s, x3 + 0.14, y3b + h3b - 0.66, cw - 0.28, 0.6,
          [[R("≈  overlapping CIs → equal gain", 9.5, DARK, bold=True)],
-          [R("retrieval reward unnecessary; lever = fidelity distillation", 9,
+          [R("no evidence reward helps; lever = fidelity distillation", 9,
              GREEN, bold=True)]], align=PP_ALIGN.CENTER, lead=1.28)
 
     # ---- flow chevrons between columns ----
