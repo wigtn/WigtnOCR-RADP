@@ -214,7 +214,7 @@ def main():
     tbox(s, x2 + 0.14, by + bh + 0.34, cw - 0.28, 0.66,
          [[R("absent = answer never made it into the parser output ", 9, DARK),
            R("(parser-side failure)", 9, RED, bold=True)],
-          [R("constant across all 8 chunkers → chunking can't recover it", 8.8,
+          [R("set before chunking → no chunker can recover it", 8.8,
              GREY, italic=True)]], align=PP_ALIGN.CENTER, lead=1.3)
 
     y2b = top + h2a + 0.16; h2b = BOT - y2b
