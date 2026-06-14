@@ -52,7 +52,7 @@ generator). No prior work selects, or trains, the L1 parser itself on a retrieva
 |---|---|---|
 | **C1** | The parsing↔retrieval **disconnect** and its mechanism. Under controlled semantic-noise perturbations on English OHR-Bench, Boundary Clarity stays flat while retrieval collapses — intrinsic boundary metrics track *formatting*, not *content*. | BC↔RCPS **r = −0.81** (n=5); parser choice alone moves **Hit@1 by +35.1 pp** (0.197→0.549; 2.8×) |
 | **C2** | A **retriever-free coverage diagnostic** — classify each answer *covered / split (chunker fault) / absent (parser fault)*; a rule computable *before* any retriever runs. | **20.2% absent** vs ≤2.3% split, constant across 8 chunkers ⇒ fix the parser |
-| **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. Ablation: it is **not** single-embedder MRR. | retriever-averaging flips the top parser; **Kendall τ = 0.87** vs naive MRR |
+| **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. Ablation: it is **not** single-embedder MRR. | retriever-averaging flips the top parser; **Kendall τ = 0.80** vs naive MRR |
 | **C4** | A **bounded** map of parser-side training. Best-of-K **fidelity distillation** is the lever; the retrieval-reward apparatus adds nothing over it. RADP-aux sub-threshold, SimPO negative. | **RADP-Distill +1.22 pp** OHR-Bench Hit@5 [+0.35, +2.15] (n=2,264) |
 
 ---
@@ -129,7 +129,7 @@ likewise uninformative (CS↔RCPS r = +0.26).
 | PaddleOCR | — | 3.46 | 0.140 | 0.125 |
 | Marker (38p) | **0.717** | 3.41 | 0.073 | 0.068 |
 
-*KoGov parser grid (Appendix D). BC vs RCPS, r = −0.81 (n = 5, excl. PaddleOCR; dropping Marker → n = 4, r = −0.74).*
+*KoGov parser grid (paper §4.3, Table 1). BC vs RCPS, r = −0.81 (n = 5, excl. PaddleOCR; leave-one-out r ∈ [−0.74, −0.97], so not a single-point effect). Marker on its 38-page subset, excluded from full-set rank comparisons.*
 
 ### C1 — the mechanism (cross-domain, OHR-Bench)
 
@@ -157,10 +157,10 @@ a **parser** problem, which licenses the parser-side intervention in C4.
 | LumberChunker | 0.557 | 0.514 | 0.580 |
 | fixed500 | 0.535 | 0.491 | 0.560 |
 
-*KoGov chunking grid (663 Q–A, Prod output, 3-retriever RCPS average).* **Ablation:** dropping
+*KoGov chunking grid (663 Q–A, Prod output, 3-retriever RCPS average).* **Ablation (five full-set parsers, Marker excluded):** dropping
 retriever-averaging (single embedder BGE-M3) **inverts the top parser** (ranks Prod first; full RCPS ranks
-the 30B teacher first), while format-invariance shifts scores but not order. The ordering disagreement
-(**Kendall τ = 0.87**) shows RCPS is a protocol, not a relabelled MRR.
+the 30B teacher first), while format normalisation shifts scores but not order. The rankings otherwise agree
+(**Kendall τ = 0.80**); RCPS is an operational protocol, not a relabelled MRR.
 
 ### C4 — parser-side training: a bounded, reward-agnostic lever
 

@@ -41,7 +41,7 @@ RAG에 쓰이는 문서 파서는 보통 **내재적(intrinsic) "깨끗함" 지�
 |---|---|---|
 | **C1** | parsing↔retrieval **disconnect**와 메커니즘. 영어 OHR-Bench에 semantic-noise를 주입하면 BC는 평평한데 검색은 붕괴 — 내재적 지표는 *형식*만 보고 *내용*을 못 본다. | BC↔RCPS **r = −0.81** (n=5); 파서 선택만으로 **Hit@1 +35.1 pp** (0.197→0.549; 2.8×) |
 | **C2** | **retriever-free coverage 진단** — 답을 *covered / split(청커 결함) / absent(파서 결함)* 로 분류. retriever 돌리기 *전에* 쓰는 규칙. | **20.2% absent** vs ≤2.3% split, 8개 chunker 전반 일정 ⇒ 파서를 고쳐라 |
-| **C3** | **RCPS** — retriever-평균·format-normalised·held-out Q–A **프로토콜**, 학습 없이 파서·청커 선택. ablation: single-embedder MRR이 **아님**. | retriever-평균이 top 파서를 뒤집음; naive MRR 대비 **Kendall τ = 0.87** |
+| **C3** | **RCPS** — retriever-평균·format-normalised·held-out Q–A **프로토콜**, 학습 없이 파서·청커 선택. ablation: single-embedder MRR이 **아님**. | retriever-평균이 top 파서를 뒤집음; naive MRR 대비 **Kendall τ = 0.80** |
 | **C4** | 파서측 학습의 **경계** 지도. best-of-K **fidelity distillation**이 lever, retrieval-reward 장치는 그 위에 아무것도 더하지 않음. RADP-aux sub-threshold, SimPO negative. | **RADP-Distill +1.22 pp** OHR-Bench Hit@5 [+0.35, +2.15] (n=2,264) |
 
 ---
@@ -94,7 +94,7 @@ BC가 RCPS와 **Pearson r = −0.81 (n = 5**, BC 미정의인 PaddleOCR 제외)�
 | PaddleOCR | — | 3.46 | 0.140 | 0.125 |
 | Marker (38p) | **0.717** | 3.41 | 0.073 | 0.068 |
 
-*KoGov parser grid (Appendix D). BC vs RCPS, r = −0.81 (n = 5, PaddleOCR 제외; Marker도 빼면 n = 4, r = −0.74).*
+*KoGov parser grid (논문 §4.3, Table 1). BC vs RCPS, r = −0.81 (n = 5, PaddleOCR 제외; leave-one-out r ∈ [−0.74, −0.97]로 단일점 효과 아님). Marker는 38p subset이라 full-set 순위 비교에서 제외.*
 
 ### C1 — 메커니즘 (cross-domain, OHR-Bench)
 
@@ -115,7 +115,7 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 답의 **20.2%�
 | LumberChunker | 0.557 | 0.514 | 0.580 |
 | fixed500 | 0.535 | 0.491 | 0.560 |
 
-*KoGov 청킹 grid (663 Q–A, Prod 출력, 3-retriever RCPS 평균).* **Ablation:** retriever-평균을 빼고 단일 embedder(BGE-M3)로 채점하면 **top 파서가 뒤집힘**(Prod 1위; full RCPS는 30B teacher 1위), format-invariance는 점수만 옮기고 순서는 유지. 순위 불일치(**Kendall τ = 0.87**)가 RCPS가 relabel된 MRR이 아니라 프로토콜임을 입증.
+*KoGov 청킹 grid (663 Q–A, Prod 출력, 3-retriever RCPS 평균).* **Ablation (full-set 5개 파서, Marker 제외):** retriever-평균을 빼고 단일 embedder(BGE-M3)로 채점하면 **top 파서가 뒤집힘**(Prod 1위; full RCPS는 30B teacher 1위), format 정규화는 점수만 옮기고 순서는 유지. 순위는 대체로 일치(**Kendall τ = 0.80**)하되 top pair만 뒤집힘 — RCPS가 relabel된 MRR이 아니라 운영 프로토콜임을 입증.
 
 ### C4 — 파서측 학습: 경계 있는, reward-agnostic lever
 
