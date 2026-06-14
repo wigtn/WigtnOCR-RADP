@@ -248,16 +248,16 @@ def main():
     subzone(s, x3, top, w3, h3a, "C4 · Parser-side training", GREEN, GREENF)
     tbox(s, x3 + 0.14, top + 0.44, w3 - 0.28, 0.4,
          [[R("best-of-K parses from Prod, ranked two ways:", 9.5, DARK)]])
-    rrect(s, x3 + 0.2, top + 0.82, w3 - 0.4, 0.42, GREENF, GREEN, 1.0)
-    tbox(s, x3 + 0.22, top + 0.82, w3 - 0.44, 0.42,
-         [[R("RADP-Distill — edit-distance → ref", 9.5, GREEN, bold=True)]],
-         anchor=MSO_ANCHOR.MIDDLE)
-    tbox(s, x3, top + 1.26, w3, 0.20, [[R("vs", 11, DARK, bold=True)]],
-         align=PP_ALIGN.CENTER)
-    rrect(s, x3 + 0.2, top + 1.48, w3 - 0.4, 0.42, AMBERF, AMBER, 1.0)
-    tbox(s, x3 + 0.22, top + 1.48, w3 - 0.44, 0.42,
-         [[R("RADP-DPO — page-local RCPS", 9.5, AMBER, bold=True)]],
-         anchor=MSO_ANCHOR.MIDDLE)
+    rrect(s, x3 + 0.2, top + 0.88, w3 - 0.4, 0.44, GREENF, GREEN, 1.0)
+    tbox(s, x3 + 0.22, top + 0.88, w3 - 0.44, 0.44,
+         [[R("RADP-Distill — edit-distance → ref", 9.3, GREEN, bold=True)],
+          [R("(reward-free control)", 7.8, GREY, italic=True)]],
+         anchor=MSO_ANCHOR.MIDDLE, lead=1.05)
+    rrect(s, x3 + 0.2, top + 1.42, w3 - 0.4, 0.44, AMBERF, AMBER, 1.0)
+    tbox(s, x3 + 0.22, top + 1.42, w3 - 0.44, 0.44,
+         [[R("RADP-DPO — page-local RCPS", 9.3, AMBER, bold=True)],
+          [R("(retrieval reward)", 7.8, GREY, italic=True)]],
+         anchor=MSO_ANCHOR.MIDDLE, lead=1.05)
 
     y3b = top + h3a + 0.16; h3b = BOT - y3b
     subzone(s, x3, y3b, w3, h3b, "Result", GREEN, GREENF)
