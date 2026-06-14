@@ -210,11 +210,11 @@ def main():
          [[R("extrinsic · retriever-averaged · format-normalised", 9.2, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
     tbox(s, x2 + 0.12, top + 1.80, w2 - 0.24, 0.22,
-         [[R("no training · no manual relevance labels", 8.8, GREY, italic=True)]],
+         [[R("no training · no manual chunk labels", 8.8, GREY, italic=True)]],
          align=PP_ALIGN.CENTER)
     tbox(s, x2 + 0.12, top + h2a - 0.52, w2 - 0.24, 0.46,
          [[R("→ rank parsers & chunkers by retrieval", 10.5, AMBER, bold=True)],
-          [R("picks Prod (RCPS 0.583) over MinerU (0.212)", 9, DARK)]],
+          [R("ranks Prod far above MinerU (0.583 vs 0.212)", 9, DARK)]],
          align=PP_ALIGN.CENTER, lead=1.25)
 
     # C3 -> C2 connector: C2 is the follow-up step when the C3 score is low
@@ -248,14 +248,14 @@ def main():
     subzone(s, x3, top, w3, h3a, "C4 · Parser-side training", GREEN, GREENF)
     tbox(s, x3 + 0.14, top + 0.44, w3 - 0.28, 0.4,
          [[R("best-of-K parses from Prod, ranked two ways:", 9.5, DARK)]])
-    rrect(s, x3 + 0.2, top + 0.86, w3 - 0.4, 0.46, GREENF, GREEN, 1.0)
-    tbox(s, x3 + 0.22, top + 0.86, w3 - 0.44, 0.46,
+    rrect(s, x3 + 0.2, top + 0.82, w3 - 0.4, 0.42, GREENF, GREEN, 1.0)
+    tbox(s, x3 + 0.22, top + 0.82, w3 - 0.44, 0.42,
          [[R("RADP-Distill — edit-distance → ref", 9.5, GREEN, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
-    tbox(s, x3, top + 1.34, w3, 0.22, [[R("≈", 13, DARK, bold=True)]],
+    tbox(s, x3, top + 1.26, w3, 0.20, [[R("vs", 11, DARK, bold=True)]],
          align=PP_ALIGN.CENTER)
-    rrect(s, x3 + 0.2, top + 1.42, w3 - 0.4, 0.42, AMBERF, AMBER, 1.0)
-    tbox(s, x3 + 0.22, top + 1.42, w3 - 0.44, 0.42,
+    rrect(s, x3 + 0.2, top + 1.48, w3 - 0.4, 0.42, AMBERF, AMBER, 1.0)
+    tbox(s, x3 + 0.22, top + 1.48, w3 - 0.44, 0.42,
          [[R("RADP-DPO — page-local RCPS", 9.5, AMBER, bold=True)]],
          anchor=MSO_ANCHOR.MIDDLE)
 
@@ -274,7 +274,7 @@ def main():
              anchor=MSO_ANCHOR.MIDDLE)
     tbox(s, x3 + 0.14, y3b + h3b - 0.66, w3 - 0.28, 0.6,
          [[R("substantially overlapping CIs", 9.5, DARK, bold=True)],
-          [R("no evidence reward helps; lever = fidelity distillation", 9,
+          [R("no evidence retrieval reward beats fidelity control", 9,
              GREEN, bold=True)]], align=PP_ALIGN.CENTER, lead=1.28)
 
     # ---- flow chevrons between columns ----
