@@ -1,98 +1,104 @@
 # WigtnOCR-RADP
 
-**Retrieval-Aware Document Parsing — human-readable parsing ≠ retrievable parsing.**
+**Retrieval-Aware Document Parsing (RADP) — the parser that *looks* best is not the one retrieval wants.**
 
-> 🎯 **EMNLP 2026 Industry Track** submission · paper draft **v0.6** · deadline 2026-06-16
+> 🎯 **EMNLP 2026 Industry Track** submission · paper draft **v0.8** (2026-06-07) · deadline 2026-06-16
+>
+> 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance*
 >
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
 >
-> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 Research direction: [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) (KO) · 🗓️ Timeline: [`docs/TIMELINE.md`](docs/TIMELINE.md)
+> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) (KO) · 🗓️ [`docs/TIMELINE.md`](docs/TIMELINE.md)
 
 ---
 
 ## TL;DR
 
-Document parsers used in retrieval-augmented generation (RAG) are conventionally optimized for
-*human-readability* metrics — TEDS, edit distance, Boundary Clarity — yet these metrics **do not
-predict downstream retrieval**. On Korean government documents (6 parsers × 3 retrievers × 663 Q-A),
-MoC Boundary Clarity *anti*-correlates with retrieval at **Pearson r = −0.81**: the parser scoring
-highest on the intrinsic metric (MinerU) is the *worst* retriever.
+Document parsers used in retrieval-augmented generation (RAG) are conventionally chosen by *intrinsic*
+"clean output" metrics — edit distance, Boundary Clarity — on the assumption that cleaner parser output
+retrieves better. **It doesn't.** On Korean government documents (6 parsers × 3 retrievers × 663 Q–A),
+MoC Boundary Clarity **anti-correlates** with retrieval at **Pearson r = −0.81 (n = 5)**: the
+cleanest-boundary parser (MinerU) is the *worst* retriever, and choosing the parser by retrieval rather
+than by appearance changes **Hit@1 by +35.1 pp (0.197 → 0.549; 2.8× relative)**.
 
-We (C1) diagnose this disconnect cross-domain and expose its mechanism, (C2) propose **RCPS**
-(Retrieval-Conditional Parsing Score), a retriever-agnostic task-oriented metric, and (C3) introduce
-**RADP-DPO** — retrieval-reward direct preference optimization on the parser's discrete markdown output.
-RADP-DPO improves **Hit@5 by +2.11 pp on KoGov** (P[Δ>0] = 0.91) and, critically, by **+1.03 pp on the
-English OHR-Bench (n = 2,264) with two-sided significance, clearing the 1 pp practitioner bar**. We also
-report two bounding negatives — a hidden-state auxiliary loss (RADP-aux) and reference-free SimPO — that
-locate *where* the retrieval signal can be plumbed into the parser.
+**Selection, not training, is the headline.** We make four contributions:
+
+- **C1** — diagnose the parsing↔retrieval disconnect and its mechanism (intrinsic metrics see *formatting*, not *content*).
+- **C2** — a **retriever-free coverage diagnostic** that localizes the fault to a pipeline layer: **20.2%** of answers are *absent* from the parser output (a parser fault), constant across 8 chunkers.
+- **C3** — **RCPS** (Retrieval-Conditional Parsing Score): a no-training, retriever-grounded **protocol** for choosing parsers *and* chunkers; an ablation shows it is not single-embedder MRR.
+- **C4** — a bounded map of parser-side training: best-of-K **fidelity distillation (RADP-Distill)** gives **+1.22 pp OHR-Bench Hit@5**, and a matched control shows **no evidence the retrieval reward improves over fidelity-based selection** (substantially overlapping CIs). A hidden-state auxiliary loss (RADP-aux) is sub-threshold and reference-free SimPO is negative.
+
+We release **KoGovDoc-RAG** (663 Q–A over 294 Korean government pages) with a reference implementation of RCPS and the RADP-Distill checkpoint.
 
 ---
 
 ## Motivation — parsing quality ≠ retrieval performance
 
 A practitioner picking a parser for a RAG system runs MinerU on Korean government PDFs, confirms it tops
-every intrinsic parsing-quality metric in our grid — highest MoC Boundary Clarity (0.72) — and deploys it.
-Retrieval Hit@1 is **0.20, the worst of the six parsers evaluated.** The cleanest-looking parser is the
-worst retriever.
+the intrinsic parsing-quality grid — highest MoC Boundary Clarity (0.72), matched only by Marker — and
+ships it. Retrieval Hit@1 is **0.20, the worst of the six parsers evaluated.** The cleanest-looking parser
+is the worst retriever.
 
 This is not a one-off. The same direction is reported independently in English / enterprise settings by
-OHR-Bench (ICCV 2025), EnterpriseDocBench (2026, r ≈ 0.14), and *When Good OCR Is Not Enough* (2026).
-**Prior work either stops at diagnosis or trains a different pipeline layer (chunking → generation). No
-prior work trains the L1 parser itself on a retrieval signal — that is our niche.**
+OHR-Bench (ICCV 2025), EnterpriseDocBench (2026), and *When Good OCR Is Not Enough* (2026).
+**Prior work either stops at diagnosis or trains a different pipeline layer (chunking → retriever →
+generator). No prior work selects, or trains, the L1 parser itself on a retrieval signal — that is our niche.**
 
 ---
 
 ## Contributions
 
-| | Contribution | Status |
-|---|---|:---:|
-| **C1** | A cross-domain **diagnostic** of the parsing↔retrieval disconnect, with a mechanism (noise-family curve, Figure 2) that makes the intrinsic-metric failure mode visible at a glance | ✅ |
-| **C2** | **RCPS** (Retrieval-Conditional Parsing Score) — a retriever-agnostic, task-oriented metric to choose parsers/chunkers for production RAG, discriminating combinations intrinsic metrics conflate | ✅ |
-| **C3** | **RADP-DPO** — retrieval-reward DPO on the parser's discrete markdown output. **+2.11 pp Hit@5 on KoGov** (P = 0.91); **+1.03 pp on English OHR-Bench, two-sided significant, clears the 1 pp bar** | ✅ |
-| bound | Two negatives locate the working parameterisation: hidden-state **RADP-aux** (+1–3 pp, below the 5 pp gate) and reference-free **SimPO** (negative). The signal must enter through the *discrete output*, anchored to a reference policy | ✅ |
+| | Contribution | Headline result |
+|---|---|---|
+| **C1** | The parsing↔retrieval **disconnect** and its mechanism. Under controlled semantic-noise perturbations on English OHR-Bench, Boundary Clarity stays flat while retrieval collapses — intrinsic boundary metrics track *formatting*, not *content*. | BC↔RCPS **r = −0.81** (n=5); parser choice alone moves **Hit@1 by +35.1 pp** (0.197→0.549; 2.8×) |
+| **C2** | A **retriever-free coverage diagnostic** — classify each answer *covered / split (chunker fault) / absent (parser fault)*; a rule computable *before* any retriever runs. | **20.2% absent** vs ≤2.3% split, constant across 8 chunkers ⇒ fix the parser |
+| **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. Ablation: it is **not** single-embedder MRR. | retriever-averaging flips the top parser; **Kendall τ = 0.80** vs naive MRR |
+| **C4** | A **bounded** map of parser-side training. Best-of-K **fidelity distillation** is the lever; the retrieval-reward apparatus adds nothing over it. RADP-aux sub-threshold, SimPO negative. | **RADP-Distill +1.22 pp** OHR-Bench Hit@5 [+0.35, +2.15] (n=2,264) |
 
 ---
 
 ## Method
 
-### RCPS — Retrieval-Conditional Parsing Score
+### RCPS — Retrieval-Conditional Parsing Score (C3)
 
-Score a parser by what *downstream retrieval* can do with its output, not by how clean the output looks.
-Given a parser `P`, a Q-A set `D = {(qᵢ, aᵢ, pageᵢ)}`, retrievers `R`, and cutoffs `K`:
+Score a parser by what *downstream retrieval* does with its output, not by how clean the output looks.
+RCPS is **not a new similarity function** but a protocol wrapping ordinary retrieval MRR in three choices:
+**(i) extrinsic** (score on a held-out Q–A probe, not on the text), **(ii) retriever-averaged** (over
+several embedders, so the ranking does not hinge on the production one), **(iii) format-normalised**
+relevance (a chunk is relevant iff its text contains the answer span, however formatted).
 
 ```
 RCPS(P, D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K}  MRR@k( r, chunks_P(D), {qᵢ} )
 ```
 
 `R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`; `K = {1, 5, 10}`. A chunk is **relevant** iff
-its source page matches the answer's page and the gold span is a substring of the chunk (normalized).
-Averaging over retrievers makes the score **robust to embedder choice**. Reference implementation:
+its source page matches the answer's page and the gold span is a substring of the chunk (whitespace- and
+markdown-insensitive). Run on a few hundred held-out Q–A with **no training**. Reference implementation:
 [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
-### RADP-DPO — retrieval-reward preference learning on discrete output (C3)
+### Coverage diagnostic — parser vs chunker (C2)
 
-Optimize the parser's **discrete markdown output** directly against a retrieval reward. For each train page
-we sample K candidate parses from the production parser v1, chunk + index + score each against the page's
-Q-A with a **retrieval reward**, and form preference pairs `(parse_chosen, parse_rejected)` whose page-local
-RCPS gap exceeds a threshold. DPO is then applied to the parser:
+RCPS scores parser + chunker + retriever jointly, so a low score does not say *which* layer is at fault.
+Holding the parser output fixed and varying the chunker, classify each gold answer as **covered**, **split**
+(a boundary cut through it — a chunker fault, recoverable with overlap) or **absent** (not in the parser
+output at all — a parser fault, unrecoverable by any chunking). The rule: *if absent dominates, fix the
+parser; if split dominates, fix the chunker.* Code: [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
 
-```
-L_DPO = −log σ( β · [ (log π_θ(c) − log π_θ(r)) − (log π_ref(c) − log π_ref(r)) ] )
-```
+### Parser-side training — what works, and what doesn't (C4)
 
-- **LoRA-toggle reference trick.** Instead of two model copies (2× memory), `π_θ` = production parser with
-  LoRA **on**, `π_ref` = the same base weights with LoRA **off**. One accelerator, no duplication.
-- **Reward sharpening R1 → R2 → R3.** R1 (page-local RCPS, BGE-only, β = 0.1) → R2 (warmstarted iterative
-  round, β = 0.05) → **R3 (full-corpus hard-negative pool, K = 14 candidates)** — distractors are the
-  *other-page chunks a retriever actually confuses with the gold answer*. Sharpening the reward lifts the
-  effect above 1 pp.
+When the coverage diagnostic points to the parser, we test parser-side training from both natural directions.
 
-### RADP-aux — hidden-state contrastive auxiliary loss (bounding negative)
-
-The alternative parser-side fix routes the retrieval signal through the parser's *hidden* states:
-`L_total = L_parse + λ · L_contrast` (InfoNCE between the parser's pooled answer-chunk hidden state and the
-frozen BGE-M3 embedding). This is **sub-threshold** (§ Experiments) — the signal reaches the deployed
-markdown only via diffuse gradient backflow through `L_parse`.
+- **RADP-aux** *(hidden-state auxiliary loss — sub-threshold).* `L_total = L_parse + λ·L_contrast` (InfoNCE
+  between the parser's pooled answer-span hidden state and the frozen BGE-M3 embedding). The signal reaches
+  the deployed markdown only via diffuse gradient back-flow; **below threshold**.
+- **RADP-DPO** *(discrete-output retrieval-reward DPO).* Sample K parses from the production parser, score
+  each by a page-local RCPS, form preference pairs, and train with a **LoRA-toggle reference** (`π_θ` = LoRA
+  on, `π_ref` = LoRA off — one accelerator, no model copy). Reward sharpened across milestones **R1 → R2 → R3**.
+- **RADP-Distill** *(reward-agnostic control — the recommended lever).* The **identical** best-of-K pipeline,
+  but candidates are ranked by **edit-distance to the ground-truth markdown** instead of page-local RCPS.
+  Its CI substantially overlaps RADP-DPO's ⇒ **no evidence the retrieval reward helps**; the lever is fidelity distillation.
+- **SimPO** *(reference-free control — negative).* Removing the reference policy is uniformly negative,
+  confirming the reference anchoring is load-bearing.
 
 ---
 
@@ -100,43 +106,49 @@ markdown only via diffuse gradient backflow through `L_parse`.
 
 ### Setup
 
-- **KoGovDoc-RAG** — 663 Q-A / 294 pages of Korean government documents (GPT-5.4-generated, LLM-as-judge
-  94/100 accept). RADP-DPO/SimPO + the mechanism analysis use the combined **242-page / 663-Q-A** fold;
-  RADP-aux uses the **73-page / 202-Q-A** held-out fold; +6,164 train Q-A on the 2,667-page v1 train set.
-- **OHR-Bench** — cross-domain English replication, 7 domains, **2,264 verbatim-answerable Q-A**; 15
-  parser-output variants (3 real + 3 formatting-noise + 9 semantic-noise) for the C1 mechanism.
-- **Model** — Qwen3-VL-2B-Instruct + LoRA (r = 8, α = 32). All RCPS uses the 3 retrievers × 3 cutoffs above;
-  deltas use paired percentile bootstrap (10k resamples).
+- **KoGovDoc-RAG** — 663 Q–A / 294 pages of Korean government documents (`gpt-5.4` generated, LLM-as-judge
+  94/100 accept). DPO/SimPO + mechanism use the combined **242-page / 663-Q–A** fold; RADP-aux uses a 73-page
+  held-out fold; +6,164 train Q–A on the 2,667-page Prod train set.
+- **OHR-Bench** — cross-domain English replication, 7 domains, **2,264 verbatim-answerable Q–A**; 15
+  parser-output variants (3 real + 3 formatting-noise + 9 semantic-noise) drive the C1 mechanism.
+- **Model** — **Prod** = Qwen3-VL-2B fine-tuned for Korean document parsing; LoRA (r=8, α=32). All RCPS uses
+  3 retrievers × 3 cutoffs; deltas use paired percentile bootstrap.
 
-### C1 — the parsing↔retrieval disconnect (Korean government docs)
+### C1 — the disconnect (Korean government docs)
 
-Intrinsic Boundary Clarity **anti-correlates** with RCPS at **Pearson r = −0.81** (n = 5). MinerU —
-cleanest boundaries (BC 0.72) — retrieves **worst**. (Chunk Stickiness is likewise disconnected.)
+Boundary Clarity **anti-correlates** with RCPS at **Pearson r = −0.81 (n = 5**, excl. PaddleOCR whose BC is
+undefined). The cleanest-boundary parsers (MinerU, Marker; BC ≈ 0.72) retrieve worst. Chunk Stickiness is
+likewise uninformative (CS↔RCPS r = +0.26).
 
-| Parser | BC | RCPS | Hit@1 |
-|---|:---:|:---:|:---:|
-| Qwen3-VL-30B (teacher) | 0.691 | **0.584** | 0.545 |
-| WigtnOCR-2B (ours, v1) | 0.694 | 0.583 | 0.549 |
-| Qwen3-VL-2B (base) | 0.677 | 0.532 | 0.500 |
-| MinerU | **0.722** | 0.212 | 0.197 |
-| PaddleOCR | 0.649 | 0.140 | 0.125 |
-| Marker (38p) | 0.667 | 0.073 | 0.068 |
+| Parser | BC | CS | RCPS | Hit@1 |
+|---|:---:|:---:|:---:|:---:|
+| Qwen3-VL-30B (teacher) | 0.623 | 3.38 | **0.584** | 0.545 |
+| **Prod (ours, 2B)** | 0.610 | 3.07 | 0.583 | 0.549 |
+| Qwen3-VL-2B (base) | 0.520 | 3.74 | 0.532 | 0.500 |
+| MinerU | 0.716 | 2.81 | 0.212 | 0.197 |
+| PaddleOCR | — | 3.46 | 0.140 | 0.125 |
+| Marker (38p) | **0.717** | 3.41 | 0.073 | 0.068 |
 
-*Table 1 — KoGov: BC vs RCPS, Pearson r = −0.81 (n = 5, excl. Marker).*
+*KoGov parser grid (paper §4.3, Table 1). BC vs RCPS, r = −0.81 (n = 5, excl. PaddleOCR; leave-one-out r ∈ [−0.74, −0.97], so not a single-point effect). Marker on its 38-page subset, excluded from full-set rank comparisons.*
 
 ### C1 — the mechanism (cross-domain, OHR-Bench)
 
-Within each semantic-noise family, **Boundary Clarity barely moves while RCPS collapses.** Intrinsic
-boundary metrics see only *formatting*, not *content*.
+Within each semantic-noise family, **Boundary Clarity barely moves while RCPS collapses** — MinerU RCPS
+0.50 → 0.24 (−51%) with BC flat at 0.71–0.74; GOT 0.38 → 0.26; Qwen2.5-VL noise-robust (0.47 → 0.43, −8%).
+Intrinsic boundary metrics see *formatting*, not the *content* retrieval depends on. (The aggregate
+cross-variant scalar is document-mix sensitive — we report the per-family mechanism, which replicates in
+every domain, as the robust finding.)
 
-![Boundary Clarity is blind to content noise — top: BC stays flat across noise severity for all three parser families; bottom: RCPS collapses for MinerU and GOT while Qwen2.5-VL is noise-robust](paper/figures/fig_noise_family.png)
+![Boundary Clarity is blind to content noise](paper/figures/fig_noise_family.png)
 
-*Figure 2 — OHR-Bench 7-domain noise-family curves. **Top:** Boundary Clarity stays roughly flat across
-noise severity (clean → mild → moderate → severe). **Bottom:** RCPS collapses for MinerU (−51%) and GOT,
-while Qwen2.5-VL is more noise-robust (−8%). The intrinsic metric does not perceive the semantic content
-quality retrieval depends on.*
+### C2 — coverage diagnostic localizes the fault to the parser
 
-### C2 — RCPS discriminates chunking strategies
+On Prod's output (294 pages, 663 Q–A, **no retriever**), **20.2% of answers are absent** and at most **2.3%
+are split**, with the absent rate **constant across all eight chunkers** — exactly the boundary-independence
+a parser fault must show. One answer in five is never produced, so no re-chunking can recover it: the gap is
+a **parser** problem, which licenses the parser-side intervention in C4.
+
+### C3 — RCPS discriminates chunkers, and is not single-embedder MRR
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
@@ -145,82 +157,59 @@ quality retrieval depends on.*
 | LumberChunker | 0.557 | 0.514 | 0.580 |
 | fixed500 | 0.535 | 0.491 | 0.560 |
 
-*Table 3 — KoGov chunking-strategy grid (663 Q-A, v1 parser output, 3-retriever RCPS average).*
+*KoGov chunking grid (663 Q–A, Prod output, 3-retriever RCPS average).* **Ablation (five full-set parsers, Marker excluded):** dropping
+retriever-averaging (single embedder BGE-M3) **inverts the top parser** (ranks Prod first; full RCPS ranks
+the 30B teacher first), while format normalisation shifts scores but not order. The rankings otherwise agree
+(**Kendall τ = 0.80**); RCPS is an operational protocol, not a relabelled MRR.
 
-### C3 — RADP-DPO improves Hit@5 by ≈ 2 pp (the positive result)
+### C4 — parser-side training: a bounded, reward-agnostic lever
 
-On the 242-page / 663-Q-A KoGov fold, every RADP-DPO variant improves Hit@5 on `parser_native` over v1,
-increasing along the reward-sharpening axis. At n = 663 the two-sided CIs still span zero (strong-directional,
-P[Δ>0] ≈ 0.90); the cross-domain OHR-Bench replication supplies the two-sided significance.
+The pre-specified confirmatory test is the cross-domain **OHR-Bench** replication (training signal,
+evaluation metric, and document language mutually disjoint). **RADP-Distill** (edit-distance distillation,
+**no retrieval reward**) is the headline and the recommended recipe:
 
-| Variant | Hit@5 (v1 = 0.6863) | ΔHit@5 vs v1 (pp) [95% CI] | P[Δ>0] | ΔHit@10 | ΔRCPS |
+| Δ vs Prod (pp) | Hit@1 | Hit@5 | Hit@10 | MRR@10 | nDCG@5 |
 |---|:---:|:---:|:---:|:---:|:---:|
-| **RADP-DPO-v5** (R3, hard-neg) | 0.7074 | **+2.11 [−0.96, +5.13]** | **0.91** 🔶 | +2.21 | +1.72 |
-| **RADP-DPO-v1** (R1, BGE β=0.1) | 0.7069 | **+2.06 [−0.96, +5.13]** | **0.91** 🔶 | +1.81 | +0.57 |
-| **RADP-DPO-v4** (R2, warmstart β=0.05) | 0.7059 | **+1.96 [−1.06, +5.03]** | **0.90** 🔶 | +1.71 | +0.47 |
-| RADP-SimPO (ref-free control) | 0.6793 | −0.70 [−3.77, +2.31] | 0.32 | −0.96 | −1.56 |
+| **RADP-Distill** (headline) | **+0.88** | **+1.22** | **+1.32** | **+1.01** | **+1.05** |
+| RADP-DPO R2 (retrieval reward) | +0.53 | +0.85 | +0.81 | +0.70 | +0.74 |
+| RADP-DPO R3 (hard-negative) | +1.31 | +1.03 | +0.81 | +1.17 | +1.15 |
 
-*Table 5 — RADP-DPO progression (R1→R2→R3) + SimPO control on parser_native, 242-page fold, 10k paired
-bootstrap. 🔶 = P[Δ>0] ≥ 0.85. A 3-seed merge tightens R1 to +1.16 pp [−0.64, +2.90] (P = 0.90).*
+*OHR-Bench cross-domain, 3-retriever macro, 1k paired bootstrap. Hit@5 two-sided significant (95% CIs:
+Distill [+0.35, +2.15], R2 [+0.35, +1.43], R3 [+0.24, +1.84]). RADP-Distill matches/leads RADP-DPO at the
+primary metric Hit@5 ⇒ the retrieval reward buys nothing over plain fidelity distillation.*
 
-**Cross-domain validation (English OHR-Bench, n = 2,264) — clears the 1 pp bar with two-sided significance.**
-The Korean-tuned v1 parser, applied zero-shot, retrieves at Hit@5 = 58.5%. The hard-negative variant **R3
-(RADP-DPO-v5)** improves every standard metric, two-sided significant and above 1 pp:
+On the exploratory KoGov fold (242 pages, n = 663) the RADP-DPO milestones reach +1.96 to +2.11 pp Hit@5
+(P[Δ>0] ≈ 0.90, two-sided non-significant at this fold size); RADP-Distill reaches **+2.61 pp** (P = 0.95).
+SimPO is uniformly negative (−0.7 to −1.7 pp).
 
-| Metric | Δ vs v1 (pp) | 95% CI |
-|---|:---:|:---:|
-| Hit@5 | **+1.03** | [+0.24, +1.84] |
-| Hit@1 | **+1.31** | [+0.55, +2.09] |
-| MRR@10 | **+1.17** | [+0.52, +1.86] |
-| nDCG@5 | **+1.15** | [+0.49, +1.86] |
-
-*Table 5b — OHR-Bench cross-domain, 3-retriever macro, 1k paired bootstrap, positive across all 7 domains.
-Training signal (retrieval reward on train Q-A), evaluation metric, and document language are mutually
-disjoint — ruling out metric circularity and domain over-fitting. Sharpening the reward from page-local
-(R2: Hit@5 +0.85 pp) to hard negatives (R3) lifts the effect above 1 pp (R3 > R2 on Hit@1, +0.78 pp).*
-
-**The gain transfers off the training-time scorer and concentrates on text-precision queries.** BGE-M3 was
-used to score preference pairs; the gain is *strongest on the held-out retrievers* (ml-e5 +2.41 pp, Qwen3-Emb
-+2.26 pp vs BGE +1.51 pp), ruling out a BGE-overfit, and concentrates on **factoid queries (+3.07 pp)** — the
-class where verbatim answer-span text drives retrieval (Table 6 in the paper).
-
-### C3 — mechanism: DPO tightens text fidelity, not chunking
+### C4 — mechanism: training tightens text fidelity, not chunking
 
 | Variant | BC ↑ | CS ↓ | TextNED ↓ vs GT |
 |---|:---:|:---:|:---:|
-| v1 (ref) | 0.630 | 0.474 | 0.175 |
-| **RADP-DPO-v1** | 0.646 | 0.474 | **0.122** |
-| **RADP-DPO-v4** | 0.647 | 0.476 | **0.119** |
-| RADP-aux λ=0.1 | 0.652 | 0.484 | 0.352 |
+| Prod (ref) | 0.630 | 0.474 | 0.240 |
+| **RADP-Distill** | 0.641 | — | **0.158** |
+| RADP-DPO R2 | 0.647 | 0.476 | **0.163** |
+| RADP-DPO R3 | 0.656 | 0.485 | 0.185 |
+| RADP-aux λ=0.1 | 0.652 | 0.484 | 0.423 |
 
-*Table 7 (excerpt) — RADP-DPO drops TextNED-vs-GT by 19–32% (0.175 → 0.119) while the **chunking signature
-is unchanged** (BC ≈ 0.63, CS ≈ 0.474, both indistinguishable from v1). The gain comes from *what* is parsed,
-not *how* chunks are split — and replicates cross-domain (OHR TextNED −2.5%, two-sided significant).*
-
-### Bounding negatives — RADP-aux and SimPO
-
-| λ | RCPS (md-h3) | Δ vs control [95% CI] | RCPS (parser-native) | Δ vs control [95% CI] |
-|---|:---:|:---:|:---:|:---:|
-| 0.0 (control) | 0.6551 | — | 0.6557 | — |
-| 0.1 | **0.6664** | +1.13 [−2.53, +4.95] | **0.6788** | +2.31 [−1.59, +6.30] |
-| 0.3 | 0.6526 | −0.25 [−4.03, +3.12] | 0.6694 | +1.37 [−2.35, +5.11] |
-| 0.5 | 0.6407 | −1.44 [−5.92, +2.62] | 0.6442 | −1.15 [−5.78, +3.50] |
-
-*Table 4 — RADP-aux λ sweep (73-page fold). Peak +1–3 pp, every Δ-vs-control CI includes 0, **below the
-pre-registered 5 pp gate**. Reference-free **SimPO** is uniformly negative (Table 5). Together these locate
-the working parameterisation: **discrete output + preference loss anchored to a reference policy**.*
+*Chunk-level mechanism (242-page fold). RADP-Distill drops TextNED-vs-GT furthest (0.240 → 0.158) while the
+**chunking signature is unchanged** (BC ≈ 0.63, CS ≈ 0.474). The gain comes from *what* is parsed, not *how*
+chunks are split — the same fact as C1's intrinsic-metric blindness, seen from the training side. RADP-aux
+instead *increases* TextNED (its hidden-state objective degrades surface text).*
 
 ---
 
-## Deployment lessons
+## Deployment playbook
 
-1. **Do not select parsers by intrinsic metrics alone.** Boundary Clarity (likewise TEDS, edit distance) can
-   rank parsers in an order the downstream retriever inverts. A ~500-question RCPS run changes the decision.
-2. **Use retrieval-reward DPO on the parser's discrete output.** For a parser already at ≈0.7 Hit@5, a +2 pp
-   lift from a few hundred preference pairs and one LoRA run is a real return — and it transfers to the
-   retriever you actually deploy. Avoid the aux-loss and reference-free SimPO formulations; both fail here.
-3. **Spend where text precision drives retrieval.** RADP-DPO helps most on factoid queries (+3 pp) and is
-   roughly neutral on tabular queries — structural-query-heavy stacks should complement with chunker/embedder-side training.
+1. **Evaluate parsers with RCPS, not intrinsic metrics alone.** Boundary Clarity (likewise edit distance) can
+   rank parsers in an order the downstream retriever inverts. A few hundred held-out Q–A, scored with no
+   training, is a 0.20 → 0.55 Hit@1 decision. *This is the highest-leverage takeaway.*
+2. **Run the coverage diagnostic first.** If *absent* dominates, fix the parser; if *split* dominates, fix the chunker.
+3. **If you train the parser, distil its discrete output toward clean ground-truth text.** Expect ≈ +1 pp Hit@5
+   cross-domain, largest on retrievers *not* used for scoring. A retrieval reward showed no gain over this control; avoid the
+   hidden-state auxiliary loss and reference-free SimPO (both fail).
+4. **Spend where text precision drives retrieval.** The gain concentrates on factoid queries (+3 pp) and is
+   roughly neutral on tabular ones — layout-heavy stacks should look to the chunker or embedder.
 
 ---
 
@@ -232,17 +221,23 @@ the working parameterisation: **discrete output + preference loss anchored to a 
 ├── src/wigtnocr_radp/
 │   ├── qa_generation/        # Q-A generation
 │   ├── evaluation/           # RCPS, chunkers, retrievers, coverage, Boundary Clarity, bootstrap CI
-│   └── training/             # RADP-aux (contrastive) · RADP-DPO · SimPO (LoRA-toggle reference)
+│   └── training/             # RADP-aux (contrastive) · RADP-DPO · RADP-Distill · SimPO (LoRA-toggle ref)
 ├── scripts/
-│   ├── training/             # candidate gen (K=2..16), preference pairs, DPO/SimPO, multi-seed pipelines
-│   ├── evaluation/           # baseline_grid, chunking_grid, coverage, OHR-Bench eval chains, combined CI
-│   └── analysis/             # positive_signal_dig, robustness_boost
-├── paper/                    # EMNLP 2026 draft (v0.6) + figures
+│   ├── training/             # candidate gen, preference / edit-distance pairs, DPO/Distill/SimPO pipelines
+│   ├── evaluation/           # baseline_grid, chunking_grid, coverage_diagnostic, rcps_protocol_ablation, OHR chains
+│   └── figures/              # paper figure generators (disconnect, RCPS protocol, overview PPTX)
+├── experiments/              # arm_b_textned_distill = RADP-Distill runs
+├── paper/                    # EMNLP 2026 draft v0.8 (paper.md) + LaTeX (paper/latex) + figures
 ├── data/KoGovDoc-RAG/        # 663 Q-A (frozen, gitignored)
-├── docs/                     # RESEARCH_DIRECTION · ACHIEVED · ROADMAP · TIMELINE · plans/
+├── docs/                     # RESEARCH_DIRECTION · TIMELINE · ROADMAP · plans/ · literature_review/
 ├── output/                   # results & checkpoints (gitignored, GPU server)
 └── tests/
 ```
+
+> **Note (figure logos):** `scripts/figures/make_fig_overview_pptx.py` expects third-party brand logos under
+> `scripts/figures/icons/logos/` (`qwen.png`, `mineru.png`, `marker_datalab.png`, `paddle.png`, `bge_baai.png`, `me5_ms.png`).
+> These are **not committed** for licensing reasons — download them from each project's official site/repo before regenerating Figure 1.
+> All other figures regenerate without them.
 
 ## Quick start
 
@@ -251,7 +246,7 @@ uv sync                                   # dependencies (extras: eval / train /
 cp .env.example .env                      # set OPENAI_API_KEY
 hf download Wigtn/KoGovDoc-Bench --repo-type dataset --local-dir data/KoGovDoc-Bench
 
-# Coverage diagnostic (no GPU required, CPU seconds)
+# Coverage diagnostic (no GPU, CPU seconds) — the C2 result, reproducible first
 uv run python scripts/evaluation/coverage_diagnostic.py
 ```
 
@@ -259,7 +254,7 @@ uv run python scripts/evaluation/coverage_diagnostic.py
 
 ## Authors (WIGTN)
 
-This research is the follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
+Follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
 
 | Author (OpenReview) | Email | Contribution (CRediT) |
 |------|-------|--------------|
@@ -272,19 +267,19 @@ This research is the follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing 
 
 ## Released artifacts
 
-- **KoGovDoc-RAG** — 663 Q-A on 294 Korean government document pages.
-- **RCPS reference implementation** — `src/wigtnocr_radp/evaluation/`.
-- **RADP-aux checkpoints (4)** — LoRA, λ ∈ {0, 0.1, 0.3, 0.5}.
-- **RADP-DPO / SimPO checkpoints (7)** — DPO R1–R3 (incl. hard-negative v5), SimPO control, 2 seeds.
-- **OHR-Bench cross-domain results** + **mechanism analysis** (BC/CS/TextNED on 12 systems × 242 pages).
+- **KoGovDoc-RAG** — 663 Q–A over 294 Korean government document pages.
+- **RCPS reference implementation** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
+- **RADP-Distill checkpoint** — the recommended deployable parser-side lever (best-of-K, edit-distance ranked, no retrieval reward).
+- **RADP-aux (λ ∈ {0, 0.1, 0.3, 0.5}) + RADP-DPO (R1–R3) + SimPO checkpoints** — released for reproducibility as the negative / controlled comparisons.
+- **OHR-Bench cross-domain results + mechanism analysis** (BC / CS / TextNED on 12 systems × 242 pages).
 
 ## License & Citation
 
 Released under the **MIT License**.
 
 ```bibtex
-@inproceedings{kim2026radp,
-  title     = {Retrieval-Aware Document Parsing: Diagnosing and Measuring the Parsing--Retrieval Gap},
+@inproceedings{kim2026rcps,
+  title     = {Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance},
   author    = {Kim, Hyeong-seob and Son, Sang-woo},
   booktitle = {Proceedings of EMNLP 2026 (Industry Track)},
   year      = {2026},

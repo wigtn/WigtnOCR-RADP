@@ -2,50 +2,50 @@
   "config": {
     "parser": "WigtnOCR v1",
     "num_qa": 663,
-    "num_pages": 242,
-    "parser_dir": "output/parses_full/radp_dpo_v5_eval"
+    "num_pages": 294,
+    "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/v1_val/predictions"
   },
   "chunkers": [
     {
       "chunker": "md_h3",
-      "num_chunks": 549,
-      "coverage": 0.8069381598793364,
+      "num_chunks": 741,
+      "coverage": 0.7978883861236803,
       "split_rate": 0.0,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 535
+        "absent": 134,
+        "covered": 529
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 161,
-          "absent": 40
+          "covered": 158,
+          "absent": 43
         },
         "procedural": {
-          "absent": 64,
-          "covered": 226
+          "covered": 227,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 161
+          "absent": 37,
+          "covered": 159
         },
         "medium": {
           "absent": 53,
           "covered": 185
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [],
@@ -65,27 +65,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -100,54 +79,75 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "md_h2",
-      "num_chunks": 432,
-      "coverage": 0.8069381598793364,
+      "num_chunks": 556,
+      "coverage": 0.7978883861236803,
       "split_rate": 0.0,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 535
+        "absent": 134,
+        "covered": 529
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 161,
-          "absent": 40
+          "covered": 158,
+          "absent": 43
         },
         "procedural": {
-          "absent": 64,
-          "covered": 226
+          "covered": 227,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 161
+          "absent": 37,
+          "covered": 159
         },
         "medium": {
           "absent": 53,
           "covered": 185
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [],
@@ -167,27 +167,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -202,54 +181,75 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "md_h1",
-      "num_chunks": 256,
-      "coverage": 0.8069381598793364,
+      "num_chunks": 305,
+      "coverage": 0.7978883861236803,
       "split_rate": 0.0,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 535
+        "absent": 134,
+        "covered": 529
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 161,
-          "absent": 40
+          "covered": 158,
+          "absent": 43
         },
         "procedural": {
-          "absent": 64,
-          "covered": 226
+          "covered": 227,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 161
+          "absent": 37,
+          "covered": 159
         },
         "medium": {
           "absent": 53,
           "covered": 185
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [],
@@ -269,27 +269,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -304,70 +283,112 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "parser_native",
-      "num_chunks": 1180,
-      "coverage": 0.799396681749623,
-      "split_rate": 0.007541478129713424,
-      "parser_fault_rate": 0.19306184012066366,
+      "num_chunks": 1455,
+      "coverage": 0.7812971342383107,
+      "split_rate": 0.016591251885369532,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 530,
-        "split": 5
+        "absent": 134,
+        "covered": 518,
+        "split": 11
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 142,
+          "absent": 23,
+          "covered": 141,
           "split": 1
         },
         "factoid": {
-          "covered": 158,
-          "absent": 40,
-          "split": 3
+          "covered": 154,
+          "absent": 43,
+          "split": 4
         },
         "procedural": {
-          "absent": 64,
-          "covered": 225,
-          "split": 1
+          "split": 6,
+          "covered": 221,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 160,
-          "split": 1
+          "absent": 37,
+          "split": 2,
+          "covered": 157
         },
         "medium": {
           "absent": 53,
-          "covered": 184,
-          "split": 1
+          "covered": 180,
+          "split": 5
         },
         "easy": {
-          "covered": 186,
-          "absent": 40,
-          "split": 3
+          "covered": 181,
+          "absent": 44,
+          "split": 4
         }
       },
       "split_examples": [
         {
-          "qa_id": "5425304e-cf60-414b-91af-f88ce2fe4e4f",
-          "page_id": "val_0100",
+          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
+          "page_id": "val_0001",
           "question_type": "procedural",
-          "question": "반복적 시공 시 물푸기 시간은 어떻게 계산하는가?",
-          "answer_span": "물푸기 시간 2배 계산한다."
+          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
+          "answer_span": "s : 중단경사 (%)"
+        },
+        {
+          "qa_id": "a65e8c94-1e65-401a-9d3b-81ca107791cb",
+          "page_id": "val_0077",
+          "question_type": "factoid",
+          "question": "건설에너지여령분류에서 '가'에 해당하는 것은 무엇인가?",
+          "answer_span": "설계용역"
+        },
+        {
+          "qa_id": "43d05af3-c456-4d14-a089-6582895e56e7",
+          "page_id": "val_0157",
+          "question_type": "procedural",
+          "question": "총 물푸기 시간은 어떤 항목들을 더해 산정하나?",
+          "answer_span": "A+B+C"
+        },
+        {
+          "qa_id": "61fa89d1-d11c-4e6f-b827-fa291231d2ab",
+          "page_id": "val_0157",
+          "question_type": "procedural",
+          "question": "반폭적 시공시 물푸기 시간은 어떻게 계상하나?",
+          "answer_span": "2배 계상한다."
         },
         {
           "qa_id": "f289b962-ba9d-481c-8c51-ef6901575f3b",
@@ -414,27 +435,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -449,70 +449,112 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "fixed500",
-      "num_chunks": 864,
-      "coverage": 0.7918552036199095,
-      "split_rate": 0.015082956259426848,
-      "parser_fault_rate": 0.19306184012066366,
+      "num_chunks": 983,
+      "coverage": 0.77526395173454,
+      "split_rate": 0.02262443438914027,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 525,
-        "split": 10
+        "absent": 134,
+        "covered": 514,
+        "split": 15
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 142,
+          "absent": 23,
+          "covered": 141,
           "split": 1
         },
         "factoid": {
-          "covered": 159,
-          "absent": 40,
-          "split": 2
+          "covered": 152,
+          "absent": 43,
+          "split": 6
         },
         "procedural": {
-          "absent": 64,
           "covered": 219,
-          "split": 7
+          "split": 8,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 158,
-          "split": 3
+          "absent": 37,
+          "covered": 154,
+          "split": 5
         },
         "medium": {
           "absent": 53,
-          "covered": 179,
-          "split": 6
+          "covered": 178,
+          "split": 7
         },
         "easy": {
-          "covered": 188,
-          "absent": 40,
-          "split": 1
+          "covered": 182,
+          "absent": 44,
+          "split": 3
         }
       },
       "split_examples": [
+        {
+          "qa_id": "0cb80c36-9964-4da6-962e-3e41e2e97f30",
+          "page_id": "val_0003",
+          "question_type": "procedural",
+          "question": "경제성 및 현장 여건 등을 고려해 제방둑마루 제외측 일부를 동일 혹은 그 이상의 양질 토사로 충분히 다지거나 불투수층 재료로 대체한 경우, 제방고 계획에 어떻게 반영할 수 있는가?",
+          "answer_span": "이를 포함하여 제방고를 계획할 수 있다."
+        },
         {
           "qa_id": "75d676f6-0045-4e23-8e9d-ad5c5954e555",
           "page_id": "val_0012",
           "question_type": "procedural",
           "question": "동바리 점검사항 중 강관지주를 이어서 사용하는 것과 관련해 금지된 기준은 무엇인가?",
           "answer_span": "강관지주는3본 이상 이어서 사용을 금지하며,높이2m마다 수평이음재를2개방향으로 설치여부"
+        },
+        {
+          "qa_id": "3768b907-7f18-4697-9554-0c9460131b7b",
+          "page_id": "val_0025",
+          "question_type": "factoid",
+          "question": "In the Game of 24 setup, which games are used for testing from the 4nums.com dataset?",
+          "answer_span": "a subset of relatively hard games indexed 901-1,000"
+        },
+        {
+          "qa_id": "fa3aaac8-02a8-47b0-a019-6545f09f39b7",
+          "page_id": "val_0025",
+          "question_type": "procedural",
+          "question": "In the ToT setup for Game of 24, how many thought evaluations are sampled for each candidate, and how many candidates are kept at each BFS step?",
+          "answer_span": "We sample values 3 times for each thought."
         },
         {
           "qa_id": "8f0cc474-58e5-47cc-b881-d6d5584deab3",
@@ -536,32 +578,11 @@
           "answer_span": "for almost every $\\theta$, and in particular when the right hand side is well defined"
         },
         {
-          "qa_id": "4c045fbc-2a41-4fe9-b0fe-735cbf044739",
-          "page_id": "val_0102",
-          "question_type": "tabular",
-          "question": "바. 타이어로울러(자주식) (8~15Ton)보다 합계가 더 큰 장비는 무엇인가?",
-          "answer_span": "아. 아스팔트디스트리뷰터 (3800ℓ)"
-        },
-        {
-          "qa_id": "9c8609b1-7fd4-4760-b3c0-b100ec169630",
-          "page_id": "val_0130",
+          "qa_id": "150937ed-213a-4ba6-8681-b17ed852c838",
+          "page_id": "val_0084",
           "question_type": "factoid",
-          "question": "What two factors are combined to determine risk in the security risk assessment framework mentioned here?",
-          "answer_span": "likelihood and impact"
-        },
-        {
-          "qa_id": "b4b9a90b-ca0f-403e-988f-1f14e1b5d34a",
-          "page_id": "val_0149",
-          "question_type": "procedural",
-          "question": "앞으로 장기간 및 대규모 사업비가 필요한 경우 어떻게 추진하여야 한다고 했는가?",
-          "answer_span": "계속비 사업으로 지방의회의 의결을 득하여 추진"
-        },
-        {
-          "qa_id": "a33c3c28-57ba-4fd3-99b6-fcccd8e557d7",
-          "page_id": "val_0206",
-          "question_type": "procedural",
-          "question": "시행여부 및 성과 항목에서 평가 성과로 제시된 대상 분야는 무엇인가?",
-          "answer_span": "원가, 공정, 품질, 안전, 환경 등에 대한 성과"
+          "question": "What quantity is said to decay as the relative distance $m - n$ increases?",
+          "answer_span": "the value of $\\frac{1}{d/2} \\sum_{i=1}^{d/2} |S_i|$"
         }
       ],
       "absent_examples": [
@@ -580,27 +601,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -615,54 +615,75 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "fixed500_ov200",
-      "num_chunks": 1192,
-      "coverage": 0.8069381598793364,
+      "num_chunks": 1360,
+      "coverage": 0.7978883861236803,
       "split_rate": 0.0,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 535
+        "absent": 134,
+        "covered": 529
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 161,
-          "absent": 40
+          "covered": 158,
+          "absent": 43
         },
         "procedural": {
-          "absent": 64,
-          "covered": 226
+          "covered": 227,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 161
+          "absent": 37,
+          "covered": 159
         },
         "medium": {
           "absent": 53,
           "covered": 185
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [],
@@ -682,27 +703,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -717,49 +717,70 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "fixed1000",
-      "num_chunks": 484,
-      "coverage": 0.8024132730015083,
+      "num_chunks": 567,
+      "coverage": 0.7933634992458521,
       "split_rate": 0.004524886877828055,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 532,
+        "absent": 134,
+        "covered": 526,
         "split": 3
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 160,
-          "absent": 40,
+          "covered": 157,
+          "absent": 43,
           "split": 1
         },
         "procedural": {
-          "absent": 64,
-          "covered": 224,
+          "covered": 225,
+          "absent": 63,
           "split": 2
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 160,
+          "absent": 37,
+          "covered": 158,
           "split": 1
         },
         "medium": {
@@ -768,8 +789,8 @@
           "split": 2
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [
@@ -788,11 +809,11 @@
           "answer_span": "for almost every $\\theta$, and in particular when the right hand side is well defined"
         },
         {
-          "qa_id": "b4b9a90b-ca0f-403e-988f-1f14e1b5d34a",
-          "page_id": "val_0149",
+          "qa_id": "329240c7-510c-4521-bcfa-bf1800277c37",
+          "page_id": "val_0230",
           "question_type": "procedural",
-          "question": "앞으로 장기간 및 대규모 사업비가 필요한 경우 어떻게 추진하여야 한다고 했는가?",
-          "answer_span": "계속비 사업으로 지방의회의 의결을 득하여 추진"
+          "question": "For the simulated robotics tasks, what are the discount rate and lambda used with TRPO?",
+          "answer_span": "$\\gamma = 0.995$ and $\\lambda = 0.97$"
         }
       ],
       "absent_examples": [
@@ -811,27 +832,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -846,54 +846,75 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     },
     {
       "chunker": "fixed1000_ov200",
-      "num_chunks": 525,
-      "coverage": 0.8069381598793364,
+      "num_chunks": 610,
+      "coverage": 0.7978883861236803,
       "split_rate": 0.0,
-      "parser_fault_rate": 0.19306184012066366,
+      "parser_fault_rate": 0.20211161387631976,
       "counts": {
-        "absent": 128,
-        "covered": 535
+        "absent": 134,
+        "covered": 529
       },
       "by_question_type": {
         "tabular": {
-          "absent": 22,
-          "covered": 143
+          "absent": 23,
+          "covered": 142
         },
         "factoid": {
-          "covered": 161,
-          "absent": 40
+          "covered": 158,
+          "absent": 43
         },
         "procedural": {
-          "absent": 64,
-          "covered": 226
+          "covered": 227,
+          "absent": 63
         },
         "figural": {
-          "absent": 2,
-          "covered": 5
+          "absent": 5,
+          "covered": 2
         }
       },
       "by_difficulty": {
         "hard": {
-          "absent": 35,
-          "covered": 161
+          "absent": 37,
+          "covered": 159
         },
         "medium": {
           "absent": 53,
           "covered": 185
         },
         "easy": {
-          "covered": 189,
-          "absent": 40
+          "covered": 185,
+          "absent": 44
         }
       },
       "split_examples": [],
@@ -913,27 +934,6 @@
           "answer_span": "종배 수관부설 (흘관 Φ1500)"
         },
         {
-          "qa_id": "338a5659-987f-4941-a902-68fc06842371",
-          "page_id": "val_0001",
-          "question_type": "procedural",
-          "question": "정지시거 계산식에서 중단경사를 고려하지 않을 때와 고려할 때를 비교하면, 식에 추가로 반영되는 변수는 무엇인가?",
-          "answer_span": "s : 중단경사 (%)"
-        },
-        {
-          "qa_id": "0c56508a-d5a0-41b3-b850-20f91943c5df",
-          "page_id": "val_0002",
-          "question_type": "tabular",
-          "question": "보조기층, 석분의 야적장⇒공사현장 운반에 적용되는 장비조합은 무엇인가?",
-          "answer_span": "백호우 0.4m³+덤프트럭 10.5ton (현장여건에 맞게 선별 적용)"
-        },
-        {
-          "qa_id": "68eaddfc-a7aa-41c0-9fda-7f7460209392",
-          "page_id": "val_0003",
-          "question_type": "factoid",
-          "question": "제방은 어떤 시설과 일체로서 계획홍수위 이하 수위의 유수소통에 대해 안전한 구조로 해야 하는가?",
-          "answer_span": "호안,수제 등 이와 유사한 시설과 일체"
-        },
-        {
           "qa_id": "1e0d642f-08c3-40fc-8d8c-70bf99736c8a",
           "page_id": "val_0005",
           "question_type": "factoid",
@@ -948,11 +948,32 @@
           "answer_span": "수지혼합, 항침, 보수정치 설치, CCTV 조사 및 분석, 공기주입, 경화, 철수 및 현장복구 작업"
         },
         {
-          "qa_id": "6d2101c3-c073-4602-9d57-4a72751e3feb",
-          "page_id": "val_0011",
+          "qa_id": "ea494d09-b530-4c0a-98e9-8c3210eefcec",
+          "page_id": "val_0012",
           "question_type": "factoid",
-          "question": "시간당 시공량 Q는 얼마인가?",
-          "answer_span": "Q = Qd ÷ 8hr = 80 ÷ 8 = 10 m/hr"
+          "question": "철근 점검사항에서 철근이 직접 닿지 않도록 한 대상은 무엇인가?",
+          "answer_span": "땅"
+        },
+        {
+          "qa_id": "259a8474-0136-4c1a-a11d-da69ab725ee7",
+          "page_id": "val_0015",
+          "question_type": "procedural",
+          "question": "공동연구형 용역과 자문형 용역의 경우 원가계산에서 계상하지 않는 것은 무엇인가?",
+          "answer_span": "경비항목 중 최소한의 필요항목만 계상하지 아니한다."
+        },
+        {
+          "qa_id": "a0e410e3-a1e0-444c-bda6-dab3489ee4c2",
+          "page_id": "val_0023",
+          "question_type": "factoid",
+          "question": "문제점이 발생한 원인으로 지적된, 「□□시 공유재산 관리 조례」 제5조에 현재까지 반영되지 않은 내용은 무엇인가?",
+          "answer_span": "시유재산의 무상사용 및 무상대부에 대하여 공유재산심의회 심의"
+        },
+        {
+          "qa_id": "396be30b-ed02-4d33-bfa9-93e0cbf6eba9",
+          "page_id": "val_0024",
+          "question_type": "procedural",
+          "question": "난간용 강재 파이프 및 인조대리석 부착이 해당되는 경우는 어떤 개문인가?",
+          "answer_span": "면벽식 개문일 경우만 해당된다."
         }
       ]
     }

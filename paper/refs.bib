@@ -1,0 +1,204 @@
+% refs.bib — WigtnOCR-RADP / RCPS (EMNLP 2026 Industry Track)
+% Verified 2026-06-07 against arXiv / venue records. All 22 keys map to real papers (no fabricated IDs).
+% All entries re-verified against arXiv/publisher pages on 2026-06-12 (leads, titles, IDs, venues).
+%   - zhao2025moc: arXiv-only (no confirmed venue) -> cited as arXiv.
+%   - infinity_parser: 2510.15349 is a flagged duplicate upload; canonical ID 2506.03197 used.
+
+% ---- Diagnosing the parsing--retrieval gap ----
+@inproceedings{zhang2024ohr,
+  title     = {OCR Hinders RAG: Evaluating the Cascading Impact of OCR on Retrieval-Augmented Generation},
+  author    = {Zhang, Junyuan and others},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year      = {2025},
+  note      = {arXiv:2412.02592}
+}
+
+@misc{enterprisedocbench2026,
+  title  = {Benchmarking Complex Multimodal Document Processing Pipelines: A Unified Evaluation Framework for Enterprise AI},
+  author = {Singh, Saurabh K. and Raj, Sachin},
+  year   = {2026},
+  note   = {arXiv:2604.26382}
+}
+
+@misc{goodocr2026,
+  title  = {When Good OCR Is Not Enough: Benchmarking OCR Robustness for Retrieval-Augmented Generation},
+  author = {Sun, Lin and others},
+  year   = {2026},
+  note   = {arXiv:2605.00911}
+}
+
+% ---- Chunking methods (post-parsing) ----
+@misc{jina2024late,
+  title  = {Late Chunking: Contextual Chunk Embeddings Using Long-Context Embedding Models},
+  author = {G{\"u}nther, Michael and others},
+  year   = {2024},
+  note   = {Jina AI; arXiv:2409.04701}
+}
+
+@inproceedings{duarte2024lumber,
+  title     = {LumberChunker: Long-Form Narrative Document Segmentation},
+  author    = {Duarte, Andr{\'e} V. and others},
+  booktitle = {Findings of EMNLP},
+  year      = {2024},
+  note      = {arXiv:2406.17526}
+}
+
+@misc{zhao2024meta,
+  title  = {Meta-Chunking: Learning Text Segmentation and Semantic Completion via Logical Perception},
+  author = {Zhao, Jihao and others},
+  year   = {2024},
+  note   = {arXiv:2410.12788}
+}
+
+@misc{zhao2025moc,
+  title  = {MoC: Mixtures of Text Chunking Learners for Retrieval-Augmented Generation System},
+  author = {Zhao, Jihao and others},
+  year   = {2025},
+  note   = {arXiv:2503.09600}
+}
+
+% ---- Embedding-side training ----
+@misc{conti2025insent,
+  title  = {Context is Gold to find the Gold Passage: Evaluating and Training Contextual Document Embeddings},
+  author = {Conti, Max and others},
+  year   = {2025},
+  note   = {InSeNT; arXiv:2505.24782}
+}
+
+@misc{zhao2025lmar,
+  title  = {LMAR: Language Model Augmented Retriever for Domain-specific Knowledge Indexing},
+  author = {Zhao, Yao and Ding, Yantian and Zhang, Zhiyue and Yao, Dapeng and Xu, Yanxun},
+  year   = {2025},
+  note   = {arXiv:2508.05672}
+}
+
+% ---- Retrieval / reader-side training ----
+@misc{nguyen2024rewardrag,
+  title  = {Reward-RAG: Enhancing RAG with Reward Driven Supervision},
+  author = {Nguyen, Thang and others},
+  year   = {2024},
+  note   = {arXiv:2410.03780}
+}
+
+@inproceedings{singh2024chunkrag,
+  title     = {ChunkRAG: Novel LLM-Chunk Filtering Method for RAG Systems},
+  author    = {Singh, Ishneet Sukhvinder and others},
+  booktitle = {Proceedings of NAACL Student Research Workshop},
+  year      = {2025},
+  note      = {arXiv:2410.19572}
+}
+
+@inproceedings{chia2025mlongdoc,
+  title     = {M-LongDoc: A Benchmark for Multimodal Super-Long Document Understanding and a Retrieval-Aware Tuning Framework},
+  author    = {Chia, Yew Ken and others},
+  booktitle = {Proceedings of EMNLP},
+  year      = {2025},
+  note      = {arXiv:2411.06176}
+}
+
+@misc{yan2025rpo,
+  title  = {RPO: Retrieval Preference Optimization for Robust Retrieval-Augmented Generation},
+  author = {Yan, Shi-Qi and others},
+  year   = {2025},
+  note   = {arXiv:2501.13726}
+}
+
+% ---- Preference learning / training foundations ----
+@inproceedings{rafailov2023dpo,
+  title     = {Direct Preference Optimization: Your Language Model is Secretly a Reward Model},
+  author    = {Rafailov, Rafael and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023},
+  note      = {arXiv:2305.18290}
+}
+
+@inproceedings{meng2024simpo,
+  title     = {SimPO: Simple Preference Optimization with a Reference-Free Reward},
+  author    = {Meng, Yu and Xia, Mengzhou and Chen, Danqi},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024},
+  note      = {arXiv:2405.14734}
+}
+
+@inproceedings{hu2021lora,
+  title     = {LoRA: Low-Rank Adaptation of Large Language Models},
+  author    = {Hu, Edward J. and others},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2022},
+  note      = {arXiv:2106.09685}
+}
+
+% ---- Retrievers / backbones / parsing baselines ----
+@misc{chen2024bgem3,
+  title  = {M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation},
+  author = {Chen, Jianlv and others},
+  year   = {2024},
+  note   = {released as BGE-M3; arXiv:2402.03216}
+}
+
+@misc{wang2024me5,
+  title  = {Multilingual E5 Text Embeddings: A Technical Report},
+  author = {Wang, Liang and others},
+  year   = {2024},
+  note   = {Microsoft; arXiv:2402.05672}
+}
+
+@inproceedings{faysse2024colpali,
+  title     = {ColPali: Efficient Document Retrieval with Vision Language Models},
+  author    = {Faysse, Manuel and others},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  note      = {arXiv:2407.01449}
+}
+
+@misc{mineru2025,
+  title  = {MinerU2.5: A Decoupled Vision-Language Model for Efficient High-Resolution Document Parsing},
+  author = {Niu, Junbo and others},
+  year   = {2025},
+  note   = {arXiv:2509.22186}
+}
+
+@inproceedings{ouyang2025omnidocbench,
+  title     = {OmniDocBench: Benchmarking Diverse PDF Document Parsing with Comprehensive Annotations},
+  author    = {Ouyang, Linke and others},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2025},
+  note      = {arXiv:2412.07626}
+}
+
+@misc{qwen3vl,
+  title  = {Qwen3-VL Technical Report},
+  author = {{Qwen Team, Alibaba}},
+  year   = {2025},
+  note   = {arXiv:2511.21631}
+}
+
+@misc{qwen3emb,
+  title  = {Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models},
+  author = {Zhang, Yanzhao and others},
+  year   = {2025},
+  note   = {arXiv:2506.05176}
+}
+
+% ---- Recent parser-side training / OCR-RAG (added 2026-06-12, reviewer-landscape) ----
+@misc{infinity_parser,
+  title  = {Infinity Parser: Layout Aware Reinforcement Learning for Scanned Document Parsing},
+  author = {Wang, Baode and others},
+  year   = {2025},
+  note   = {arXiv:2506.03197}
+}
+@misc{agenticocr,
+  title  = {AgenticOCR: Parsing Only What You Need for Efficient Retrieval-Augmented Generation},
+  author = {Wang, Zhengren and others},
+  year   = {2026},
+  note   = {arXiv:2602.24134}
+}
+@article{song2026ocr,
+  title   = {Defining the Problem: The Impact of OCR Quality on Retrieval-Augmented Generation Performance and Strategies for Improvement},
+  author  = {Song, Minchae},
+  journal = {Information Processing \& Management},
+  volume  = {63},
+  number  = {1},
+  year    = {2026},
+  note    = {doi:10.1016/j.ipm.2025.104368}
+}
