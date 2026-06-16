@@ -30,7 +30,7 @@ Choosing a document parser is the first decision in any retrieval-augmented gene
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.95\textwidth]{fig_overview.pdf}
+\includegraphics[width=0.70\textwidth]{fig_overview.pdf}
 \caption{\textbf{Overview.} \textbf{(C1)} Selecting a document parser by appearance (Boundary Clarity) rather than retrieval is a trap: MinerU has the highest Boundary Clarity yet the lowest Hit@1, and parser choice alone moves Hit@1 by $35.1$ points ($2.8\times$; scalar correlations illustrative, \S\ref{sec:c1c2}). \textbf{(C2)} A retriever-free coverage diagnostic localises the gap to the parser---$20.2\%$ of answers are missing from the parser output itself, unrecoverable by any chunker. \textbf{(C3)} \rcps{} selects parsers and chunkers by retrieval over a held-out Q--A probe and three retrievers, with no training. \textbf{(C4)} Parser-side training is a bounded lever: the fidelity-distillation control and the retrieval-reward variant have substantially overlapping CIs---no evidence the retrieval reward helps.}
 \label{fig:overview}
 \end{figure*}
