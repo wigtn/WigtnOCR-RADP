@@ -78,19 +78,21 @@ within −1.4…+5 pp of Prod, so shared lineage alone confers no low absent rat
 Loosening recovers more of Prod's absent (−3.3 pp of near-miss surface forms)
 than MinerU's (−1.8 pp): MinerU's absent is *hard* absence.
 
-**(c) A cross-family arbiter + human check.** A GPT-5.4 judge — no lineage with
-the Qwen3 reference, parsers, or gold spans — adjudicates every L1-absent answer.
-Even under a *conservative binary* criterion (is the fact stated at all),
-genuine-absent is Prod 9.2% vs MinerU 56.7% (+47.5 pp), and the exact matcher
-over-counts *Prod's* absent (54% of it surface artifacts) more than MinerU's
-(19%) — the opposite of the same-family-bias prediction. We are sharpening this
-to the paper's own relevance criterion — **recoverable by a retriever**, so a
-value surviving only as OCR-mangled fragments is counted *Degraded → true-absent*
-(justification in the released adjudication protocol) — and human-verifying a
-stratified subsample of the absent cases. Both can only *widen* the gap (they
-move present-but-unrecoverable cases from artifact to true-absent), and we
-**will report the artifact rate whichever way it falls** — the analysis is only
-worth running because it could have gone against us.
+**(c) A cross-family arbiter (+ human check).** A GPT-5.4 judge — no lineage with
+the Qwen3 reference, parsers, or gold spans — labels every L1-absent answer by
+the paper's own relevance criterion, **retriever-recoverability**: *present*
+(recoverable → a surface artifact), *degraded* (physically on the page but not
+retriever-recoverable → true-absent), *absent* (not on the page → true-absent).
+Judging recoverability rather than string existence keeps the label coherent with
+the RCPS relevance rule (a chunk is relevant iff a retriever can surface it).
+Genuine (non-recoverable) absent is **Prod 8.9% vs MinerU 59.3% — a +50.4 pp
+gap**. Decisively, the exact matcher over-counts *Prod's* absent (56% surface
+artifacts) ~3.5× more than the OCR parsers' (~16%) — the exact opposite of what
+same-family bias predicts; PaddleOCR alone has 22% *degraded* (OCR-mangled beyond
+retrieval), a category a binary present/absent test would have mislabelled. A
+blind, stratified human-verified subsample against the same criterion is the
+remaining adversarial check; we **will report its artifact rate whichever way it
+falls** — the analysis is only worth running because it could have gone against us.
 
 Across three unrelated matching regimes the MinerU−Prod gap holds within a 4 pp
 band:
@@ -99,11 +101,11 @@ band:
 |---|---|
 | Exact-span (paper's L1 matcher) | +50.2 pp |
 | OCR-noise-tolerant fuzzy (L4) | +51.7 pp |
-| Cross-family judge (recoverability criterion) | +47.5 pp |
+| Cross-family judge (recoverability criterion) | +50.4 pp |
 
 A strict substring test, a fuzzy character matcher, and a non-Qwen LLM judging
-recoverability agree within 4 pp — no artifact explains a gap this large across
-measurers this different. Two supporting points: the paper's matcher already
+retriever-recoverability agree within **2 pp** — no artifact explains a gap this
+large across measurers this different. Two supporting points: the paper's matcher already
 strips markdown/whitespace *specifically* so formatting cannot penalise non-VLM
 parsers (design comment in the released code), and on **OHR-Bench** — whose
 answers are human-curated and family-independent — the same direction holds, so

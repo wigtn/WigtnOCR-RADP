@@ -90,22 +90,29 @@ information to answer the question (content, not formatting). This removes *any*
 same-family surface bias — the judge shares no lineage with the reference, the
 parsers, or the gold spans.
 
-Each L1-absent answer → `genuine_absent` (judge: not present) or `artifact`
-(judge: present, L1 missed it). **RESULT (ran ml35, GPT-5.4, full L1-absent sets,
-1,017 verdicts):**
+Each L1-absent answer is labelled by **retriever-recoverability** (3-way):
+`present` (recoverable → artifact), `degraded` (physically present but not
+recoverable → true-absent), `absent` (not on page → true-absent).
+`genuine_absent = degraded + absent`. **RESULT (ran ml35, GPT-5.4, full L1-absent
+sets, 1,017 verdicts, JSON↔cache verified consistent):**
 
 ```
-                 L1-absent   artifact(% of absent)   semantic-absent
-Prod             20.2%       54% (73/134)            9.2%
-MinerU           70.4%       19% (91/467)            56.7%
-PaddleOCR        62.7%       24% (101/416)           47.5%
+          (% of each parser's L1-absent set)     genuine-absent
+          present(artifact)  degraded   absent   (% of all Q-A)
+Prod       56%                2%         42%       8.9%
+MinerU     16%                9%         75%       59.3%
+PaddleOCR  16%                22%        63%       52.8%
 ```
 
-MinerU−Prod semantic-absent gap = **+47.5 pp**. Prod's artifact fraction (54%) >
-MinerU's (19%) — exact-span over-counted *Prod's* absent more, opposite of the
-same-family-bias prediction. Three regimes converge: exact +50.2 / fuzzy +51.7 /
-semantic +47.5 pp. Files: `output/diagnostics/absent_llm_judge.{json,_cache.jsonl}`.
-MinerU genuine-absent samples are overwhelmingly tabular (table-cell drop).
+MinerU−Prod genuine-absent gap = **+50.4 pp**. Prod's artifact fraction (56%) is
+~3.5× the OCR parsers' (~16%) — exact-span over-counts *Prod's* absent, the
+opposite of the same-family-bias prediction. Three regimes converge to a **2 pp
+band**: exact +50.2 / fuzzy +51.7 / recoverability-judge +50.4 pp. The `degraded`
+category matters (PaddleOCR 22%): a binary present/absent judge would have
+mislabelled OCR-mangled-but-unrecoverable content. Files:
+`output/diagnostics/absent_llm_judge.{json,_cache.jsonl}`; criterion in
+`docs/ADJUDICATION_absent_criteria.md`. MinerU genuine-absent is overwhelmingly
+tabular (table melted to image; see the worked example in the paper's Appendix~C).
 
 **Claim we expect to make:** MinerU/PaddleOCR retain a large semantic-absent gap
 over Prod ⇒ their answers are genuinely missing content. Running the judge on

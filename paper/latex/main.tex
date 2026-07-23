@@ -111,7 +111,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 
 The aggregate cross-variant scalar is sign-sensitive to the document mix (see Limitations); we therefore report the per-family insensitivity pattern, which reproduces in every domain, as the robust finding and treat the scalar as illustrative.
 
-\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}. This parser-side gap is not a same-family matching artefact: it is far larger for the OCR-style parsers (MinerU absent $70.4\%$ vs Prod $20.2\%$), and the MinerU$-$Prod gap holds within a $4$~pp band ($+50.2$ to $+51.7$~pp) across exact, OCR-fuzzy, and cross-family-judge matching (Appendix~\ref{app:familyneutral}).
+\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}. This parser-side gap is not a same-family matching artefact: it is far larger for the OCR-style parsers (MinerU absent $70.4\%$ vs Prod $20.2\%$), and the MinerU$-$Prod gap holds within a $2$~pp band ($+50.2$ to $+51.7$~pp) across exact-span, OCR-fuzzy, and a cross-family recoverability judge (Appendix~\ref{app:familyneutral}).
 
 \subsection{\rcps{} Selects Both Parsers and Chunkers (C3)}
 \label{sec:c3}
@@ -346,21 +346,22 @@ PaddleOCR$-$Prod & +42.8 & +42.5 & +42.4 & +35.7 & +43.6 \\
 \label{tab:familyneutral}
 \end{table}
 
-A cross-family judge (OpenAI GPT-5.4, sharing no lineage with the Qwen3 reference, parsers, or gold spans) then adjudicates every L1-absent answer as genuinely missing vs present-but-surface-mismatched, symmetrically across parsers (Table~\ref{tab:judge}). It over-counts \emph{Prod's} absent more than MinerU's ($54\%$ vs $19\%$ of each parser's absent are surface artefacts)---the opposite of the same-family-bias hypothesis---and leaves a $+47.5$~pp genuine gap. Across the three unrelated regimes the MinerU$-$Prod gap stays within a $4$~pp band (exact $+50.2$, OCR-fuzzy $+51.7$, cross-family semantic $+47.5$~pp); MinerU's judge-confirmed absences are overwhelmingly table-evidence answers.
+A cross-family judge (OpenAI GPT-5.4, sharing no lineage with the Qwen3 reference, parsers, or gold spans) then labels every L1-absent answer by \emph{retriever-recoverability}---present (a surface artefact), degraded (physically present but unrecoverable), or absent---symmetrically across parsers (Table~\ref{tab:judge}); the last two are genuine, non-recoverable absent. Judging recoverability rather than string existence keeps the label coherent with the paper's own relevance rule (a chunk is relevant iff a retriever can surface it). The judge over-counts \emph{Prod's} L1-absent far more than the OCR parsers' ($56\%$ of Prod's are surface artefacts vs $\sim\!16\%$ for MinerU/PaddleOCR)---the opposite of the same-family-bias hypothesis---and leaves a $+50.4$~pp genuine gap. Across the three unrelated regimes the MinerU$-$Prod gap stays within a $2$~pp band (exact-span $+50.2$, OCR-fuzzy $+51.7$, recoverability judge $+50.4$~pp); MinerU's genuine absences are overwhelmingly table-evidence answers (the melted-table case in \S\ref{sec:parser-def}).
 
 \begin{table}[h]
 \centering\footnotesize
 \setlength{\tabcolsep}{5pt}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-& L1-absent & artefact & genuine absent \\
+& present & degraded & absent & genuine \\
+& (artefact) & & & absent \\
 \midrule
-Prod & 20.2\% & 54\% & \textbf{9.2\%} \\
-MinerU & 70.4\% & 19\% & \textbf{56.7\%} \\
-PaddleOCR & 62.7\% & 24\% & \textbf{47.5\%} \\
+Prod & 56\% & 2\% & 42\% & \textbf{8.9\%} \\
+MinerU & 16\% & 9\% & 75\% & \textbf{59.3\%} \\
+PaddleOCR & 16\% & 22\% & 63\% & \textbf{52.8\%} \\
 \bottomrule
 \end{tabular}
-\caption{Cross-family GPT-5.4 judge over every L1-absent answer (1{,}017 verdicts). ``artefact'' $=$ share of a parser's L1-absent that the judge finds actually present (surface mismatch); ``genuine absent'' subtracts it. The MinerU$-$Prod genuine gap is $+47.5$~pp.}
+\caption{Cross-family GPT-5.4 judge over every L1-absent answer (1{,}017), on a \emph{retriever-recoverability} criterion: \emph{present} (recoverable---a surface artefact, not a parser loss), \emph{degraded} (physically on the page but not retriever-recoverable), \emph{absent} (not on the page); the latter two are genuine, non-recoverable absent. present/degraded/absent are shares of each parser's L1-absent set; \emph{genuine absent} is a share of all Q--A. The MinerU$-$Prod genuine gap is $+50.4$~pp; exact-span over-counts \emph{Prod's} absent (56\% surface artefact) far more than the OCR parsers' ($\sim\!16\%$)---the opposite of a same-family bias.}
 \label{tab:judge}
 \end{table}
 

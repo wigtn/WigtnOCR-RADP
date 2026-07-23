@@ -6,16 +6,25 @@ based. This script closes the loop with a *cross-family* judge — OpenAI GPT
 spans) — so no same-family surface bias can survive.
 
 For each parser, we take the answers it marks *absent* under the paper's L1
-matcher and ask the judge, per answer: "does this page's text contain the
-information needed to answer this question?" (wording/formatting may differ).
-Each absent answer is then relabelled:
+matcher and ask the judge, per answer, a three-way retriever-recoverability
+label (criterion in docs/ADJUDICATION_absent_criteria.md):
 
-    genuine_absent  — judge says the content is not on the page (real parser loss)
-    artifact        — judge says the content IS present (L1 missed it: surface form)
+    present   — the fact is stated and a retriever could recover it -> artifact
+                (a surface/notation mismatch, NOT a parser loss)
+    degraded  — characters physically present but not retriever-recoverable
+                (value detached from its header, OCR-corrupted digits, fragmented)
+                -> true-absent
+    absent    — content not on the page at all -> true-absent
 
-Reported per parser:
+    genuine_absent = degraded + absent ; artifact = present
+    semantic_absent_rate = genuine_absent / total = (L1_absent - artifact) / total
 
-    semantic_absent_rate = (L1_absent - artifact) / total
+Judging recoverability (not mere string existence) keeps the label coherent with
+the paper's own relevance rule: a chunk is relevant iff a retriever can surface
+it, so present-but-unrecoverable content scores zero and is absent by that rule.
+Running the judge on Prod's own absent set (the default includes Prod) makes the
+check symmetric — any pro-Qwen bias in L1 would show as a *higher* artifact
+fraction for the OCR parsers, and we subtract it out.
 
 The rebuttal claim holds if MinerU/PaddleOCR keep a large semantic_absent gap
 over Prod: their content is genuinely missing, not mismatched. Running the judge
@@ -66,40 +75,52 @@ PARSERS: dict[str, str] = {
     "Marker": "marker_val/predictions",
 }
 
+# Three-way, retriever-recoverability criterion (see docs/ADJUDICATION_absent_criteria.md).
+# The object of this paper is retrieval, not string existence: content present only as
+# OCR-mangled fragments a retriever cannot surface is Degraded and counts as true-absent.
 SYSTEM = (
-    "You are a strict evaluator checking whether a document page contains the "
-    "information needed to answer a question. The page text was produced by an "
-    "automatic document parser and may differ in wording, spacing, number "
-    "formatting, or markdown from any reference. Judge CONTENT, not formatting.\n"
-    "Answer present=true ONLY if the specific fact needed to answer the question "
-    "is actually stated on the page (in any surface form). Answer present=false if "
-    "that fact is missing, even if the page is on a related topic. Do not guess or "
-    "use outside knowledge — decide solely from the page text provided."
+    "You judge whether a document page lets a RETRIEVER answer a question. The page "
+    "was produced by an automatic parser and may differ in wording, spacing, number "
+    "formatting, or markdown from any reference — judge CONTENT and RECOVERABILITY, "
+    "not surface formatting. Decide solely from the page text; no outside knowledge, "
+    "no guessing. Assign exactly one label:\n"
+    "- present: the specific fact the question asks for is stated on the page AND a "
+    "reader could locate it from the query terms (its row/column label or context and "
+    "its value both survive, even if numbers/units/whitespace/markdown are formatted "
+    "differently).\n"
+    "- degraded: the fact's characters are physically on the page but a retriever "
+    "could not recover it — e.g. the value is detached from the row/header that "
+    "identifies it, OCR corruption alters a digit/character of a numeric/spec answer, "
+    "or it is fragmented across non-adjacent lines.\n"
+    "- absent: the content is not on the page at all (e.g. a table rendered as an "
+    "image reference, a missing row/section).\n"
+    "Tie-break: if unsure between present and degraded, choose present."
 )
 
 USER_TEMPLATE = (
     "QUESTION:\n{question}\n\n"
     "EXPECTED ANSWER (from an independent reference):\n{answer}\n\n"
     "PARSER PAGE TEXT:\n---\n{page}\n---\n\n"
-    "Is the information needed to answer the question present in the page text above?"
+    "Label whether a retriever could recover the answer from the page text above "
+    "(present / degraded / absent)."
 )
 
 JUDGE_SCHEMA = {
     "type": "json_schema",
     "json_schema": {
-        "name": "presence_judgment",
+        "name": "recoverability_judgment",
         "strict": True,
         "schema": {
             "type": "object",
             "additionalProperties": False,
             "properties": {
-                "present": {"type": "boolean"},
+                "label": {"type": "string", "enum": ["present", "degraded", "absent"]},
                 "evidence": {
                     "type": "string",
-                    "description": "Verbatim quote from the page if present, else empty.",
+                    "description": "Verbatim quote from the page if present/degraded, else empty.",
                 },
             },
-            "required": ["present", "evidence"],
+            "required": ["label", "evidence"],
         },
     },
 }
@@ -167,12 +188,13 @@ def main() -> int:
                          if not l1_normalized(qa.answer_span, pages.get(qa.page_id, ""))]
             judged = l1_absent if args.max_per_parser <= 0 else l1_absent[: args.max_per_parser]
 
-            artifact = 0
+            labels = {"present": 0, "degraded": 0, "absent": 0}
             no_page = 0
             for qa in judged:
                 page = pages.get(qa.page_id)
-                if page is None:  # genuinely no output -> not an artifact
+                if page is None:  # genuinely no output -> absent (not an artifact)
                     no_page += 1
+                    labels["absent"] += 1
                     continue
                 key = (name, qa.qa_id)
                 if key in cache:
@@ -181,13 +203,15 @@ def main() -> int:
                     v = _judge(client, args.model, qa.question, qa.answer_span, page)
                     verdict = {"parser": name, "qa_id": qa.qa_id,
                                "question_type": qa.question_type,
-                               "present": bool(v["present"]), "evidence": v["evidence"]}
+                               "label": v["label"], "evidence": v["evidence"]}
                     cache_f.write(json.dumps(verdict, ensure_ascii=False) + "\n")
                     cache_f.flush()
                     cache[key] = verdict
-                if verdict["present"]:
-                    artifact += 1
+                labels[verdict["label"]] += 1
 
+            # artifact = judged present (a surface mismatch, not a parser loss).
+            # genuine-absent = degraded + absent (both non-recoverable by a retriever).
+            artifact = labels["present"]
             l1_absent_n = len(l1_absent)
             with_page = len(judged) - no_page  # items actually sent to the judge
             complete = len(judged) == l1_absent_n  # whole L1-absent set judged (not capped)
@@ -203,8 +227,10 @@ def main() -> int:
                 "judged_with_page": with_page,
                 "no_page": no_page,
                 "complete": complete,
+                "labels": dict(labels),  # present / degraded / absent
                 "artifact": artifact,
                 "artifact_frac_of_absent": artifact / with_page if with_page else 0.0,
+                "degraded_frac_of_absent": labels["degraded"] / with_page if with_page else 0.0,
                 "genuine_absent": genuine if complete else None,
                 "semantic_absent_rate": sem_rate,
             }
@@ -222,9 +248,11 @@ def main() -> int:
     logger.info("wrote %s", args.out_dir / "absent_llm_judge.json")
     for name, s in summary.items():
         sem = f"{s['semantic_absent_rate']:.1%}" if s["semantic_absent_rate"] is not None else "n/a (capped)"
+        lb = s["labels"]
         print(f"{name:12s}  L1-absent {s['l1_absent_rate']:.1%}  ->  "
               f"semantic-absent {sem}  "
-              f"(artifact {s['artifact_frac_of_absent']:.0%} of absent)")
+              f"(present/degraded/absent = {lb['present']}/{lb['degraded']}/{lb['absent']}; "
+              f"artifact {s['artifact_frac_of_absent']:.0%})")
     return 0
 
 
