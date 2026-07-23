@@ -50,7 +50,7 @@ We confirm this with a **cross-family judge**: OpenAI GPT-5.4, which shares no
 lineage with the Qwen3 reference, the parsers, or the gold spans, adjudicates
 every L1-absent answer as genuinely-missing vs present-but-surface-mismatched
 (content, not formatting), applied symmetrically to all parsers. Genuine
-(judge-confirmed) absent: Prod 9.2%, MinerU 56.7%, PaddleOCR 47.4% — a
+(judge-confirmed) absent: Prod 9.2%, MinerU 56.7%, PaddleOCR 47.5% — a
 **+47.5 pp** MinerU−Prod gap. Notably the exact-span matcher over-counted *Prod's*
 absent more than MinerU's (54% of Prod's absent were surface artifacts vs only
 19% of MinerU's), the opposite of what the same-family-bias hypothesis predicts;

@@ -73,7 +73,9 @@ def l1_normalized(answer: str, page: str) -> bool:
 
 def l2_numeric(answer: str, page: str) -> bool:
     """L1 plus in-content punctuation and digit-separator neutralisation."""
-    strip = lambda s: _L2_PUNCT.sub("", normalize_for_match(s))
+    def strip(s: str) -> str:
+        return _L2_PUNCT.sub("", normalize_for_match(s))
+
     span = strip(answer)
     return bool(span) and span in strip(page)
 

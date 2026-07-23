@@ -189,31 +189,41 @@ def main() -> int:
                     artifact += 1
 
             l1_absent_n = len(l1_absent)
-            genuine = l1_absent_n - artifact  # (judged subset; equal to full set when max=0)
+            with_page = len(judged) - no_page  # items actually sent to the judge
+            complete = len(judged) == l1_absent_n  # whole L1-absent set judged (not capped)
+            genuine = l1_absent_n - artifact
+            # semantic_absent_rate is only valid when the whole L1-absent set was
+            # judged; a capped (--max_per_parser) pilot would overstate it, so gate it.
+            sem_rate = genuine / total if complete else None
             summary[name] = {
                 "total_qa": total,
                 "l1_absent": l1_absent_n,
                 "l1_absent_rate": l1_absent_n / total,
                 "judged": len(judged),
+                "judged_with_page": with_page,
                 "no_page": no_page,
+                "complete": complete,
                 "artifact": artifact,
-                "artifact_frac_of_absent": artifact / len(judged) if judged else 0.0,
-                "genuine_absent": genuine,
-                "semantic_absent_rate": genuine / total,
+                "artifact_frac_of_absent": artifact / with_page if with_page else 0.0,
+                "genuine_absent": genuine if complete else None,
+                "semantic_absent_rate": sem_rate,
             }
-            logger.info("%s: L1-absent=%.1f%% -> semantic-absent=%.1f%% (artifact %d/%d)",
+            logger.info("%s: L1-absent=%.1f%% -> semantic-absent=%s (artifact %d/%d)",
                         name, summary[name]["l1_absent_rate"] * 100,
-                        summary[name]["semantic_absent_rate"] * 100, artifact, len(judged))
+                        f"{sem_rate * 100:.1f}%" if sem_rate is not None else "n/a (capped run)",
+                        artifact, with_page)
 
     (args.out_dir / "absent_llm_judge.json").write_text(
         json.dumps({"config": {"model": args.model, "num_qa": total,
-                              "note": "semantic_absent_rate assumes judged==all L1-absent; "
-                                      "run with --max_per_parser 0 for the headline number"},
+                              "note": "semantic_absent_rate is null unless the whole "
+                                      "L1-absent set was judged (complete=true); use "
+                                      "--max_per_parser 0 for the headline number"},
                    "parsers": summary}, ensure_ascii=False, indent=2))
     logger.info("wrote %s", args.out_dir / "absent_llm_judge.json")
     for name, s in summary.items():
+        sem = f"{s['semantic_absent_rate']:.1%}" if s["semantic_absent_rate"] is not None else "n/a (capped)"
         print(f"{name:12s}  L1-absent {s['l1_absent_rate']:.1%}  ->  "
-              f"semantic-absent {s['semantic_absent_rate']:.1%}  "
+              f"semantic-absent {sem}  "
               f"(artifact {s['artifact_frac_of_absent']:.0%} of absent)")
     return 0
 

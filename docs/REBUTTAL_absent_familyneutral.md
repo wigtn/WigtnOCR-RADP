@@ -92,13 +92,13 @@ parsers, or the gold spans.
 
 Each L1-absent answer → `genuine_absent` (judge: not present) or `artifact`
 (judge: present, L1 missed it). **RESULT (ran ml35, GPT-5.4, full L1-absent sets,
-937 verdicts):**
+1,017 verdicts):**
 
 ```
                  L1-absent   artifact(% of absent)   semantic-absent
-Prod             20.2%       54% (74/134)            9.2%
-MinerU           70.4%       19% (93/467)            56.7%
-PaddleOCR        62.7%       25% (102/416)           47.4%
+Prod             20.2%       54% (73/134)            9.2%
+MinerU           70.4%       19% (91/467)            56.7%
+PaddleOCR        62.7%       24% (101/416)           47.5%
 ```
 
 MinerU−Prod semantic-absent gap = **+47.5 pp**. Prod's artifact fraction (54%) >
