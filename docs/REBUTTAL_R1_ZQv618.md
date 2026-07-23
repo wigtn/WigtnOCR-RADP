@@ -75,16 +75,19 @@ quotes are released for audit.
 
 We note the paper's matcher already strips markdown and whitespace *specifically*
 so that formatting cannot penalise non-VLM parsers (design comment in the
-released code); the analyses above extend that to content surface form. We will
-fold the ladder into the C2 table and add the judge/anchor as an appendix.
+released code); the analyses above extend that to content surface form. We add
+the ladder and judge tables as a new appendix (Appendix~C) and point to it from
+the C2 paragraph.
 
-**R1.2 — Parser problem definition.** We will add a half-page setup subsection
-specifying the parser's exact I/O for this corpus: input = a single page image;
-output = markdown; what is discarded (layout coordinates, figures reduced to
-captions); how Prod's fine-tuning data and the reference markdown were
-constructed and de-noised; and a short taxonomy of what produces an *absent*
-answer — dropped table cells, skipped figure/stamp text, mis-OCR'd numerals —
-with 2–3 worked examples. This directly addresses the crux of C2.
+**R1.2 — Parser problem definition.** We add this (Appendix C, kept out of the
+6-page body only for space): the parser's exact I/O for this corpus (input = a
+single page image; output = markdown; what is discarded — layout coordinates,
+fonts, figure imagery reduced to captions, page furniture); how Prod's
+fine-tuning data and the reference markdown were constructed and de-noised; and a
+taxonomy of what produces an *absent* answer — dropped table cells (MinerU absent
+on 87.9% of table-evidence answers vs Prod's 13.9%), skipped in-image text
+(captions, stamps, seals), and mis-recognised numerals. The body's C2 paragraph
+now points here, directly addressing the crux of C2.
 
 **R1.3 — Conceptual novelty.** We agree end-to-end evaluation before deployment
 *should* be standard; our contribution is the evidence that it is not, and the
