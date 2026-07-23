@@ -31,13 +31,15 @@ fixed across systems (paired bootstrap CIs, 1,000+ resamples), and the protocol
 requires no manual relevance annotation. We are happy to add a reproducibility
 checklist and exact run commands to the appendix if that would help.
 
-**"Novelty is unclear."** The contribution is not a new similarity function but
-the finding — with tooling — that intrinsic parser metrics *invert* the correct
-deployment choice (a 2.8× Hit@1 swing), that the failure localises to the parser
-layer (a fault-localisation diagnostic, not an end-to-end score), and that
-retriever-averaged, format-normalised selection is what recovers the right
-parser. Parsing benchmarks today still rank by intrinsic fidelity, so this is not
-yet standard practice. We will state the delta more explicitly in the intro.
+**"Novelty is unclear."** The contribution is not a new similarity function — its
+simplicity is deliberate — but the empirical finding that intrinsic parser metrics
+*invert* the correct deployment choice (a 2.8× Hit@1 swing), that the failure
+localises to the parser layer (a fault-localisation diagnostic, not an end-to-end
+score), and that retriever-averaged, format-normalised selection recovers the
+right parser. Extrinsic selection *should* be standard practice, yet parser
+leaderboards are still ranked by intrinsic fidelity; quantifying that misranking
+and removing its cost is exactly the ought-vs-is gap an Industry-Track paper
+exists to close. We will state this delta explicitly in the intro.
 
 **"Difficult to read."** We take this seriously and will revise for clarity:
 splitting the long multi-clause sentences (starting with the abstract),
