@@ -2,7 +2,7 @@
 
 > ⚠️ **제출 전 이 `>` 전략 블록 전체를 삭제할 것** (내부 메모 — 리뷰어/AC에게 나가면 안 됨).
 > 전략(팀 방향 반영): R1은 살릴 리뷰(3.0, Soundness 3.5). 4개 지적을 유형별로 다르게 친다.
-> - 지적1(정의 부재)=판독불가 공격 → **약속 말고 지금 보여준다**(표 붕괴 실사례 1개).
+> - 지적1(정의 부재)=판독불가 공격 → **약속 말고 지금 정의를 채운다**(입출력·버리는 것·absent 원인). (MinerU melted-table 실사례는 config 노출 위험으로 제거함.)
 > - 지적2(순환성)=confound/관측적 동치 → 같은 측정기 데이터로는 안 깨짐. **다른 예측 지점(케이스를 열어봄)**에서만 깨진다: 직접 검사(실사례)+사람 검증 표본+교차가족 심판. 판정기준은 "존재"가 아니라 **retriever 회수가능성**(Degraded=회수불가→true-absent).
 > - 지적3(novelty)=가치평가 → 반박 대신 **축 이동**(프로토콜 단순함 인정→findings가 주인공). 리뷰어의 "should"·Soundness 3.5·"interesting"을 아군으로. Industry Track의 존재이유=당위-현실 갭.
 > - 지적4(density)=무조건 수용 + 구체 재배치("X빼고 Y넣는다"). 하나를 조건없이 수용해 나머지 3의 신뢰도를 올린다.
@@ -25,16 +25,10 @@ is fixed. We define it concretely (and add Appendix~C):
   reading order, headings as ATX levels, tables as GitHub-flavoured Markdown.
   Discarded: layout coordinates, fonts, figure imagery (a figure survives only
   as emitted caption/in-image text), page furniture.
-- **How ``absent'' arises (the crux).** A concrete case from our eval
-  (page `val_0000`, a unit-price schedule 단가산출서). The question asks for the
-  overhead cost (경비) of a pipe-laying line item; the gold answer is `5,943`.
-  **Prod** parses the full nine-column table (품명/규격/단위/합계/노무비/재료비/
-  경비/…), so the value is present and retrievable. **MinerU** emits, for the
-  entire page, a single line — `![](images/…​.jpg)` (80 characters total): the
-  table collapsed to an unparsed image reference, so every cell value is gone.
-  This is the dominant absent mechanism (dropped/melted tables): MinerU is absent
-  on 87.9% of table-evidence answers vs Prod's 13.9%. The other two are skipped
-  in-image text (captions, stamps, seals) and mis-recognised numerals.
+- **How ``absent'' arises.** Absence is structural and concentrates by evidence
+  type — table content that does not reach the Markdown, skipped in-image text
+  (captions, stamps, seals), and mis-recognised numerals/units. Because these are
+  content-production failures, no chunker recovers them.
 - **Provenance.** Prod is a Qwen3-VL-2B fine-tune; the reference markdown that
   defines fidelity and the gold spans is distilled from a Qwen3-VL-30B teacher
   and manually de-noised (pseudo-ground-truth, not human transcription; see
@@ -51,16 +45,10 @@ winner sharing a notation) and our hypothesis (parser quality) are
 observationally equivalent under any Qwen3-based matching. The only way out is a
 measurement where the two hypotheses predict *different* things: open the absent
 cases and look. The confound predicts the answer is present but differently
-formatted; our hypothesis predicts the content is genuinely gone. We test this at
-three scales, and by construction none depends on Qwen3 notation:
+formatted; our hypothesis predicts the content is genuinely gone. We test this
+two ways, and by construction neither depends on Qwen3 notation:
 
-**(a) Direct inspection — the worked example above.** In the `val_0000` case
-MinerU's entire page is an image placeholder: there is *no text at all* to
-mismatch. A notation-sharing artifact cannot explain an absence where the parser
-emitted zero table text. This is exactly the "open the case and look" arbiter,
-and it lands on our side.
-
-**(b) A matching-strictness ladder** (Appendix~C), applied identically to every
+**(a) A matching-strictness ladder** (Appendix~C), applied identically to every
 parser, neutralising in turn digit/punctuation formatting, word order, and OCR
 character noise. If the gap were surface-form it would shrink as the matcher
 loosens. It does the opposite:
@@ -82,10 +70,10 @@ openly: the gold spans are Qwen-teacher-derived, so the ladder loosens the match
 on the parser side but not the target side; the OHR-Bench check below, whose gold
 is human-curated, is what closes that.)
 
-**(c) A cross-family arbiter.** A GPT-5.4 judge — a *different family than the
+**(b) A cross-family arbiter.** A GPT-5.4 judge — a *different family than the
 parsers under test* (GPT vs Qwen3-VL); note the gold Q–A are GPT-generated, so the
 judge is independent of the parsers being ranked but not of the query
-distribution, which is exactly why legs (a) and (b) — model-free — carry the
+distribution, which is exactly why the model-free ladder (a) carries the
 argument and this only corroborates — labels every L1-absent answer by the paper's
 own relevance criterion, **retriever-recoverability**: *present* (recoverable → a
 surface artifact), *degraded* (physically on the page but not retriever-recoverable
@@ -101,11 +89,11 @@ load-bearing: even at the adversarial extreme of counting *every* degraded case
 as present (artifact), the genuine gap is still Prod 8.4% vs MinerU 52.8% =
 **+44 pp**.
 
-Crucially, this refutation does not rest on any LLM: (a) and (b) — the worked
-example and the deterministic matching ladder — are model-free, and they already
-place the gap at +50–52 pp; the cross-family judge (c) only confirms it. For
-camera-ready we will additionally human-verify a blind, stratified subsample
-against the same criterion and report its artifact rate whichever way it falls.
+Crucially, this refutation does not rest on any LLM: the deterministic matching
+ladder (a) is model-free and already places the gap at +50–52 pp; the
+cross-family judge (b) only confirms it. For camera-ready we will additionally
+human-verify a blind, stratified subsample against the same criterion and report
+its artifact rate whichever way it falls.
 
 As the criterion is loosened — exact substring → OCR-fuzzy → LLM
 recoverability — the MinerU−Prod gap does not shrink:
