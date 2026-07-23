@@ -130,8 +130,17 @@ def main() -> int:
     ap.add_argument("--root", type=Path, default=KOGOV_ROOT)
     ap.add_argument("--val_jsonl", type=Path, default=VAL_JSONL)
     ap.add_argument("--ref", default="Prod", help="baseline parser for the gap table")
+    ap.add_argument("--override", nargs="*", default=[], metavar="NAME=SUBDIR",
+                    help="override a parser's output subdir, e.g. "
+                         "MinerU=mineru_val_tableon/predictions (for the table-on re-run)")
     ap.add_argument("--out_dir", type=Path, default=Path("output/diagnostics"))
     args = ap.parse_args()
+
+    for ov in args.override:
+        name, _, sub = ov.partition("=")
+        if name in PARSERS and sub:
+            PARSERS[name] = sub
+            logger.info("override: %s -> %s", name, sub)
 
     qa_pairs = load_qa_pairs(args.qa)
     rows: dict[str, dict[str, Any]] = {}

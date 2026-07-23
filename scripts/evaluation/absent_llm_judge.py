@@ -157,8 +157,17 @@ def main() -> int:
     ap.add_argument("--parsers", nargs="*", default=["Prod", "MinerU", "PaddleOCR"])
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--max_per_parser", type=int, default=0, help="0 = judge all L1-absent")
+    ap.add_argument("--override", nargs="*", default=[], metavar="NAME=SUBDIR",
+                    help="override a parser's output subdir, e.g. "
+                         "MinerU=mineru_val_tableon/predictions")
     ap.add_argument("--out_dir", type=Path, default=Path("output/diagnostics"))
     args = ap.parse_args()
+
+    for ov in args.override:
+        name, _, sub = ov.partition("=")
+        if name in PARSERS and sub:
+            PARSERS[name] = sub
+            logger.info("override: %s -> %s", name, sub)
 
     load_dotenv()
     if not os.environ.get("OPENAI_API_KEY"):
