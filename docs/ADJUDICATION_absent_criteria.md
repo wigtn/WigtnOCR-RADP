@@ -72,16 +72,16 @@ is real (MinerU, PaddleOCR), and report it *whichever way it falls*.
   semantic-absent numbers and say so; the deterministic ladder (Appendix~C) is
   unaffected either way and remains the primary evidence.
 
-## LLM judge changes needed (scripts/evaluation/absent_llm_judge.py)
+## LLM judge (scripts/evaluation/absent_llm_judge.py) — DONE
 
-Current judge is binary (`present` bool). To match this protocol:
-- Change the schema to `{label: present|degraded|absent, evidence: str}`.
-- `genuine_absent = degraded + absent`; `artefact = present`.
-- Keep the cross-family model (GPT-5.4) and the symmetric application to all
-  parsers incl. Prod. Re-run over the L1-absent sets (~1,017 calls); cache resets.
-- Expected effect: degraded cases currently rated "present" (artefact) move to
-  true-absent, so the MinerU−Prod genuine gap can only **grow** vs the binary
-  +47.5 pp — but report the actual number.
+The judge is now the 3-way `{label: present|degraded|absent, evidence}` schema;
+`genuine_absent = degraded + absent`, `artefact = present`; cross-family GPT-5.4,
+symmetric across parsers incl. Prod. **Run 2026-07-24, 1,017 verdicts, JSON↔cache
+verified.** Result (of each parser's L1-absent set): present/degraded/absent =
+Prod 56/2/42%, MinerU 16/9/75%, PaddleOCR 16/22/63%. genuine-absent Prod 8.9% /
+MinerU 59.3% / PaddleOCR 52.8% → MinerU−Prod **+50.4 pp** (binary was +47.5, so
+the degraded recategorisation widened it as expected). Even counting all degraded
+as present, the gap is still +44 pp — the contested label is not load-bearing.
 
 ## Honesty clause (put a version of this in the rebuttal)
 

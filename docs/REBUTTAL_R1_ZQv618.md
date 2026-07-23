@@ -1,5 +1,6 @@
 # Rebuttal to R1 (ZQv618) — constructive, goal = raise score
 
+> ⚠️ **제출 전 이 `>` 전략 블록 전체를 삭제할 것** (내부 메모 — 리뷰어/AC에게 나가면 안 됨).
 > 전략(팀 방향 반영): R1은 살릴 리뷰(3.0, Soundness 3.5). 4개 지적을 유형별로 다르게 친다.
 > - 지적1(정의 부재)=판독불가 공격 → **약속 말고 지금 보여준다**(표 붕괴 실사례 1개).
 > - 지적2(순환성)=confound/관측적 동치 → 같은 측정기 데이터로는 안 깨짐. **다른 예측 지점(케이스를 열어봄)**에서만 깨진다: 직접 검사(실사례)+사람 검증 표본+교차가족 심판. 판정기준은 "존재"가 아니라 **retriever 회수가능성**(Degraded=회수불가→true-absent).
@@ -74,12 +75,18 @@ loosens. It does the opposite:
 | MinerU − Prod gap | **+50.2 pp** | **+51.7 pp** |
 
 The gap is stable and *widens* at L4; the two other same-family parsers sit
-within −1.4…+5 pp of Prod, so shared lineage alone confers no low absent rate.
+within −1.3…+5.0 pp of Prod, so shared lineage alone confers no low absent rate.
 Loosening recovers more of Prod's absent (−3.3 pp of near-miss surface forms)
-than MinerU's (−1.8 pp): MinerU's absent is *hard* absence.
+than MinerU's (−1.8 pp): MinerU's absent is *hard* absence. (One caveat we state
+openly: the gold spans are Qwen-teacher-derived, so the ladder loosens the match
+on the parser side but not the target side; the OHR-Bench check below, whose gold
+is human-curated, is what closes that.)
 
-**(c) A cross-family arbiter.** A GPT-5.4 judge — no lineage with the Qwen3
-reference, parsers, or gold spans — labels every L1-absent answer by the paper's
+**(c) A cross-family arbiter.** A GPT-5.4 judge — a *different family than the
+parsers under test* (GPT vs Qwen3-VL); note the gold Q–A are GPT-generated, so the
+judge is independent of the parsers being ranked but not of the query
+distribution, which is exactly why legs (a) and (b) — model-free — carry the
+argument and this only corroborates — labels every L1-absent answer by the paper's
 own relevance criterion, **retriever-recoverability**: *present* (recoverable → a
 surface artifact), *degraded* (physically on the page but not retriever-recoverable
 → true-absent), *absent* (not on the page → true-absent). Judging recoverability
@@ -89,7 +96,10 @@ absent is **Prod 8.9% vs MinerU 59.3% — a +50.4 pp gap**. Decisively, the exac
 matcher over-counts *Prod's* absent (56% surface artifacts) ~3.5× more than the
 OCR parsers' (~16%) — the exact opposite of what same-family bias predicts;
 PaddleOCR alone has 22% *degraded* (OCR-mangled beyond retrieval), a category a
-binary present/absent test would have mislabelled.
+binary present/absent test would have mislabelled. The `degraded` label is not
+load-bearing: even at the adversarial extreme of counting *every* degraded case
+as present (artifact), the genuine gap is still Prod 8.4% vs MinerU 52.8% =
+**+44 pp**.
 
 Crucially, this refutation does not rest on any LLM: (a) and (b) — the worked
 example and the deterministic matching ladder — are model-free, and they already
@@ -97,18 +107,21 @@ place the gap at +50–52 pp; the cross-family judge (c) only confirms it. For
 camera-ready we will additionally human-verify a blind, stratified subsample
 against the same criterion and report its artifact rate whichever way it falls.
 
-Across three unrelated matching regimes the MinerU−Prod gap holds within a 4 pp
-band:
+As the criterion is loosened — exact substring → OCR-fuzzy → LLM
+recoverability — the MinerU−Prod gap does not shrink:
 
 | Matching regime | MinerU−Prod absent gap |
 |---|---|
 | Exact-span (paper's L1 matcher) | +50.2 pp |
 | OCR-noise-tolerant fuzzy (L4) | +51.7 pp |
-| Cross-family judge (recoverability criterion) | +50.4 pp |
+| Cross-family recoverability judge | +50.4 pp |
 
-A strict substring test, a fuzzy character matcher, and a non-Qwen LLM judging
-retriever-recoverability agree within **2 pp** — no artifact explains a gap this
-large across measurers this different. Two supporting points: the paper's matcher already
+These are progressive refinements on the same L1-absent set and gold spans, not
+three independent measurements, so their agreement shows the gap is neither a
+surface-form nor a recoverability artifact — it is not from-scratch triangulation.
+The one genuinely orthogonal check is OHR-Bench, whose gold Q–A are human-curated
+and family-independent, and the gap direction holds there too. Two further points:
+the paper's matcher already
 strips markdown/whitespace *specifically* so formatting cannot penalise non-VLM
 parsers (design comment in the released code), and on **OHR-Bench** — whose
 answers are human-curated and family-independent — the same direction holds, so

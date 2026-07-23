@@ -1,5 +1,6 @@
 # Rebuttal to R2 (NAor1) — goal = correct misreads, let the AC down-weight
 
+> ⚠️ **제출 전 이 `>` 전략 블록 + 위 제목의 "let the AC down-weight"까지 삭제할 것** (내부 메모).
 > 전략: R2(1.5)는 actionable 결론이 없고 핵심 근거가 **사실 오독**. 공격하지 말고,
 > 정중하게 팩트만 교정해서 "이 리뷰의 감점 사유가 오해에 기반한다"는 걸 AC가
 > 스스로 보게 한다. 특히 (1) 외부 벤치마크 미사용 주장 → OHR-Bench가 바로 그것,
