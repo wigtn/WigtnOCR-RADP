@@ -95,6 +95,13 @@ We construct \textbf{KoGovDoc-RAG}: 663 Q--A pairs over 294 pages of Korean gove
 
 Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \citep{qwen3vl} fine-tuned for Korean document parsing; all training deltas are measured against it. RADP-aux uses a 73-page held-out fold (202 Q--A); RADP-DPO, SimPO, and the \S\ref{sec:mechanism} analysis use the combined 242-page fold (train $\cup$ eval, 663 Q--A), with preference pairs built only from the 169-page train fold. The same 663 Q--A occupy 242 of the 294 KoGov pages; the coverage diagnostic (\S\ref{sec:c1c2}) runs over Prod's full 294-page output, the extra 52 Q--A-free pages acting as distractors. Parses for the 12-variant comparison (\S\ref{sec:c4}) use deterministic decoding (temperature 0, max 1536 tokens). We fine-tune with LoRA \citep{hu2021lora} ($r = 8$, $\alpha = 32$), sweeping $\lambda \in \{0, 0.1, 0.3, 0.5\}$ for RADP-aux. \rcps{} uses the three retrievers and cutoffs of \S\ref{sec:rcps}; we report paired percentile-bootstrap 95\% CIs (1{,}000 resamples), preserving Q--A pairing across systems.
 
+\subsection{What a Parser Produces---and Drops}
+\label{sec:parser-def}
+
+A \emph{document parser} here maps a single rendered page image to a linear Markdown transcription of its readable content---body text in reading order, headings as ATX levels, tables as GitHub-flavoured Markdown. Non-textual structure is deliberately discarded: layout coordinates, font and colour, figure imagery (a figure survives only through whatever caption or in-image text is emitted), and page furniture (running heads, stamps, margin notes) unless transcribed. Downstream, only this Markdown is chunked, embedded, and retrieved, so any answer content the parser fails to emit is invisible to every later stage---precisely what the coverage diagnostic (\S\ref{sec:coverage}) measures. \textbf{Prod} follows this contract; the \emph{reference} markdown that defines fidelity (TextNED) and the gold answer spans is distilled from a Qwen3-VL-30B teacher and manually de-noised (pseudo-ground-truth, not human transcription; see Limitations). An answer is \emph{absent} when the parser's own Markdown lacks its gold span under the format-normalised matching of \S\ref{sec:rcps}.
+
+\paragraph{What makes an answer \emph{absent}.} Absence is structural, not random OCR jitter, and concentrates by evidence type: on Prod, table-evidence answers are absent $13.9\%$ of the time and factoid/procedural $\sim\!21\%$, but figure-evidence answers $71.4\%$---figures rendered as images carry no retrievable text. Three recurring causes: \textbf{dropped table cells}---a source value never reaches the Markdown, the dominant OCR-parser failure (MinerU is absent on $87.9\%$ of table-evidence answers vs Prod's $13.9\%$, \S\ref{sec:c1c2}); \textbf{skipped in-image text}---captions, stamps, seals, figure labels; and \textbf{mis-recognised numerals/units}. Because these are content-production failures, no chunker recovers them, motivating the parser-side analysis in \S\ref{sec:c4}.
+
 \subsection{The Parsing--Retrieval Disconnect and Coverage Diagnostic (C1--C2)}
 \label{sec:c1c2}
 
@@ -111,7 +118,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 
 The aggregate cross-variant scalar is sign-sensitive to the document mix (see Limitations); we therefore report the per-family insensitivity pattern, which reproduces in every domain, as the robust finding and treat the scalar as illustrative.
 
-\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}.
+\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}. This parser-side gap is not an artefact of matching gold spans against the same Qwen3 family that produced Prod: the absent rate is stable under a matching-strictness ladder (exact-span through digit-, order-, and OCR-noise-neutral matching) and under a cross-family GPT-5.4 judge, and it is far larger for the OCR-style parsers (MinerU absent $70.4\%$ vs Prod $20.2\%$; the MinerU$-$Prod gap stays within a $4$~pp band---$+50.2$ to $+51.7$~pp---across three unrelated matching regimes, Appendix~\ref{app:familyneutral}).
 
 \subsection{\rcps{} Selects Both Parsers and Chunkers (C3)}
 \label{sec:c3}
@@ -314,6 +321,50 @@ fixed500\_ov200 & 79.8\% & 0.0\% & 20.2\% \\
 \end{tabular}
 \caption{Answer-coverage diagnostic on Prod's output (294 pages, 663 KoGov Q--A; text matching only, no retriever). Absence is determined on the full parser output, so the 20.2\% absent rate is chunker-invariant by construction (four representative rows of eight shown); the chunker-dependent quantity is the split rate, at most 2.3\%, vanishing under overlap. Chunkers: md\_h$\{$1,2,3$\}$ $=$ markdown-header splitting at heading depth $k$; parser\_native $=$ the parser's own segmentation; fixed~$N$[\_ov$M$] $=$ fixed $N$-character windows, optionally with $M$-character overlap.}
 \label{tab:coverage}
+\end{table}
+
+\section{Family-Neutral Absent Diagnostic}
+\label{app:familyneutral}
+
+To test whether the parser absent gap (\S\ref{sec:c1c2}) is a same-family matching artefact---the gold spans, the reference, and Prod all being Qwen3-derived---we recompute each parser's absent rate over the 663 KoGov Q--A under a ladder of increasingly permissive presence matchers, applied identically to every parser: \textbf{L0} raw substring; \textbf{L1} the paper's normalisation (NFKC, case, whitespace, markdown); \textbf{L2} $+$ digit-separator and in-content punctuation removal; \textbf{L3} order-free token recall ($\ge\!90\%$ of answer tokens present); \textbf{L4} longest common substring $\ge\!80\%$ of the answer (OCR-noise tolerant). A surface-form artefact would shrink as the matcher loosens.
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Absent \% & L0 & L1 & L2 & L3 & L4 \\
+\midrule
+Prod (Qwen3-VL-2B) & 24.1 & 20.2 & 19.6 & 24.1 & 16.9 \\
+Qwen3-VL-30B (ref.) & 22.8 & 18.9 & 16.6 & 19.2 & 16.3 \\
+Qwen3-VL-2B-base & 30.0 & 25.2 & 24.7 & 27.0 & 21.1 \\
+MinerU & 74.8 & 70.4 & 68.0 & 73.0 & 68.6 \\
+PaddleOCR & 67.0 & 62.7 & 62.0 & 59.9 & 60.5 \\
+\midrule
+MinerU $-$ Prod & +50.7 & +50.2 & +48.4 & +48.9 & +51.7 \\
+PaddleOCR $-$ Prod & +42.8 & +42.5 & +42.4 & +35.7 & +43.6 \\
+\bottomrule
+\end{tabular}
+\caption{Absent rate under the matching-strictness ladder (663 KoGov Q--A, no retriever). The MinerU/PaddleOCR gap over Prod does not close as surface form is neutralised---it is stable and \emph{widens} at L4. The two other same-family parsers (30B teacher, 2B base) sit within $5$~pp of Prod, so shared lineage alone does not confer a low absent rate.}
+\label{tab:familyneutral}
+\end{table}
+
+A cross-family judge (OpenAI GPT-5.4, sharing no lineage with the Qwen3 reference, parsers, or gold spans) then adjudicates every L1-absent answer as genuinely missing vs present-but-surface-mismatched, symmetrically across parsers (Table~\ref{tab:judge}). It over-counts \emph{Prod's} absent more than MinerU's ($54\%$ vs $19\%$ of each parser's absent are surface artefacts)---the opposite of the same-family-bias hypothesis---and leaves a $+47.5$~pp genuine gap. Across the three unrelated regimes the MinerU$-$Prod gap stays within a $4$~pp band (exact $+50.2$, OCR-fuzzy $+51.7$, cross-family semantic $+47.5$~pp); MinerU's judge-confirmed absences are overwhelmingly table-evidence answers.
+
+\begin{table}[h]
+\centering\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lccc}
+\toprule
+& L1-absent & artefact & genuine absent \\
+\midrule
+Prod & 20.2\% & 54\% & \textbf{9.2\%} \\
+MinerU & 70.4\% & 19\% & \textbf{56.7\%} \\
+PaddleOCR & 62.7\% & 25\% & \textbf{47.4\%} \\
+\bottomrule
+\end{tabular}
+\caption{Cross-family GPT-5.4 judge over every L1-absent answer (937 verdicts). ``artefact'' $=$ share of a parser's L1-absent that the judge finds actually present (surface mismatch); ``genuine absent'' subtracts it. The MinerU$-$Prod genuine gap is $+47.5$~pp.}
+\label{tab:judge}
 \end{table}
 
 \section{OHR-Bench Noise-Family Grid}
