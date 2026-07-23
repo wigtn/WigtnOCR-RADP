@@ -38,10 +38,23 @@ import argparse
 import json
 import logging
 import os
-import shutil
+import re
 import subprocess
 import tempfile
 from pathlib import Path
+
+# MinerU emits tables as HTML (<table><td>...) not markdown pipes. Left raw, the
+# `<td>`/`</td>` remnants sit between cell values and make the format-normalised
+# matcher HARSHER on HTML than on markdown (a markdown `|` is stripped to nothing,
+# but `<td` leaves letters). Replacing every tag with a space makes cell values
+# space-separated, so an HTML table normalises the same way a markdown table does
+# — a fair comparison with the other parsers. Single-cell answer spans are
+# unaffected either way; this only removes the cross-cell HTML penalty.
+_HTML_TAG = re.compile(r"<[^>]+>")
+
+
+def _strip_html(md: str) -> str:
+    return _HTML_TAG.sub(" ", md)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("run_mineru_tableon")
@@ -100,6 +113,9 @@ def main() -> int:
     ap.add_argument("--device", default="cpu", help="cpu or cuda")
     ap.add_argument("--mode", default="auto", help="magic-pdf parse mode (auto/ocr)")
     ap.add_argument("--limit", type=int, default=0, help="only first N pages (pilot); 0 = all")
+    ap.add_argument("--keep_html", action="store_true",
+                    help="keep MinerU's raw HTML tables (default: strip tags to spaces "
+                         "for a fair comparison with markdown parsers)")
     args = ap.parse_args()
 
     pages = _kogov_pages(args.val_jsonl)
@@ -113,7 +129,7 @@ def main() -> int:
     logger.info("using table-on config: %s (device=%s)", cfg, args.device)
 
     args.out.mkdir(parents=True, exist_ok=True)
-    ok = missing_img = failed = 0
+    ok = missing_img = failed = with_table = 0
     with tempfile.TemporaryDirectory(prefix="mineru-work-") as work:
         work = Path(work)
         for i, (doc, page) in enumerate(pages, 1):
@@ -137,16 +153,20 @@ def main() -> int:
                 logger.warning("[%d/%d] no .md produced for %s_%s", i, len(pages), doc, page)
                 failed += 1
                 continue
-            shutil.copyfile(md, args.out / f"{doc}_{page}.md")
+            raw = md.read_text(encoding="utf-8", errors="ignore")
+            if "<td" in raw or "<table" in raw or raw.count("|") >= 8:
+                with_table += 1  # a table was actually parsed (HTML or markdown)
+            text = raw if args.keep_html else _strip_html(raw)
+            (args.out / f"{doc}_{page}.md").write_text(text, encoding="utf-8")
             ok += 1
             if i % 20 == 0:
                 logger.info("[%d/%d] parsed", i, len(pages))
 
-    # sanity: how many pages now contain a markdown table?
-    tbl = sum(1 for f in args.out.glob("*.md")
-              if f.read_text(encoding="utf-8", errors="ignore").count("|") >= 8)
-    logger.info("done: %d parsed, %d missing-image, %d failed; %d/%d pages have a markdown table",
-                ok, missing_img, failed, tbl, ok)
+    # sanity: how many parsed pages actually contained a table (HTML or markdown,
+    # counted on the RAW MinerU output before tag-stripping)?
+    logger.info("done: %d parsed, %d missing-image, %d failed; %d/%d parsed pages had a table "
+                "(pre-strip). If this is ~0, tables-on is NOT working — stop and check the version.",
+                ok, missing_img, failed, with_table, ok)
     logger.info("output: %s", args.out)
     Path(cfg).unlink(missing_ok=True)
     return 0

@@ -23,13 +23,23 @@ and recompute.
 - ➕ You add: the MinerU re-parse itself (was run outside the repo originally).
   `scripts/evaluation/run_mineru_tableon.py` (new) does it.
 
-## Step 0 — environment
+## Step 0 — environment (may be fully from scratch)
+
+Do NOT assume magic-pdf, models, config, or the old parser outputs are present —
+on a fresh machine none of them are. Confirmed working recipe:
 
 ```bash
 git fetch && git checkout rebuttal/family-neutral-absent && git pull
-uv pip install "magic-pdf>=1.0,<2"     # same 1.x family that made the models
-# models already on disk; magic-pdf.json points to them (models-dir)
+uv pip install "magic-pdf>=1.0,<2"          # 1.3.12 resolves; do NOT let it fall to 0.6.1
+# download models: magic-pdf's model-download script (writes magic-pdf.json + models)
+# gotcha (seen 2026-07): the latest HF model snapshot dropped some older OCR files
+#   (e.g. ch_PP-OCRv3_det) — fetch them if a run errors on a missing detector; and
+#   the newest transformers conflicts with the formula model — pin `transformers==4.49`.
 ```
+
+Then locate on this machine: the KoGov page images (`<doc>/<page>.png`), the
+results root (holds v1_val/ etc.), and data/KoGovDoc-*/*.jsonl. If the old parser
+outputs are gone, you only need MinerU (new) + Prod (v1_val) for the gap.
 
 ## Step 1 — PILOT (de-risk: does tables-on actually parse tables?)
 
@@ -40,15 +50,18 @@ Parse just a few pages first. The melted-table page is `kogov_008/page_0544.png`
 uv run python scripts/evaluation/run_mineru_tableon.py \
     --images_root <IMAGES>/documents \
     --out /tmp/mineru_pilot --device cpu --limit 5
-# the log ends with ".../5 pages have a markdown table" — expect > 0.
-# eyeball: grep -c '|' /tmp/mineru_pilot/kogov_008_page_0544.md   (should be many)
+# the log ends with ".../5 parsed pages had a table (pre-strip)" — expect > 0.
 ```
 
-- **Tables appear → go to Step 2.**
-- **Still 0 tables** → version/model mismatch. Try a different magic-pdf version,
-  or check the temp config actually set `table-config.enable:true` (the script
-  prints its path — inspect it). Do not proceed to the full run until the pilot
-  shows tables.
+Note: MinerU emits tables as **HTML `<table><td>`**, not markdown `|`. The script
+detects that (counts `<td`) and, by default, strips HTML tags to spaces on save so
+the output compares fairly with the markdown parsers (`--keep_html` keeps raw). So
+don't be alarmed that the saved `.md` has no `|`.
+
+- **Table detected (count > 0) → go to Step 2.**
+- **Still 0 tables** → version/model mismatch (esp. if magic-pdf fell to 0.6.1,
+  which has no rapid_table). Fix install/models and re-pilot. Do not run the full
+  parse until the pilot shows a table.
 
 `<IMAGES>` = the dir whose children are `kogov_001/`, `kogov_008/`, … Each holds
 `page_XXXX.png`. (On the old server this was
@@ -105,3 +118,16 @@ update `tab:grid` / the family-neutral appendix with the table-on MinerU numbers
 The worked example was already removed from the paper (config-exposure risk); if
 the table-on run still shows a genuine table loss, a re-caveated version can go
 back in.
+
+**Two honest caveats to report with the table-on numbers:**
+1. *Version fidelity.* The table-on re-run uses a freshly-installed magic-pdf
+   (1.3.12 + 2026 models + `transformers==4.49`), which may differ from whatever
+   version produced the original `mineru_val`. So this is not a perfect
+   apples-to-apples *version* comparison. But the load-bearing conclusion — that
+   the previously-absent table content *is parseable* (so the original absence was
+   the disabled-table config, not MinerU's inability) — does not depend on the
+   version; it's a capability existence proof. State the version explicitly.
+2. *HTML tables.* MinerU tables are HTML; the script strips tags to spaces so
+   single-cell answer values match as substrings (verified). After re-measuring,
+   spot-check a handful of MinerU-tableon *still-absent* cases to confirm they're
+   genuinely missing, not cross-cell-span artifacts of the matcher.
