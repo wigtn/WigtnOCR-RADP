@@ -42,7 +42,7 @@ yet standard practice. We will state the delta more explicitly in the intro.
 **"Difficult to read."** We take this seriously and will revise for clarity:
 splitting the long multi-clause sentences (starting with the abstract),
 standardising terminology (parser / chunker / retriever roles defined up front),
-and adding a short parser problem-definition subsection so the setup is
+and adding a parser problem-definition (Appendix~C) so the setup is
 self-contained. No result depends on the dense phrasing; the revision is purely
 expository.
 

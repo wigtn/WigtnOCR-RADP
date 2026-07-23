@@ -44,7 +44,8 @@ than MinerU's (70.4→68.6, only −1.8 pp), i.e. MinerU's absent is *hard* abse
 content the fuzzy matcher cannot find because it is not there. The failure
 concentrates where content is lost: MinerU's absent is 87.9% on table-evidence
 answers (Prod 13.9%) and does not improve at L4, exactly the dropped-table-cell
-mechanism the paper describes. We will fold this table into C2.
+mechanism the paper describes. This table is added as a new appendix (Appendix~C),
+referenced from C2.
 
 We confirm this with a **cross-family judge**: OpenAI GPT-5.4, which shares no
 lineage with the Qwen3 reference, the parsers, or the gold spans, adjudicates
@@ -101,8 +102,8 @@ vs a single embedder; and (c) format-normalised span relevance that needs no
 manual chunk annotation. We will sharpen this framing in the intro.
 
 **R1.4 — Density.** We will lighten the abstract (splitting the multi-clause
-sentences), move the noise-family and milestone tables fully to the appendix, and
-use the reclaimed space for R1.2. 
+sentences) and standardise the parser/chunker/retriever terminology up front; the
+new material (R1.1–R1.2) is placed in appendices so the 6-page body does not grow.
 
 We believe R1.1–R1.2 remove the main soundness reservation, and are grateful the
 review pointed to exactly the checks that strengthen the paper.
