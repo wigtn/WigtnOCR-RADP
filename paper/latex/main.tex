@@ -111,7 +111,7 @@ Throughout, \textbf{Prod} denotes our production parser, a Qwen3-VL-2B model \ci
 
 The aggregate cross-variant scalar is sign-sensitive to the document mix (see Limitations); we therefore report the per-family insensitivity pattern, which reproduces in every domain, as the robust finding and treat the scalar as illustrative.
 
-\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}. This parser-side gap is not a same-family matching artefact: it is far larger for the OCR-style parsers (MinerU absent $70.4\%$ vs Prod $20.2\%$; MinerU as configured---a tables-on re-run narrows this to $+45.9$~pp, Limitations), and it holds within a $2$~pp band ($+50.2$ to $+51.7$~pp) across exact-span, OCR-fuzzy, and a cross-family recoverability judge (Appendix~\ref{app:familyneutral}).
+\paragraph{Locating the gap: parser or chunker? (Figure~\ref{fig:coverage}; per-chunker table in Appendix~\ref{app:coverage}).} The disconnect shows that intrinsic metrics mislead, but not which pipeline layer is at fault. Applying the \S\ref{sec:coverage} classification with no retriever to Prod's output (294 pages, 663 Q--A), $20.2\%$ of gold answers are absent and at most $2.3\%$ split. Absence is determined on the full parser output before chunking, so its rate is chunker-invariant by construction: one answer in five is unrecoverable by any chunking strategy---a parser problem, motivating the training in \S\ref{sec:c4}. This parser-side gap is not a same-family matching artefact: it is far larger for the OCR-style parsers (MinerU absent $70.4\%$ vs Prod $20.2\%$), and it holds within a $2$~pp band ($+50.2$ to $+51.7$~pp) across exact-span, OCR-fuzzy, and a cross-family recoverability judge (Appendix~\ref{app:familyneutral}).
 
 \subsection{\rcps{} Selects Both Parsers and Chunkers (C3)}
 \label{sec:c3}
@@ -352,7 +352,7 @@ A judge from a different family than the parsers under test (OpenAI GPT-5.4, not
 
 \begin{table}[h]
 \centering\footnotesize
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcccc}
 \toprule
 & present & degraded & absent & genuine \\
