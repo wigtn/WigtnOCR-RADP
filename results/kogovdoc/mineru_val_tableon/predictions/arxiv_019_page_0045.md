@@ -1,0 +1,2 @@
+![](images/4e72b1327c3fd80e1daf82e9da35c6e377d6ebada0ee400fbc1b04207666a498.jpg)  
+igure34.NearestneighborsofourbestLSUN-Churchesmodel,computedinthefaturespaceofaVGG-16[79].Theefmostsample s from our model. The remaining samples in each row are its 1O nearest neighbors.

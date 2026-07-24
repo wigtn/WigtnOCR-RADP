@@ -1,0 +1,22 @@
+# 4.4SCALING STUDY
+
+We perform a controlled scaling study of different models by evaluating transfer performance from JFT-3OOM.In this seting data size does not bottleneck the models’performances,and we assess performance versus pre-training cost of each model. The model set includes:7 ResNets,R50x1, R50x2R101x1,R152x1,R152x2,pre-trained for7 epochs,plus $\mathrm { R } 1 5 2 \mathrm { x } 2$ and R200x3 pre-trained for14 epochs;6 Vision Transformers,ViT-B/32,B/16,L/32,L/16,pre-trained for7 epochs,plus L/16 and H/14 pre-trained for 14 epochs；and 5 hybrids,R50+ViT-B/32,B/16,L/32,L/16 pretrained for7 epochs,plus $_ { \mathrm { R 5 0 + V i T - L / 1 6 } }$ pre-trained for 14 epochs (for hybrids,the number at the end of the model name stands not for the patch size,but forthe total dowsampling ratio in the ResNet backbone).
+
+Figure 5 contains the transfer performance versus total pre-training compute (see Appendix D.5 for details on computational costs).Detailed results per model are provided in Table 6 in the Appendix.A few patterns can be observed.First,Vision Transformers dominate ResNets on the performance/compute trade-off. ViT uses approximately $2 - 4 \times$ less compute to attain the same performance (average over 5 datasets)．Second,hybrids slightly outperform ViT at small computational budgets,but the difference vanishes for larger models.This result is somewhat surprising, since one might expectconvolutional local feature processing to assist ViT at any size.Third, Vision Transformers appear not to saturate within the range tried,motivating future scaling efforts.
+
+# 4.5 INSPECTINGVISION TRANSFORMER
+
+To begin to understand how the Vision Transformer processes image data,we analyze its internal representations.The first layer of the Vision Transformer linearly projects the flattened patches into a lower-dimensional space (Eq.1).Figure 7 (left) shows the top principal components of the the learned embedding filters. The components resemble plausible basis functions for a low-dimensional representation of the fine structure within each patch.
+
+After the projection,a learned position embedding is added to the patch representations.Figure 7(center) shows that the model learns to encode distance within the image in the similarity of position embeddings,i.e.closer patches tend to have more similar position embeddings.Further,the row-column structure appears;patches in the same row/column have similar embeddings.Finally,a sinusoidal structure is sometimes apparent for larger grids (AppendixD).That the position embeddings learn to represent 2D image topology explains why hand-crafted 2D-aware embedding variants do not yield improvements (Appendix D.4).
+
+Self-attention allows ViT to integrate information across the entire image even in the lowest layers.We investigate to what degree the network makes use of this capability. Specifically,we compute the average distance in image space across which information is integrated,based on the attention weights(Figure 7,right).This “attention distance”is analogous to receptive field size in CNNs.
+
+![](images/a389d0e6b72382fa894760e5d59718a925f59152427475e88db26bae5e075aff.jpg)  
+Figure 6: Representative examples of attention from the output token to the input space.See Appendix D.7 for details.
+
+We find that some heads attend to most of the image already in the lowest layers,showing that the ability to integrate information globally is indeed used by the model.Other attention heads have consistently small attention distances in the low layers.This highly localized attention is less pronounced in hybrid models that apply a ResNet before the Transformer (Figure 7,right), suggesting that it may serve a similar function as early convolutional layers in CNNs.Further, the attention distance increases with network depth.Globally,we find that the model attends to image regions that are semantically relevant for classification (Figure 6).
+
+# 4.6 SELF-SUPERVISION
+
+Transformers show impressive performance on NLP tasks.However,much of their success stems not only from their excelent scalability but also from large scale self-supervised pre-training (Devlin

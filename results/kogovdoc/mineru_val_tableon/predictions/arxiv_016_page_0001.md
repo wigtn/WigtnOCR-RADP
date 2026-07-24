@@ -1,0 +1,17 @@
+# ANIMAGE IS WORTH16X16 WORDS: TRANSFORMERSFORIMAGERECOGNITION AT SCALE
+
+AlexeyDosovitskiy\*†,Lucas Beyer\*,AlexanderKolesnikov\*,DirkWeissenborn\*, Xiaohua Zhai\*,Thomas Unterthiner, Mostafa Dehghani,Matthias Minderer, GeorgHeigold, Sylvain Gelly,Jakob Uszkoreit,Neil Houlsby\*,† \*equal technical contribution,†equal advising Google Research,Brain Team {adosovitskiy，neilhoulsby}@google.com
+
+# ABSTRACT
+
+While the Transformer architecture has become the de-facto standard for natural language processing tasks,its applications to computer vision remain limited.In vision,attention is either applied in conjunction with convolutional networks,or used to replace certain components of convolutional networks while keeping their overall structure in place.We show that this reliance on CNNs is not necessary and a pure transformer applied directly to sequences of image patches can perform very well on image classification tasks.When pre-trained on large amounts of data and transferred to multiple mid-sized or small image recognition benchmarks (ImageNet,CIFAR-1OO,VTAB,etc.),Vision Transformer(ViT) attains excellent results compared to state-of-the-art convolutional networks while requiring substantially fewer computational resources to train.1
+
+# 1 INTRODUCTION
+
+Self-attention-based architectures,in particular Transformers (Vaswani et al.,2O17),have become the model of choice in natural language processing (NLP).The dominant approach is to pre-train on a large text corpus and then fine-tune on a smallr task-specific dataset (Devlin et al.,2O19).Thanks to Transformers'computational efficiency and scalability,it has become possible to train models of unprecedented size,with over 10OB parameters (Brown et al.,2O2O; Lepikhin et al.,2O2O).With the models and datasets growing,there is still no sign of saturating performance.
+
+In computer vision,however,convolutional architectures remain dominant (LeCun et al.,1989; Krizhevsky etal.,2O12; He et al.,2O16).Inspired by NLP successes,multiple works try combining CNN-like architectures with self-attention (Wang et al.,2O18; Carion et al.,2O2O),some replacing the convolutions entirely (Ramachandran et al.,2O19;Wang et al.,2O2Oa).The latter models,while theoretically efficient, have not yet been scaled effectively on modern hardware accelerators due to the use of specialized attention patterns.Therefore,in large-scale image recognition,classic ResNetlike architectures are still state of the art (Mahajan et al.,2O18;Xie et al.,2O2O;Kolesnikov et al., 2020).
+
+Inspired by the Transformer scaling successes in NLP,we experiment with applying a standard Transformer directly to images,with the fewest possible modifications.To do so,we split an image into patches and provide the sequence of linear embeddings of these patches as an input to a Transformer.Image patches are treated the same way as tokens (words) in an NLP application.We train the model on image classification in supervised fashion.
+
+When trained on mid-sized datasets such as ImageNet without strong regularization,these models yield modest accuracies of a few percentage points below ResNets of comparable size.This seemingly discouraging outcome may be expected: Transformers lack some of the inductive biases
