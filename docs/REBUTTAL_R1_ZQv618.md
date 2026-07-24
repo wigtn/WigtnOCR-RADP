@@ -76,8 +76,7 @@ refs). We re-ran MinerU with tables enabled: table-evidence absent falls from
 87.9% to 41.7% (still ~3× Prod's 13.9%), and the overall MinerU−Prod absent gap
 narrows from +50.2 to **+45.9 pp — it does not close**. So the disconnect is not
 an artefact of the configuration; the specific table-absent magnitude was, and we
-correct it (Setup/Limitations) and release the tables-on outputs. We are updating
-the diagnostic tables to the tables-on numbers throughout for camera-ready.
+correct it (Setup/Limitations) and release the tables-on outputs.
 
 **(b) A cross-family arbiter.** A GPT-5.4 judge — a *different family than the
 parsers under test* (GPT vs Qwen3-VL); note the gold Q–A are GPT-generated, so the
