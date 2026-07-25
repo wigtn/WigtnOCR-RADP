@@ -33,10 +33,9 @@ government documents its RCPS *drops* from 0.212 to **0.046** (Hit@1 0.197 →
 cell values are OCR-corrupted (`13,316`→`13.316`, `1800`→`180`, and numbers turned
 into LaTeX fragments like `$1.5\mathrm{m}$`), so the "clean-looking" table is
 unretrievable — exactly the formatting-≠-content-fidelity mechanism the paper
-argues (C1/C2). The headline swing therefore does not shrink: Prod Hit@1 0.549 vs
-MinerU **0.038** on KoGov is **+51.1 pp** (was +35.1 pp against the table-off
-0.197). The 2.8×/35.1 pp result is not an artefact of the disabled-table config;
-the fair configuration makes MinerU worse, not better.
+argues (C1/C2). The takeaway is narrow and safe: MinerU's low retrieval is **not**
+an artefact of the disabled-table configuration — enabling tables makes it worse,
+not better, so the parsing–retrieval disconnect stands.
 
 (MinerU does far better on English arxiv — RCPS 0.486 — consistent with its
 competitive OHR-Bench score; the failure is specific to the Korean-gov corpus.)
