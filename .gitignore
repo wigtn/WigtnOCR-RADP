@@ -88,3 +88,9 @@ PLANNING/
 
 # 타사 브랜드 로고 (라이선스 문제로 미커밋 — 재현 시 각 프로젝트 사이트에서 수동 다운로드, README 참고)
 scripts/figures/icons/
+
+# Rebuttal reviewer-response drafts & internal strategy notes (local-only, not shipped)
+docs/REBUTTAL_*.md
+docs/PLAN_R3_*.md
+docs/ADJUDICATION_absent_criteria.md
+docs/PROMPT_diego_*.md
