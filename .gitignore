@@ -67,6 +67,8 @@ output/results/*
 !output/results/ohrbench_7dom_bc.json
 !output/results/ohrbench_crossdomain.json
 !output/results/ohrbench_per_domain.json
+!output/results/grid_MinerU-tableON_parser_native.json
+!output/results/perqa_MinerU-tableON_parser_native.json
 
 # Model checkpoints / LoRA adapters
 *.safetensors
