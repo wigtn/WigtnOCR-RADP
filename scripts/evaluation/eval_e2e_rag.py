@@ -134,6 +134,9 @@ def main() -> int:
     ap.add_argument("--sample", type=int, default=0, help="first N QA only (0=all)")
     ap.add_argument("--rcps_json", type=Path, default=None,
                     help="baseline grid json with per-parser RCPS, for the ranking comparison")
+    ap.add_argument("--rcps_map", nargs="*", default=[], metavar="GRIDNAME=OURNAME",
+                    help="map grid parser names to --parsers names, e.g. "
+                         "'WigtnOCR-2B (ours, v1)=Prod' 'MinerU=MinerU-tableon'")
     ap.add_argument("--out_dir", type=Path, default=Path("output/results"))
     args = ap.parse_args()
 
@@ -187,9 +190,17 @@ def main() -> int:
     # Ranking comparison vs RCPS, if a grid json was supplied.
     if args.rcps_json and args.rcps_json.exists():
         grid = json.loads(args.rcps_json.read_text())
+        # --rcps_map lets the caller map grid parser-names -> our parser-names,
+        # e.g. --rcps_map "WigtnOCR-2B (ours, v1)=Prod" "MinerU=MinerU-tableon".
+        alias = {}
+        for m in args.rcps_map:
+            g, _, ours = m.partition("=")
+            if g and ours:
+                alias[g.strip()] = ours.strip()
         rcps = {}
         for row in (grid.get("parsers") or grid.get("rows") or []):
             nm = row.get("parser") or row.get("name")
+            nm = alias.get(nm, nm)  # apply alias if given
             if nm in summary and ("rcps" in row):
                 rcps[nm] = row["rcps"]
         common = [p for p in summary if p in rcps]
