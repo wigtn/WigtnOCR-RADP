@@ -35,11 +35,13 @@ ENV/
 secrets/
 
 # ─── Dataset / Models (재현 가능, HF에서 다운로드) ────────
-data/
+data/*
 !data/.gitkeep
-# KoGovDoc-RAG probe: the 663-Q–A eval set that the paper says it releases —
-# committed so "we release the frozen eval set" is true in-repo (private repo).
+# KoGovDoc-RAG probe: the 663-Q–A eval set the paper says it releases — committed
+# so "we release the frozen eval set" is true in-repo (private repo). Note the
+# dir must be un-ignored (data/*) before its files can be re-included.
 !data/KoGovDoc-RAG/
+data/KoGovDoc-RAG/*
 !data/KoGovDoc-RAG/qa_pairs_v1.jsonl
 !data/KoGovDoc-RAG/page_split_v1.json
 output/
