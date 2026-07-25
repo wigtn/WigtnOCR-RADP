@@ -1,8 +1,13 @@
-# R3 (bXGg) — paste-ready, <5000 chars
+# R3 (bXGg) — paste-ready for OpenReview
 
-> ⚠️ 아래 `---` 밑의 본문만 붙여넣기. 이 위는 내부 메모. (원본 상세본: REBUTTAL_R3_bXGg.md)
+> ⚠️ 내부 메모(붙여넣지 말 것). 아래 **Title** / **Comment** 두 칸을 OpenReview 양식에 그대로 붙여넣기. Comment는 4279자(<5000 OK). 상세 원본: REBUTTAL_R3_bXGg.md
 
 ---
+
+### Title
+Answers on probe stability, end-to-end scope, and generalisation
+
+### Comment
 
 We thank the reviewer for an unusually careful reading and for questions that sharpen the paper's scope rather than contest its results.
 
@@ -24,6 +29,3 @@ We thank the reviewer for an unusually careful reading and for questions that sh
 
 We are grateful the review identifies the paper's real boundary — retrieval, not end-to-end generation — and we will state it as an explicit scope.
 
-<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
-Answers on probe stability, end-to-end scope, and generalisation
-===================================================== -->

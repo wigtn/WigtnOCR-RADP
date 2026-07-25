@@ -1,8 +1,13 @@
-# R1 (ZQv618) — paste-ready, <5000 chars
+# R1 (ZQv618) — paste-ready for OpenReview
 
-> ⚠️ 아래 `---` 밑의 본문만 붙여넣기. 이 위는 내부 메모. (원본 상세본: REBUTTAL_R1_ZQv618.md)
+> ⚠️ 내부 메모(붙여넣지 말 것). 아래 **Title** / **Comment** 두 칸을 OpenReview 양식에 그대로 붙여넣기. Comment는 4601자(<5000 OK). 상세 원본: REBUTTAL_R1_ZQv618.md
 
 ---
+
+### Title
+Definition added, circularity ruled out (model-free + cross-family), novelty reframed
+
+### Comment
 
 We thank the reviewer for a careful, constructive read, and especially for naming the same-family confound precisely enough to test.
 
@@ -24,6 +29,3 @@ The gap is stable across all three regimes (exact +50.2, fuzzy +51.7, judge +50.
 
 We believe R1.1–R1.2 remove the main soundness reservation and R1.3 realigns the paper with the reviewer's own high marks for its empirical core.
 
-<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
-Definition added, circularity ruled out (model-free + cross-family), novelty reframed
-===================================================== -->

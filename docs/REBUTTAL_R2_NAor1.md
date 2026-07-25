@@ -1,12 +1,14 @@
-# Rebuttal to R2 (NAor1) — goal = correct misreads, let the AC down-weight
+# R2 (NAor1) — paste-ready for OpenReview
 
-> ⚠️ **붙여넣을 때는 아래 `---` 밑의 본문만.** 제목 줄("let the AC down-weight" 포함)과 이 `>` 블록은 내부 메모라 절대 나가면 안 됨.
-> 전략: R2(1.5)는 actionable 결론이 없고 핵심 근거가 **사실 오독**. 공격하지 말고,
-> 정중하게 팩트만 교정해서 "이 리뷰의 감점 사유가 오해에 기반한다"는 걸 AC가
-> 스스로 보게 한다. 특히 (1) 외부 벤치마크 미사용 주장 → OHR-Bench가 바로 그것,
-> (2) reproducibility unclear → 코드/데이터/체크포인트 공개. 짧고 단정하게.
+> ⚠️ 내부 메모(붙여넣지 말 것). 아래 **Title** / **Comment** 두 칸을 OpenReview 양식에 그대로 붙여넣기. Comment는 2943자(<5000 OK).
+> 전략: R2(1.5)는 actionable 결론이 없고 핵심 근거가 **사실 오독**. 공격하지 말고, 정중하게 팩트만 교정해 AC가 스스로 down-weight하게. (1) 외부벤치 미사용 주장→OHR-Bench, (2) repro→코드/데이터 공개.
 
 ---
+
+### Title
+Clarifying external benchmark (OHR-Bench), reproducibility, and scope
+
+### Comment
 
 We thank the reviewer. Several of the concerns rest on points the paper already
 addresses; we clarify them here and hope they resolve the reservations.
@@ -54,6 +56,3 @@ already in the paper, and the remaining points are expository fixes we can make
 within the revision; we would welcome the reviewer revisiting the score in that
 light.
 
-<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
-Clarifying external benchmark (OHR-Bench), reproducibility, and scope
-===================================================== -->
