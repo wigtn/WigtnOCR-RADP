@@ -60,6 +60,7 @@ output/diagnostics/*
 !output/results/
 output/results/*
 !output/results/e2e_rag.json
+!output/results/e2e_rag_detail.jsonl
 !output/results/ohrbench_noise.json
 !output/results/ohrbench_bc_noise.json
 !output/results/ohrbench_7dom_rcps.json
