@@ -164,6 +164,15 @@ GPU 서버에 v5 OHR 결과(ohr_v5_perqa.json / ohr_v5_ci.json)와 mechanism_242
 
 > ⚠️ 1·2가 3과 같은 창을 두고 경쟁. **Integrity(1)를 절대 뒤로 미루지 마라** — 그게 채택을 가르는 핵심.
 
+### 8b. Camera-ready 큐 (2026-07-26 등재, 근거: docs/FINDINGS_per_domain_prod.md §4a)
+
+Rebuttal에서는 언급하지 않는다(provenance는 G.2 총계 체인 4,501→3,977→2,961→2,667/294만 인용). Revision 시 반영:
+
+| # | 작업 | 내용 | 대상 |
+|---|---|---|---|
+| CR-1 | Appendix G.2.1 도메인별 행 교정 | arXiv post-filter 613 → post-downsample 864로 *증가* (불가능). 디스크 실측(정제 전 렌더)은 documents 2,339 / papers 646 (78.4:21.6) — G의 2,097/864 (70.9:29.1)와 불일치. 총계 행(4,501/3,977/2,961)만 정합. WSL 원본에서 도메인별 수치 재집계 후 표 재작성 | wigtnOCR-v1 repo `docs/paper/appendix/G_Training_Analysis.md` §G.2.1 + 논문 부록 대응부 |
+| CR-2 | HF 데이터셋 카드 정합화 | "Manually reviewed and cleaned **277 samples**" → data_stats/G.2 정본은 **283 cleaned + 24 dropped**. 카드 문구 교정 | `Wigtn/KoGovDoc-Bench` README (로컬 사본: `data/KoGovDoc-Bench/README.md`) |
+
 ---
 
 ## 9. Self-Review — 리뷰어가 던질 질문 (제출 전 전부 "예")
