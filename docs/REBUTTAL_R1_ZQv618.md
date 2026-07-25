@@ -1,6 +1,6 @@
 # Rebuttal to R1 (ZQv618) — constructive, goal = raise score
 
-> ⚠️ **제출 전 이 `>` 전략 블록 전체를 삭제할 것** (내부 메모 — 리뷰어/AC에게 나가면 안 됨).
+> ⚠️ **붙여넣을 때는 아래 `---` 밑의 본문만.** 제목 줄과 이 `>` 전략 블록은 내부 메모라 리뷰어에게 나가면 안 됨.
 > 전략(팀 방향 반영): R1은 살릴 리뷰(3.0, Soundness 3.5). 4개 지적을 유형별로 다르게 친다.
 > - 지적1(정의 부재)=판독불가 공격 → **약속 말고 지금 정의를 채운다**(입출력·버리는 것·absent 원인). (MinerU melted-table 실사례는 config 노출 위험으로 제거함.)
 > - 지적2(순환성)=confound/관측적 동치 → 같은 측정기 데이터로는 안 깨짐. **다른 예측 지점(케이스를 열어봄)**에서만 깨진다: 직접 검사(실사례)+사람 검증 표본+교차가족 심판. 판정기준은 "존재"가 아니라 **retriever 회수가능성**(Degraded=회수불가→true-absent).
@@ -114,15 +114,13 @@ recoverability — the MinerU−Prod gap does not shrink:
 
 These are progressive refinements on the same L1-absent set and gold spans, not
 three independent measurements, so their agreement shows the gap is neither a
-surface-form nor a recoverability artifact — it is not from-scratch triangulation.
-The one genuinely orthogonal check is OHR-Bench, whose gold Q–A are human-curated
-and family-independent, and the gap direction holds there too. Two further points:
-the paper's matcher already
-strips markdown/whitespace *specifically* so formatting cannot penalise non-VLM
-parsers (design comment in the released code), and on **OHR-Bench** — whose
-answers are human-curated and family-independent — the same direction holds, so
-the effect is not specific to the KoGov/Qwen pipeline. All per-case verdicts
-(with evidence quotes) are released for audit.
+surface-form nor a recoverability artifact — but it is not from-scratch
+triangulation either. The one genuinely orthogonal check is **OHR-Bench**, whose
+gold Q–A are human-curated and family-independent: the gap direction holds there
+too, so the effect is not specific to the KoGov/Qwen pipeline. We also note the
+paper's matcher already strips markdown/whitespace *specifically* so formatting
+cannot penalise non-VLM parsers (design comment in the released code). All
+per-case verdicts (with evidence quotes) are released for audit.
 
 ## R1.3 — Novelty: we concede the protocol, and move the axis
 

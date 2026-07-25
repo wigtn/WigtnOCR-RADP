@@ -1,6 +1,6 @@
 # Rebuttal to R3 (bXGg) — Industry Track, goal = convert Workshop(3.0) → main accept
 
-> ⚠️ **제출 전 이 `>` 전략 블록 전체 삭제** (내부 메모).
+> ⚠️ **붙여넣을 때는 아래 `---` 밑의 본문만.** 제목 줄과 이 `>` 전략 블록은 내부 메모라 리뷰어에게 나가면 안 됨.
 > 전략: R3는 R1의 판박이(Soundness 3.5, Overall 3, novelty+construct-validity 지적),
 > 게다가 Confidence 4로 제일 신중히 읽음. 틀린 지적/오독이 없어서 R2처럼 "교정"이 아니라
 > **"인정 + 명료화 + 한계 정직"** 톤이 맞다. 4개 축:
@@ -51,10 +51,10 @@ safeguards: (a) the confirmatory cross-domain evidence (OHR-Bench) uses
 **externally human-curated** Q–A, not our synthetic set; (b) we tested the most
 specific form of the "reference reflects the teacher's family" worry — that a
 same-family matcher inflates non-Qwen parsers' absent rate — with a model-free
-matching-strictness ladder and a cross-family judge, and the parser absent gap
-does not close (details in the family-neutral analysis / our response to the
-circularity point); (c) we release the frozen eval set for audit. We will add a
-human-verified subsample of reference/answer spans to quantify residual noise.
+matching-strictness ladder and a cross-family judge (new family-neutral analysis,
+Appendix~C), and the parser absent gap does not close as the matcher is loosened;
+(c) we release the frozen eval set for audit. We will add a human-verified
+subsample of reference/answer spans to quantify residual noise.
 
 ## R3.3 — Retrieval vs end-to-end RAG answer quality (the scope question)
 

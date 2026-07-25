@@ -1,8 +1,8 @@
 # Note to the Area Chair (optional — post as an AC-directed comment)
 
-> ⚠️ 제출 전 이 `>` 블록 삭제. 이건 AC/PC 앞으로 보내는 짧은 메모용 초안 (리뷰어별
-> 응답과 별개). Industry Track에서 borderline(3/3/1.5)을 accept 쪽으로 밀 때 쓰는
-> "리뷰 신뢰도 정리". 공격 아님 — 사실만. 톤: 담담하고 짧게. 안 올려도 됨(선택).
+> ⚠️ **붙여넣을 때는 아래 `---` 밑의 본문만.** 제목 줄과 이 `>` 블록은 내부 메모.
+> AC/PC 앞으로 보내는 짧은 메모 (리뷰어별 응답과 별개). Industry Track borderline
+> (3/3/1.5)을 accept 쪽으로 밀 때 쓰는 "리뷰 신뢰도 정리". 공격 아님 — 사실만. 선택(안 올려도 됨).
 
 ---
 
