@@ -1,0 +1,101 @@
+{
+  "ppl_model": "Qwen/Qwen3-VL-2B-Instruct",
+  "chunker": "parser_native",
+  "excluded_from_correlation": [
+    "PaddleOCR"
+  ],
+  "parsers": [
+    {
+      "parser": "WigtnOCR-2B (ours, v1)",
+      "role": "ours",
+      "num_pages": 294,
+      "num_boundaries": 1161,
+      "mean_bc": 0.61,
+      "rcps": 0.5516964335591786,
+      "hit@1": 0.521870286576169
+    },
+    {
+      "parser": "Qwen3-VL-30B (teacher)",
+      "role": "teacher",
+      "num_pages": 294,
+      "num_boundaries": 1283,
+      "mean_bc": 0.6232,
+      "rcps": 0.5446395652278005,
+      "hit@1": 0.5082956259426847
+    },
+    {
+      "parser": "Qwen3-VL-2B (base)",
+      "role": "baseline",
+      "num_pages": 294,
+      "num_boundaries": 1763,
+      "mean_bc": 0.5199,
+      "rcps": 0.493276512884356,
+      "hit@1": 0.4660633484162896
+    },
+    {
+      "parser": "MinerU",
+      "role": "baseline",
+      "num_pages": 294,
+      "num_boundaries": 756,
+      "mean_bc": 0.7161,
+      "rcps": 0.17607456087848247,
+      "hit@1": 0.16289592760180996
+    },
+    {
+      "parser": "Marker",
+      "role": "baseline",
+      "num_pages": 38,
+      "num_boundaries": 1098,
+      "mean_bc": 0.7168,
+      "rcps": 0.06795290765879002,
+      "hit@1": 0.06334841628959276
+    },
+    {
+      "parser": "PaddleOCR",
+      "role": "baseline",
+      "num_pages": 294,
+      "num_boundaries": 0,
+      "mean_bc": NaN,
+      "rcps": 0.11592828014396643,
+      "hit@1": 0.10256410256410256
+    }
+  ],
+  "correlations": [
+    {
+      "BC_vs_RCPS": {
+        "label": "all_valid",
+        "n": 5,
+        "pearson_r": -0.8137,
+        "pearson_p": 0.0938,
+        "spearman_r": -0.7,
+        "spearman_p": 0.1881
+      },
+      "BC_vs_Hit1": {
+        "label": "all_valid",
+        "n": 5,
+        "pearson_r": -0.8178,
+        "pearson_p": 0.0908,
+        "spearman_r": -0.7,
+        "spearman_p": 0.1881
+      }
+    },
+    {
+      "BC_vs_RCPS": {
+        "label": "excluding_marker",
+        "n": 4,
+        "pearson_r": -0.7306,
+        "pearson_p": 0.2694,
+        "spearman_r": -0.4,
+        "spearman_p": 0.6
+      },
+      "BC_vs_Hit1": {
+        "label": "excluding_marker",
+        "n": 4,
+        "pearson_r": -0.7372,
+        "pearson_p": 0.2628,
+        "spearman_r": -0.4,
+        "spearman_p": 0.6
+      }
+    }
+  ]
+}

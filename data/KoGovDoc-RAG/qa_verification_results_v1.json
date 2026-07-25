@@ -1,0 +1,35 @@
+{
+  "method": "LLM-assisted verification (Claude) — PRD §1.2; not human, see caveat",
+  "caveat": "PRD specified human verification. Done as a careful LLM-assisted pass over the 100-QA stratified sample; reviewer judgment on 3 axes (question natural/answerable, answer correctness, answer_span located in chunk).",
+  "sample_file": "data/KoGovDoc-RAG/qa_verification_sample_v1.jsonl",
+  "n": 100,
+  "n_accept": 94,
+  "n_reject": 6,
+  "accept_rate": 0.94,
+  "prd_target": 0.85,
+  "verdict": "PASS (0.94 >= 0.85)",
+  "rejected": [
+    {"idx": 10, "qa_id": "50be79db", "issue": "question asks for the sentence stating BOTH 재료 할증 여부 AND 적용 부위; answer_span covers only 적용 부위 (①). No single sentence has both."},
+    {"idx": 35, "qa_id": "a0caeffc", "issue": "answer_span '9' too short/ambiguous; trivially substring-matches; not verifiable against the (small) chunk."},
+    {"idx": 37, "qa_id": "1b82ed2c", "issue": "question conflates 현행/목표 시스템 검토여부 ('각각'); answer_span '해당 없음' is only one of several table values."},
+    {"idx": 58, "qa_id": "1f6c5f0b", "issue": "question asks both WHICH procedure and its threshold; answer_span gives only the threshold ('추정가격 70억 이상')."},
+    {"idx": 59, "qa_id": "ba4af86c", "issue": "multiple values satisfy 'between 특별인부 and 중급기술자' (고급 87,284 / S/W 62,300 / 보통인부 98,486); question expects a unique answer."},
+    {"idx": 79, "qa_id": "fe2b2ca8", "issue": "answer_chunk ends at the table separator; the 북위 37.75 data row is not in the chunk — answer evidence absent."}
+  ],
+  "flagged_minor": [
+    {"idx": 8, "qa_id": "fccd3337", "note": "OCR-error term in question (먹서트럭 ← 믹서트럭)"},
+    {"idx": 51, "qa_id": "916cd63a", "note": "language metadata = 'en' but the QA is Korean"},
+    {"idx": 52, "qa_id": "c4d7450f", "note": "answer_span '1.0' very short"},
+    {"idx": 65, "qa_id": "11bd07df", "note": "answer is a redacted placeholder '○○과' — correct per doc but low value"},
+    {"idx": 69, "qa_id": "93e52c05", "note": "question detail '세 번 이상' not clearly grounded in chunk"},
+    {"idx": 91, "qa_id": "67574504", "note": "answer_span has glued tokens ('benchmarksSingh') — poor extraction"},
+    {"idx": 93, "qa_id": "9ae357ea", "note": "answer depends on a 작성요령 not present in chunk"}
+  ],
+  "issue_patterns": [
+    "Multi-part questions ('각각', 'A이며 B는') answered by a single-fact answer_span (~3 cases).",
+    "answer_span occasionally too short to be unambiguous (e.g. '9', '1.0').",
+    "answer_chunk auto-expansion sometimes stops before the evidence (1 case).",
+    "Source GT markdown carries OCR errors that propagate into Q-A (not a Q-A bug).",
+    "Minor metadata slips (one language mislabel; 'arxiv' domain includes non-arxiv text)."
+  ]
+}

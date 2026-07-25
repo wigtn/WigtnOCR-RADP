@@ -1,0 +1,66 @@
+{
+  "config": {
+    "model": "gpt-5.4-2026-03-05",
+    "num_qa": 663,
+    "note": "semantic_absent_rate is null unless the whole L1-absent set was judged (complete=true); use --max_per_parser 0 for the headline number"
+  },
+  "parsers": {
+    "Prod": {
+      "total_qa": 663,
+      "l1_absent": 134,
+      "l1_absent_rate": 0.20211161387631976,
+      "judged": 134,
+      "judged_with_page": 134,
+      "no_page": 0,
+      "complete": true,
+      "labels": {
+        "present": 75,
+        "degraded": 3,
+        "absent": 56
+      },
+      "artifact": 75,
+      "artifact_frac_of_absent": 0.5597014925373134,
+      "degraded_frac_of_absent": 0.022388059701492536,
+      "genuine_absent": 59,
+      "semantic_absent_rate": 0.0889894419306184
+    },
+    "MinerU": {
+      "total_qa": 663,
+      "l1_absent": 467,
+      "l1_absent_rate": 0.7043740573152338,
+      "judged": 467,
+      "judged_with_page": 467,
+      "no_page": 0,
+      "complete": true,
+      "labels": {
+        "present": 74,
+        "degraded": 43,
+        "absent": 350
+      },
+      "artifact": 74,
+      "artifact_frac_of_absent": 0.15845824411134904,
+      "degraded_frac_of_absent": 0.09207708779443255,
+      "genuine_absent": 393,
+      "semantic_absent_rate": 0.5927601809954751
+    },
+    "PaddleOCR": {
+      "total_qa": 663,
+      "l1_absent": 416,
+      "l1_absent_rate": 0.6274509803921569,
+      "judged": 416,
+      "judged_with_page": 416,
+      "no_page": 0,
+      "complete": true,
+      "labels": {
+        "present": 66,
+        "degraded": 90,
+        "absent": 260
+      },
+      "artifact": 66,
+      "artifact_frac_of_absent": 0.15865384615384615,
+      "degraded_frac_of_absent": 0.21634615384615385,
+      "genuine_absent": 350,
+      "semantic_absent_rate": 0.5279034690799397
+    }
+  }
+}

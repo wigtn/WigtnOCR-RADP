@@ -44,8 +44,28 @@ data/*
 data/KoGovDoc-RAG/*
 !data/KoGovDoc-RAG/qa_pairs_v1.jsonl
 !data/KoGovDoc-RAG/page_split_v1.json
-output/
+!data/KoGovDoc-RAG/qa_verification_sample_v1.jsonl
+!data/KoGovDoc-RAG/qa_verification_results_v1.json
+output/*
 !output/.gitkeep
+# Evaluation metrics & diagnostics backing the paper/rebuttal (small JSONs;
+# training checkpoints and per-QA training dumps stay ignored).
+!output/baselines/
+output/baselines/*
+!output/baselines/*.json
+!output/diagnostics/
+output/diagnostics/*
+!output/diagnostics/*.json
+!output/diagnostics/*.md
+!output/results/
+output/results/*
+!output/results/e2e_rag.json
+!output/results/ohrbench_noise.json
+!output/results/ohrbench_bc_noise.json
+!output/results/ohrbench_7dom_rcps.json
+!output/results/ohrbench_7dom_bc.json
+!output/results/ohrbench_crossdomain.json
+!output/results/ohrbench_per_domain.json
 
 # Model checkpoints / LoRA adapters
 *.safetensors

@@ -1,0 +1,310 @@
+{
+  "config": {
+    "qa": "data/KoGovDoc-RAG/qa_pairs_v1.jsonl",
+    "num_qa": 663,
+    "ref": "Prod",
+    "ladder": [
+      "L0_exact",
+      "L1_normalized",
+      "L2_numeric",
+      "L3_token_recall",
+      "L4_fuzzy_lcs"
+    ]
+  },
+  "parsers": {
+    "Prod": {
+      "total": 663,
+      "no_parse": 0,
+      "absent_rate": {
+        "L0_exact": 0.24132730015082957,
+        "L1_normalized": 0.20211161387631976,
+        "L2_numeric": 0.19607843137254902,
+        "L3_token_recall": 0.24132730015082957,
+        "L4_fuzzy_lcs": 0.1689291101055807
+      },
+      "absent_count": {
+        "L0_exact": 160,
+        "L1_normalized": 134,
+        "L2_numeric": 130,
+        "L3_token_recall": 160,
+        "L4_fuzzy_lcs": 112
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.1696969696969697,
+          "L1_normalized": 0.1393939393939394,
+          "L2_numeric": 0.11515151515151516,
+          "L3_token_recall": 0.12121212121212122,
+          "L4_fuzzy_lcs": 0.13333333333333333
+        },
+        "factoid": {
+          "L0_exact": 0.24378109452736318,
+          "L1_normalized": 0.21393034825870647,
+          "L2_numeric": 0.21393034825870647,
+          "L3_token_recall": 0.29850746268656714,
+          "L4_fuzzy_lcs": 0.17412935323383086
+        },
+        "procedural": {
+          "L0_exact": 0.2689655172413793,
+          "L1_normalized": 0.21724137931034482,
+          "L2_numeric": 0.21724137931034482,
+          "L3_token_recall": 0.2655172413793103,
+          "L4_fuzzy_lcs": 0.1793103448275862
+        },
+        "figural": {
+          "L0_exact": 0.7142857142857143,
+          "L1_normalized": 0.7142857142857143,
+          "L2_numeric": 0.7142857142857143,
+          "L3_token_recall": 0.42857142857142855,
+          "L4_fuzzy_lcs": 0.42857142857142855
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/v1_val/predictions"
+    },
+    "Qwen3-VL-30B": {
+      "total": 663,
+      "no_parse": 0,
+      "absent_rate": {
+        "L0_exact": 0.2277526395173454,
+        "L1_normalized": 0.1885369532428356,
+        "L2_numeric": 0.16591251885369532,
+        "L3_token_recall": 0.19155354449472098,
+        "L4_fuzzy_lcs": 0.16289592760180996
+      },
+      "absent_count": {
+        "L0_exact": 151,
+        "L1_normalized": 125,
+        "L2_numeric": 110,
+        "L3_token_recall": 127,
+        "L4_fuzzy_lcs": 108
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.15757575757575756,
+          "L1_normalized": 0.1393939393939394,
+          "L2_numeric": 0.12727272727272726,
+          "L3_token_recall": 0.06060606060606061,
+          "L4_fuzzy_lcs": 0.13333333333333333
+        },
+        "factoid": {
+          "L0_exact": 0.22388059701492538,
+          "L1_normalized": 0.17412935323383086,
+          "L2_numeric": 0.14427860696517414,
+          "L3_token_recall": 0.21393034825870647,
+          "L4_fuzzy_lcs": 0.14925373134328357
+        },
+        "procedural": {
+          "L0_exact": 0.2655172413793103,
+          "L1_normalized": 0.2206896551724138,
+          "L2_numeric": 0.19655172413793104,
+          "L3_token_recall": 0.2482758620689655,
+          "L4_fuzzy_lcs": 0.18620689655172415
+        },
+        "figural": {
+          "L0_exact": 0.42857142857142855,
+          "L1_normalized": 0.42857142857142855,
+          "L2_numeric": 0.42857142857142855,
+          "L3_token_recall": 0.2857142857142857,
+          "L4_fuzzy_lcs": 0.2857142857142857
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/30b_val/predictions"
+    },
+    "Qwen3-VL-2B-base": {
+      "total": 663,
+      "no_parse": 0,
+      "absent_rate": {
+        "L0_exact": 0.30015082956259426,
+        "L1_normalized": 0.25188536953242835,
+        "L2_numeric": 0.2473604826546003,
+        "L3_token_recall": 0.26998491704374056,
+        "L4_fuzzy_lcs": 0.21116138763197587
+      },
+      "absent_count": {
+        "L0_exact": 199,
+        "L1_normalized": 167,
+        "L2_numeric": 164,
+        "L3_token_recall": 179,
+        "L4_fuzzy_lcs": 140
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.23030303030303031,
+          "L1_normalized": 0.18181818181818182,
+          "L2_numeric": 0.17575757575757575,
+          "L3_token_recall": 0.1696969696969697,
+          "L4_fuzzy_lcs": 0.15757575757575756
+        },
+        "factoid": {
+          "L0_exact": 0.2736318407960199,
+          "L1_normalized": 0.22388059701492538,
+          "L2_numeric": 0.22388059701492538,
+          "L3_token_recall": 0.27860696517412936,
+          "L4_fuzzy_lcs": 0.19900497512437812
+        },
+        "procedural": {
+          "L0_exact": 0.3586206896551724,
+          "L1_normalized": 0.3103448275862069,
+          "L2_numeric": 0.30344827586206896,
+          "L3_token_recall": 0.32413793103448274,
+          "L4_fuzzy_lcs": 0.2517241379310345
+        },
+        "figural": {
+          "L0_exact": 0.2857142857142857,
+          "L1_normalized": 0.2857142857142857,
+          "L2_numeric": 0.2857142857142857,
+          "L3_token_recall": 0.14285714285714285,
+          "L4_fuzzy_lcs": 0.14285714285714285
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/2b_base_val/predictions"
+    },
+    "MinerU": {
+      "total": 663,
+      "no_parse": 0,
+      "absent_rate": {
+        "L0_exact": 0.7481146304675717,
+        "L1_normalized": 0.7043740573152338,
+        "L2_numeric": 0.6802413273001509,
+        "L3_token_recall": 0.7300150829562594,
+        "L4_fuzzy_lcs": 0.6862745098039216
+      },
+      "absent_count": {
+        "L0_exact": 496,
+        "L1_normalized": 467,
+        "L2_numeric": 451,
+        "L3_token_recall": 484,
+        "L4_fuzzy_lcs": 455
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.8909090909090909,
+          "L1_normalized": 0.8787878787878788,
+          "L2_numeric": 0.8424242424242424,
+          "L3_token_recall": 0.896969696969697,
+          "L4_fuzzy_lcs": 0.8787878787878788
+        },
+        "factoid": {
+          "L0_exact": 0.582089552238806,
+          "L1_normalized": 0.5373134328358209,
+          "L2_numeric": 0.5074626865671642,
+          "L3_token_recall": 0.5572139303482587,
+          "L4_fuzzy_lcs": 0.5024875621890548
+        },
+        "procedural": {
+          "L0_exact": 0.7827586206896552,
+          "L1_normalized": 0.7206896551724138,
+          "L2_numeric": 0.7068965517241379,
+          "L3_token_recall": 0.7620689655172413,
+          "L4_fuzzy_lcs": 0.7103448275862069
+        },
+        "figural": {
+          "L0_exact": 0.7142857142857143,
+          "L1_normalized": 0.7142857142857143,
+          "L2_numeric": 0.7142857142857143,
+          "L3_token_recall": 0.42857142857142855,
+          "L4_fuzzy_lcs": 0.42857142857142855
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/mineru_val/predictions"
+    },
+    "PaddleOCR": {
+      "total": 663,
+      "no_parse": 0,
+      "absent_rate": {
+        "L0_exact": 0.669683257918552,
+        "L1_normalized": 0.6274509803921569,
+        "L2_numeric": 0.6199095022624435,
+        "L3_token_recall": 0.5987933634992458,
+        "L4_fuzzy_lcs": 0.6048265460030166
+      },
+      "absent_count": {
+        "L0_exact": 444,
+        "L1_normalized": 416,
+        "L2_numeric": 411,
+        "L3_token_recall": 397,
+        "L4_fuzzy_lcs": 401
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.3939393939393939,
+          "L1_normalized": 0.3575757575757576,
+          "L2_numeric": 0.3575757575757576,
+          "L3_token_recall": 0.3393939393939394,
+          "L4_fuzzy_lcs": 0.3393939393939394
+        },
+        "factoid": {
+          "L0_exact": 0.6766169154228856,
+          "L1_normalized": 0.6119402985074627,
+          "L2_numeric": 0.5920398009950248,
+          "L3_token_recall": 0.5771144278606966,
+          "L4_fuzzy_lcs": 0.572139303482587
+        },
+        "procedural": {
+          "L0_exact": 0.8172413793103448,
+          "L1_normalized": 0.7931034482758621,
+          "L2_numeric": 0.7896551724137931,
+          "L3_token_recall": 0.7689655172413793,
+          "L4_fuzzy_lcs": 0.7827586206896552
+        },
+        "figural": {
+          "L0_exact": 0.8571428571428571,
+          "L1_normalized": 0.5714285714285714,
+          "L2_numeric": 0.5714285714285714,
+          "L3_token_recall": 0.2857142857142857,
+          "L4_fuzzy_lcs": 0.42857142857142855
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/paddleocr_val/predictions"
+    },
+    "Marker": {
+      "total": 663,
+      "no_parse": 577,
+      "absent_rate": {
+        "L0_exact": 0.9064856711915535,
+        "L1_normalized": 0.9004524886877828,
+        "L2_numeric": 0.9004524886877828,
+        "L3_token_recall": 0.889894419306184,
+        "L4_fuzzy_lcs": 0.8959276018099548
+      },
+      "absent_count": {
+        "L0_exact": 601,
+        "L1_normalized": 597,
+        "L2_numeric": 597,
+        "L3_token_recall": 590,
+        "L4_fuzzy_lcs": 594
+      },
+      "by_question_type": {
+        "tabular": {
+          "L0_exact": 0.9030303030303031,
+          "L1_normalized": 0.896969696969697,
+          "L2_numeric": 0.896969696969697,
+          "L3_token_recall": 0.896969696969697,
+          "L4_fuzzy_lcs": 0.896969696969697
+        },
+        "factoid": {
+          "L0_exact": 0.8507462686567164,
+          "L1_normalized": 0.8507462686567164,
+          "L2_numeric": 0.8507462686567164,
+          "L3_token_recall": 0.8308457711442786,
+          "L4_fuzzy_lcs": 0.845771144278607
+        },
+        "procedural": {
+          "L0_exact": 0.9482758620689655,
+          "L1_normalized": 0.9379310344827586,
+          "L2_numeric": 0.9379310344827586,
+          "L3_token_recall": 0.9275862068965517,
+          "L4_fuzzy_lcs": 0.9310344827586207
+        },
+        "figural": {
+          "L0_exact": 0.8571428571428571,
+          "L1_normalized": 0.8571428571428571,
+          "L2_numeric": 0.8571428571428571,
+          "L3_token_recall": 0.8571428571428571,
+          "L4_fuzzy_lcs": 0.8571428571428571
+        }
+      },
+      "parser_dir": "/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/marker_val/predictions"
+    }
+  }
+}
