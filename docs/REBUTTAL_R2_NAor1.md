@@ -53,3 +53,7 @@ We believe the external-benchmark and reproducibility concerns stem from details
 already in the paper, and the remaining points are expository fixes we can make
 within the revision; we would welcome the reviewer revisiting the score in that
 light.
+
+<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
+Clarifying external benchmark (OHR-Bench), reproducibility, and scope
+===================================================== -->

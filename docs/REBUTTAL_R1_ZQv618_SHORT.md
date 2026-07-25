@@ -23,3 +23,7 @@ The gap is stable across all three regimes (exact +50.2, fuzzy +51.7, judge +50.
 **R1.4 — Density.** Agreed (also raised independently by another reviewer), so we treat it as fact. Concrete reallocation: the noise-family and DPO-milestone tables move fully to the appendix, the multi-clause abstract sentences are split, and the new parser definition + family-neutral diagnostic sit in appendices so the 6-page body does not grow. Terminology (parser / chunker / retriever) is defined up front.
 
 We believe R1.1–R1.2 remove the main soundness reservation and R1.3 realigns the paper with the reviewer's own high marks for its empirical core.
+
+<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
+Definition added, circularity ruled out (model-free + cross-family), novelty reframed
+===================================================== -->

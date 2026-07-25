@@ -23,3 +23,7 @@ We thank the reviewer for an unusually careful reading and for questions that sh
 **3. How well does the conclusion generalise to broader pools and deployments?** The *mechanism* generalises — formatting quality and content preservation are different properties, so appearance metrics can be blind to the content loss retrieval needs. This replicates on OHR-Bench across all seven English domains (Boundary Clarity flat under semantic corruption while retrieval collapses), a different language/documents/curated-Q–A setting. What is corpus-*specific* is the scalar magnitude/sign (the exact $r$, the 2.8× swing), which we flag as illustrative and n=5-limited. On pool breadth: the protocol is pool-agnostic by construction, but our *evidence* that it picks well is strongest when the pool spans different paradigms (VLM vs OCR), where intrinsic metrics misrank most; for near-tied same-paradigm pools the decision is genuinely close and we say so. On deployment: the coverage/absent findings are retriever-independent and transfer directly; the RCPS *ranking* is a procedure to recompute with your own retriever and probe, not a fixed leaderboard to import.
 
 We are grateful the review identifies the paper's real boundary — retrieval, not end-to-end generation — and we will state it as an explicit scope.
+
+<!-- ===== OpenReview Title 칸 (선택) — 아래 한 줄만 =====
+Answers on probe stability, end-to-end scope, and generalisation
+===================================================== -->
