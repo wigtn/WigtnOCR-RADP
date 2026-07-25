@@ -95,7 +95,35 @@ varied the *probe questions* themselves at fixed size; we will add a
 resampling-stability check (bootstrap over probe subsets, report ranking
 agreement) to the revision, since it is cheap and directly answers the question.
 
-## R3.6 — Parser-training section
+## R3.6 — Generalisation to broader candidate pools and deployment settings
+
+The strongest generalisation evidence is the *mechanism*, which is
+corpus-independent: formatting quality and content preservation are different
+properties, so intrinsic appearance metrics can be blind to the content loss
+retrieval depends on. This replicates on OHR-Bench across all seven English
+domains (Boundary Clarity stays flat under semantic corruption while retrieval
+collapses) — a setting with a different language, different documents, and
+externally curated Q–A. What is corpus-*specific* is the magnitude and sign of
+the aggregate scalar (e.g. the exact $r$ and the 2.8× swing), which we already
+flag as illustrative and n=5-limited (Limitations). So we claim generality for
+the mechanism and the protocol, not for the specific numbers.
+
+On candidate-pool breadth we are honest about the limit: five parsers on the
+KoGov pool (three released outputs + twelve controlled perturbations on
+OHR-Bench). The protocol is pool-agnostic by construction — it scores whatever
+candidates a team supplies — but our *evidence* that it picks well is strongest
+when the pool spans different parsing paradigms (VLM vs OCR), which is where
+intrinsic metrics misrank most and where the +45.9 pp absent gap lives. For a
+pool of near-tied same-paradigm parsers the decision is genuinely close and RCPS
+(and any metric) separates them only marginally — we say so.
+
+On deployment settings: the coverage diagnostic and the absent finding are
+retriever-independent (no retriever is run), so they transfer directly; the RCPS
+*ranking* is what a team should recompute with its own retriever and probe (see
+R3.4/R3.5). We therefore present RCPS as a procedure to run on your pool, not a
+fixed leaderboard to import.
+
+## R3.7 — Parser-training section
 
 We agree it is secondary and take the point that it adds length for a small,
 partly-inconclusive effect. Its role is a bounded negative result — retrieval-aware
@@ -107,8 +135,24 @@ raise.
 
 ---
 
-We believe R3.3 (scope), R3.5 (probe stability), and a compressed training
-section are the substantive revisions here, and that R3.1/R3.2/R3.4 are
-clarifications of choices already in the paper. We are grateful the review
-identifies the paper's real boundary — retrieval, not end-to-end generation — and
-we will state it as an explicit scope rather than leave it implicit.
+## Direct answers to your three questions
+
+- **Is the RCPS ranking stable under changes to the probe set?** Stable to the
+  choices we varied — parser and chunker rankings are unchanged with MRR@10 alone
+  vs averaged cutoffs, and format normalisation reorders nothing. We will add a
+  bootstrap-over-probe-subsets stability check (ranking agreement) to the revision
+  to answer the probe-*question* resampling case directly (R3.5).
+- **Does RCPS predict end-to-end RAG answer quality?** We do not claim it does;
+  RCPS measures answer-span retrievability, which is a *necessary floor* (content
+  absent from the parser — 20.2% here — no generator can recover) but not
+  sufficient for generation quality. Testing whether the RCPS ordering is
+  preserved end-to-end is explicit future work, and we will add a small
+  top-parser QA-accuracy check if feasible in the window (R3.3).
+- **How well does the conclusion generalise?** The *mechanism* generalises
+  (replicated on OHR-Bench, seven English domains, human Q–A); the specific scalar
+  magnitudes are corpus-dependent and flagged as illustrative. The protocol is
+  pool- and deployment-agnostic by construction, with the caveat that its value is
+  greatest for cross-paradigm pools (R3.6).
+
+We are grateful the review identifies the paper's real boundary — retrieval, not
+end-to-end generation — and we will state it as an explicit scope.
