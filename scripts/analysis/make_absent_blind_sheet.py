@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import mimetypes
 import os
 import random
 from pathlib import Path
@@ -142,8 +143,15 @@ def main() -> int:
             page_md = pages_by_parser[name].get(qa.page_id, "")
             if args.embed_images:
                 sub = page_image[qa.page_id].split("/images/", 1)[1]
-                b64 = base64.b64encode((args.images_root / sub).read_bytes()).decode()
-                img_src = f"data:image/png;base64,{b64}"
+                img_path = args.images_root / sub
+                if not img_path.exists() and img_path.suffix == ".png":
+                    # allow a pre-compressed .jpg mirror (sheet-size control)
+                    alt = img_path.with_suffix(".jpg")
+                    if alt.exists():
+                        img_path = alt
+                mime = mimetypes.guess_type(img_path.name)[0] or "image/png"
+                b64 = base64.b64encode(img_path.read_bytes()).decode()
+                img_src = f"data:{mime};base64,{b64}"
             else:
                 img_src = image_rel_path(page_image[qa.page_id], args.images_root, out_dir)
             cases.append({
