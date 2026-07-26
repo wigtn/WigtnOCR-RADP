@@ -1,0 +1,9 @@
+3.RAHMEN引旦 
+．RAHMEN
+2）CASE21.2m
+3）CASE31.2m叫
+1.2mola
+.SLAB 
+2)(B）=
+3）l(L）=0.5m
+229

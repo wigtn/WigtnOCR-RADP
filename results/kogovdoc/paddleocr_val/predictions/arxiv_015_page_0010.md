@@ -1,0 +1,52 @@
+Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev,
+and Percy Liang. Squad: 100,000+ questions for
+machine comprehension of text. arXiv preprint
+arXiv:1606.05250, 2016.
+Abigail See， Peter J Liu， and
+Christopher D
+Manning.
+Get to the point:
+Summarization
+with pointer-generator networks.
+arXiv preprint
+arXiv:1704.04368, 2017.
+Rico Sennrich, Barry Haddow, and Alexandra Birch.
+Edinburgh neural machine translation systems for
+WMT 16. In Proceedings of the First Conference
+on Machine Translation: Volume 2, Shared Task Pa-
+pers, 2016.
+Richard Socher, Alex Perelygin, Jean Wu, Jason
+Chuang, Christopher D Manning, Andrew Ng, and
+Christopher Potts. Recursive deep models for se-
+mantic compositionality over a sentiment treebank.
+In Proceedings of EMNLP, pp. 1631-1642, 2013.
+Kaitao Song, Xu Tan, Tao Qin, Jianfeng Lu, and Tie-
+Yan Liu. Mass: Masked sequence to sequence pre-
+training for language generation. In International
+Conference on Machine Learning, 2019.
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob
+Uszkoreit, Llion Jones, Aidan N Gomez, Lukasz
+Kaiser, and Illia Polosukhin. Attention is all you
+need. In Advances in neural information processing
+systems, pp. 5998-6008, 2017.
+Alex Wang, Amanpreet Singh, Julian Michael, Felix
+Hill, Omer Levy, and Samuel R Bowman. Glue:
+A multi-task benchmark and analysis platform for
+natural language understanding. arXiv preprint
+arXiv:1804.07461, 2018.
+Alex Warstadt, Amanpreet Singh, and Samuel R.
+Bowman. Neural network acceptability judgments.
+arXiv preprint 1805.12471, 2018.
+Adina Williams, Nikita Nangia, and Samuel R Bow-
+man. A broad-coverage challenge corpus for
+sentence understanding through inference. arXiv
+preprint arXiv:1704.05426, 2017.
+Adina Williams, Nikita Nangia, and Samuel R. Bow-
+man. A broad-coverage challenge corpus for sen-
+tence understanding through inference. In Proceed-
+ings of NAACL-HLT, 2018.
+Zhilin Yang， Zihang Dai， Yiming Yang， Jaime
+Carbonell, Ruslan Salakhutdinov, and Quoc V
+Le. Xlnet: Generalized autoregressive pretrain-
+ing for language understanding. arXiv preprint
+arXiv:1906.08237, 2019.

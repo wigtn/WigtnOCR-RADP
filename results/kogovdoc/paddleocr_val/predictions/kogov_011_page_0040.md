@@ -1,0 +1,19 @@
+0.C
+Corona
+KOREA
+[19]
+19202
+ioio 2lyt
+SKT5:43
+Dlo oci2rt
+NEW
+NEW
+NEW
+[ 百]
+[]
+WHO COVID19，COVID19 Map
+177390
+[WHO COVID19()，COVID19 Ma()]
+·叫COVID-19
+2020520 叫 i0s13.7
+- 35 -

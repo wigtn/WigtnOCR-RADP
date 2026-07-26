@@ -1,0 +1,31 @@
+## 4.2 Mixed Word/Character Model
+
+A second approach we use is the mixed word/character model. As in a word model, we keep a fixed-size word vocabulary. However, unlike in a conventional word model where OOV words are collapsed into a single UNK symbol, we convert OOV words into the sequence of its constituent characters. Special prefixes are prepended to the characters, to 1) show the location of the characters in a word, and 2) to distinguish them from normal in-vocabulary characters. There are three prefixes: <B>, <M>, and <E>, indicating beginning of the word, middle of the word and end of the word, respectively. For example, let’s assume the word Miki is not in the vocabulary. It will be preprocessed into a sequence of special tokens: <B>M <M>i <M>k <E>i. The process is done on both the source and the target sentences. During decoding, the output may also contain sequences of special tokens. With the prefixes, it is trivial to reverse the tokenization to the original words as part of a post-processing step.
+
+## 5 Training Criteria
+
+Given a dataset of parallel text containing $N$ input-output sequence pairs, denoted $\mathcal{D} \equiv \{(X^{(i)}, Y^{*(i)})\}_{i=1}^N$, standard maximum-likelihood training aims at maximizing the sum of log probabilities of the ground-truth outputs given the corresponding inputs,
+
+$$
+\mathcal{O}_{\text{ML}}(\boldsymbol{\theta}) = \sum_{i=1}^N \log P_{\boldsymbol{\theta}}(Y^{*(i)} \mid X^{(i)}).
+$$
+
+(7)
+
+The main problem with this objective is that it does not reflect the task reward function as measured by the BLEU score in translation. Further, this objective does not explicitly encourage a ranking among incorrect output sequences – where outputs with higher BLEU scores should still obtain higher probabilities under the model – since incorrect outputs are never observed during training. In other words, using maximum-likelihood training only, the model will not learn to be robust to errors made during decoding since they are never observed, which is quite a mismatch between the training and testing procedure.
+
+Several recent papers [34, 39, 32] have considered different ways of incorporating the task reward into optimization of neural sequence-to-sequence models. In this work, we also attempt to refine a model pre-trained on the maximum likelihood objective to directly optimize for the task reward. We show that, even on large datasets, refinement of state-of-the-art maximum-likelihood models using task reward improves the results considerably.
+
+We consider model refinement using the expected reward objective (also used in [34]), which can be expressed as
+
+$$
+\mathcal{O}_{\text{RL}}(\boldsymbol{\theta}) = \sum_{i=1}^N \sum_{Y \in \mathcal{Y}} P_{\boldsymbol{\theta}}(Y \mid X^{(i)}) r(Y, Y^{*(i)}).
+$$
+
+(8)
+
+Here, $r(Y, Y^{*(i)})$ denotes the per-sentence score, and we are computing an expectation over all of the output sentences $Y$, up to a certain length.
+
+The BLEU score has some undesirable properties when used for single sentences, as it was designed to be a corpus measure. We therefore use a slightly different score for our RL experiments which we call the “GLEU score”. For the GLEU score, we record all sub-sequences of 1, 2, 3 or 4 tokens in output and target sequence (n-grams). We then compute a recall, which is the ratio of the number of matching n-grams to the number of total n-grams in the target (ground truth) sequence, and a precision, which is the ratio of the number of matching n-grams to the number of total n-grams in the generated output sequence. Then GLEU score is simply the minimum of recall and precision. This GLEU score’s range is always between 0 (no matches) and 1 (all match) and it is symmetrical when switching output and target. According to our experiments, GLEU score correlates quite well with the BLEU metric on a corpus level but does not have its drawbacks for our per sentence reward objective.
+
+8
