@@ -37,11 +37,23 @@
       0.2383107088989442,
       0.20512820512820512
     ],
-    "rcps": [
-      0.5825728012002522,
-      0.21204022919709195,
-      0.13974073010020724
-    ],
-    "spearman_rho": 1.0
+    "rcps_tableoff_ref": {
+      "rcps": [
+        0.5825728012002522,
+        0.21204022919709195,
+        0.13974073010020724
+      ],
+      "spearman_rho": 1.0,
+      "note": "MinerU RCPS from the paper table-OFF grid (only grid available at E2E run time)"
+    },
+    "rcps_tableon": {
+      "rcps": [
+        0.5825728012002522,
+        0.1365278210049452,
+        0.13974073010020724
+      ],
+      "spearman_rho": 0.5,
+      "note": "MinerU RCPS from grid_MinerU-tableON (0.13653); MinerU 2nd vs PaddleOCR 3rd nearly tie, so rho drops"
+    }
   }
 }

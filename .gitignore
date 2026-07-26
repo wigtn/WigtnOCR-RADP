@@ -57,6 +57,7 @@ output/baselines/*
 output/diagnostics/*
 !output/diagnostics/*.json
 !output/diagnostics/*.md
+!output/diagnostics/absent_llm_judge_cache.jsonl
 !output/results/
 output/results/*
 !output/results/e2e_rag.json
