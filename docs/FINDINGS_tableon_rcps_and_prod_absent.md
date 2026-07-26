@@ -103,5 +103,8 @@ absent_per_domain, source_groupby}.py`.
   predictions unchanged; retrievers BGE-M3 / e5-large / Qwen3-Embedding-8B on a
   3090). The retrieval pipeline (chunker, `compute_rcps`, probe) is identical to
   the paper grid; only the MinerU *predictions* differ (tables on vs off).
-- The paper Table 1 value 0.212 is KoGov-only; the table-ON overall 0.137 mixes in
-  arxiv (RCPS 0.486), so the like-for-like comparison is the **KoGov-only 0.046**.
+- Both the paper Table 1 value 0.212 and the table-ON overall 0.137 are mixed-corpus
+  scores (663 Q–A = 527 KoGov + 136 arxiv; verified against the grid config), so
+  mixed-to-mixed the drop is 0.212 → 0.137. The per-domain decomposition (KoGov-only
+  0.046 vs arxiv 0.486) shows where the collapse concentrates — arxiv cushions the
+  mixed average.
