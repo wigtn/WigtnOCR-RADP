@@ -14,6 +14,31 @@ from pathlib import Path
 from typing import Protocol
 
 
+# Historical OHR artifacts are immutable provenance.  Some are deterministic
+# audit inputs and others are explicitly quarantined mixed-release summaries.
+# Protect by basename as well as path so redirecting an old producer to a new
+# directory cannot create a deceptively named replacement.
+PROTECTED_OHR_RESULT_BASENAMES = frozenset(
+    {
+        "combined_kogov_ohr_ci.json",
+        "ohr_text_ned.json",
+        "ohr_v5_ci.json",
+        "ohr_v5_perqa.json",
+        "ohrbench_7dom_bc.json",
+        "ohrbench_7dom_rcps.json",
+        "ohrbench_alignment_audit.json",
+        "ohrbench_bc_noise.json",
+        "ohrbench_crossdomain.json",
+        "ohrbench_noise.json",
+        "ohrbench_per_domain.json",
+        "ohrbench_v1dpo_ci.json",
+        "ohrbench_v1dpo_perqa.json",
+    }
+)
+
+COMPATIBILITY_OUTPUT_MARKERS = ("compat", "strict")
+
+
 class EvidencePair(Protocol):
     """Minimal Q-A shape required by the evidence-page coverage gate."""
 
@@ -28,6 +53,37 @@ class EvidencePair(Protocol):
 
 class EvidencePageCoverageError(RuntimeError):
     """Raised when an evaluation corpus omits a Q-A evidence page."""
+
+
+def require_compatibility_output_path(path: Path) -> None:
+    """Reject legacy artifact names and ambiguous OHR result filenames.
+
+    Corrected legacy-QA runs must advertise ``compat`` or ``strict`` in every
+    result filename.  This prevents an otherwise valid rerun from silently
+    replacing either a quarantined summary or one of the immutable arrays used
+    by the tracked alignment audit.
+    """
+
+    if path.suffix.lower() not in {".json", ".md"}:
+        raise ValueError(f"OHR compatibility output must be JSON or Markdown: {path}")
+    if path.name in PROTECTED_OHR_RESULT_BASENAMES:
+        raise ValueError(f"refusing to overwrite protected OHR artifact: {path}")
+    lowered = path.name.lower()
+    if not any(marker in lowered for marker in COMPATIBILITY_OUTPUT_MARKERS):
+        raise ValueError(
+            f"corrected legacy OHR output must include one of "
+            f"{COMPATIBILITY_OUTPUT_MARKERS} in its filename: {path}"
+        )
+
+
+def require_compatibility_cache_path(path: Path) -> None:
+    """Keep corrected parser/PNG caches separate from legacy mixed-release caches."""
+
+    lowered_parts = {part.lower() for part in path.parts}
+    if "parses_ohrbench" in lowered_parts or "ohrbench_pngs" in lowered_parts:
+        raise ValueError(f"refusing to write corrected data into a legacy OHR cache: {path}")
+    if not any("compat" in part or "strict" in part for part in lowered_parts):
+        raise ValueError(f"corrected OHR cache path must be explicitly compat/strict: {path}")
 
 
 def document_basename(doc_name: str) -> str:

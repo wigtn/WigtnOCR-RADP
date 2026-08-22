@@ -9,8 +9,11 @@ import pytest
 
 from wigtnocr_radp.ohrbench_paths import (
     EvidencePageCoverageError,
+    PROTECTED_OHR_RESULT_BASENAMES,
     build_document_index,
     ohr_page_id,
+    require_compatibility_cache_path,
+    require_compatibility_output_path,
     require_evidence_page_coverage,
     resolve_document_files,
 )
@@ -94,3 +97,30 @@ def test_coverage_gate_fails_with_page_and_qa_counts() -> None:
     assert "affecting 2/3 Q-A" in message
     assert "missing__p0" in message
     assert "q2" in message
+
+
+@pytest.mark.parametrize("basename", sorted(PROTECTED_OHR_RESULT_BASENAMES))
+def test_output_gate_rejects_every_protected_result_basename(basename: str) -> None:
+    with pytest.raises(ValueError, match="protected OHR artifact"):
+        require_compatibility_output_path(Path("some/new/directory") / basename)
+
+
+def test_output_gate_requires_explicit_compatibility_marker() -> None:
+    with pytest.raises(ValueError, match="must include"):
+        require_compatibility_output_path(Path("output/results/ohrbench_new.json"))
+
+    require_compatibility_output_path(
+        Path("output/results/ohrbench_law_manual_compat_rcps.json")
+    )
+    require_compatibility_output_path(
+        Path("output/results/ohrbench_v1dpo_strict2036_ci.json")
+    )
+
+
+def test_cache_gate_separates_compatibility_and_legacy_cache_roots() -> None:
+    with pytest.raises(ValueError, match="legacy OHR cache"):
+        require_compatibility_cache_path(Path("output/parses_ohrbench"))
+    with pytest.raises(ValueError, match="explicitly compat/strict"):
+        require_compatibility_cache_path(Path("output/new_ohr_parses"))
+
+    require_compatibility_cache_path(Path("output/parses_ohrbench_compat2036"))

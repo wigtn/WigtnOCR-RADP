@@ -40,14 +40,19 @@ from wigtnocr_radp.evaluation.retrievers import (
     Qwen3EmbeddingRetriever,
 )
 from wigtnocr_radp.evaluation.types import QAPair, normalize_for_match
-from wigtnocr_radp.ohrbench_paths import ohr_page_id, require_evidence_page_coverage
+from wigtnocr_radp.ohrbench_paths import (
+    ohr_page_id,
+    require_compatibility_cache_path,
+    require_compatibility_output_path,
+    require_evidence_page_coverage,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ohrbench_v1dpo")
 
-ROOT = Path("/mnt/data1/work/WigtnOCR-RADP")
+ROOT = Path(__file__).resolve().parents[2]
 OHR = ROOT / "data/OHR-Bench"
-PARSE_ROOT = ROOT / "output/parses_ohrbench"
+DEFAULT_PARSE_ROOT = ROOT / "output/parses_ohrbench_compat2036"
 
 _BAD_ANSWERS = {"yes", "no", "true", "false", "n/a", "none", "not specified"}
 
@@ -120,17 +125,6 @@ def apply_strict_compatibility_mask(
     return filtered
 
 
-def require_non_destructive_output(path: Path, audit: dict[str, Any]) -> None:
-    """Protect the immutable 2,264-Q-A artifacts named by the alignment audit."""
-
-    source_names = {Path(source).name for source in audit.get("source_artifacts", {})}
-    if path.name in source_names:
-        raise ValueError(
-            f"refusing to overwrite audited legacy source artifact {path}; "
-            "use a strict2036 output filename"
-        )
-
-
 def load_qa(alignment_audit: dict[str, Any]) -> list[QAPair]:
     """Load and validate the audited 2,036-Q-A legacy compatibility subset."""
     df = pd.read_parquet(OHR / "OHR-Bench.parquet")
@@ -199,11 +193,12 @@ def load_corpus_page_ids(alignment_audit: dict[str, Any]) -> set[str]:
 def load_our_parses(
     model_subdir: str,
     *,
+    parse_root: Path = DEFAULT_PARSE_ROOT,
     allowed_page_ids: set[str] | None = None,
 ) -> dict[str, str]:
-    """Load our parses from output/parses_ohrbench/<model_subdir>/<pdf_dom>/<page_id>.md."""
+    """Load parses from a compatibility-only cache below ``parse_root``."""
     pages: dict[str, str] = {}
-    base = PARSE_ROOT / model_subdir
+    base = parse_root / model_subdir
     if not base.is_dir():
         logger.warning("missing parse dir: %s", base)
         return pages
@@ -281,13 +276,26 @@ def main():
         type=Path,
         default=Path("output/results/ohrbench_v1dpo_strict2036_ci.json"),
     )
+    ap.add_argument(
+        "--parse_root",
+        type=Path,
+        default=DEFAULT_PARSE_ROOT,
+        help="compatibility-only parse cache produced by ohrbench_v1_dpo_eval.py",
+    )
     ap.add_argument("--n_boot", type=int, default=1000)
     ap.add_argument("--models", default="v1,dpo_v1,dpo_v4",
                     help="parse subdirs under output/parses_ohrbench/")
     args = ap.parse_args()
 
     alignment_audit = load_alignment_audit(args.ohr_alignment_audit)
-    require_non_destructive_output(args.out_perqa, alignment_audit)
+    require_compatibility_cache_path(args.parse_root)
+    require_compatibility_output_path(args.out_perqa)
+    require_compatibility_output_path(args.out_ci)
+    resolved_outputs = {args.out_perqa.resolve(), args.out_ci.resolve()}
+    if len(resolved_outputs) != 2:
+        raise ValueError("per-QA and CI outputs must use distinct paths")
+    if args.ohr_alignment_audit.resolve() in resolved_outputs:
+        raise ValueError("result output must not overwrite the alignment-audit input")
     qa_list = load_qa(alignment_audit)
     corpus_page_ids = load_corpus_page_ids(alignment_audit)
     missing_corpus_pages = {qa.page_id for qa in qa_list} - corpus_page_ids
@@ -310,7 +318,11 @@ def main():
     per_model: dict[str, dict] = {}
     for m in models:
         logger.info("=== model: %s ===", m)
-        pages = load_our_parses(m, allowed_page_ids=corpus_page_ids)
+        pages = load_our_parses(
+            m,
+            parse_root=args.parse_root,
+            allowed_page_ids=corpus_page_ids,
+        )
         require_evidence_page_coverage(qa_list, pages, label=f"OHR-Bench model={m}")
         per_qa = compute_per_qa_metrics(qa_list, pages, retrievers, chunker, k_values)
         per_model[m] = per_qa

@@ -28,6 +28,7 @@ from pathlib import Path
 import numpy as np
 
 from wigtnocr_radp.evaluation.bootstrap import bootstrap_paired_delta
+from wigtnocr_radp.ohrbench_paths import require_compatibility_output_path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("combined_ci")
@@ -230,6 +231,15 @@ def main():
     ap.add_argument("--n_boot", type=int, default=1000)
     args = ap.parse_args()
 
+    require_compatibility_output_path(args.out)
+    input_paths = {
+        args.kogov_perqa.resolve(),
+        args.ohr_perqa.resolve(),
+        args.ohr_alignment_audit.resolve(),
+    }
+    if args.out.resolve() in input_paths:
+        raise ValueError("combined-CI output must not overwrite any input artifact")
+
     kogov, kogov_retrs, kogov_ks = load_kogov_perqa(args.kogov_perqa)
     ohr = load_ohr_perqa(args.ohr_perqa, args.ohr_alignment_audit)
 
@@ -237,6 +247,7 @@ def main():
     # (OHR retriever names should match if same Python wigtnocr_radp.evaluation.retrievers).
     out: dict = {
         "meta": {
+            "status": "exploratory_corrected_legacy_compatibility_union_not_full_v2",
             "kogov_n": int(np.array(list(kogov["v1"].values())[0]).shape[0]) if "v1" in kogov else 0,
             "ohr_n": int(np.array(list(ohr["v1"].values())[0]).shape[0]) if "v1" in ohr else 0,
             "kogov_retrievers": kogov_retrs,

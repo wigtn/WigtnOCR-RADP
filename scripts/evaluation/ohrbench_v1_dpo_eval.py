@@ -1,27 +1,26 @@
-"""OHR-Bench cross-domain evaluation for v1 + DPO parsers.
+"""Legacy-QA OHR-Bench parsing pipeline for v1 + DPO parsers.
 
-Purpose: validate the KoGov DPO finding on an independent, English-language
-benchmark, testing cross-domain generalisation. The KoGov fold (n=663) is
-underpowered — its two-sided CI straddles zero — so an independent benchmark with
-more verbatim-answerable Q-A across 7 domains (Law, Manual, Finance, News,
-Academic, Textbook, Administration) both (a) tests generalisation to a different
-language and document mix and (b) supplies the sample size for a powered two-sided
-test. We report whatever the cross-domain data show, in either direction.
+The legacy 4,330-page parquet and current 8,561-page parser/PDF bundle are not a
+single benchmark version.  This script resolves source documents globally by
+basename and reports missing source files; downstream scoring must enforce the
+evidence-page coverage gate.  It is retained to reproduce the corrected legacy
+compatibility subset, not as a full OHR-Bench v2 evaluation.  A full v2 run must
+use ``OHR-Bench_v2.parquet`` together with ``qas_v2.json``.
 
-Pipeline (run as background daemon, ~3h total):
-  1. PDF → PNG (pdftoppm, 150 dpi, ~40min CPU for 4,330 pages)
-  2. v1 + DPO-v1 + DPO-v4 (3 models) × OHR-Bench → parses
+Pipeline (run as background daemon):
+  1. Filter the audited six-domain compatibility corpus and exclude its known
+     missing v2 page.
+  2. PDF → PNG (pdftoppm, 150 dpi) in a compatibility-only cache.
+  3. v1 + DPO-v1 + DPO-v4 (3 models) × OHR-Bench → parses
      (vLLM-async via vllm-v1 @ 8002, ~30min concurrency=32)
-  3. RCPS scoring with same 3 retrievers as KoGov (BGE-M3, mE5-large, Qwen3-Emb-8B)
-     on parser_native chunker, ~1h GPU 1
-  4. Verbatim filter (answer span must be substring of parse) + paired CI
-     on KoGov∪OHR-Bench combined Q-A.
+  4. Run ``ohrbench_v1dpo_full.py`` for strict-2,036 scoring and paired CIs.
 
 Outputs:
-  output/parses_ohrbench/{v1,radp_dpo,radp_dpo_v4}/<domain>/<doc>__p<n>.md
-  output/results/ohrbench_v1_dpo_perqa.json
-  output/results/ohrbench_v1_dpo_ci.json
-  output/results/combined_kogov_ohrbench_ci.json — paired CI on union
+  output/ohrbench_pngs_compat2036/<domain>/<doc>__p<n>.png
+  output/parses_ohrbench_compat2036/{v1,dpo_v1,dpo_v4}/<domain>/<doc>__p<n>.md
+
+This preparation script never writes result JSON files and never uses the
+legacy ``output/parses_ohrbench`` cache.
 """
 
 from __future__ import annotations
@@ -29,34 +28,36 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
-import io
 import json
 import logging
-import os
 import subprocess
 import time
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from PIL import Image
 
+from wigtnocr_radp.ohrbench_paths import (
+    document_basename,
+    ohr_page_id,
+    require_compatibility_cache_path,
+    resolve_document_files,
+)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] OHR_EVAL: %(message)s")
 log = logging.getLogger("ohr_eval")
 
-ROOT = Path("/mnt/data1/work/WigtnOCR-RADP")
+ROOT = Path(__file__).resolve().parents[2]
 OHR = ROOT / "data/OHR-Bench"
 PDFS = OHR / "pdfs_extracted"
 PARQUET = OHR / "OHR-Bench.parquet"
+ALIGNMENT_AUDIT = ROOT / "output/results/ohrbench_alignment_audit.json"
 
-# Domain naming difference between pdfs.zip and parquet
-PDF_TO_PARQUET = {
-    "law": "law", "manual": "manual", "finance": "finance",
-    "textbook": "textbook", "news": "news",
-    "academic": "paper", "administration": "notes",
-}
+PARSE_CACHE = ROOT / "output/parses_ohrbench_compat2036"
+PNG_CACHE = ROOT / "output/ohrbench_pngs_compat2036"
 
-PARSE_CACHE = ROOT / "output/parses_ohrbench"
-PNG_CACHE = ROOT / "output/ohrbench_pngs"
+AUDIT_STATUS = "corrected_legacy_compatibility_subset_not_full_v2"
 
 SYSTEM_PROMPT = """You are WigtnOCR, a specialized document parser for Korean government documents.
 Convert the given document page image into well-structured Markdown format.
@@ -70,11 +71,6 @@ You MUST:
 
 USER_PROMPT = """Convert this document page image to well-structured Markdown.
 Output ONLY the Markdown content. No explanations, no commentary."""
-
-
-def page_id(doc_name: str, page_idx: int) -> str:
-    base = doc_name.rsplit("/", 1)[-1]
-    return f"{base}__p{int(page_idx)}"
 
 
 def pdf_to_png(pdf_path: Path, page_idx: int, out_png: Path) -> bool:
@@ -112,31 +108,62 @@ def pdf_to_png(pdf_path: Path, page_idx: int, out_png: Path) -> bool:
     return False
 
 
-def collect_pages_to_parse() -> list[dict]:
-    """Iterate parquet → list of {pdf_path, page_idx, page_id, domain}."""
+def load_alignment_audit(path: Path) -> dict[str, Any]:
+    audit = json.loads(path.read_text(encoding="utf-8"))
+    strict = audit.get("c4_strict_compatibility_subset")
+    if audit.get("status") != AUDIT_STATUS or not isinstance(strict, dict):
+        raise ValueError(f"unsupported OHR alignment audit: {path}")
+    if int(strict.get("num_qa", -1)) != 2036:
+        raise ValueError(f"alignment audit does not define the 2,036-Q-A subset: {path}")
+    return audit
+
+
+def _pdf_lookup_key(doc_name: str) -> str:
+    basename = document_basename(doc_name)
+    return basename[:-4] if basename.lower().endswith(".pdf") else basename
+
+
+def collect_pages_to_parse(alignment_audit: dict[str, Any]) -> list[dict]:
+    """Collect only pages in the audited six-domain compatibility corpus."""
+
     df = pd.read_parquet(PARQUET)
+    strict = alignment_audit["c4_strict_compatibility_subset"]
+    allowed_domains = set(strict["domain_counts"])
+    missing_page = str(strict["excluded"]["missing_v2_page"])
+    df = df[df["domain"].astype(str).isin(allowed_domains)].copy()
+    df["_page_id"] = [
+        ohr_page_id(row["doc_name"], row["page_idx"]) for _, row in df.iterrows()
+    ]
+    df = df[df["_page_id"] != missing_page]
+
+    resolved, missing_documents = resolve_document_files(
+        PDFS,
+        df["doc_name"].astype(str),
+        suffix=".pdf",
+    )
+    if missing_documents:
+        raise FileNotFoundError(
+            "strict compatibility PDF corpus is incomplete: "
+            f"{len(missing_documents)} documents missing; sample={list(missing_documents[:5])}"
+        )
+
     out = []
     for _, row in df.iterrows():
-        parquet_dom = str(row["domain"])
-        # reverse map
-        pdf_doms = [k for k, v in PDF_TO_PARQUET.items() if v == parquet_dom]
-        if not pdf_doms:
-            continue
-        pdf_dom = pdf_doms[0]
-        doc_name = str(row["doc_name"]).rsplit("/", 1)[-1]
-        if not doc_name.endswith(".pdf"):
-            doc_name = doc_name + ".pdf"
-        pdf_path = PDFS / pdf_dom / doc_name
-        if not pdf_path.exists():
-            continue
+        pdf_path = resolved.get(_pdf_lookup_key(str(row["doc_name"])))
+        if pdf_path is None:
+            raise FileNotFoundError(f"resolved PDF disappeared for {row['doc_name']}")
+        pdf_dom = pdf_path.parent.name
         page_idx = int(row["page_idx"])
         out.append({
             "pdf_path": pdf_path,
             "page_idx": page_idx,
-            "page_id": page_id(str(row["doc_name"]), page_idx),
+            "page_id": str(row["_page_id"]),
             "domain": pdf_dom,
-            "doc_name": doc_name,
+            "doc_name": pdf_path.name,
         })
+    page_ids = [page["page_id"] for page in out]
+    if len(page_ids) != len(set(page_ids)):
+        raise ValueError("strict compatibility corpus contains duplicate canonical page IDs")
     log.info("collected %d (pdf, page) pairs across %d unique pages",
              len(out), len({(p["pdf_path"], p["page_idx"]) for p in out}))
     return out
@@ -164,19 +191,23 @@ def phase_pdf_to_png(pages: list[dict]) -> int:
     # Parallel via subprocess pool
     from concurrent.futures import ThreadPoolExecutor, as_completed
     done = 0
+    succeeded = 0
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=8) as ex:
         futs = {ex.submit(pdf_to_png, pdf, pi, op): (pdf, pi) for pdf, pi, op in todo}
         for fut in as_completed(futs):
             ok = fut.result()
             done += 1
+            succeeded += int(ok)
             if done % 200 == 0:
                 elapsed = time.time() - t0
                 rate = done / max(elapsed, 1e-6)
                 eta = (len(todo) - done) / max(rate, 1e-6) / 60
                 log.info("  PNG %d/%d (%.1f/s, ETA %.1f min)", done, len(todo), rate, eta)
-    log.info("PNG done: %d in %.1fmin", done, (time.time() - t0) / 60)
-    return done
+    if succeeded != len(todo):
+        raise RuntimeError(f"PNG conversion incomplete: {succeeded}/{len(todo)} succeeded")
+    log.info("PNG done: %d in %.1fmin", succeeded, (time.time() - t0) / 60)
+    return succeeded
 
 
 async def parse_one(client, sem, model: str, png_path: Path, out_path: Path,
@@ -234,6 +265,10 @@ async def phase_parse(pages: list[dict], models: list[tuple[str, str, str]],
         t0 = time.time()
         tasks = [parse_one(client, sem, model_name, pp, op, 0.0, 1536) for pp, op in todo]
         done_flags = await asyncio.gather(*tasks)
+        if not all(done_flags):
+            raise RuntimeError(
+                f"parser cache incomplete for {subdir}: {sum(done_flags)}/{len(todo)} succeeded"
+            )
         log.info("  parsed %d/%d in %.1fmin", sum(done_flags), len(todo), (time.time() - t0) / 60)
 
 
@@ -241,12 +276,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--base_url", default="http://localhost:8002/v1")
     ap.add_argument("--concurrency", type=int, default=32)
+    ap.add_argument("--alignment-audit", type=Path, default=ALIGNMENT_AUDIT)
     ap.add_argument("--skip_png", action="store_true")
     ap.add_argument("--skip_parse", action="store_true")
     args = ap.parse_args()
 
-    log.info("=== OHR-Bench v1+DPO eval pipeline ===")
-    pages = collect_pages_to_parse()
+    require_compatibility_cache_path(PARSE_CACHE)
+    require_compatibility_cache_path(PNG_CACHE)
+    alignment_audit = load_alignment_audit(args.alignment_audit)
+
+    log.info("=== OHR-Bench strict-2,036 compatibility cache pipeline ===")
+    pages = collect_pages_to_parse(alignment_audit)
 
     if not args.skip_png:
         phase_pdf_to_png(pages)

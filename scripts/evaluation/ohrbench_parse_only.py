@@ -1,7 +1,9 @@
-"""OHR-Bench phase 2 — async vLLM parse of all cached PNGs to markdown.
+"""OHR compatibility phase 2 — async vLLM parsing of audited cached PNGs.
 
-Reads PNGs from output/ohrbench_pngs/{domain}/*.png, writes parses to
-{out_dir}/{domain}/*.md. Resumable (skips existing non-empty .md).
+Reads PNGs from ``output/ohrbench_pngs_compat2036/{domain}/*.png`` and writes
+parses to a caller-supplied compat/strict cache.  The legacy mixed-release
+``output/parses_ohrbench`` cache is rejected.  Resumable: existing non-empty
+Markdown files are skipped.
 """
 from __future__ import annotations
 
@@ -14,11 +16,13 @@ from pathlib import Path
 
 from openai import AsyncOpenAI
 
+from wigtnocr_radp.ohrbench_paths import require_compatibility_cache_path
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] PARSE: %(message)s")
 log = logging.getLogger("parse")
 
-ROOT = Path("/mnt/data1/work/WigtnOCR-RADP")
-PNG_DIR = ROOT / "output/ohrbench_pngs"
+ROOT = Path(__file__).resolve().parents[2]
+PNG_DIR = ROOT / "output/ohrbench_pngs_compat2036"
 
 SYSTEM_PROMPT = """You are WigtnOCR, a specialized document parser for Korean government documents.
 Convert the given document page image into well-structured Markdown format.
@@ -63,7 +67,9 @@ async def parse_one(client, sem, model, png, out_md):
 async def amain(args):
     pngs = sorted(PNG_DIR.glob("*/*.png"))
     log.info("found %d PNGs", len(pngs))
-    out_root = Path(args.out_dir)
+    if not pngs:
+        raise FileNotFoundError(f"no compatibility PNGs found under {PNG_DIR}")
+    out_root = args.out_dir
 
     todo = []
     for png in pngs:
@@ -102,9 +108,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base_url", default="http://localhost:8002/v1")
     ap.add_argument("--model", required=True)
-    ap.add_argument("--out_dir", required=True)
+    ap.add_argument("--out_dir", required=True, type=Path)
     ap.add_argument("--concurrency", type=int, default=32)
     args = ap.parse_args()
+    require_compatibility_cache_path(PNG_DIR)
+    require_compatibility_cache_path(args.out_dir)
     return asyncio.run(amain(args))
 
 
