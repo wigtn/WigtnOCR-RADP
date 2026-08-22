@@ -63,11 +63,11 @@ RCPS 구현, 선별된 결과 산출물이 있다. 아직 제공되지 않은 �
 RCPS(P, D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K}  MRR@k( r, chunks_P(D), {qᵢ} )
 ```
 
-`R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`, `K = {1, 5, 10}`. chunk이 **relevant**한 것은 그 출처 페이지가 답의 페이지와 일치하고 gold span이 chunk의 substring일 때(공백·markdown 무시 정규화). 수백 개 held-out Q–A로 **학습 없이** 실행. 구현: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
+`R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`, `K = {1, 5, 10}`. chunk이 **relevant**한 것은 그 출처 페이지가 답의 페이지와 일치하고 reference span이 chunk의 substring일 때(공백·markdown 무시 정규화). 수백 개 held-out Q–A로 **학습 없이** 실행. 구현: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
 ### Coverage 진단 — 파서 vs 청커 (C2)
 
-RCPS는 파서+청커+retriever를 함께 채점하므로 낮은 점수만으로 어느 layer를 먼저 살펴야 하는지 알기 어렵다. 파서 출력을 고정하고 청커만 바꿔, 정규화한 gold span을 **covered**, **split**(페이지 출력에는 있지만 chunk 사이에 나뉨 — overlap으로 회복 가능), **absent**(정규화한 파서 출력에 exact match가 없어 re-chunking만으로 같은 span을 복원할 수 없음)로 분류한다. absent는 실제 내용 누락일 수도, 표면형 차이일 수도 있으므로 case-level 검토로 구분해야 한다. 코드: [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
+RCPS는 파서+청커+retriever를 함께 채점하므로 낮은 점수만으로 어느 layer를 먼저 살펴야 하는지 알기 어렵다. 파서 출력을 고정하고 청커만 바꿔, 정규화한 reference span을 **covered**, **split**(페이지 출력에는 있지만 chunk 사이에 나뉨 — overlap으로 회복 가능), **absent**(정규화한 파서 출력에 exact match가 없어 re-chunking만으로 같은 span을 복원할 수 없음)로 분류한다. absent는 실제 내용 누락일 수도, 표면형 차이일 수도 있으므로 case-level 검토로 구분해야 한다. 코드: [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
 
 ### 파서측 학습 — 되는 것과 안 되는 것 (C4)
 

@@ -85,14 +85,14 @@ RCPS(P, D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K}  MRR@k( r, chunks_P(D),
 ```
 
 `R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`; `K = {1, 5, 10}`. A chunk is **relevant** iff
-its source page matches the answer's page and the gold span is a substring of the chunk (whitespace- and
+its source page matches the answer's page and the reference span is a substring of the chunk (whitespace- and
 markdown-insensitive). Run on a few hundred held-out Q–A with **no training**. Reference implementation:
 [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
 ### Coverage diagnostic — parser vs chunker (C2)
 
 RCPS scores parser + chunker + retriever jointly, so a low score does not say *which* layer is at fault.
-Holding the parser output fixed and varying the chunker, classify each normalized gold span as **covered**,
+Holding the parser output fixed and varying the chunker, classify each normalized reference span as **covered**,
 **split** (present on the page but divided across chunks, and therefore potentially recoverable with overlap)
 or **absent** (no exact match in the normalized parser output, so re-chunking cannot restore that exact span).
 This diagnostic identifies the layer to inspect first; an absent match can reflect a genuine omission or a
