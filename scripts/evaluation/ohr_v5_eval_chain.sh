@@ -1,4 +1,9 @@
 #!/bin/bash
+
+echo "ERROR: this legacy mixed-release chain is disabled because it targets quarantined OHR artifacts." >&2
+echo "Use the compat2036 pipeline, or a fresh full-v2 pipeline, with new output names." >&2
+exit 2
+
 set +e
 cd /mnt/data1/work/WigtnOCR-RADP
 PORT=8002

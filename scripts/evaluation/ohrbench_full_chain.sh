@@ -1,6 +1,11 @@
 #!/bin/bash
 # Chain: wait DPO-v4 parse done → run scoring → combined KoGov+OHR CI.
 # Threshold is 4040 (one outlier page doesn't parse even at 32K max-len).
+
+echo "ERROR: this legacy mixed-release chain is disabled because it targets quarantined OHR artifacts." >&2
+echo "Use the compat2036 producer/scorer defaults only after regenerating the audited compatibility caches." >&2
+exit 2
+
 set +e
 cd /mnt/data1/work/WigtnOCR-RADP
 
