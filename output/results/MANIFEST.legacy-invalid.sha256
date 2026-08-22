@@ -1,0 +1,12 @@
+# QUARANTINED 2026-08-21 — provenance only, not camera-ready evidence.
+# These artifacts use mixed OHR-Bench releases, unfiltered n=2,264 arrays, or
+# downstream summaries derived from them. Their hashes preserve lineage; they
+# must not be restored to the current manifest without a source-page-aligned
+# regeneration and QA evidence-page coverage report.
+9b7009e035e656da266bc30349ac4a261273206a8095bf5f74949b56d63f2625  ohr_v5_ci.json
+eedc3d4c93033e3b07c72640aef205e81f3214314fbafa15138200e96bc65e6f  ohrbench_v1dpo_ci.json
+ae433054f842df51f46244c255b1ed230e9ed43b6c447470f26fdb01644cdede  combined_kogov_ohr_ci.json
+3f2c8bb50c07cabf4119b2eb9b67cc4a6aa16f04f7cdcded9b155de923043767  ohrbench_7dom_bc.json
+8d35331176a83c58a9cabebb7caef6b50bf35653aba852a9b0f1a4834d09881f  ohrbench_7dom_rcps.json
+03ce4a40174faecad59cc8cb655e5b0d03b6fc5e5a992bfeaa84e1c3411c3b5a  ohrbench_per_domain.json
+4a2cd43bf38984bd443c1862a2f3ad2ae1f82c681b3949be9c20f798abe953a6  ohr_text_ned.json

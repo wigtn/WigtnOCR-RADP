@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "status": "corrected_legacy_compatibility_subset_not_full_v2",
+  "generated_by": "scripts/analysis/audit_ohrbench_legacy_alignment.py",
+  "source_artifacts": {
+    "output/results/ohrbench_v1dpo_perqa.json": "f8e501e4e3b5117bf5c4f802b29c48de4339308320418d0d0b1df5def9c5c71c",
+    "output/results/ohr_v5_perqa.json": "737e3d2e9cdc362eefadef15377c0ebd285d78c8f981ee4ccc6b473411b0e7f4",
+    "output/results/ohrbench_noise.json": "8e235e1dea9abbc73b1a371e26eca452193b0aafb1b1bd77a4497cd4355cc08e",
+    "output/results/ohrbench_bc_noise.json": "075a997339645f524e5d5b0d85dc35753ecdfa2a355393fe7839f071fadff7df"
+  },
+  "c1_aligned_perturbation_subset": {
+    "domains": [
+      "law",
+      "manual"
+    ],
+    "num_qa": 1043,
+    "num_variants": 15,
+    "pearson_bc_vs_rcps": -0.350972,
+    "interpretation": "descriptive; variants within a noise family are not independent parsers"
+  },
+  "c4_strict_compatibility_subset": {
+    "source_num_qa": 2264,
+    "excluded": {
+      "legacy_notes_zero_rows": 223,
+      "reason": "stored arrays resolved legacy notes documents against unrelated v2 administration files",
+      "missing_v2_page": "Triangulated_Categories_of_Mixed_Motives_(Denis-Charles_Cisinski_,_Frédéric_Déglise)_(Z-Library).pdf_145__p0",
+      "missing_v2_page_num_qa": 5,
+      "missing_v2_page_qa_ids": [
+        "74ea8681-238b-45f0-abf7-f77bb50fd1ab",
+        "74ee5979-663b-435d-96c9-9850fef666b1",
+        "74f15f46-c9e7-48ba-9a05-00d0a29d94c0",
+        "74f8c57b-24c5-42ca-aab3-c4d8d4e4004b",
+        "74fa03af-423a-472c-8582-2158e1ab84a5"
+      ]
+    },
+    "num_qa": 2036,
+    "domain_counts": {
+      "finance": 284,
+      "law": 675,
+      "manual": 368,
+      "news": 151,
+      "paper": 305,
+      "textbook": 253
+    },
+    "retrievers": [
+      "bge-m3",
+      "ml-e5-large",
+      "qwen3-emb-8b"
+    ],
+    "cutoffs": [
+      1,
+      5,
+      10
+    ],
+    "bootstrap": {
+      "kind": "paired_percentile",
+      "resamples": 1000,
+      "seed": 42
+    },
+    "delta_vs_prod_pp": {
+      "RADP-DPO-R2": {
+        "hit_at_1": {
+          "delta_pp": 0.589391,
+          "ci95_lo_pp": 0.08186,
+          "ci95_hi_pp": 1.080959
+        },
+        "hit_at_5": {
+          "delta_pp": 0.949574,
+          "ci95_lo_pp": 0.327439,
+          "ci95_hi_pp": 1.539375
+        },
+        "hit_at_10": {
+          "delta_pp": 0.900458,
+          "ci95_lo_pp": 0.359774,
+          "ci95_hi_pp": 1.490259
+        },
+        "mrr_at_10": {
+          "delta_pp": 0.77865,
+          "ci95_lo_pp": 0.318214,
+          "ci95_hi_pp": 1.238263
+        },
+        "ndcg_at_5": {
+          "delta_pp": 0.822637,
+          "ci95_lo_pp": 0.347065,
+          "ci95_hi_pp": 1.305521
+        },
+        "rcps": {
+          "delta_pp": 0.715236,
+          "ci95_lo_pp": 0.25211,
+          "ci95_hi_pp": 1.1651
+        }
+      },
+      "RADP-DPO-R3": {
+        "hit_at_1": {
+          "delta_pp": 1.457105,
+          "ci95_lo_pp": 0.621726,
+          "ci95_hi_pp": 2.308448
+        },
+        "hit_at_5": {
+          "delta_pp": 1.146038,
+          "ci95_lo_pp": 0.311067,
+          "ci95_hi_pp": 2.046496
+        },
+        "hit_at_10": {
+          "delta_pp": 0.900458,
+          "ci95_lo_pp": 0.065488,
+          "ci95_hi_pp": 1.768991
+        },
+        "mrr_at_10": {
+          "delta_pp": 1.301747,
+          "ci95_lo_pp": 0.559593,
+          "ci95_hi_pp": 2.061608
+        },
+        "ndcg_at_5": {
+          "delta_pp": 1.275731,
+          "ci95_lo_pp": 0.530212,
+          "ci95_hi_pp": 2.052811
+        },
+        "rcps": {
+          "delta_pp": 1.359751,
+          "ci95_lo_pp": 0.59116,
+          "ci95_hi_pp": 2.12024
+        }
+      }
+    }
+  },
+  "submission_gate": {
+    "full_v2_rerun_required": true,
+    "full_v2_inputs": [
+      "OHR-Bench_v2.parquet",
+      "data/qas_v2.json"
+    ],
+    "radp_distill_comparison_available": false,
+    "warning": "Do not restore seven-domain, 2,264-Q-A, OHR TextNED, or RADP-Distill quantitative claims without source-page-aligned per-QA artifacts."
+  }
+}

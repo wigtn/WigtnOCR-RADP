@@ -68,8 +68,13 @@ output/results/*
 !output/results/ohrbench_7dom_bc.json
 !output/results/ohrbench_crossdomain.json
 !output/results/ohrbench_per_domain.json
+!output/results/ohrbench_alignment_audit.json
+!output/results/MANIFEST.legacy-invalid.sha256
 !output/results/grid_MinerU-tableON_parser_native.json
 !output/results/perqa_MinerU-tableON_parser_native.json
+!output/results/fullgrid_aggregate_audit.json
+!output/results/rcps_protocol_ablation.json
+!output/results/rank_stability_e2e_accuracy.json
 
 # Model checkpoints / LoRA adapters
 *.safetensors
