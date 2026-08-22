@@ -46,6 +46,14 @@
 - 100-case human study와 별도의 100-pair Q--A quality check를 명시적으로 분리하고, 1,017 judge 항목을 unique answer가 아닌 parser--answer case로 정의했다.
 - Q--A-level bootstrap이 page clustering을 반영하지 않는다는 제한, evidence-type별 정확한 분자/분모(figure 5/7 포함), 세 seed가 Prod seed가 아니라 R1 recipe의 독립 seed라는 사실을 추가했다.
 
+### 2026-08-22 3차 skim-reading narrative pass
+
+- 제목→Abstract→절·소절 제목→각 절 첫 문장→표·그림 캡션 순으로 다시 읽어, 정독하지 않아도 `select with RCPS → diagnose with coverage → train only if needed`가 이어지도록 전체 서술 순서를 재구성했다.
+- Abstract 둘째 문장에서 RCPS를 바로 정의하고, Introduction과 Discussion도 선택–진단–훈련 순서로 맞췄다. C1과 C2를 분리하고 결과 절·부록 제목과 캡션을 결론형 문구로 바꿨다.
+- evaluation frame을 294-page selection, 242-page training/mechanism, 73-page pilot로 분리했다. selection만 Q--A-free distractor 52쪽을 포함한 294쪽을 index하며, training 분석이 294쪽 전체를 index한다는 기존 혼동을 정정했다. OHR 1,043/2,036 Q--A도 별도 frame으로 유지했다.
+- 인과·일반화로 읽힐 수 있는 `loss`, `effect`, `gain`, `predict` 표현을 현재 근거 범위에 맞게 낮추고, E2E 결과는 세 parser의 top-choice check로만 명시했다.
+- 그림 파일 자체는 이 pass에서 수정하지 않았다. Figure 1·4 내부의 구 수치와 Figure 2·3의 작은 글자는 P16 시각 단계에서 교체한다.
+
 ### 아직 문장만으로 닫을 수 없는 항목
 
 - R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/checkpoint config 확인이 필요하다. 현재 Git의 0.05는 논문 서술이고 0.1은 실행 코드/default이므로 어느 쪽도 단독 provenance가 아니다.
@@ -141,8 +149,8 @@
 ## 9. 현재 PDF 빌드·렌더 검증
 
 - `latexmk -pdf -g -interaction=nonstopmode -halt-on-error main_camera_ready.tex` 빌드 성공.
-- 최종 작업 PDF는 15쪽이다. 본문과 Limitations는 공식 범위인 1–7쪽 안에 있으며, Limitations 자체는 7쪽 한 페이지 안에서 끝난다. References는 7쪽에서 시작하고 Appendix는 10쪽에서 시작한다.
+- 최종 작업 PDF는 14쪽이다. 본문과 Limitations는 1–6쪽에 들어가며, References는 6쪽에서 시작하고 Appendix는 9쪽에서 시작한다.
 - undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다.
-- 15쪽 전부를 150dpi PNG로 렌더해 육안 확인했다. 텍스트·표의 잘림, 겹침, 페이지 밖 유출은 발견되지 않았다.
+- 14쪽 전부를 144dpi PNG로 렌더해 육안 확인했다. 텍스트·표의 잘림, 겹침, 페이지 밖 유출은 발견되지 않았다.
 - P16의 알려진 시각 blocker는 그대로다. Figure 1과 4 내부에 tables-off 구 수치가 남아 있고, Figure 2와 3의 내부 글자가 작다. `fig_coverage.pdf`에서 유래한 Type 3 font도 남아 있다. 이 세 항목은 그림 재생성 뒤 다시 검사해야 한다.
 - 참고문헌 마지막 쪽과 마지막 Appendix 쪽의 여백은 내용 손실이 아니라 section/page break에 따른 비치명적 조판 여백이다.
