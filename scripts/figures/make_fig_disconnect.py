@@ -1,17 +1,14 @@
-"""Figure 1 — The parsing-retrieval disconnect (the headline).
+"""Generate the camera-ready parsing-retrieval disconnect figure.
 
-Two panels on Korean government documents (KoGov, Table 1):
-  (a) BC vs RCPS scatter: the cleanest-boundary parsers (MinerU, Marker; highest
-      BC) retrieve worst. Pearson r = -0.81 (n=5; PaddleOCR excluded — MoC
-      detects zero boundaries so its Boundary Clarity is undefined).
-  (b) Parser choice moves retrieval Hit@1 by +35.1pp (2.8x): picking by appearance
-      (MinerU, 0.197) vs by RCPS (v1, 0.549).
+Panel (a) uses the submitted MinerU-off output for the Boundary Clarity (BC)
+diagnostic.  The complete 294-page parsers are the primary correlation; Marker
+is shown separately because it covers only 38 pages.  Panel (b) is a distinct
+deployment audit using the table-enabled MinerU-on output.
 
-Single source of truth (reproducible):
-  - BC   : output/baselines/moc_bc_correlation.json   (Qwen3-VL-2B ppl)
-  - RCPS / Hit@1 : output/baselines/grid_v1_parser_native.json
-                   (3-retriever averaged: BGE-M3, mE5-large, Qwen3-Emb-8B; n=663)
-
+Sources:
+  - output/baselines/moc_bc_correlation.json
+  - output/baselines/grid_v1_parser_native.json
+  - output/results/grid_MinerU-tableON_parser_native.json
 Output: paper/figures/fig_disconnect.{pdf,png}
 """
 
@@ -22,100 +19,212 @@ import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from scipy.stats import pearsonr
+import numpy as np
 
 OUT_DIR = Path("paper/figures")
+BC_SRC = Path("output/baselines/moc_bc_correlation.json")
+GRID_SRC = Path("output/baselines/grid_v1_parser_native.json")
+MINERU_ON_SRC = Path("output/results/grid_MinerU-tableON_parser_native.json")
 
-_BC = json.load(open("output/baselines/moc_bc_correlation.json"))["parsers"]
-_GRID = {p["name"]: p for p in
-         json.load(open("output/baselines/grid_v1_parser_native.json"))["parsers"]}
+INK = "#263238"
+BLUE = "#245a7a"
+PALE_BLUE = "#d9e8f0"
+GRAY = "#b8b8b8"
+MINERU_ORANGE = "#e6a04b"
+DARK_ORANGE = "#974900"
+
+_BC = json.loads(BC_SRC.read_text())["parsers"]
+_GRID = {
+    parser["name"]: parser
+    for parser in json.loads(GRID_SRC.read_text())["parsers"]
+}
+_MINERU_ON = json.loads(MINERU_ON_SRC.read_text())
+
 _SHORT = {
     "Qwen3-VL-30B (teacher)": "Qwen3-VL-30B\n(teacher)",
-    "WigtnOCR-2B (ours, v1)": "Prod (ours)",
+    "WigtnOCR-2B (ours, v1)": "Prod",
     "Qwen3-VL-2B (base)": "Qwen3-VL-2B\n(base)",
-    "MinerU": "MinerU", "PaddleOCR": "PaddleOCR", "Marker": "Marker (38p)",
+    "MinerU": "MinerU-off",
+    "PaddleOCR": "PaddleOCR",
+    "Marker": "Marker (38p)",
 }
 
-# (name, BC, RCPS, Hit@1).  BC may be NaN (PaddleOCR -> undefined).
+# (display name, BC, RCPS).  PaddleOCR has undefined BC and is omitted below.
 PARSERS = []
-for p in _BC:
-    g = _GRID.get(p["parser"], {})
-    PARSERS.append((_SHORT.get(p["parser"], p["parser"]),
-                    p["mean_bc"], g.get("rcps"), g.get("hit@1")))
+for parser in _BC:
+    grid_row = _GRID.get(parser["parser"], {})
+    PARSERS.append(
+        (
+            _SHORT.get(parser["parser"], parser["parser"]),
+            parser["mean_bc"],
+            grid_row.get("rcps"),
+        )
+    )
 
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 9,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-})
+plt.rcParams.update(
+    {
+        "font.family": "DejaVu Sans",
+        "font.size": 8.5,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
 
 
 def main() -> None:
     fig, (ax_s, ax_b) = plt.subplots(
-        1, 2, figsize=(7.0, 2.9), gridspec_kw={"width_ratios": [1.45, 1.0], "wspace": 0.32}
+        1,
+        2,
+        figsize=(6.45, 2.78),
+        gridspec_kw={"width_ratios": [1.55, 1.0], "wspace": 0.33},
     )
 
-    # ---- (a) scatter: BC vs RCPS (valid BC only -> n=5) ----
-    valid = [(bc, rc, name) for name, bc, rc, _ in PARSERS
-             if bc is not None and not math.isnan(bc)]
-    bcs = [p[0] for p in valid]
-    rcps = [p[1] for p in valid]
-    r, _ = pearsonr(bcs, rcps)
+    # ---- (a) MinerU-off diagnostic: complete outputs first, Marker as sensitivity ----
+    valid = [
+        (bc, rcps, name)
+        for name, bc, rcps in PARSERS
+        if bc is not None and not math.isnan(bc)
+    ]
+    complete = [row for row in valid if row[2] != "Marker (38p)"]
+    marker = next(row for row in valid if row[2] == "Marker (38p)")
 
-    ax_s.scatter(bcs, rcps, s=55, color="#1f77b4", zorder=3,
-                 edgecolor="white", linewidth=0.6)
+    r_complete = float(
+        np.corrcoef(
+            [row[0] for row in complete], [row[1] for row in complete]
+        )[0, 1]
+    )
+    r_with_marker = float(
+        np.corrcoef([row[0] for row in valid], [row[1] for row in valid])[0, 1]
+    )
 
-    # offsets tuned so the three clustered VLM labels fan out without overlap
-    label_off = {
-        "MinerU": (9, -1), "Marker (38p)": (9, -1),
-        "Prod (ours)": (-9, 11),                  # above-left of the cluster
-        "Qwen3-VL-30B\n(teacher)": (11, 5),       # above-right, clear of Prod
-        "Qwen3-VL-2B\n(base)": (-2, -27),         # below
+    ax_s.scatter(
+        [row[0] for row in complete],
+        [row[1] for row in complete],
+        s=48,
+        marker="o",
+        color=BLUE,
+        edgecolor="white",
+        linewidth=0.7,
+        zorder=3,
+    )
+    ax_s.scatter(
+        [marker[0]],
+        [marker[1]],
+        s=60,
+        marker="D",
+        facecolor="white",
+        edgecolor=INK,
+        linewidth=1.1,
+        zorder=3,
+    )
+
+    label_offsets = {
+        "MinerU-off": (8, 0),
+        "Marker (38p)": (8, -1),
+        "Prod": (0, 10),
+        "Qwen3-VL-30B\n(teacher)": (9, 4),
+        "Qwen3-VL-2B\n(base)": (0, 12),
     }
-    for bc, rc, name in valid:
-        dx, dy = label_off.get(name, (6, 4))
-        weight = "bold" if name in ("MinerU", "Marker (38p)") else "normal"
-        ha = "center" if -10 <= dx <= 8 else ("right" if dx < 0 else "left")
-        ax_s.annotate(name, (bc, rc), textcoords="offset points", xytext=(dx, dy),
-                      fontsize=7.0, fontweight=weight, ha=ha)
+    for bc, rcps, name in valid:
+        dx, dy = label_offsets[name]
+        horizontal = "right" if dx < -3 else ("left" if dx > 3 else "center")
+        ax_s.annotate(
+            name,
+            (bc, rcps),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            fontsize=7.0,
+            ha=horizontal,
+            va="center",
+            color=INK,
+            linespacing=1.0,
+        )
 
-    ax_s.set_xlabel("Boundary Clarity (intrinsic, MoC)")
-    ax_s.set_ylabel("RCPS (retrieval)")
-    ax_s.set_title(f"(a) Cleaner boundaries → worse retrieval\nPearson r = {r:.2f}  "
-                   f"(n=5; PaddleOCR excl., BC undefined)", fontsize=8.5)
+    ax_s.text(
+        0.03,
+        0.05,
+        f"294-page parsers: r = {r_complete:.2f} (n = 4)\n"
+        f"+ Marker (38p): r = {r_with_marker:.2f} (n = 5)",
+        transform=ax_s.transAxes,
+        fontsize=7.2,
+        ha="left",
+        va="bottom",
+        color=INK,
+        bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor="#aaaaaa"),
+        zorder=4,
+    )
+    ax_s.set_xlabel("Boundary Clarity (intrinsic)", fontsize=8.0)
+    ax_s.set_ylabel("RCPS (retrieval)", fontsize=8.0)
+    ax_s.set_title("(a) MinerU-off diagnostic: BC can misrank", fontsize=8.6, pad=6)
     ax_s.set_ylim(0, 0.68)
     ax_s.set_xlim(0.48, 0.76)
-    # callout on the clean-but-worst cluster
-    ax_s.annotate("highest BC,\nworst retrieval", xy=(0.716, 0.212), xytext=(0.66, 0.40),
-                  fontsize=7, color="#d62728", ha="center",
-                  arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.1))
+    ax_s.grid(color="#dddddd", linewidth=0.55, zorder=0)
+    ax_s.tick_params(labelsize=7.4)
+    # ---- (b) Separate deployment audit: MinerU-on versus Prod ----
+    mineru_on_hit1 = float(_MINERU_ON["hit@1"])
+    prod_hit1 = float(_GRID["WigtnOCR-2B (ours, v1)"]["hit@1"])
+    values = [mineru_on_hit1, prod_hit1]
+    labels = ["MinerU-on", "Prod"]
+    bars = ax_b.bar(
+        labels,
+        values,
+        color=[MINERU_ORANGE, PALE_BLUE],
+        edgecolor=[DARK_ORANGE, BLUE],
+        linewidth=1.0,
+        hatch=["////", ""],
+        width=0.62,
+        zorder=3,
+    )
+    for bar, value in zip(bars, values):
+        ax_b.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 0.018,
+            f"{value:.3f}",
+            ha="center",
+            va="bottom",
+            fontsize=8.5,
+            fontweight="bold",
+            color=INK,
+        )
 
-    # ---- (b) Hit@1 swing bar ----
-    g = _GRID
-    mineru_h1 = g["MinerU"]["hit@1"]
-    v1_h1 = g["WigtnOCR-2B (ours, v1)"]["hit@1"]
-    labels = ["Pick by\nappearance\n(MinerU)", "Pick by\nRCPS\n(Prod)"]
-    vals = [mineru_h1, v1_h1]
-    colors = ["#d62728", "#2ca02c"]
-    bars = ax_b.bar(labels, vals, color=colors, width=0.6, zorder=3)
-    for b, v in zip(bars, vals):
-        ax_b.text(b.get_x() + b.get_width() / 2, v + 0.012, f"{v:.3f}",
-                  ha="center", fontsize=8.5, fontweight="bold")
-    ax_b.set_ylabel("Retrieval Hit@1")
-    ax_b.set_ylim(0, 0.66)
-    ax_b.set_title(f"(b) Parser choice moves Hit@1 by\n+{(v1_h1 - mineru_h1) * 100:.1f}pp ({v1_h1/mineru_h1:.1f}×)", fontsize=8.5)
-    ax_b.annotate("", xy=(1, v1_h1), xytext=(0, v1_h1),
-                  arrowprops=dict(arrowstyle="<->", color="#333333", lw=1.0))
-    ax_b.text(0.38, v1_h1 + 0.026, f"+{(v1_h1 - mineru_h1) * 100:.1f}pp", ha="center",
-              fontsize=9, fontweight="bold")
+    delta_points = (prod_hit1 - mineru_on_hit1) * 100
+    ratio = prod_hit1 / mineru_on_hit1
+    ax_b.text(
+        0.5,
+        0.945,
+        f"+{delta_points:.1f} points  |  {ratio:.2f}x",
+        transform=ax_b.transAxes,
+        ha="center",
+        va="center",
+        fontsize=8.7,
+        fontweight="bold",
+        color=BLUE,
+    )
+    ax_b.set_ylabel("Retrieval Hit@1", fontsize=8.0)
+    ax_b.set_ylim(0, 0.68)
+    ax_b.set_title("(b) MinerU-on deployment audit", fontsize=8.6, pad=6)
+    ax_b.grid(axis="y", color="#dddddd", linewidth=0.55, zorder=0)
+    ax_b.tick_params(labelsize=7.4)
 
+    fig.subplots_adjust(left=0.085, right=0.985, top=0.86, bottom=0.20)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
-    for ext in ("pdf", "png"):
-        fig.savefig(OUT_DIR / f"fig_disconnect.{ext}", bbox_inches="tight", dpi=200)
-    print(f"n={len(valid)}  Pearson r = {r:.4f}")
-    print(f"Hit@1 swing: {v1_h1/mineru_h1:.2f}x  ({mineru_h1:.3f} -> {v1_h1:.3f})")
+    fig.savefig(OUT_DIR / "fig_disconnect.pdf", bbox_inches="tight", pad_inches=0.03)
+    fig.savefig(
+        OUT_DIR / "fig_disconnect.png",
+        bbox_inches="tight",
+        pad_inches=0.03,
+        dpi=240,
+    )
+    plt.close(fig)
+
+    print(f"complete n={len(complete)} Pearson r = {r_complete:.4f}")
+    print(f"with Marker n={len(valid)} Pearson r = {r_with_marker:.4f}")
+    print(
+        f"MinerU-on audit: {mineru_on_hit1:.3f} -> {prod_hit1:.3f}; "
+        f"+{delta_points:.1f} points; {ratio:.2f}x"
+    )
     print(f"saved -> {OUT_DIR}/fig_disconnect.pdf")
 
 

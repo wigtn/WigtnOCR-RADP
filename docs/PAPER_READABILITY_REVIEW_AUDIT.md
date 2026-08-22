@@ -10,7 +10,7 @@
 
 - **문장·문단 감사:** 정본의 Abstract부터 Appendix H까지 모든 산문 문장, 절 제목, 표 머리글, 표 캡션, 그림 캡션을 순서대로 읽고 말투, 주어·대상, 선후 논리, 용어, 분모, parser configuration, claim–evidence 범위를 대조했다. 문장과 내러티브 수정은 반영했다.
 - **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 최종 게시본의 100-case absent-label human verification과 MRR@10-only aggregate audit은 원고에 반영됐지만, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증, 일부 공개 아티팩트가 아직 없다.
-- **시각물:** 사용자의 작업 순서에 따라 그림 파일과 아키텍처는 수정하지 않았다. 따라서 원고 캡션은 정정됐어도 기존 그림 내부의 구 수치·표현은 P16에서 따로 고쳐야 한다.
+- **시각물:** Figure 2--4는 camera-ready 수치·정의에 맞춰 재생성했다. 세 그림을 벡터 PDF로 삽입하고 실제 2단 PDF 100% 크기, 흑백 변환, Type 3 font 0개를 확인했다. Figure 1과 전체 아키텍처 개요는 사용자 순서에 따라 마지막 단계로 남겼다.
 - **SHACL:** 별도 저장소 `/Users/sangwoo/Desktop/naacl2027-demo`에 분리돼 있다(파일럿 이관 `a2f0a6f`, 엔진 `7d94c98`). EMNLP 저장소의 현재 트리·도달 가능한 이력·원격에는 SHACL 파일이나 브랜치가 없으며, 이번 EMNLP 커밋에서는 수정하지 않았다. 단, 별도 SHACL 작업을 이번 턴에 추가 진행한 것은 아니다.
 
 ## 2. 리뷰어 번호 매핑
@@ -54,13 +54,20 @@
 - 인과·일반화로 읽힐 수 있는 `loss`, `effect`, `gain`, `predict` 표현을 현재 근거 범위에 맞게 낮추고, E2E 결과는 세 parser의 top-choice check로만 명시했다.
 - 그림 파일 자체는 이 pass에서 수정하지 않았다. Figure 1·4 내부의 구 수치와 Figure 2·3의 작은 글자는 P16 시각 단계에서 교체한다.
 
+### 2026-08-22 P16 시각 pass: Figure 2--4
+
+- Figure 2는 번호를 제거하고 evaluation pages/candidate → parse·chunk·index → fixed probe retrieval → relevance → RCPS → rank의 단일 세로 실행 흐름으로 정리했다. `RCPS(P,C)`, reference-page + normalised-span relevance, retriever/cutoff 평균을 표시하고 구 `Hit@1 0.20→0.55` headline을 제거했다. 고정 deployment retriever의 singleton-set 정책은 캡션으로 옮겼다.
+- Figure 3은 70--100% 축을 자른 stacked bar를 폐기했다. pre-chunking normalised exact-span no-match `134/663=20.2%`와 chunk-boundary split `0.0--2.3%`를 분리해, semantic omission을 증명하지 않는 operational diagnostic으로 한정했다.
+- Figure 4는 MinerU-off BC diagnostic(`r=-0.74`, Marker 38p 포함 `r=-0.81`)과 별도의 MinerU-on deployment audit(`0.123→0.549`, `42.6` points, `4.47×`)을 패널별로 분리했다. `appearance` 선택이나 table-only causal ablation으로 읽히는 문구는 제거했다.
+- Figure 2/3은 `0.96\columnwidth`, Figure 4는 `0.90\textwidth`의 벡터 PDF로 삽입했다. 세 PDF와 합본 모두 embedded CID TrueType이며 Type 3 font는 0개다. 200dpi page render와 grayscale render에서 잘림·겹침·색상 의존을 발견하지 않았다.
+
 ### 아직 문장만으로 닫을 수 없는 항목
 
 - R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/checkpoint config 확인이 필요하다. 현재 Git의 0.05는 논문 서술이고 0.1은 실행 코드/default이므로 어느 쪽도 단독 provenance가 아니다.
 - MRR@10-only aggregate ranking은 완료됐다. 동일 294-page full-grid probe-resampling stability와 format-normalisation sensitivity는 여전히 재실행이 필요하다.
 - full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
 - 저자 affiliation/email/ORCID, 교신저자 chairs 회신, 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
-- 그림 내부 구 수치와 문구는 최종 시각 단계에서 수정해야 한다.
+- Figure 1과 전체 overview/architecture의 구 수치·문구는 마지막 시각 단계에서 수정해야 한다. Figure 2--4는 완료했다.
 
 ## 4. Reviewer NAor1 요구사항
 
@@ -72,7 +79,7 @@
 | 동일 Q–A와 paired bootstrap | **완료** | paired evaluation 및 CI 명시. |
 | exact run commands / reproducibility checklist | **대기** | release tag와 산출물 확정 후 clean checkout에서 실행 검증 필요. |
 | ought-vs-is gap을 Intro에 명시 | **완료** | Introduction 첫 문단에 반영. |
-| 어려운 문장 분리, 핵심 용어 정의 | **완료(텍스트)** | Abstract·Methods·Appendix 정의 정리. 그림 가독성은 P16 대기. |
+| 어려운 문장 분리, 핵심 용어 정의 | **부분 완료(시각 포함)** | Abstract·Methods·Appendix와 Figure 2--4의 정의·가독성을 정리. Figure 1은 P16 잔여. |
 | parser problem definition | **완료** | Appendix C에 I/O, 문서 유형, 보존·폐기 요소, worked example 추가. |
 
 ## 5. Reviewer ZQv618 요구사항
@@ -134,7 +141,7 @@
 | P13 metadata | **대기** | 5인 순서는 고정. affiliation/email/ORCID/form/교신 회신 필요. |
 | P14 numeric/lineage final audit | **대기** | final figures/full v2/manifest 확정 뒤 수행. |
 | P15 promises-to-paper gate | **대기** | 모든 외부 blocker 종료 뒤 최종 실행. |
-| P16 figures/architecture | **의도적 연기** | 사용자의 지시에 따라 텍스트 확정 뒤 마지막 단계에서 수행. |
+| P16 figures/architecture | **부분 완료** | Figure 2--4 재생성·합본 렌더·흑백·Type3=0 검증 완료. Figure 1/overview architecture는 마지막 단계 대기. |
 | P17 OHR version correction | **부분 완료** | mixed-version 근거 격리 및 aligned replacement 완료. full v2와 Distill same-subset은 대기. |
 
 ## 8. 제출 전 우선순위
@@ -143,7 +150,7 @@
 2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
 3. MinerU-off predictions, human adjudication labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
 4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
-5. 그림·아키텍처의 구 수치/표현을 고친 뒤 전체 PDF 페이지·폰트·흑백·100% 가독성을 다시 검증한다.
+5. Figure 1·overview architecture의 구 수치/표현을 고친 뒤 전체 PDF 페이지·폰트·흑백·100% 가독성을 최종 재검증한다. Figure 2--4는 완료됐다.
 6. P14 수치·lineage와 P15 reviewer-promise 매핑을 마지막으로 재실행한다.
 
 ## 9. 현재 PDF 빌드·렌더 검증
@@ -151,6 +158,6 @@
 - `latexmk -pdf -g -interaction=nonstopmode -halt-on-error main_camera_ready.tex` 빌드 성공.
 - 최종 작업 PDF는 14쪽이다. 본문과 Limitations는 1–6쪽에 들어가며, References는 6쪽에서 시작하고 Appendix는 9쪽에서 시작한다.
 - undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다.
-- 14쪽 전부를 144dpi PNG로 렌더해 육안 확인했다. 텍스트·표의 잘림, 겹침, 페이지 밖 유출은 발견되지 않았다.
-- P16의 알려진 시각 blocker는 그대로다. Figure 1과 4 내부에 tables-off 구 수치가 남아 있고, Figure 2와 3의 내부 글자가 작다. `fig_coverage.pdf`에서 유래한 Type 3 font도 남아 있다. 이 세 항목은 그림 재생성 뒤 다시 검사해야 한다.
+- Figure 2--4 반영 뒤 14쪽 전부를 120dpi PNG로 다시 렌더하고, Figure 2/3이 있는 3쪽과 Figure 4가 있는 5쪽은 200dpi로 추가 확인했다. 텍스트·표·그림의 잘림, 겹침, 페이지 밖 유출은 발견되지 않았다.
+- P16 중 Figure 2--4 blocker는 해소됐다. 세 그림의 최신 수치·정의, 실제 삽입 크기, 흑백 구분, Type3=0을 확인했다. 남은 시각 blocker는 Figure 1/overview architecture의 구 `35.1pp/2.8×`, corpus/frame 표기, canonical generator 충돌이다.
 - 참고문헌 마지막 쪽과 마지막 Appendix 쪽의 여백은 내용 손실이 아니라 section/page break에 따른 비치명적 조판 여백이다.

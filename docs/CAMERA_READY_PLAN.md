@@ -145,6 +145,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 - **canonical source 충돌 제거**: `make_fig_overview_pptx.py`와 `make_fig_overview.py`가 같은 output을 덮어쓰므로 하나만 정본으로 정하고 export 경로를 분리한다. Mac 현 단계에서는 PPTX/이미지를 수정하지 않는다.
 - **그림별 수정 명세**: Fig1은 Distill/구 OHR 수치와 `35.1pp/2.8×`를 제거하고 294=229+65 및 527+136 Q--A를 표기한다. Fig2의 `Hit@1 0.20→0.55`와 `retriever-agnostic`을 제거한다. Fig3의 인과 문구를 exact-span 한정으로 낮추고 글자/폰트를 키운다. Fig4는 tables-on `0.123→0.549`, `42.6pp/4.47×`로 맞춘다. OHR visual은 Law--Manual 1,043만 사용하며 full v2 전 7-domain 그림을 금지한다.
 - **출력 QA**: Fig1 0.9–1.0 textwidth, Fig2/3 0.9–1.0 column, Fig4 0.75–0.9 textwidth를 목표로 하고 100% 화면·흑백·Type3=0을 확인한다.
+- **진행 기록(2026-08-22)**: Fig2--4는 재생성·합본 삽입·200dpi/흑백 렌더·Type3=0 검증을 완료했다. Fig1/overview architecture와 두 overview generator의 정본 충돌만 마지막 시각 단계에 남긴다.
 
 ### P17. OHR-Bench 버전·source-page 정합 게이트 【post-acceptance P0 audit】
 

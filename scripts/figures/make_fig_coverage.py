@@ -1,12 +1,8 @@
-"""Figure 3 — Coverage diagnostic (C2): localising the gap to a pipeline layer.
+"""Generate the camera-ready exact-span coverage diagnostic.
 
-Parser output fixed (WigtnOCR v1); chunker varied. For each chunker we classify
-every gold answer as covered, split (cut by a chunk boundary — a chunker-side
-failure, recoverable) or absent (missing from the full parser output — a
-parser-side coverage failure, set before chunking). The absent rate is therefore
-chunkers while split stays near zero → the gap is a PARSER problem.
-
-Actionable rule: if absent dominates, fix the parser; if split dominates, fix the chunker.
+With Prod output fixed, the diagnostic separates a pre-chunking normalised
+exact-span no-match from a span split by chunk boundaries.  These are
+operational labels; a no-match does not by itself establish semantic omission.
 
 Source: output/diagnostics/coverage_diagnostic_v1.json
 Output: paper/figures/fig_coverage.{pdf,png}
@@ -18,62 +14,136 @@ import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import FancyBboxPatch
 
 SRC = Path("output/diagnostics/coverage_diagnostic_v1.json")
 OUT_DIR = Path("paper/figures")
 
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 9,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-})
+INK = "#263238"
+BLUE = "#245a7a"
+PALE_BLUE = "#e3edf3"
+AMBER = "#a55400"
+PALE_AMBER = "#faead2"
+
+plt.rcParams.update(
+    {
+        "font.family": "DejaVu Sans",
+        "font.size": 8.0,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
+
+DISPLAY_NAMES = {
+    "md_h3": "md-h3",
+    "md_h2": "md-h2",
+    "md_h1": "md-h1",
+    "parser_native": "parser-native",
+    "fixed500": "fixed-500",
+    "fixed500_ov200": "fixed-500 (ov200)",
+    "fixed1000": "fixed-1000",
+    "fixed1000_ov200": "fixed-1000 (ov200)",
+}
 
 
 def main() -> None:
     data = json.loads(SRC.read_text())
     chunkers = data["chunkers"]
-    names = [c["chunker"] for c in chunkers]
-    split = [c["split_rate"] * 100 for c in chunkers]
-    absent = [c["parser_fault_rate"] * 100 for c in chunkers]
-    covered = [c["coverage"] * 100 for c in chunkers]
+    names = [DISPLAY_NAMES.get(c["chunker"], c["chunker"]) for c in chunkers]
+    split = np.array([c["split_rate"] * 100 for c in chunkers])
+    absent = np.array([c["parser_fault_rate"] * 100 for c in chunkers])
 
-    mean_absent = sum(absent) / len(absent)
+    absent_rate = float(absent.mean())
+    absent_count = round(absent_rate / 100 * 663)
 
-    fig, ax = plt.subplots(figsize=(5.4, 3.0))
-    x = range(len(names))
+    # Sized close to one ACL/EMNLP column to preserve 8 pt labels after inclusion.
+    fig = plt.figure(figsize=(3.35, 2.58))
+    # Match the header's centre (0.635) to the plot-title centre below it.
+    ax_head = fig.add_axes([0.27, 0.825, 0.73, 0.11])
+    ax_head.set_xlim(0, 1)
+    ax_head.set_ylim(0, 1)
+    ax_head.axis("off")
+    ax_head.add_patch(
+        FancyBboxPatch(
+            (0.01, 0.06),
+            0.98,
+            0.88,
+            boxstyle="round,pad=0.008,rounding_size=0.06",
+            linewidth=0.9,
+            edgecolor=AMBER,
+            facecolor=PALE_AMBER,
+        )
+    )
+    ax_head.text(
+        0.5,
+        0.50,
+        f"Pre-chunking no-match: {absent_count}/663 ({absent_rate:.1f}%)",
+        ha="center",
+        va="center",
+        fontsize=7.25,
+        fontweight="bold",
+        color=INK,
+    )
+    ax = fig.add_axes([0.31, 0.14, 0.65, 0.59])
+    y = np.arange(len(names))
+    ax.hlines(y, 0, split, color=PALE_BLUE, linewidth=3.0, zorder=1)
+    ax.scatter(
+        split,
+        y,
+        s=27,
+        marker="o",
+        color=BLUE,
+        edgecolor="white",
+        linewidth=0.6,
+        zorder=3,
+    )
 
-    b_cov = ax.bar(x, covered, color="#cfe8cf", label="covered", zorder=3)
-    b_split = ax.bar(x, split, bottom=covered, color="#ff7f0e",
-                     label="split (chunker-side failure)", zorder=3)
-    bottom2 = [c + s for c, s in zip(covered, split)]
-    b_abs = ax.bar(x, absent, bottom=bottom2, color="#d62728",
-                   label="absent (parser-side failure)", zorder=3)
+    for yi, value in zip(y, split):
+        if value > 0:
+            ax.text(
+                value + 0.08,
+                yi,
+                f"{value:.1f}",
+                va="center",
+                ha="left",
+                fontsize=7.0,
+                color=INK,
+            )
 
-    # constant-absent reference line + clean label (white box so it reads over red)
-    ax.axhline(100 - mean_absent, color="#d62728", ls="--", lw=0.9, zorder=4)
-    ax.text(0.0, 90.0, f"absent ≈ {mean_absent:.1f}%\n(set before chunking,\nby the parser)",
-            color="#d62728", fontsize=7.2, ha="left", va="center", zorder=6,
-            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#d62728", lw=0.6))
-
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(names, rotation=30, ha="right", fontsize=7.2)
-    ax.set_ylabel("% of gold answers")
-    ax.set_ylim(70, 101)
-    ax.set_title("Coverage by chunker (parser fixed = Prod): chunkers move split only → fix the parser",
-                 fontsize=8.5, pad=22)
-    # legend above the axes (clear of the rotated x-tick labels)
-    ax.legend(fontsize=7.5, loc="lower center", bbox_to_anchor=(0.5, 1.005),
-              ncol=3, frameon=False)
+    ax.set_yticks(y)
+    ax.set_yticklabels(names, fontsize=7.2)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 2.65)
+    ax.set_xticks(np.arange(0, 2.6, 0.5))
+    ax.set_xlabel("Reference spans split across chunks (%)", fontsize=7.7)
+    ax.set_title(
+        f"Chunk-boundary split: 0.0-{split.max():.1f}% across eight chunkers",
+        fontsize=8.0,
+        fontweight="bold",
+        pad=4,
+    )
+    ax.grid(axis="x", color="#d6d6d6", linewidth=0.55, zorder=0)
+    ax.tick_params(axis="x", labelsize=7.0, length=2.5)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_color("#777777")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
-    for ext in ("pdf", "png"):
-        fig.savefig(OUT_DIR / f"fig_coverage.{ext}", bbox_inches="tight", dpi=200)
+    fig.savefig(OUT_DIR / "fig_coverage.pdf", bbox_inches="tight", pad_inches=0.03)
+    fig.savefig(
+        OUT_DIR / "fig_coverage.png",
+        bbox_inches="tight",
+        pad_inches=0.03,
+        dpi=240,
+    )
+    plt.close(fig)
+
     print("chunkers:", names)
-    print("absent (parser-fault) %:", [f"{a:.1f}" for a in absent])
-    print("split %:", [f"{s:.1f}" for s in split])
-    print(f"mean absent = {mean_absent:.2f}%")
+    print("split %:", [f"{value:.1f}" for value in split])
+    print(f"pre-chunking no-match = {absent_count}/663 ({absent_rate:.2f}%)")
     print(f"saved -> {OUT_DIR}/fig_coverage.pdf")
 
 

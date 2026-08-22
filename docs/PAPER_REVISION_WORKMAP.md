@@ -46,7 +46,7 @@ A milestones / B dpo / **C = 정의+worked-ex(P1)+family-neutral+human(P5)+stabi
 | **P13** | 전역 | 5인 고정 순서로 de-anon하고 소속·이메일·ORCID·acks·라이브링크를 확정. OpenReview/form/PDF 순서 일치. Hyeong-seob 교신 별표/Correspondence는 chairs 서면 회신 전 금지 | ⏳ **저자 메타데이터·chairs 회신 대기** |
 | **P14** | 자동 | 응답↔본문 수치 라운딩 + dataset SHA/version + QA→page coverage 100% + 제외 223+5 + n=1,043/2,036 + seed42 CI + 표/캡션/figure source 전수 대조 | ⏳ **최종 figure/full v2 후 감사** |
 | **P15** | 자동 | P7/P10/P12/P13/**P17**, 공개 URL/릴리스, chairs 회신이 닫힌 최종판에서 REBUTTAL_FINAL 미래형 문장 전수→개정판 매핑 체크 | ⏳ **외부 입력 후 최종 감사** |
-| **P16** | Fig1–4/아키텍처·캡션 | 이미지 작업은 마지막 단계. canonical generator 충돌 해소; Fig1 Distill/35.1 제거·294/663 구성, Fig2 stale headline/agnostic 제거, Fig3 exact-span 한정·폰트, Fig4 tables-on 42.6pp/4.47×. 흑백·100%·Type3=0 | ⏳ **본문 확정 후 최종 시각 단계** |
+| **P16** | Fig1–4/아키텍처·캡션 | Fig2 stale headline 제거·단일 세로 protocol 정리, Fig3 exact-span 한정·폰트/축 개편, Fig4 MinerU-off/on 분리와 tables-on 42.6pp/4.47× 반영 완료. 실제 2단 100%·흑백·Type3=0 확인. Fig1 Distill/35.1 제거·294/663 구성과 overview canonical generator 충돌은 잔여 | 🚧 **Fig2--4 완료, Fig1/overview 대기** |
 | **P17** | OHR 전역 | legacy 4,330p/v2 8,561p 혼용 차단. C1=Law–Manual 1,043; C4=notes223+missing5 제외 strict 2,036. deterministic audit+coverage gate 및 current/quarantine manifest 분리 완료. full v2 rerun과 Distill same-subset artifact 복원/삭제 결정은 대기 | 🚧 **P0: 부분 완료, WSL/외부 입력 대기** |
 
 ## 실행 순서

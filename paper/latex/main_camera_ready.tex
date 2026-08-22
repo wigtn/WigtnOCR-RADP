@@ -93,8 +93,8 @@ Here, $C(P)$ denotes the corpus obtained by parsing with $P$ and then chunking w
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.6\columnwidth]{fig_rcps_protocol.png}
-\caption{\rcps{} compares candidates on the same held-out Q--A probe. It averages standard MRR across retrievers; a hit must come from the reference page and contain the normalised reference answer. Evaluation itself requires no training.}
+\includegraphics[width=0.96\columnwidth]{fig_rcps_protocol.pdf}
+\caption{\rcps{} compares candidates on the same held-out Q--A probe. It averages standard MRR over declared retrievers and cutoffs; a hit must come from the reference page and contain the normalised reference answer. Use a singleton retriever set when deployment is fixed, or a declared set when it is undecided. Evaluation itself requires no training.}
 \label{fig:protocol}
 \end{figure}
 
@@ -109,7 +109,7 @@ Coverage separates spans absent from parser output from spans split across chunk
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.70\columnwidth]{fig_coverage.pdf}
+\includegraphics[width=0.96\columnwidth]{fig_coverage.pdf}
 \caption{Coverage with Prod fixed (294 pages, 663 Q--A; no retriever). Absence is measured before chunking and stays $20.2\%$; changing the chunker affects only splitting, which reaches at most $2.3\%$.}
 \label{fig:coverage}
 \end{figure}
@@ -136,8 +136,8 @@ Among four 294-page parsers with defined BC, its Pearson correlation with \rcps{
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.56\textwidth]{fig_disconnect.png}
-\caption{In this candidate pool, higher Boundary Clarity (BC) does not imply better retrieval. (a) With MinerU-off, BC and \rcps{} are negatively correlated ($r=-0.81$, $n=5$; PaddleOCR excluded). Marker uses 38 pages; excluding it gives $r=-0.74$ ($n=4$). (b) In the separate MinerU-on deployment comparison, Prod exceeds MinerU-on Hit@1 by $42.6$ points ($0.549$ vs.\ $0.123$; $4.47\times$).}
+\includegraphics[width=0.90\textwidth]{fig_disconnect.pdf}
+\caption{In this candidate pool, higher Boundary Clarity (BC) does not imply better retrieval. (a) Among four 294-page parsers with defined BC, the correlation with \rcps{} is $r=-0.74$; adding Marker's partial 38-page output gives $r=-0.81$ ($n=5$). MinerU-off is used in this diagnostic. (b) In the separate MinerU-on deployment comparison, Prod exceeds MinerU-on Hit@1 by $42.6$ points ($0.549$ vs.\ $0.123$; $4.47\times$).}
 \label{fig:disconnect}
 \end{figure*}
 
