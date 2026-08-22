@@ -1,18 +1,19 @@
-"""OHR-Bench full eval for v1 / DPO-v1 / DPO-v4 — Hit/MRR/nDCG/Recall per Q-A.
+"""Strict legacy-compatibility OHR eval for v1 / DPO-v1 / DPO-v4.
 
 Pipeline:
-  1. Load OHR-Bench parquet across all 7 domains, verbatim filter via gt_text
-  2. Load our parses from output/parses_ohrbench/{v1,dpo_v1,dpo_v4}/<dom>/*.md
-  3. Chunker: parser_native (matches §4.4 setup)
-  4. 3 retrievers: BGE-M3, mE5-large, Qwen3-Emb-8B
-  5. Per-Q-A: hit@{1,5,10}, mrr@{5,10}, ndcg@{5,10}, recall@{5,10}
-  6. Paired bootstrap CI: DPO-v1 - v1, DPO-v4 - v1 (per metric per retriever)
-  7. Cross-retriever mean per-Q-A for combined Hit@k two-sided sig attempt
-  8. Optional: union with KoGov perqa for n boost (combined paired CI)
+  1. Load the legacy OHR parquet and the tracked source-alignment audit
+  2. Exclude 223 invalid legacy ``notes`` Q-A and five missing-page Q-A
+  3. Require the exact audited 2,036-Q-A / six-domain identity
+  4. Load parses only for the same six-domain compatibility corpus
+  5. Score parser-native chunks with three retrievers and paired bootstrap CIs
 
 Outputs:
-  output/results/ohrbench_v1dpo_perqa.json    (per-Q-A arrays for all metrics)
-  output/results/ohrbench_v1dpo_ci.json       (paired CI summary)
+  output/results/ohrbench_v1dpo_strict2036_perqa.json
+  output/results/ohrbench_v1dpo_strict2036_ci.json
+
+This remains a corrected legacy compatibility rerun, not a full OHR-Bench v2
+evaluation.  The historical 2,264-Q-A source artifacts are immutable audit
+inputs and this script refuses to overwrite them.
 
 Usage:
   CUDA_VISIBLE_DEVICES=0 uv run python scripts/evaluation/ohrbench_v1dpo_full.py
@@ -20,9 +21,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
+from collections import Counter
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -36,6 +40,7 @@ from wigtnocr_radp.evaluation.retrievers import (
     Qwen3EmbeddingRetriever,
 )
 from wigtnocr_radp.evaluation.types import QAPair, normalize_for_match
+from wigtnocr_radp.ohrbench_paths import ohr_page_id, require_evidence_page_coverage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ohrbench_v1dpo")
@@ -44,26 +49,95 @@ ROOT = Path("/mnt/data1/work/WigtnOCR-RADP")
 OHR = ROOT / "data/OHR-Bench"
 PARSE_ROOT = ROOT / "output/parses_ohrbench"
 
-# parquet domain -> our parse subdir naming (we used pdf_to_parquet mapping during PNG gen,
-# so our subdirs follow the *pdf* domain names: administration vs notes, academic vs paper)
-PARQUET_TO_PDF = {
-    "law": "law", "manual": "manual", "finance": "finance",
-    "textbook": "textbook", "news": "news",
-    "paper": "academic", "notes": "administration",
-}
-
 _BAD_ANSWERS = {"yes", "no", "true", "false", "n/a", "none", "not specified"}
 
-
-def page_id(doc_name: str, page_idx: int) -> str:
-    base = doc_name.rsplit("/", 1)[-1]
-    return f"{base}__p{int(page_idx)}"
+AUDIT_STATUS = "corrected_legacy_compatibility_subset_not_full_v2"
 
 
-def load_qa() -> list[QAPair]:
-    """Build QAPair list from OHR-Bench.parquet (all 7 domains, verbatim-answerable only)."""
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def load_alignment_audit(path: Path) -> dict[str, Any]:
+    audit = json.loads(path.read_text(encoding="utf-8"))
+    if audit.get("status") != AUDIT_STATUS:
+        raise ValueError(f"unsupported OHR alignment audit status: {path}")
+    if not isinstance(audit.get("c4_strict_compatibility_subset"), dict):
+        raise ValueError(f"OHR alignment audit lacks strict-subset metadata: {path}")
+    return audit
+
+
+def apply_strict_compatibility_mask(
+    pairs: list[QAPair],
+    audit: dict[str, Any],
+) -> list[QAPair]:
+    """Fail closed unless ``pairs`` has the audited legacy identity and order."""
+
+    strict = audit["c4_strict_compatibility_subset"]
+    excluded = strict["excluded"]
+    source_n = int(strict["source_num_qa"])
+    if len(pairs) != source_n:
+        raise ValueError(f"expected {source_n} legacy Q-A before masking, got {len(pairs)}")
+
+    qa_ids = [qa.qa_id for qa in pairs]
+    if len(set(qa_ids)) != len(qa_ids):
+        raise ValueError("legacy OHR Q-A contain duplicate qa_ids")
+
+    expected_notes = int(excluded["legacy_notes_zero_rows"])
+    notes_count = sum(qa.domain == "notes" for qa in pairs)
+    if notes_count != expected_notes:
+        raise ValueError(f"expected {expected_notes} legacy notes Q-A, got {notes_count}")
+
+    missing_ids = set(excluded["missing_v2_page_qa_ids"])
+    expected_missing = int(excluded["missing_v2_page_num_qa"])
+    found_missing = missing_ids.intersection(qa_ids)
+    if len(missing_ids) != expected_missing or found_missing != missing_ids:
+        raise ValueError(
+            "missing-page Q-A identity mismatch: "
+            f"audit lists {len(missing_ids)}, source contains {len(found_missing)}, "
+            f"expected {expected_missing}"
+        )
+
+    filtered = [
+        qa for qa in pairs if qa.domain != "notes" and qa.qa_id not in missing_ids
+    ]
+    expected_n = int(strict["num_qa"])
+    if len(filtered) != expected_n:
+        raise ValueError(f"strict compatibility mask produced {len(filtered)}, expected {expected_n}")
+
+    actual_domains = dict(sorted(Counter(qa.domain for qa in filtered).items()))
+    expected_domains = {
+        str(domain): int(count) for domain, count in sorted(strict["domain_counts"].items())
+    }
+    if actual_domains != expected_domains:
+        raise ValueError(
+            f"strict-domain identity mismatch: got {actual_domains}, expected {expected_domains}"
+        )
+    return filtered
+
+
+def require_non_destructive_output(path: Path, audit: dict[str, Any]) -> None:
+    """Protect the immutable 2,264-Q-A artifacts named by the alignment audit."""
+
+    source_names = {Path(source).name for source in audit.get("source_artifacts", {})}
+    if path.name in source_names:
+        raise ValueError(
+            f"refusing to overwrite audited legacy source artifact {path}; "
+            "use a strict2036 output filename"
+        )
+
+
+def load_qa(alignment_audit: dict[str, Any]) -> list[QAPair]:
+    """Load and validate the audited 2,036-Q-A legacy compatibility subset."""
     df = pd.read_parquet(OHR / "OHR-Bench.parquet")
-    gt_text = {page_id(r["doc_name"], r["page_idx"]): (r["gt_text"] or "") for _, r in df.iterrows()}
+    gt_text = {
+        ohr_page_id(r["doc_name"], r["page_idx"]): (r["gt_text"] or "")
+        for _, r in df.iterrows()
+    }
 
     pairs: list[QAPair] = []
     n_raw = n_short = n_unanswerable = 0
@@ -79,7 +153,7 @@ def load_qa() -> list[QAPair]:
             if len(normalize_for_match(ans)) < 2 or ans.lower() in _BAD_ANSWERS:
                 n_short += 1
                 continue
-            pid = page_id(str(cols["doc_name"][i]), cols["evidence_page_no"][i])
+            pid = ohr_page_id(str(cols["doc_name"][i]), cols["evidence_page_no"][i])
             if normalize_for_match(ans) not in normalize_for_match(gt_text.get(pid, "")):
                 n_unanswerable += 1
                 continue
@@ -88,19 +162,45 @@ def load_qa() -> list[QAPair]:
                 page_id=pid,
                 doc_id=str(cols["doc_name"][i]),
                 language="en",
-                domain=str(cols["doc_type"][i]),
+                # The compatibility mask is defined on the legacy parquet
+                # domains, not on v2 physical folder names or nested labels.
+                domain=str(row["domain"]),
                 question=str(cols["questions"][i]),
                 answer_span=ans,
                 answer_chunk=str(cols.get("evidence_context", [""] * n)[i]),
                 question_type=str(cols.get("evidence_source", ["text"] * n)[i]),
                 difficulty="medium",
             ))
-    logger.info("Q-A: %d kept / %d raw (short=%d, not-in-GT=%d)",
+    logger.info("legacy Q-A: %d kept / %d raw (short=%d, not-in-GT=%d)",
                 len(pairs), n_raw, n_short, n_unanswerable)
-    return pairs
+    strict_pairs = apply_strict_compatibility_mask(pairs, alignment_audit)
+    logger.info("strict compatibility Q-A: %d across six domains", len(strict_pairs))
+    return strict_pairs
 
 
-def load_our_parses(model_subdir: str) -> dict[str, str]:
+def load_corpus_page_ids(alignment_audit: dict[str, Any]) -> set[str]:
+    """Page IDs in the same audited six-domain legacy compatibility corpus."""
+
+    strict = alignment_audit["c4_strict_compatibility_subset"]
+    allowed_domains = set(strict["domain_counts"])
+    missing_page = str(strict["excluded"]["missing_v2_page"])
+    df = pd.read_parquet(OHR / "OHR-Bench.parquet", columns=["domain", "doc_name", "page_idx"])
+    all_page_ids = {
+        ohr_page_id(row["doc_name"], row["page_idx"])
+        for _, row in df.iterrows()
+        if str(row["domain"]) in allowed_domains
+    }
+    if missing_page not in all_page_ids:
+        raise ValueError(f"audited missing page is absent from the legacy corpus identity: {missing_page}")
+    all_page_ids.remove(missing_page)
+    return all_page_ids
+
+
+def load_our_parses(
+    model_subdir: str,
+    *,
+    allowed_page_ids: set[str] | None = None,
+) -> dict[str, str]:
     """Load our parses from output/parses_ohrbench/<model_subdir>/<pdf_dom>/<page_id>.md."""
     pages: dict[str, str] = {}
     base = PARSE_ROOT / model_subdir
@@ -110,13 +210,22 @@ def load_our_parses(model_subdir: str) -> dict[str, str]:
     for md_path in base.glob("*/*.md"):
         # filename: <page_id>.md, key by the same page_id (basename)
         pid = md_path.stem
+        if allowed_page_ids is not None and pid not in allowed_page_ids:
+            continue
+        if pid in pages:
+            raise ValueError(
+                f"duplicate OHR page ID {pid!r} under {base}; "
+                "remove the stale release-specific cache copy"
+            )
         try:
             text = md_path.read_text(encoding="utf-8")
         except Exception as e:
             logger.warning("read fail %s: %s", md_path, e)
             continue
-        if text.strip():
-            pages[pid] = text
+        # Keep an empty-but-present parse in the page map.  The coverage gate
+        # checks missing files, while empty parser content remains a legitimate
+        # model error that retrieval should score as zero.
+        pages[pid] = text
     logger.info("[%s] loaded %d page parses", model_subdir, len(pages))
     return pages
 
@@ -157,14 +266,36 @@ def cross_retriever_mean(per_qa, metric, k, retr_names):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--device", default="cuda:0")
-    ap.add_argument("--out_perqa", type=Path, default=Path("output/results/ohrbench_v1dpo_perqa.json"))
-    ap.add_argument("--out_ci", type=Path, default=Path("output/results/ohrbench_v1dpo_ci.json"))
+    ap.add_argument(
+        "--ohr_alignment_audit",
+        type=Path,
+        default=Path("output/results/ohrbench_alignment_audit.json"),
+    )
+    ap.add_argument(
+        "--out_perqa",
+        type=Path,
+        default=Path("output/results/ohrbench_v1dpo_strict2036_perqa.json"),
+    )
+    ap.add_argument(
+        "--out_ci",
+        type=Path,
+        default=Path("output/results/ohrbench_v1dpo_strict2036_ci.json"),
+    )
     ap.add_argument("--n_boot", type=int, default=1000)
     ap.add_argument("--models", default="v1,dpo_v1,dpo_v4",
                     help="parse subdirs under output/parses_ohrbench/")
     args = ap.parse_args()
 
-    qa_list = load_qa()
+    alignment_audit = load_alignment_audit(args.ohr_alignment_audit)
+    require_non_destructive_output(args.out_perqa, alignment_audit)
+    qa_list = load_qa(alignment_audit)
+    corpus_page_ids = load_corpus_page_ids(alignment_audit)
+    missing_corpus_pages = {qa.page_id for qa in qa_list} - corpus_page_ids
+    if missing_corpus_pages:
+        raise ValueError(
+            "strict Q-A evidence pages fall outside the six-domain corpus: "
+            f"{sorted(missing_corpus_pages)[:5]}"
+        )
 
     retrievers = [
         BgeM3Retriever(device=args.device, batch_size=32),
@@ -179,10 +310,8 @@ def main():
     per_model: dict[str, dict] = {}
     for m in models:
         logger.info("=== model: %s ===", m)
-        pages = load_our_parses(m)
-        if not pages:
-            logger.warning("skip %s: no parses", m)
-            continue
+        pages = load_our_parses(m, allowed_page_ids=corpus_page_ids)
+        require_evidence_page_coverage(qa_list, pages, label=f"OHR-Bench model={m}")
         per_qa = compute_per_qa_metrics(qa_list, pages, retrievers, chunker, k_values)
         per_model[m] = per_qa
 
@@ -192,7 +321,18 @@ def main():
         "qa_ids": [qa.qa_id for qa in qa_list],
         "domains": [qa.domain for qa in qa_list],
         "models": {},
-        "meta": {"retrievers": retr_names, "k_values": list(k_values), "n_qa": len(qa_list)},
+        "meta": {
+            "status": "strict_legacy_compatibility_subset_not_full_v2",
+            "retrievers": retr_names,
+            "k_values": list(k_values),
+            "n_qa": len(qa_list),
+            "domains": sorted({qa.domain for qa in qa_list}),
+            "source_num_qa": int(
+                alignment_audit["c4_strict_compatibility_subset"]["source_num_qa"]
+            ),
+            "alignment_audit": str(args.ohr_alignment_audit),
+            "alignment_audit_sha256": _sha256(args.ohr_alignment_audit),
+        },
     }
     for m, pq in per_model.items():
         perqa_serial["models"][m] = {
@@ -225,7 +365,10 @@ def main():
 
     # Console summary
     print("\n" + "=" * 84)
-    print(f"OHR-Bench v1+DPO paired CI — N={len(qa_list)} Q-A across 7 domains")
+    print(
+        "OHR-Bench strict legacy compatibility CI — "
+        f"N={len(qa_list)} Q-A across {len(perqa_serial['meta']['domains'])} domains"
+    )
     print("=" * 84)
     for m, row in ci_out["paired_vs_v1"].items():
         print(f"\n[{m} vs v1]  (cross-retriever mean, paired bootstrap N={args.n_boot})")
