@@ -9,7 +9,7 @@
 ## 1. 결론
 
 - **문장·문단 감사:** 정본의 Abstract부터 Appendix H까지 모든 산문 문장, 절 제목, 표 머리글, 표 캡션, 그림 캡션을 순서대로 읽고 말투, 주어·대상, 선후 논리, 용어, 분모, parser configuration, claim–evidence 범위를 대조했다. 문장과 내러티브 수정은 반영했다.
-- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 최종 게시본의 100-case absent-label human verification은 원고에 반영됐지만, 294페이지 full-grid 안정성·MRR@10/normalisation 근거와 일부 공개 아티팩트가 아직 없다.
+- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 최종 게시본의 100-case absent-label human verification과 MRR@10-only aggregate audit은 원고에 반영됐지만, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증, 일부 공개 아티팩트가 아직 없다.
 - **시각물:** 사용자의 작업 순서에 따라 그림 파일과 아키텍처는 수정하지 않았다. 따라서 원고 캡션은 정정됐어도 기존 그림 내부의 구 수치·표현은 P16에서 따로 고쳐야 한다.
 - **SHACL:** 별도 저장소 `/Users/sangwoo/Desktop/naacl2027-demo`에 분리돼 있다(파일럿 이관 `a2f0a6f`, 엔진 `7d94c98`). EMNLP 저장소의 현재 트리·도달 가능한 이력·원격에는 SHACL 파일이나 브랜치가 없으며, 이번 EMNLP 커밋에서는 수정하지 않았다. 단, 별도 SHACL 작업을 이번 턴에 추가 진행한 것은 아니다.
 
@@ -33,15 +33,23 @@
 4. **Methods:** parser, chunker, retriever, RCPS score/protocol, format-normalised relevance, covered/split/absent를 처음 나올 때 정의했다. `absent`가 곧 실제 semantic omission을 뜻하지 않는다고 제한했다.
 5. **Experiments:** 294-page full corpus, 242-page evidence fold, 73-page pilot, 1,043-Q–A Law–Manual, 2,036-Q–A compatibility subset을 섞지 않았다. MinerU-off와 MinerU-on을 서로 다른 configuration으로 분리했다.
 6. **Results:** 작은 표본의 BC correlation은 descriptive로 낮췄다. parser range와 VLM-only range를 함께 제시해 heterogeneous candidate-pool 효과를 숨기지 않았다. fixed retriever가 있으면 그 retriever를 쓰고, averaging은 미정·near-tie 상황의 hedge라고 명시했다.
-7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. R2 beta 0.1/0.05 provenance 충돌은 미해결 blocker로 공개했다.
+7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16(기존 두 후보+신규 14개)으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. 실행 provenance가 확인되지 않은 R2 beta 값은 camera-ready 산문에서 제외하고 source comment의 blocker로 남겼다.
 8. **Robustness:** parser I/O와 폐기 요소를 정의하고 pseudo-reference임을 명시했다. 원문–MinerU-on 출력 대비표를 추가했다. model-free matcher, cross-family judge, absent-label 인간 검증의 역할과 한계를 분리했다.
 9. **Discussion/Limitations:** selection gap과 training delta를 직접 비교하지 않았다. boundary mechanism과 TextNED를 causal claim이 아닌 post hoc observation으로 낮췄다. Q–A lineage, matcher dependence, generator–judge self-evaluation, candidate-pool 범위를 명시했다.
-10. **MinerU correction:** submitted tables-off의 35.1pp를 lower-bound comparison으로 설명하고, tables-on의 42.6pp/4.47×, table-evidence 87.9→41.7%, overall absence-gap 50.2→45.9pp, mixed RCPS 0.212→0.137을 Limitations에 연결했다.
+10. **MinerU correction:** MinerU-off submitted-output 진단과 MinerU-on deployment 비교를 분리하고, tables-on의 42.6pp/4.47×, table-evidence 87.9→41.7%, overall absence-gap 50.2→45.9pp, mixed RCPS 0.212→0.137을 Limitations에 연결했다. 두 실행에서 software/retrieval 환경도 달라 35.1pp를 lower bound나 causal table ablation으로 재주장하지 않았다.
+
+### 2026-08-22 2차 sentence-level pass
+
+- Abstract부터 Appendix H까지 각 산문 문장·절 제목·표 머리글·캡션을 다시 읽고, 문장별 주어·비교 대상·분모·시제·claim strength를 확인했다.
+- MinerU-off BC와 MinerU-on Hit@1, BGE-M3 top-five E2E retrieval과 3-retriever×3-cutoff RCPS, 73-page held-out pilot과 이후 242-page pooled analysis를 각각 분리했다.
+- `improve`, `reduce`, `lower bound`, `equivalent`처럼 현재 설계가 인과·유의성·단조관계를 지지하지 않는 표현을 point estimate·descriptive association 표현으로 낮췄다.
+- 100-case human study와 별도의 100-pair Q--A quality check를 명시적으로 분리하고, 1,017 judge 항목을 unique answer가 아닌 parser--answer case로 정의했다.
+- Q--A-level bootstrap이 page clustering을 반영하지 않는다는 제한, evidence-type별 정확한 분자/분모(figure 5/7 포함), 세 seed가 Prod seed가 아니라 R1 recipe의 독립 seed라는 사실을 추가했다.
 
 ### 아직 문장만으로 닫을 수 없는 항목
 
-- R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/config 확인이 필요하다.
-- 294-page full-grid ranking stability, MRR@10-only, format-normalisation sensitivity 결과가 없다.
+- R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/checkpoint config 확인이 필요하다. 현재 Git의 0.05는 논문 서술이고 0.1은 실행 코드/default이므로 어느 쪽도 단독 provenance가 아니다.
+- MRR@10-only aggregate ranking은 완료됐다. 동일 294-page full-grid probe-resampling stability와 format-normalisation sensitivity는 여전히 재실행이 필요하다.
 - full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
 - 저자 affiliation/email/ORCID, 교신저자 chairs 회신, 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
 - 그림 내부 구 수치와 문구는 최종 시각 단계에서 수정해야 한다.
@@ -123,7 +131,7 @@
 
 ## 8. 제출 전 우선순위
 
-1. 동일 294-page full grid에서 stability, MRR@10-only, normalisation sensitivity를 재실행한다.
+1. 동일 294-page full grid의 per-Q--A를 확보해 probe-resampling stability와 normalisation sensitivity를 재실행한다. MRR@10-only aggregate 순위 검증은 이미 완료됐다.
 2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
 3. MinerU-off predictions, human adjudication labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
 4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.

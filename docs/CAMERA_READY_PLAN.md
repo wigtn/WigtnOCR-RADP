@@ -96,8 +96,9 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P8. MinerU tables-on 정식 반영 【GR, ZQv618 self-audit】
 
-- Table 1: MinerU(tables-on) 행 추가 또는 dual 표기. 헤드라인 정책 = GR 문구 정합: published 35.1pp는 **lower bound**, corrected **42.6pp** 병기. 4.47× 병기.
-- Limitations에 config 교정 서술("we correct it in Limitations"): tabular absent 87.9→41.7%(still ~3× Prod 13.9%), 전체 L1 gap +50.2→+45.9pp, retrieval은 mixed 0.212→0.137(KoGov-only 0.046 붕괴, arxiv 0.486이 완충) — FINDINGS_tableon caveat 오류 문장은 인용 금지(fefa808로 정정됨).
+- Table 1: MinerU-on deployment 행과 MinerU-off submitted-output 진단 행을 분리한다. 공정 비교의 헤드라인은 tables-on `42.6pp / 4.47×`로 둔다.
+- 최종 rebuttal은 tables-off `35.1pp`를 lower bound라고 불렀지만, 두 실행은 MinerU 소프트웨어와 retrieval 환경도 달라 단조관계가 보장되지 않는다. Camera-ready 원고에서는 이 표현을 반복하지 않고 submitted-output diagnostic과 audited deployment comparison으로만 구분한다.
+- Limitations에 config 교정 서술: tabular absent 87.9→41.7%(still ~3× Prod 13.9%), 전체 L1 gap +50.2→+45.9pp, retrieval은 mixed 0.212→0.137(KoGov-only 0.046, arXiv 0.486). 이 차이를 table-recognition의 causal effect로 해석하지 않는다.
 
 ### P9. pseudo-ground-truth 정정 3곳 【ZQv618 Point 1 "(see Limitations)"】
 
@@ -136,7 +137,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P16. 아키텍처·개요 그림 개정 【camera-ready 시각·수치 정합】
 
-- **stale MinerU table-off 제거/격리**: 아키텍처·overview 그림의 headline `35.1pp / 2.8×`, MinerU Hit@1/RCPS/absent 수치가 table-off 값인지 전수 확인한다. 공정 비교의 주 표시는 같은 table-on 설정의 `42.6pp / 4.47×`로 맞추고, table-off 값은 필요할 때만 “submitted lower bound”로 명시한다.
+- **stale MinerU table-off 제거/격리**: 아키텍처·overview 그림의 headline `35.1pp / 2.8×`, MinerU Hit@1/RCPS/absent 수치가 table-off 값인지 전수 확인한다. 공정 비교의 주 표시는 같은 table-on 설정의 `42.6pp / 4.47×`로 맞추고, table-off 값은 필요할 때만 “submitted-output diagnostic”으로 분리한다. 환경이 함께 바뀌었으므로 “lower bound”나 table-recognition causal effect로 표기하지 않는다.
 - **코퍼스 단위 명시**: camera-ready 평가 코퍼스는 `294 = 229 KoGov + 65 arXiv`임을 그림에 표시한다. 훈련 분석용 242페이지 fold와 294페이지 full corpus를 하나의 박스·화살표·분모로 합치지 않는다.
 - **same-configuration E2E**: Top-1 선택 보존만 제시한다. 3-system `ρ=0.5`는 표본이 너무 작으므로 headline/그림에서 제거하고, table-off RCPS와 table-on answer accuracy를 섞지 않는다.
 - **가독성 QA**: 최종 2-column PDF에서 100% 확대 및 흑백 인쇄 기준으로 최소 글자 크기, 선 굵기, 범례, 색각 대비, 잘림, 약어 정의를 점검하고 캡션만 읽어도 흐름이 복원되게 한다.
