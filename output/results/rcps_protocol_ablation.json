@@ -1,0 +1,104 @@
+{
+  "reference_ranking_D": [
+    "Qwen3-VL-30B",
+    "WigtnOCR-2B",
+    "Qwen3-VL-2B",
+    "MinerU",
+    "PaddleOCR",
+    "Marker"
+  ],
+  "rows": [
+    {
+      "row": "A",
+      "label": "Naive MRR (bge-m3, format-SENSITIVE)",
+      "status": "BLOCKED",
+      "source": "re-index (format-sensitive; needs embedder)",
+      "reason": "requires re-index (run --reindex)"
+    },
+    {
+      "row": "B",
+      "label": "+retriever-averaging (3-retr, format-SENSITIVE)",
+      "status": "BLOCKED",
+      "source": "re-index (format-sensitive; needs 3 embedders)",
+      "reason": "requires re-index (run --reindex)"
+    },
+    {
+      "row": "C",
+      "label": "+format-invariant only (bge-m3, format-INVARIANT)",
+      "status": "computed",
+      "source": "re-aggregation of stored MRR scalars (no GPU)",
+      "scores": {
+        "Qwen3-VL-30B": 0.5693,
+        "WigtnOCR-2B": 0.5757,
+        "Qwen3-VL-2B": 0.5215,
+        "MinerU": 0.202,
+        "PaddleOCR": 0.141,
+        "Marker": 0.0728
+      },
+      "ranking": [
+        "WigtnOCR-2B",
+        "Qwen3-VL-30B",
+        "Qwen3-VL-2B",
+        "MinerU",
+        "PaddleOCR",
+        "Marker"
+      ],
+      "inversions_vs_D": 1,
+      "inverted_pairs": [
+        [
+          "Qwen3-VL-30B",
+          "WigtnOCR-2B"
+        ]
+      ],
+      "kendall_tau_vs_D": 0.8667
+    },
+    {
+      "row": "D",
+      "label": "Full RCPS (3-retr, format-INVARIANT) [reference]",
+      "status": "computed",
+      "source": "re-aggregation of stored MRR scalars (no GPU)",
+      "scores": {
+        "Qwen3-VL-30B": 0.5844,
+        "WigtnOCR-2B": 0.5826,
+        "Qwen3-VL-2B": 0.5321,
+        "MinerU": 0.212,
+        "PaddleOCR": 0.1397,
+        "Marker": 0.0732
+      },
+      "ranking": [
+        "Qwen3-VL-30B",
+        "WigtnOCR-2B",
+        "Qwen3-VL-2B",
+        "MinerU",
+        "PaddleOCR",
+        "Marker"
+      ],
+      "inversions_vs_D": 0,
+      "inverted_pairs": [],
+      "kendall_tau_vs_D": 1.0
+    }
+  ],
+  "success_criterion_met": true,
+  "notes": [
+    "Rows C & D from re-aggregation of stored per-retriever MRR scalars (output/baselines/grid_v1_parser_native.json); no GPU.",
+    "Rows A & B BLOCKED without --reindex: format-SENSITIVE relevance needs ranked chunk lists, which are not persisted (only MRR scalars are). Run with --reindex (needs the embedder models; bge-m3 for A, +ml-e5-large +Qwen3-Embedding-8B for B)."
+  ],
+  "raw_scores": {
+    "C": {
+      "Qwen3-VL-30B": 0.569275,
+      "WigtnOCR-2B": 0.575704,
+      "Qwen3-VL-2B": 0.521544,
+      "MinerU": 0.201978,
+      "PaddleOCR": 0.141016,
+      "Marker": 0.072785
+    },
+    "D": {
+      "Qwen3-VL-30B": 0.584401,
+      "WigtnOCR-2B": 0.582573,
+      "Qwen3-VL-2B": 0.532109,
+      "MinerU": 0.21204,
+      "PaddleOCR": 0.139741,
+      "Marker": 0.073188
+    }
+  }
+}

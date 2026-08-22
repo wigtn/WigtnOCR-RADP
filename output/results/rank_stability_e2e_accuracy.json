@@ -1,0 +1,46 @@
+{
+ "config": {
+  "metric": "answer_accuracy",
+  "n_qa": 663,
+  "subset_size": 500,
+  "iters": 1000,
+  "seed": 42,
+  "sampling": "without replacement",
+  "inputs": [
+   "output/results/e2e_rag_detail.jsonl"
+  ]
+ },
+ "full_probe": {
+  "means": {
+   "MinerU-tableon": 0.2383107088989442,
+   "PaddleOCR": 0.20512820512820512,
+   "Prod": 0.7254901960784313
+  },
+  "ranking": [
+   "Prod",
+   "MinerU-tableon",
+   "PaddleOCR"
+  ]
+ },
+ "top1_rate": {
+  "Prod": 1.0,
+  "MinerU-tableon": 0.0,
+  "PaddleOCR": 0.0
+ },
+ "kendall_tau": {
+  "mean": 1.0,
+  "min": 1.0
+ },
+ "ranking_unchanged_rate": 1.0,
+ "rank_distribution": {
+  "Prod": {
+   "1": 1.0
+  },
+  "MinerU-tableon": {
+   "2": 1.0
+  },
+  "PaddleOCR": {
+   "3": 1.0
+  }
+ }
+}

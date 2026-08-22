@@ -89,9 +89,9 @@
 | **최종 게시본의 100-case blind human verification** | **완료(원고)** | 최종 답변은 `LLM-judged absent sets`에서 층화한 100건을 명시한다. κ=0.615, raw 81/100, 19건 공동 adjudication, human–LLM 90.3%(n=93)를 반영. 로컬 R3 초안의 “same 100 Q–A”는 비정본 문구. |
 | human labels 공개 | **대기** | adjudicated labels와 protocol/manifest 필요. |
 | parser-training section 압축 | **완료** | 본문은 결론과 범위, 상세는 Appendix A/B. |
-| MRR@10-only에서도 ranking 유지 | **대기** | 근거 artifact 없음. 동일 294-page full grid에서 재계산 필요. |
+| MRR@10-only에서도 ranking 유지 | **완료** | tracked 294-page aggregate를 `fullgrid_aggregate_audit.py`로 재구성. 5개 full-page parser와 Prod×4 chunker 모두 RCPS 대비 순위 동일($\tau_a=1.0$). Marker는 38-page 행으로 별도 표시. |
 | format normalisation 영향 0.02–0.03, reorder 없음 | **대기** | 근거 artifact 없음. 재계산 전 원고에 넣지 않음. |
-| probe-subset bootstrap stability | **대기** | 동일 294 pages / 663 Q–A / full grid 실행과 JSON·CI 필요. 242-page fold와 혼합 금지. |
+| probe-subset bootstrap stability | **대기** | aggregate는 있으나 aligned per-QA가 MinerU-on 한 configuration뿐이다. 동일 294 pages / 663 Q–A / 9 unique systems 실행과 JSON·CI 필요. 242-page fold와 혼합 금지. |
 | end-to-end table과 top choice 확인 | **완료** | Prod top choice만 확인. near-tied lower pair reversal을 공개하고 full-ranking claim을 하지 않음. |
 | generator/judge self-evaluation 제한 | **완료** | 같은 checkpoint임을 밝히고 top-choice check로만 해석. |
 | retrieval vs generated-answer scope | **완료** | Intro, Discussion, Limitations에 명시. |

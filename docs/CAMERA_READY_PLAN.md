@@ -87,10 +87,12 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P7. Probe-resampling stability — full-grid 【bXGg Q1: "The full-grid version goes into the revision"】
 
-- **동일 294페이지 full-grid 실행 대기(WSL)**: 6파서×parser_native + Prod×4청커를 모두 같은 294페이지 코퍼스·동일 663 Q--A·동일 retriever/cutoff 설정으로 per-QA 수출 → `rank_stability_bootstrap.py`(커밋됨 e005ad7) → 결과 JSON 커밋+MANIFEST. 런북: `share_to_ssw/WSL_RUNBOOK_rank_stability.md`.
+- **Git aggregate 감사 완료(2026-08-22)**: `output/baselines/grid_v1_parser_native.json`에는 30B/Prod/2B-base/MinerU-off/Paddle의 294페이지 집계와 Marker의 38페이지 집계가 있고, `output/baselines/chunking_grid_v1.json`에는 동일 294페이지의 Prod×4청커 집계가 있다. 즉 과거의 “6-parser grid” 전체를 동일 294페이지라고 부르면 안 된다.
+- **MRR@10-only 검증 완료(CPU)**: `scripts/analysis/fullgrid_aggregate_audit.py`와 `output/results/fullgrid_aggregate_audit.json`이 저장 aggregate를 재구성해 RCPS와 3-retriever 평균 MRR@10-only의 순위가 5개 294페이지 parser, 모든 저장 parser 행, Prod×4청커에서 모두 동일함을 확인한다(Kendall $\tau_a=1.0$). 이는 MRR@10-only 약속만 닫으며 probe-resampling을 대신하지 않는다.
+- **동일 294페이지 per-QA full-grid는 여전히 대기**: 현재 유효한 294페이지 per-QA는 MinerU-on×parser_native 한 configuration뿐이다. 최종 안정성 분석은 30B/Prod/2B-base/MinerU-off/MinerU-on/Paddle×parser_native와 Prod의 나머지 3청커를 같은 294페이지 코퍼스·동일 663 Q--A·동일 retriever/cutoff로 수출한 9개 고유 system에서 실행한다. Marker는 294페이지 출력이 새로 확보되지 않는 한 제외한다. 그 뒤 `rank_stability_bootstrap.py`(e005ad7) → 결과 JSON+MANIFEST를 만든다.
 - 기존 242페이지 fold 결과는 훈련 분석용 보조 결과일 뿐이다. **242페이지와 294페이지 결과를 한 stability 표·문장·bootstrap 풀에서 혼합하지 않는다.** Appendix C에는 동일 294페이지 full-grid가 완료된 뒤 그 결과만 넣는다.
 - 현재 가용 풀의 파서쌍 100%/청커 근소쌍 98.8%/E2E 100% 수치는 provisional 진단으로만 보관하며, 294페이지 full-grid와 동일성이 확인되기 전 camera-ready 근거로 승격하지 않는다.
-- ⚠️ **소스 미확인 문장 2개** — bXGg Q1의 "unchanged with MRR@10 alone (vs averaged cutoffs)"와 "format normalisation shifts scores by 0.02–0.03": 근거 아티팩트 소재 확인(후보: `scripts/analysis/robustness_boost.py` 계열) → 없으면 재계산 후 논문 인용. 조기 처리.
+- ⚠️ **format-normalisation 문장만 미해결** — "format normalisation shifts scores by 0.02–0.03"은 저장 aggregate가 이미 format-normalised relevance로 축약돼 있어 복원할 수 없다. ranked chunk 목록을 회수하거나 재색인한 뒤 검증하며, 그 전에는 논문에 넣지 않는다.
 
 ### P8. MinerU tables-on 정식 반영 【GR, ZQv618 self-audit】
 

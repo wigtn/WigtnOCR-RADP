@@ -1,0 +1,188 @@
+{
+  "scope": {
+    "num_qa": 663,
+    "num_pages": 294,
+    "retrievers": [
+      "bge-m3",
+      "ml-e5-large",
+      "qwen3-emb-8b"
+    ],
+    "rcps_definition": "mean MRR over 3 retrievers and k={1,5,10}",
+    "mrr_at_10_only_definition": "mean MRR@10 over the same 3 retrievers"
+  },
+  "inputs": {
+    "parser_grid": {
+      "path": "output/baselines/grid_v1_parser_native.json",
+      "sha256": "296d2e6aa2dea7e5c422240ebb24a23307196445b28bd37f72f91895da4f7acc"
+    },
+    "chunker_grid": {
+      "path": "output/baselines/chunking_grid_v1.json",
+      "sha256": "320bcb88cb1a76daadd83d36f5bcfef94353cde15cca685669cdcbe433e6f728"
+    }
+  },
+  "reconstruction_checks": {
+    "parsers": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR",
+      "Marker"
+    ],
+    "chunkers": [
+      "md_h3",
+      "parser_native",
+      "lumberchunker",
+      "fixed500"
+    ],
+    "status": "passed"
+  },
+  "parser_ranking_all_stored_rows": {
+    "n_candidates": 6,
+    "rcps_ranking": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR",
+      "Marker"
+    ],
+    "mrr_at_10_only_ranking": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR",
+      "Marker"
+    ],
+    "same_order": true,
+    "inversions": [],
+    "kendall_tau_a": 1.0,
+    "scores": {
+      "Qwen3-VL-30B (teacher)": {
+        "rcps": 0.5844008448583612,
+        "mrr_at_10_only": 0.6064034730701398
+      },
+      "WigtnOCR-2B (ours, v1)": {
+        "rcps": 0.5825728012002522,
+        "mrr_at_10_only": 0.6016399722282075
+      },
+      "Qwen3-VL-2B (base)": {
+        "rcps": 0.5321093394622806,
+        "mrr_at_10_only": 0.5503836577365989
+      },
+      "MinerU": {
+        "rcps": 0.21204022919709195,
+        "mrr_at_10_only": 0.2200070626541215
+      },
+      "PaddleOCR": {
+        "rcps": 0.13974073010020724,
+        "mrr_at_10_only": 0.14886857877053958
+      },
+      "Marker": {
+        "rcps": 0.0731881831555034,
+        "mrr_at_10_only": 0.0760837383386403
+      }
+    }
+  },
+  "parser_ranking_294_page_rows_only": {
+    "n_candidates": 5,
+    "rcps_ranking": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR"
+    ],
+    "mrr_at_10_only_ranking": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR"
+    ],
+    "same_order": true,
+    "inversions": [],
+    "kendall_tau_a": 1.0,
+    "scores": {
+      "Qwen3-VL-30B (teacher)": {
+        "rcps": 0.5844008448583612,
+        "mrr_at_10_only": 0.6064034730701398
+      },
+      "WigtnOCR-2B (ours, v1)": {
+        "rcps": 0.5825728012002522,
+        "mrr_at_10_only": 0.6016399722282075
+      },
+      "Qwen3-VL-2B (base)": {
+        "rcps": 0.5321093394622806,
+        "mrr_at_10_only": 0.5503836577365989
+      },
+      "MinerU": {
+        "rcps": 0.21204022919709195,
+        "mrr_at_10_only": 0.2200070626541215
+      },
+      "PaddleOCR": {
+        "rcps": 0.13974073010020724,
+        "mrr_at_10_only": 0.14886857877053958
+      }
+    }
+  },
+  "chunker_ranking": {
+    "n_candidates": 4,
+    "rcps_ranking": [
+      "md_h3",
+      "parser_native",
+      "lumberchunker",
+      "fixed500"
+    ],
+    "mrr_at_10_only_ranking": [
+      "md_h3",
+      "parser_native",
+      "lumberchunker",
+      "fixed500"
+    ],
+    "same_order": true,
+    "inversions": [],
+    "kendall_tau_a": 1.0,
+    "scores": {
+      "md_h3": {
+        "rcps": 0.592873901697431,
+        "mrr_at_10_only": 0.6133125044889751
+      },
+      "parser_native": {
+        "rcps": 0.5825728012002522,
+        "mrr_at_10_only": 0.6016399722282075
+      },
+      "lumberchunker": {
+        "rcps": 0.5570510160379442,
+        "mrr_at_10_only": 0.5803285131716505
+      },
+      "fixed500": {
+        "rcps": 0.5353763822718071,
+        "mrr_at_10_only": 0.5598244710989809
+      }
+    }
+  },
+  "coverage": {
+    "full_294_page_parsers": [
+      "Qwen3-VL-30B (teacher)",
+      "WigtnOCR-2B (ours, v1)",
+      "Qwen3-VL-2B (base)",
+      "MinerU",
+      "PaddleOCR"
+    ],
+    "partial_parsers": {
+      "Marker": 38
+    }
+  },
+  "verdict": {
+    "mrr_at_10_only_order_unchanged_for_all_stored_parser_rows": true,
+    "mrr_at_10_only_order_unchanged_for_294_page_parsers": true,
+    "mrr_at_10_only_order_unchanged_for_chunkers": true
+  },
+  "limitations": [
+    "The stored baseline grids contain aggregate metrics, not aligned per-Q--A vectors; this report cannot establish probe-resampling stability.",
+    "Marker has outputs for 38 pages, so the five-parser 294-page ranking is the coverage-comparable parser result.",
+    "The stored metrics use format-normalised relevance; format-sensitive relevance cannot be reconstructed without ranked chunk lists or re-indexing."
+  ]
+}

@@ -36,8 +36,12 @@ future-tense “same 100-Q--A” plan. It is not the posted commitment.
 
 ## Completed-response claims that still require artifact checks
 
-- MRR@10-only ranking stability and the reported 0.02--0.03 normalisation shift
-  need a traceable result artifact before inclusion.
+- MRR@10-only aggregate ranking is now traceable through
+  `output/results/fullgrid_aggregate_audit.json`: the RCPS and MRR@10-only
+  orders agree for the five 294-page parsers and Prod's four chunkers. This does
+  not close the separate probe-resampling promise. The reported 0.02--0.03
+  normalisation shift still needs ranked chunk lists or a re-index before
+  inclusion.
 - The final response says corrected outputs, per-case verdicts, analysis scripts,
   and checkpoints are released. The current Git tree contains analysis scripts
   and the automated-judge cache, but the final human adjudication labels,
