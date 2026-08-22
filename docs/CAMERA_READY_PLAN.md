@@ -1,9 +1,10 @@
 # EMNLP 2026 Industry Track Camera-Ready 실행 원장 — Accepted (2026-08-21 갱신)
 
-> 근거: `REBUTTAL_FINAL_EN.md`(게시본) 전수 추출 — 응답에서 한 모든 약속을 개정 작업으로 변환.
+> 근거: OpenReview 최종 게시본 `REBUTTAL_FINAL_EN.md` 전수 추출 — 응답에서 한 모든 약속을 개정 작업으로 변환. 2026-08-22 사용자 제공 최종본 SHA-256: `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`.
 > 실행: 상우(1저자). 감사·수치 대조: Harrison + 클로드코드.
 > **레포 배치 주석**: 본 계획이 참조하는 `output/rebuttal_pack/`(게시본·번들·런북)은 블라인드/local-only 정책으로 gitignore 상태다 — 공동저자 전달은 공유 번들(zip) 경유. 이 문서 자체는 `docs/PAPER_REVISION_GUIDE.md`의 후속 개정 가이드로 커밋한다.
 > **정본 규칙**: camera-ready 편집·빌드 정본은 `paper/latex/main_camera_ready.tex`이다. 심사 제출본 `paper/latex/main.tex`는 비교·감사용으로 동결하며 편집하지 않는다.
+> **rebuttal 정본 규칙**: `docs/REBUTTAL_R3_bXGg.md` 등 로컬 reviewer별 파일은 게시 전 초안이다. 최종 게시본과 충돌하면 위 SHA의 최종본이 우선한다.
 > 일정·페이지·폼·발표 형식 조건은 acceptance email 원문을 기준으로 기록했다.
 
 ## 0. 수락 상태·공식 제출 조건
@@ -73,8 +74,9 @@ KoGov 수치는 재대조했지만 OHR의 구 7-domain 산출물은 legacy parqu
 
 Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent frame 층화 100 = MinerU 50/Prod 30/Paddle 20, 저자 2인 독립 판정 → 불일치 19건 공동 합의) + 수치: **κ=0.615 (raw 81/100)** / genuine: **MinerU 84.0% [71.5, 91.7]**, Paddle 95.0% [76.4, 99.1], **Prod artefact 60.0% [42.3, 75.4]** / cross-family judge와 동일분모 대응(84.2/84.1/44.0% — 전부 CI 내) / human–LLM binary **90.3% (n=93**, MinerU 프레임 세대 교집합 사유 각주**)**. 표기는 "the two authors".
 
-- **정합성 정정(2026-08-22)**: 위 100건은 `absent` 판정의 인간 검증 표본이다. bXGg 게시 답변에서 약속한 “LLM이 94/100으로 평가한 **동일한 100 Q--A 표본**의 blind human re-verification(인간 accept rate, human--LLM agreement/κ)”과는 표본도 판정 과제도 다르다.
-- 저장소의 `output/human_verify/qa_verification_results_v1.json`은 스스로 `not human`이라고 명시한 LLM-assisted 결과이며, `score_human_verify.py`가 요구하는 인간 grader JSONL과 `human_vs_llm.json`은 없다. 따라서 P5는 **부분 완료**다. 동일 100 Q--A를 실제 인간 판정하고 agreement를 산출·논문 반영하기 전에는 bXGg 약속을 완료로 표시하지 않는다.
+- **최종 게시본 대조 완료(2026-08-22)**: bXGg 최종 답변은 “100 cases stratified from the LLM-judged absent sets”의 two-grader human verification을 보고한다. 위 결과가 바로 그 검증이며, 원고 반영 기준 P5는 **완료**다.
+- `docs/REBUTTAL_R3_bXGg.md`의 “same 100-Q--A sample the LLM graded” 문장은 게시 전 초안에만 남은 미래형 문구로, 최종 게시본에서 absent-set 검증으로 교체됐다. 이 초안을 최종 약속으로 사용하지 않는다.
+- 별도의 100 Q--A quality sample은 LLM-assisted 94/100 평가이며 인간검증으로 주장하지 않는다. 다만 최종 human adjudication per-case 파일은 현재 Git에서 확인되지 않으므로 공개 아티팩트 게이트는 P12에 계속 둔다.
 
 ### P6. E2E 표 신설 【bXGg Q2: "We will add the end-to-end table"】
 

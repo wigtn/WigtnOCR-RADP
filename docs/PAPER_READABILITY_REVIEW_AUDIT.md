@@ -4,13 +4,14 @@
 > 원고 정본: `paper/latex/main_camera_ready.tex`
 > 동결본: `paper/latex/main.tex`는 편집하지 않음
 > 판정 원칙: 근거가 현재 원고 또는 추적 가능한 산출물에 없으면 완료로 표시하지 않음
+> rebuttal 정본: 2026-08-22 사용자 제공 OpenReview 최종 게시본(SHA-256 `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`). 로컬 reviewer별 초안과 충돌하면 최종 게시본을 우선함.
 
 ## 1. 결론
 
 - **문장·문단 감사:** 정본의 Abstract부터 Appendix H까지 모든 산문 문장, 절 제목, 표 머리글, 표 캡션, 그림 캡션을 순서대로 읽고 말투, 주어·대상, 선후 논리, 용어, 분모, parser configuration, claim–evidence 범위를 대조했다. 문장과 내러티브 수정은 반영했다.
-- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 특히 bXGg에게 약속한 동일 100 Q–A 인간 재검증과 294페이지 full-grid 안정성 분석이 아직 없다.
+- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 최종 게시본의 100-case absent-label human verification은 원고에 반영됐지만, 294페이지 full-grid 안정성·MRR@10/normalisation 근거와 일부 공개 아티팩트가 아직 없다.
 - **시각물:** 사용자의 작업 순서에 따라 그림 파일과 아키텍처는 수정하지 않았다. 따라서 원고 캡션은 정정됐어도 기존 그림 내부의 구 수치·표현은 P16에서 따로 고쳐야 한다.
-- **SHACL:** EMNLP 작업 범위에 포함하지 않았고 어떤 SHACL 파일도 수정하지 않았다.
+- **SHACL:** 별도 저장소 `/Users/sangwoo/Desktop/naacl2027-demo`에 분리돼 있다(파일럿 이관 `a2f0a6f`, 엔진 `7d94c98`). EMNLP 저장소의 현재 트리·도달 가능한 이력·원격에는 SHACL 파일이나 브랜치가 없으며, 이번 EMNLP 커밋에서는 수정하지 않았다. 단, 별도 SHACL 작업을 이번 턴에 추가 진행한 것은 아니다.
 
 ## 2. 리뷰어 번호 매핑
 
@@ -40,7 +41,6 @@
 ### 아직 문장만으로 닫을 수 없는 항목
 
 - R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/config 확인이 필요하다.
-- 같은 100 Q–A quality sample의 실제 blind human re-verification 결과가 없다.
 - 294-page full-grid ranking stability, MRR@10-only, format-normalisation sensitivity 결과가 없다.
 - full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
 - 저자 affiliation/email/ORCID, 교신저자 chairs 회신, 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
@@ -85,8 +85,8 @@
 | findings와 diagnostic를 Intro에서 foreground | **완료** | selection gap, absent/split, bounded training 결과를 Intro에 제시. |
 | RCPS를 deployable selection protocol로 정직하게 framing | **완료** | new metric/causal/general ranking 주장을 제거. |
 | fixed Q–A와 paired evaluation | **완료** | 동일 probe와 paired CI 명시. |
-| Qwen same-family 우려 완화 | **부분 완료** | matcher ladder, cross-family judge, 별도 absent-label human study는 있음. 그러나 아래의 동일 QA-quality sample 인간 검증은 없음. |
-| **동일한 100 Q–A acceptance sample blind human 재검증** | **미완** | 현재 100-case human study는 L1-absent diagnostic 표본으로, LLM이 94/100 판정한 QA-quality 표본과 다름. human accept rate와 human–LLM κ를 새로 산출해야 함. |
+| Qwen same-family 우려 완화 | **완료(원고)** | matcher ladder, cross-family judge, 최종 게시본의 100-case absent-label human study를 함께 반영. |
+| **최종 게시본의 100-case blind human verification** | **완료(원고)** | 최종 답변은 `LLM-judged absent sets`에서 층화한 100건을 명시한다. κ=0.615, raw 81/100, 19건 공동 adjudication, human–LLM 90.3%(n=93)를 반영. 로컬 R3 초안의 “same 100 Q–A”는 비정본 문구. |
 | human labels 공개 | **대기** | adjudicated labels와 protocol/manifest 필요. |
 | parser-training section 압축 | **완료** | 본문은 결론과 범위, 상세는 Appendix A/B. |
 | MRR@10-only에서도 ranking 유지 | **대기** | 근거 artifact 없음. 동일 294-page full grid에서 재계산 필요. |
@@ -107,7 +107,7 @@
 | P2 Appendix 재배치 | **완료** | 현재 Appendix A–H 구조와 참조 일치. |
 | P3 Intro 재구성 | **완료** | 핵심 발견과 scope를 전면 배치. |
 | P4 Abstract/본문 압축 | **완료(텍스트)** | 최종 그림 뒤 페이지 한도 재검증 필요. |
-| P5 human verification | **부분 완료** | absent-label study 완료; 동일 100 QA-quality human audit 미완. |
+| P5 human verification | **완료(원고)** | 최종 게시본의 absent-label 100-case study와 수치를 반영. per-case human label 공개는 P12에서 별도 추적. |
 | P6 E2E table | **완료** | same-configuration을 지키고 off 값은 별도 서술. |
 | P7 294-page full-grid stability | **대기** | WSL/full-grid artifact 필요. |
 | P8 MinerU tables-on 정정 | **완료(원고)** | 공개 artifact의 off half는 P12 대기. |
@@ -123,13 +123,12 @@
 
 ## 8. 제출 전 우선순위
 
-1. 동일 100 Q–A quality sample을 두 명 이상이 blind label하고 human accept rate, human–LLM agreement/κ, adjudicated artifact를 산출한다.
-2. 동일 294-page full grid에서 stability, MRR@10-only, normalisation sensitivity를 재실행한다.
-3. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
-4. MinerU-off predictions, human labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
-5. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
-6. 그림·아키텍처의 구 수치/표현을 고친 뒤 전체 PDF 페이지·폰트·흑백·100% 가독성을 다시 검증한다.
-7. P14 수치·lineage와 P15 reviewer-promise 매핑을 마지막으로 재실행한다.
+1. 동일 294-page full grid에서 stability, MRR@10-only, normalisation sensitivity를 재실행한다.
+2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
+3. MinerU-off predictions, human adjudication labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
+4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
+5. 그림·아키텍처의 구 수치/표현을 고친 뒤 전체 PDF 페이지·폰트·흑백·100% 가독성을 다시 검증한다.
+6. P14 수치·lineage와 P15 reviewer-promise 매핑을 마지막으로 재실행한다.
 
 ## 9. 현재 PDF 빌드·렌더 검증
 
