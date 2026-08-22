@@ -1,21 +1,23 @@
 """Answer-coverage diagnostic — attribute the parsing-retrieval gap to parser vs chunker.
 
 Holds the parser output fixed (WigtnOCR v1) and varies the chunker, measuring for
-each Q-A whether the gold answer lands inside a single chunk (covered), is cut by a
-chunk boundary (split — a *chunker* problem), or is missing from the page markdown
-(absent / no_parse — a *parser* problem). No retriever / GPU needed: pure text
-matching, so this runs on CPU in seconds.
+each Q-A whether the normalised reference answer lands inside a single chunk
+(covered), is divided by a chunk boundary (split), or has no exact match in the
+page Markdown (absent / no_parse). No retriever or GPU is needed: this is pure
+text matching and runs on CPU in seconds.
 
-Coverage is the *ceiling* on RCPS — a split or absent Q-A scores zero for any
-retriever. Read the output like this:
+Coverage is the *ceiling* on RCPS under the stated exact-span relevance rule: a
+split or absent Q-A scores zero for any retriever. Read the output like this:
 
-    * `split` high, and shrinks under overlap / larger windows  → the disconnect is
-      a CHUNKING problem; a parser-side fix (best-of-N / DPO) is the wrong lever.
-    * `absent` dominates and is flat across chunkers            → a PARSER problem;
-      the parser-side fix is justified.
+    * `split` high, and shrinks under overlap / larger windows  → inspect the
+      chunker or overlap first.
+    * `absent` dominates and is flat across chunkers            → inspect the
+      parser output first. Case-level review must still distinguish genuine
+      missing content from a surface-form mismatch.
 
-`parser-fault` (absent + no_parse) should be ~constant across chunkers (it does not
-depend on where boundaries fall) — a useful sanity check.
+The legacy `parser_fault_rate` field stores absent + no_parse for schema
+compatibility. It is an exact-span no-match rate, not by itself proof of a
+semantic omission, and should be nearly constant across chunkers.
 
 Usage:
     uv run python scripts/evaluation/coverage_diagnostic.py
@@ -42,7 +44,9 @@ from wigtnocr_radp.evaluation.rcps import load_qa_pairs
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("coverage_diagnostic")
 
-V1_PARSES = Path("/mnt/data1/work/wigtnOCR-v1/results/kogovdoc/v1_val/predictions")
+# Keep the parser path repository-relative. The source-page mapping remains a
+# separate local input and can be overridden with ``--val_jsonl``.
+V1_PARSES = Path("results/kogovdoc/v1_val/predictions")
 VAL_JSONL = Path("data/KoGovDoc-Bench/val.jsonl")
 
 # Fixed parser, varied chunker. Ordered fine→coarse so `split` should trend down.
@@ -79,11 +83,12 @@ def _markdown_table(reports: list[CoverageReport], total: int) -> list[str]:
         "",
         f"Q-A: {total}. Pure text matching (no retriever). Coverage = retrieval ceiling.",
         "",
-        "- **covered**: answer in a single chunk (retrievable)",
-        "- **split**: answer in page but cut by chunk boundary — *chunker fault* (recoverable)",
-        "- **parser-fault**: answer absent from parser output — *parser fault* (unrecoverable by re-chunking)",
+        "- **covered**: normalised reference span appears in a single chunk",
+        "- **split**: span appears on the page but is divided by a chunk boundary",
+        "- **exact-span no-match**: no normalised exact match in parser output; re-chunking alone cannot restore the same span",
+        "- **caveat**: a no-match can reflect genuine omission or a surface-form difference",
         "",
-        "| Chunker | chunks | covered | split (chunker) | parser-fault |",
+        "| Chunker | chunks | covered | split | exact-span no-match |",
         "|---------|:------:|:-------:|:--------------:|:------------:|",
     ]
     for rep in reports:
@@ -93,9 +98,9 @@ def _markdown_table(reports: list[CoverageReport], total: int) -> list[str]:
         )
     md += [
         "",
-        "> `parser-fault` should be ~constant across chunkers (it is boundary-independent). "
-        "If `split` falls sharply from md_h3 to overlapped/large windows, the gap is a "
-        "chunking problem and a parser-side fix is the wrong lever.",
+        "> Exact-span no-match should be nearly constant across chunkers because it is "
+        "measured before boundary placement. If `split` falls under overlap or larger "
+        "windows, inspect the chunker; otherwise inspect no-match cases in parser output.",
     ]
     return md
 
