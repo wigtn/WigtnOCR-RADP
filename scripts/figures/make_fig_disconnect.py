@@ -173,7 +173,6 @@ def main() -> None:
         color=[MINERU_ORANGE, PALE_BLUE],
         edgecolor=[DARK_ORANGE, BLUE],
         linewidth=1.0,
-        hatch=["////", ""],
         width=0.62,
         zorder=3,
     )
@@ -191,17 +190,6 @@ def main() -> None:
 
     delta_points = (prod_hit1 - mineru_on_hit1) * 100
     ratio = prod_hit1 / mineru_on_hit1
-    ax_b.text(
-        0.5,
-        0.945,
-        f"+{delta_points:.1f} points  |  {ratio:.2f}x",
-        transform=ax_b.transAxes,
-        ha="center",
-        va="center",
-        fontsize=8.7,
-        fontweight="bold",
-        color=BLUE,
-    )
     ax_b.set_ylabel("Retrieval Hit@1", fontsize=8.0)
     ax_b.set_ylim(0, 0.68)
     ax_b.set_title("(b) MinerU-on deployment audit", fontsize=8.6, pad=6)
