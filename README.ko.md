@@ -23,7 +23,7 @@
 
 Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종에서 **r = −0.74**이고, 38페이지짜리 Marker 결과를 더하면 **r = −0.81 (n = 5)** 다. 둘 다 일반 법칙이 아니라 이 작은 후보군에서 얻은 기술통계다.
 
-핵심 흐름은 **RCPS로 선택 → coverage로 진단 → 필요할 때만 학습**이다. 기여는 네 가지다.
+핵심 흐름은 **RCPS로 선택 → coverage로 진단 → 필요할 때만 P/C 변경 또는 학습 → 변경된 조합 재평가**다. `covered`이면 기존 조합을 그대로 배포하고, `absent`나 `split` 때문에 parser 또는 chunker를 바꾼 경우에만 같은 RCPS 기준으로 다시 평가한다. 기여는 네 가지다.
 
 - **C1** — 내재적 지표가 retrieval 순위를 잘못 매길 수 있음을 후보군과 source-aligned OHR perturbation으로 확인한다.
 - **C2** — **retriever-free coverage 진단**으로 parser-output exact-span absence와 chunk-boundary split을 구분한다. Prod에서는 각각 **20.2%**와 최대 **2.3%**다.
@@ -34,13 +34,22 @@ Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종�
 Prod·PaddleOCR·MinerU-on의 294페이지 출력과 선별된 결과 산출물이 있다. source-page mapping,
 일부 parser 출력과 checkpoint처럼 아직 제공되지 않은 항목은 아래에서 따로 구분한다.
 
+<p align="center">
+  <img src="paper/figures/fig_overview.png" width="100%" alt="고정 평가 프레임부터 후보 생성, RCPS 선택, coverage 진단, 선택적 조치와 최종 배포까지 이어지는 RCPS 워크플로">
+</p>
+
+*Figure 1 — RCPS 워크플로.* 294페이지 / 663 Q–A 고정 frame에서 모든 parser–chunker 후보를
+평가한다. RCPS로 `P* + C*`를 1차 선택한 뒤 coverage가 covered, absent, split을 구분한다. Parser나
+chunker를 변경했다면 최종 배포 전에 같은 RCPS 프로토콜로 다시 평가한다.
+([벡터 PDF](paper/figures/fig_overview.pdf) · [편집 가능한 PPTX](paper/figures/fig_overview_camera_ready.pptx))
+
 ---
 
 ## 💡 동기 — 파싱 품질과 검색 성능은 같지 않다
 
 > **제출 당시 MinerU-off 출력은 BC 0.716이지만 Hit@1은 0.197이다.** 별도의 MinerU-on 감사에서는 Hit@1이 0.123이고, Prod는 0.549다. MinerU-on에는 재현된 BC가 없으며 두 MinerU 실행은 software·retrieval 환경도 다르므로, off→on 차이를 table recognition의 인과 효과로 해석하지 않는다.
 
-OHR-Bench, EnterpriseDocBench와 동시기 연구도 parsing 품질과 retrieval이 어긋날 수 있음을 보고한다. 이 논문의 좁은 차별점은 그 관찰을 **재사용 가능한 parser–chunker 선택 프로토콜**과 **absence/split 진단**으로 연결한 데 있다. 파서 학습은 보조 연구이며 C1–C3에는 학습이 필요 없다.
+OHR-Bench, EnterpriseDocBench와 동시기 연구도 parsing 품질과 retrieval이 어긋날 수 있음을 보고한다. 이 논문의 좁은 차별점은 그 관찰을 **재사용 가능한 parser–chunker 선택 프로토콜**과 **absence/split 진단**, 그리고 **변경된 configuration의 재평가**로 연결한 데 있다. 파서 학습은 보조 연구이며 C1–C3에는 학습이 필요 없다.
 
 ---
 
@@ -71,9 +80,25 @@ RCPS(P, C; D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K} MRR@k(r, C(P), D)
 
 여기서 `P`는 parser, `C`는 chunker, `D`는 고정 Q–A probe다. `R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`, `K = {1, 5, 10}`을 사용한다. chunk는 출처 페이지가 reference page와 같고, 공백·Markdown을 정규화한 뒤 reference answer span을 포함할 때만 relevant다. 평가는 학습 없이 실행한다. 구현: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
+<p align="center">
+  <img src="paper/figures/fig_rcps_protocol.png" width="62%" alt="각 parser-chunker index에서 고정 probe를 검색하고 reference page와 normalised span으로 relevance를 판정한 뒤 MRR을 평균해 후보를 순위화하는 RCPS 프로토콜">
+</p>
+
+*Figure 2 — RCPS 평가 프로토콜.* 모든 후보는 같은 probe, retriever/cutoff 명세, reference-page +
+normalised-span relevance rule을 사용한다. 표준 MRR을 평균하며 평가 자체에는 학습이 필요 없다.
+([벡터 PDF](paper/figures/fig_rcps_protocol.pdf))
+
 ### Coverage 진단 — 파서 vs 청커 (C2)
 
 RCPS는 파서+청커+retriever를 함께 채점하므로 낮은 점수만으로 어느 layer를 먼저 살펴야 하는지 알기 어렵다. 파서 출력을 고정하고 청커만 바꿔, 정규화한 reference span을 **covered**, **split**(페이지 출력에는 있지만 chunk 사이에 나뉨 — overlap으로 회복 가능), **absent**(정규화한 파서 출력에 exact match가 없어 re-chunking만으로 같은 span을 복원할 수 없음)로 분류한다. absent는 실제 내용 누락일 수도, 표면형 차이일 수도 있으므로 case-level 검토로 구분해야 한다. 코드: [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
+
+<p align="center">
+  <img src="paper/figures/fig_coverage.png" width="78%" alt="8개 chunker에서 pre-chunking no-match 20.2퍼센트와 chunk-boundary split 0에서 2.3퍼센트를 보여주는 coverage 진단">
+</p>
+
+*Figure 3 — Prod 고정 coverage 진단.* pre-chunking exact-span no-match는 **20.2%**로 유지되고,
+chunker를 바꿀 때 달라지는 것은 split이며 8개 chunker에서 최대 **2.3%**다.
+([벡터 PDF](paper/figures/fig_coverage.pdf))
 
 ### 파서측 학습 — 시도와 한계 (C4)
 
@@ -124,6 +149,15 @@ deployment 표에서 BC가 있는 행은 3개뿐이므로 상관 분석은 Miner
 | Marker | 38페이지 | **0.717** | 3.41 | 0.073 | 0.068 |
 
 MinerU-on과 MinerU-off는 table handling 외에도 software·retrieval 환경이 다르므로 두 점수의 차이를 table recognition의 인과 효과로 해석하지 않는다. BC는 Boundary Clarity(높을수록 좋음), CS는 Chunk Stickiness(낮을수록 좋음)다.
+
+<p align="center">
+  <img src="paper/figures/fig_disconnect.png" width="100%" alt="MinerU-off를 사용한 Boundary Clarity와 RCPS 진단 및 별도의 MinerU-on 대 Prod Hit at 1 배포 감사를 보여주는 그림">
+</p>
+
+*Figure 4 — intrinsic parsing 품질은 retrieval 후보를 잘못 순위화할 수 있다.* (a)는 MinerU-off를
+사용한 기술적 BC–RCPS 진단이고, (b)는 MinerU-on과 Prod를 별도로 비교한 deployment audit이다.
+두 MinerU 실행은 table recognition의 인과 ablation이 아니다.
+([벡터 PDF](paper/figures/fig_disconnect.pdf))
 
 ### C1 — 정렬된 OHR Law–Manual 노이즈 실험
 
@@ -236,9 +270,10 @@ uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-cove
 전체 파이프라인은 외부 데이터·일부 parser 출력·embedding cache·checkpoint에 아직 의존한다. portable
 end-to-end 실행법과 남은 공개 산출물은 아래의 camera-ready 작업 항목이다.
 
-> **그림 로고 안내:** `make_fig_overview_pptx.py`(Figure 1)는 `scripts/figures/icons/logos/`의 타사 브랜드 로고
-> (`qwen.png`, `mineru.png`, `marker_datalab.png`, `paddle.png`, `bge_baai.png`, `me5_ms.png`)를 사용한다.
-> 라이선스 문제로 **repo에 포함하지 않음** — 재생성하려면 각 프로젝트 공식 사이트에서 받아 넣을 것. 그림 재생성은 camera-ready 마지막 시각 단계로 보류한다. 현재 여러 export와 generator에는 stale tables-off, mixed-version OHR 또는 unsupported training 수치가 있으므로 실행 원장을 먼저 확인한다.
+> **그림 정본 안내:** camera-ready 정본은 `paper/figures/fig_overview.pdf`,
+> `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, `fig_disconnect.pdf`이며, 이 README에는 대응하는 PNG preview를
+> 표시한다. Figure 1의 최종 편집본은 `paper/figures/fig_overview_camera_ready.pptx`다. Legacy overview
+> generator와 중간 vector 시안은 정본이 아니며 이 파일들을 덮어쓰면 안 된다.
 
 ---
 
@@ -271,6 +306,8 @@ chairs의 서면 확인을 기다리는 중이므로 아직 교신저자 표시�
 - **선별된 평가 산출물** — tracked aggregate grid, audited training per-Q–A 배열, Prod·PaddleOCR·MinerU-on의 294페이지 출력과 관련 결과 JSON.
 - **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과와 strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
 - **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했고, 감사 문서는 검증 완료와 agreement를 추적한다. 최종 per-case 라벨은 아직 공개하지 않았다.
+- **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
+  PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
 
 ### Camera-ready 전까지 남은 공개 항목
 
@@ -284,8 +321,7 @@ chairs의 서면 확인을 기다리는 중이므로 아직 교신저자 표시�
   현재 Git에는 없으며 공개 여부 결정과 packaging이 아직 남아 있다.
 - full OHR-Bench v2 rerun과 새 current/quarantine manifest의 clean-machine 검증. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - 동일 aligned subset의 RADP-Distill per-QA·CI artifact. 복구 전에는 Distill-vs-DPO 정량 비교를 지원하지 않는다.
-- complete BC/CS mechanism data와 aligned 최신 값만 사용한 figure 재생성.
-- Figure 1·4 내부의 구 수치 교체, Figure 2·3 글자 크기 개선, architecture/figure 전체 시각 검증.
+- complete BC/CS mechanism data와 aligned uncertainty estimate.
 - RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. 특히 R2의 실행 `beta`는 원 checkpoint/log 확인이 필요하다.
 - 외부 데이터, parser 출력, embedding cache, checkpoint 획득, 머신 종속 실행 가정을 포함한
   **portable fresh-clone end-to-end 재현 경로**.

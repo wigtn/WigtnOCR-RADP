@@ -28,8 +28,12 @@ held-out retrieval probe, without training.** The resulting workflow is:
    In a separate MinerU-on audit, the Hit@1 gap to Prod is **42.6 points** (**0.123 vs 0.549; 4.47×**).
 2. **Diagnose with coverage.** In Prod output, **20.2%** of reference spans have no normalised exact match
    before chunking, while no tested chunker splits more than **2.3%**.
-3. **Train only if needed.** The 73-page pilot misses its target. Two RADP-DPO checkpoints are only
-   **+0.95** and **+1.15 Hit@5 points** above Prod on a separate, post-audit OHR compatibility subset.
+3. **Act or train only if needed.** For *absent* spans, inspect or switch the parser; for *split* spans,
+   change overlap or chunking. The 73-page parser-training pilot misses its target, and two RADP-DPO
+   checkpoints are only **+0.95** and **+1.15 Hit@5 points** above Prod on a separate, post-audit OHR
+   compatibility subset.
+4. **Re-evaluate changed configurations.** If `P` or `C` changes, run the resulting corpus through the
+   same RCPS protocol before deployment. A covered configuration proceeds without redundant re-evaluation.
 
 The denominators are not interchangeable:
 
@@ -46,6 +50,15 @@ The repository currently contains the frozen **663-Q–A KoGovDoc-RAG probe** (w
 The main selection run adds 52 Q–A-free distractor pages to form its 294-page index; the complete source
 corpus and mapping for a fresh-clone rerun are not yet packaged. All remaining release gaps are listed below.
 
+<p align="center">
+  <img src="paper/figures/fig_overview.png" width="100%" alt="RCPS workflow from the fixed evaluation frame through candidate generation, retrieval-based selection, coverage diagnosis, optional intervention, and deployment">
+</p>
+
+*Figure 1 — RCPS workflow.* A fixed 294-page / 663-Q–A frame evaluates every parser–chunker candidate.
+RCPS selects a provisional `P* + C*`; coverage then distinguishes covered, absent, and split spans. Any
+changed parser or chunker is evaluated again before final deployment. ([vector PDF](paper/figures/fig_overview.pdf) ·
+[editable PPTX](paper/figures/fig_overview_camera_ready.pptx))
+
 ---
 
 ## Motivation — parsing quality ≠ retrieval performance
@@ -57,9 +70,9 @@ not guarantee that answer spans remain retrievable.
 
 OHR-Bench, EnterpriseDocBench, and concurrent OCR-for-RAG studies report related mismatches in English
 and enterprise settings. Our contribution is to turn that observation into a deployment workflow:
-**select with RCPS, diagnose with coverage, and train only if needed**. We are unaware of prior work that
-combines a reusable parser-selection protocol with a diagnostic that separates exact-span absence from
-chunk-boundary splitting.
+**select with RCPS, diagnose with coverage, change or train only if needed, and re-evaluate changed
+configurations**. We are unaware of prior work that combines a reusable parser-selection protocol with a
+diagnostic that separates exact-span absence from chunk-boundary splitting.
 
 ---
 
@@ -94,6 +107,14 @@ iff its source page matches the answer's page and contains the reference span af
 Markdown normalisation. Evaluation requires **no training**. Reference implementation:
 [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
+<p align="center">
+  <img src="paper/figures/fig_rcps_protocol.png" width="62%" alt="RCPS protocol: build each parser-chunker index, retrieve a fixed probe, apply reference-page and normalised-span relevance, average MRR, and rank candidates">
+</p>
+
+*Figure 2 — RCPS evaluation protocol.* Every candidate uses the same probe, retriever/cutoff specification,
+and reference-page plus normalised-span relevance rule. RCPS averages standard MRR and requires no
+training. ([vector PDF](paper/figures/fig_rcps_protocol.pdf))
+
 ### Coverage diagnostic — parser vs chunker (C2)
 
 RCPS scores parser + chunker + retriever jointly, so a low score does not say *which* layer is at fault.
@@ -103,6 +124,14 @@ or **absent** (no exact match in the normalized parser output, so re-chunking ca
 This diagnostic identifies the layer to inspect first; an absent match can reflect a genuine omission or a
 surface-form mismatch, which requires case-level review to distinguish. Code:
 [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
+
+<p align="center">
+  <img src="paper/figures/fig_coverage.png" width="78%" alt="Coverage diagnostic showing a 20.2 percent pre-chunking no-match rate and a 0 to 2.3 percent chunk-boundary split rate across eight chunkers">
+</p>
+
+*Figure 3 — Coverage diagnostic with Prod fixed.* The pre-chunking exact-span no-match rate remains
+**20.2%**; changing the chunker affects only splitting, which reaches at most **2.3%** across eight
+chunkers. ([vector PDF](paper/figures/fig_coverage.pdf))
 
 ### Parser-side training — a secondary study (C4)
 
@@ -168,6 +197,14 @@ Both estimates are descriptive; Marker is never treated as a complete-output res
 
 MinerU-on and MinerU-off differ in more than table handling, so their scores do not estimate the causal
 effect of table recognition. BC is Boundary Clarity (higher is better); CS is Chunk Stickiness (lower is better).
+
+<p align="center">
+  <img src="paper/figures/fig_disconnect.png" width="100%" alt="Boundary Clarity versus RCPS for the MinerU-off diagnostic and the separate MinerU-on versus Prod deployment Hit at 1 audit">
+</p>
+
+*Figure 4 — Parsing quality can misrank retrieval candidates.* Panel (a) uses MinerU-off for the descriptive
+BC–RCPS diagnostic; panel (b) separately compares MinerU-on and Prod in the deployment audit. The two
+MinerU runs are not a causal table-recognition ablation. ([vector PDF](paper/figures/fig_disconnect.pdf))
 
 ### C1 — aligned perturbation diagnostic (cross-domain, OHR-Bench)
 
@@ -297,12 +334,11 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 └── tests/
 ```
 
-> **Note (figure logos):** `scripts/figures/make_fig_overview_pptx.py` expects third-party brand logos under
-> `scripts/figures/icons/logos/` (`qwen.png`, `mineru.png`, `marker_datalab.png`, `paddle.png`, `bge_baai.png`, `me5_ms.png`).
-> These are **not committed** for licensing reasons — download them from each project's official site/repo before regenerating Figure 1.
-> Figure regeneration is deferred to the final camera-ready visual pass. Several current exports and
-> generators still contain stale table-off, mixed-version OHR, or unsupported training values; see the
-> camera-ready plan before use.
+> **Figure source note:** the canonical camera-ready assets are
+> `paper/figures/fig_overview.pdf`, `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, and `fig_disconnect.pdf`;
+> the PNG files displayed in this README are their web previews. Figure 1's editable source is
+> `paper/figures/fig_overview_camera_ready.pptx`. Legacy overview generators and intermediate vector drafts
+> are not canonical and must not overwrite these files.
 
 ## Local code check (Linux/WSL CUDA environment)
 
@@ -361,6 +397,8 @@ corresponding-author marker is applied yet. Affiliations and emails will be adde
   camera-ready evidence.
 - **Aggregate human-check results** — the paper records the parser-masked 100-case absent-label study
   (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates).
+- **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews; Figure 1
+  also includes the final editable PPTX. The compiled paper was checked with embedded fonts and no Type 3 fonts.
 
 ### Camera-ready pending — not currently available
 
@@ -377,9 +415,7 @@ corresponding-author marker is applied yet. Affiliations and emails will be adde
   seven-domain / combined-CI / OHR-TextNED artifacts are already separated in the quarantine manifest.
 - RADP-Distill per-QA and confidence-interval artifacts evaluated on the same aligned subset; until then,
   no quantitative Distill-versus-DPO comparison is supported.
-- Complete BC/CS mechanism data and regenerated figures using only aligned, current values.
-- Replacement of stale values inside Figures 1 and 4, larger internal text in Figures 2 and 3, and a full
-  architecture/figure visual audit.
+- Complete BC/CS mechanism data and aligned uncertainty estimates.
 - Complete executed-configuration/log provenance and model checkpoints for RADP-Distill, RADP-aux,
   RADP-DPO, and SimPO. In particular, the executed R2 `beta` requires confirmation from the original
   checkpoint or log.
