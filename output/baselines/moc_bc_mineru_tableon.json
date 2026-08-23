@@ -1,0 +1,2209 @@
+{
+  "schema_version": "1.0.0",
+  "label": "MinerU-on",
+  "metric_definition": "MoC Boundary Clarity (arXiv:2503.09600). For a chunk d and the chunk q immediately following it on the same page, BC(q|d) = ppl(q|d) / ppl(q) = exp(NLL(q|d) - NLL(q)), where NLL is the mean token negative log-likelihood under the scoring LM. Higher BC = the next chunk is less predictable from the previous one = a cleaner, better separated boundary. Only within-page adjacent chunk pairs are scored; no boundary is formed across a page break. The corpus number is the unweighted mean over every valid boundary (not a mean of per-page means). BC is not clamped to [0, 1].",
+  "provenance": {
+    "git_commit": "b563327c3c7d417f3e6500869be148c545fff6cb",
+    "git_dirty": true,
+    "executed_at_utc": "2026-08-23T14:36:37Z",
+    "model_id": "Qwen/Qwen3-VL-2B-Instruct",
+    "model_revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "dtype": "torch.bfloat16",
+    "device": "cuda",
+    "gpu": "NVIDIA GeForce RTX 5070",
+    "python_version": "3.13.13",
+    "torch_version": "2.8.0+cu128",
+    "transformers_version": "5.8.1",
+    "cuda_version": "12.8"
+  },
+  "input": {
+    "parser_dir": "results/kogovdoc/mineru_val_tableon/predictions",
+    "prediction_file_count": 294,
+    "prediction_manifest_sha256": "1fd8559a1efc9653d956d012b453a236ffbeb7107de385d5b7875a3886867803",
+    "manifest_definition": "sha256 over, for each *.md sorted by filename: repo-relative POSIX path + NUL + sha256(file bytes) hex + LF"
+  },
+  "chunker": {
+    "name": "parser_native",
+    "min_chars": 30
+  },
+  "scoring": {
+    "max_tokens": 1024,
+    "aggregation": "unweighted_mean_over_all_valid_adjacent_boundaries",
+    "clamped": false,
+    "boundaries": "within_page_adjacent_only",
+    "std_bc_definition": "sample standard deviation (n-1)"
+  },
+  "summary": {
+    "num_pages": 294,
+    "pages_with_chunks": 294,
+    "num_chunks": 903,
+    "num_boundaries_attempted": 609,
+    "num_boundaries_valid": 609,
+    "num_boundaries_skipped": 0,
+    "skipped_by_reason": {},
+    "mean_bc": 0.7132110997071613,
+    "median_bc": 0.728879578420269,
+    "std_bc": 0.25673201000103274,
+    "min_bc": 0.052985575780483275,
+    "max_bc": 1.7136804372892338
+  },
+  "per_page": [
+    {
+      "page_id": "arxiv_001_page_0008",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6768108698266985
+    },
+    {
+      "page_id": "arxiv_001_page_0013",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_002_page_0004",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.7455967637902603
+    },
+    {
+      "page_id": "arxiv_004_page_0009",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.7516546083461494
+    },
+    {
+      "page_id": "arxiv_004_page_0035",
+      "num_chunks": 12,
+      "num_boundaries_attempted": 11,
+      "num_boundaries_valid": 11,
+      "mean_bc": 0.688868873353521
+    },
+    {
+      "page_id": "arxiv_004_page_0040",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6563427468398361
+    },
+    {
+      "page_id": "arxiv_004_page_0057",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 1.0966556159699243
+    },
+    {
+      "page_id": "arxiv_004_page_0066",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.3388212025286858
+    },
+    {
+      "page_id": "arxiv_005_page_0003",
+      "num_chunks": 7,
+      "num_boundaries_attempted": 6,
+      "num_boundaries_valid": 6,
+      "mean_bc": 0.7463974052999719
+    },
+    {
+      "page_id": "arxiv_005_page_0004",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.6018980567489566
+    },
+    {
+      "page_id": "arxiv_005_page_0010",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.703059899658167
+    },
+    {
+      "page_id": "arxiv_007_page_0002",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.7648295981856293
+    },
+    {
+      "page_id": "arxiv_007_page_0008",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.7294643170728924
+    },
+    {
+      "page_id": "arxiv_008_page_0010",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.6313549718254905
+    },
+    {
+      "page_id": "arxiv_009_page_0007",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6999667040534939
+    },
+    {
+      "page_id": "arxiv_010_page_0008",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.5940557040296335
+    },
+    {
+      "page_id": "arxiv_010_page_0013",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.6644863240874498
+    },
+    {
+      "page_id": "arxiv_010_page_0014",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.6220219964261192
+    },
+    {
+      "page_id": "arxiv_010_page_0019",
+      "num_chunks": 14,
+      "num_boundaries_attempted": 13,
+      "num_boundaries_valid": 13,
+      "mean_bc": 0.5688401204075876
+    },
+    {
+      "page_id": "arxiv_010_page_0023",
+      "num_chunks": 12,
+      "num_boundaries_attempted": 11,
+      "num_boundaries_valid": 11,
+      "mean_bc": 0.6972736570651414
+    },
+    {
+      "page_id": "arxiv_010_page_0024",
+      "num_chunks": 16,
+      "num_boundaries_attempted": 15,
+      "num_boundaries_valid": 15,
+      "mean_bc": 0.6589006920415701
+    },
+    {
+      "page_id": "arxiv_010_page_0025",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.5927384395083041
+    },
+    {
+      "page_id": "arxiv_011_page_0011",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.8787663576825967
+    },
+    {
+      "page_id": "arxiv_012_page_0001",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.732519623140265
+    },
+    {
+      "page_id": "arxiv_012_page_0007",
+      "num_chunks": 11,
+      "num_boundaries_attempted": 10,
+      "num_boundaries_valid": 10,
+      "mean_bc": 0.6099310561318558
+    },
+    {
+      "page_id": "arxiv_013_page_0002",
+      "num_chunks": 13,
+      "num_boundaries_attempted": 12,
+      "num_boundaries_valid": 12,
+      "mean_bc": 0.6824501570179943
+    },
+    {
+      "page_id": "arxiv_013_page_0003",
+      "num_chunks": 12,
+      "num_boundaries_attempted": 11,
+      "num_boundaries_valid": 11,
+      "mean_bc": 0.6882166217498752
+    },
+    {
+      "page_id": "arxiv_013_page_0005",
+      "num_chunks": 11,
+      "num_boundaries_attempted": 10,
+      "num_boundaries_valid": 10,
+      "mean_bc": 0.6630767883598916
+    },
+    {
+      "page_id": "arxiv_015_page_0010",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_016_page_0001",
+      "num_chunks": 7,
+      "num_boundaries_attempted": 6,
+      "num_boundaries_valid": 6,
+      "mean_bc": 0.694055874919508
+    },
+    {
+      "page_id": "arxiv_016_page_0008",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6550591999724681
+    },
+    {
+      "page_id": "arxiv_017_page_0021",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.648499176440354
+    },
+    {
+      "page_id": "arxiv_017_page_0026",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9797809743230184
+    },
+    {
+      "page_id": "arxiv_018_page_0006",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6541087436043164
+    },
+    {
+      "page_id": "arxiv_018_page_0033",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_019_page_0018",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.5573443286639715
+    },
+    {
+      "page_id": "arxiv_019_page_0045",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_020_page_0008",
+      "num_chunks": 11,
+      "num_boundaries_attempted": 10,
+      "num_boundaries_valid": 10,
+      "mean_bc": 0.6518097621649629
+    },
+    {
+      "page_id": "arxiv_020_page_0022",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_021_page_0002",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.713655393991555
+    },
+    {
+      "page_id": "arxiv_024_page_0003",
+      "num_chunks": 10,
+      "num_boundaries_attempted": 9,
+      "num_boundaries_valid": 9,
+      "mean_bc": 0.5644201983086377
+    },
+    {
+      "page_id": "arxiv_026_page_0010",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_026_page_0017",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.7012813559033554
+    },
+    {
+      "page_id": "arxiv_027_page_0016",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_028_page_0009",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.8069655935013712
+    },
+    {
+      "page_id": "arxiv_029_page_0002",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6293494972382264
+    },
+    {
+      "page_id": "arxiv_029_page_0008",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.6151224249456985
+    },
+    {
+      "page_id": "arxiv_029_page_0013",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_030_page_0002",
+      "num_chunks": 12,
+      "num_boundaries_attempted": 11,
+      "num_boundaries_valid": 11,
+      "mean_bc": 0.6959562466411513
+    },
+    {
+      "page_id": "arxiv_032_page_0014",
+      "num_chunks": 9,
+      "num_boundaries_attempted": 8,
+      "num_boundaries_valid": 8,
+      "mean_bc": 0.7408929765730263
+    },
+    {
+      "page_id": "arxiv_032_page_0016",
+      "num_chunks": 11,
+      "num_boundaries_attempted": 10,
+      "num_boundaries_valid": 10,
+      "mean_bc": 0.7575476383929274
+    },
+    {
+      "page_id": "arxiv_033_page_0013",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.7121848332215137
+    },
+    {
+      "page_id": "arxiv_033_page_0024",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.7612041210897371
+    },
+    {
+      "page_id": "arxiv_033_page_0026",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.7845127241940546
+    },
+    {
+      "page_id": "arxiv_033_page_0027",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.787372249900554
+    },
+    {
+      "page_id": "arxiv_033_page_0036",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.6008831919373308
+    },
+    {
+      "page_id": "arxiv_033_page_0039",
+      "num_chunks": 14,
+      "num_boundaries_attempted": 13,
+      "num_boundaries_valid": 13,
+      "mean_bc": 0.7413777395957898
+    },
+    {
+      "page_id": "arxiv_033_page_0047",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.7464236827312735
+    },
+    {
+      "page_id": "arxiv_033_page_0050",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.7531294913238382
+    },
+    {
+      "page_id": "arxiv_033_page_0075",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "arxiv_036_page_0016",
+      "num_chunks": 16,
+      "num_boundaries_attempted": 15,
+      "num_boundaries_valid": 15,
+      "mean_bc": 0.6789369473368573
+    },
+    {
+      "page_id": "arxiv_036_page_0023",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.675816836629184
+    },
+    {
+      "page_id": "arxiv_036_page_0025",
+      "num_chunks": 7,
+      "num_boundaries_attempted": 6,
+      "num_boundaries_valid": 6,
+      "mean_bc": 0.5867403452416149
+    },
+    {
+      "page_id": "arxiv_038_page_0005",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.7408163433898658
+    },
+    {
+      "page_id": "arxiv_039_page_0013",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.6893918716178417
+    },
+    {
+      "page_id": "kogov_001_page_0001",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_001_page_0011",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_001_page_0020",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_001_page_0022",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_001_page_0023",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_001_page_0027",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9714740928903883
+    },
+    {
+      "page_id": "kogov_001_page_0036",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.8222135523343381
+    },
+    {
+      "page_id": "kogov_001_page_0038",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0001",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0011",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0024",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0033",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.42507499286336803
+    },
+    {
+      "page_id": "kogov_003_page_0044",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 1.0385723214768419
+    },
+    {
+      "page_id": "kogov_003_page_0054",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8655688710385002
+    },
+    {
+      "page_id": "kogov_003_page_0060",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9421108112211218
+    },
+    {
+      "page_id": "kogov_003_page_0079",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9323156358247056
+    },
+    {
+      "page_id": "kogov_003_page_0095",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.9549426001193869
+    },
+    {
+      "page_id": "kogov_003_page_0099",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8522945576780084
+    },
+    {
+      "page_id": "kogov_003_page_0112",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.7538318775199037
+    },
+    {
+      "page_id": "kogov_003_page_0138",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.0147517758337568
+    },
+    {
+      "page_id": "kogov_003_page_0162",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.9370037693204608
+    },
+    {
+      "page_id": "kogov_003_page_0163",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.411669847304316
+    },
+    {
+      "page_id": "kogov_003_page_0180",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6015452159708362
+    },
+    {
+      "page_id": "kogov_003_page_0194",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.9797882023153934
+    },
+    {
+      "page_id": "kogov_003_page_0205",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0225",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9833984173626051
+    },
+    {
+      "page_id": "kogov_003_page_0235",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.9188662075251521
+    },
+    {
+      "page_id": "kogov_003_page_0250",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9840814057389033
+    },
+    {
+      "page_id": "kogov_003_page_0272",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0306",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8656021399318495
+    },
+    {
+      "page_id": "kogov_003_page_0320",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0324",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.7691309120575858
+    },
+    {
+      "page_id": "kogov_003_page_0337",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.7852028532249149
+    },
+    {
+      "page_id": "kogov_003_page_0352",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0353",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0354",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0355",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0367",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0389",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0396",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.777311293727096
+    },
+    {
+      "page_id": "kogov_003_page_0421",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6462588575557543
+    },
+    {
+      "page_id": "kogov_003_page_0422",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0423",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0431",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.4156867310302886
+    },
+    {
+      "page_id": "kogov_003_page_0433",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0460",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0470",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.5140228661479608
+    },
+    {
+      "page_id": "kogov_003_page_0478",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9577389922022262
+    },
+    {
+      "page_id": "kogov_003_page_0493",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9046848342506496
+    },
+    {
+      "page_id": "kogov_003_page_0500",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.949026560888405
+    },
+    {
+      "page_id": "kogov_003_page_0501",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9148104113130656
+    },
+    {
+      "page_id": "kogov_003_page_0532",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.6245758633248453
+    },
+    {
+      "page_id": "kogov_003_page_0533",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.5100822409878876
+    },
+    {
+      "page_id": "kogov_003_page_0534",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.4477812860841532
+    },
+    {
+      "page_id": "kogov_003_page_0537",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.5215219207617504
+    },
+    {
+      "page_id": "kogov_003_page_0543",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0545",
+      "num_chunks": 10,
+      "num_boundaries_attempted": 9,
+      "num_boundaries_valid": 9,
+      "mean_bc": 0.7864364322829114
+    },
+    {
+      "page_id": "kogov_003_page_0556",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.7759803256429254
+    },
+    {
+      "page_id": "kogov_003_page_0559",
+      "num_chunks": 7,
+      "num_boundaries_attempted": 6,
+      "num_boundaries_valid": 6,
+      "mean_bc": 1.1507911899666694
+    },
+    {
+      "page_id": "kogov_003_page_0561",
+      "num_chunks": 8,
+      "num_boundaries_attempted": 7,
+      "num_boundaries_valid": 7,
+      "mean_bc": 0.6203202410691905
+    },
+    {
+      "page_id": "kogov_003_page_0572",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.6581289834944702
+    },
+    {
+      "page_id": "kogov_003_page_0589",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8691696640791536
+    },
+    {
+      "page_id": "kogov_003_page_0595",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.8901518771649968
+    },
+    {
+      "page_id": "kogov_003_page_0605",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.0632551372864993
+    },
+    {
+      "page_id": "kogov_003_page_0609",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.7949685420301831
+    },
+    {
+      "page_id": "kogov_003_page_0612",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.1279790819010902
+    },
+    {
+      "page_id": "kogov_003_page_0613",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8831954603053797
+    },
+    {
+      "page_id": "kogov_003_page_0616",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.8763439448538424
+    },
+    {
+      "page_id": "kogov_003_page_0622",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9717404895030031
+    },
+    {
+      "page_id": "kogov_003_page_0629",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0671",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0694",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0701",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.45161988164425426
+    },
+    {
+      "page_id": "kogov_003_page_0707",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.8596961946182422
+    },
+    {
+      "page_id": "kogov_003_page_0714",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.4898575277501392
+    },
+    {
+      "page_id": "kogov_003_page_0729",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0740",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0741",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0745",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0746",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.591264559532223
+    },
+    {
+      "page_id": "kogov_003_page_0774",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0776",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0788",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6470357338458645
+    },
+    {
+      "page_id": "kogov_003_page_0800",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0812",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0868",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0872",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0876",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_003_page_0880",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0010",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0029",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0044",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0056",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6475096561837752
+    },
+    {
+      "page_id": "kogov_004_page_0071",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.711906835155993
+    },
+    {
+      "page_id": "kogov_004_page_0074",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.7771302656788275
+    },
+    {
+      "page_id": "kogov_004_page_0094",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.8609241299609212
+    },
+    {
+      "page_id": "kogov_004_page_0101",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9799807932328904
+    },
+    {
+      "page_id": "kogov_004_page_0102",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0111",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0123",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.5251383059152696
+    },
+    {
+      "page_id": "kogov_004_page_0124",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 1.1358564694681348
+    },
+    {
+      "page_id": "kogov_004_page_0130",
+      "num_chunks": 12,
+      "num_boundaries_attempted": 11,
+      "num_boundaries_valid": 11,
+      "mean_bc": 0.5298003891135526
+    },
+    {
+      "page_id": "kogov_004_page_0138",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0157",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9189683005250369
+    },
+    {
+      "page_id": "kogov_004_page_0165",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0174",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0180",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6441758997329879
+    },
+    {
+      "page_id": "kogov_004_page_0220",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0230",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0247",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0251",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0264",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0291",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_004_page_0303",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_006_page_0004",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_006_page_0005",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_006_page_0014",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.569730412004701
+    },
+    {
+      "page_id": "kogov_006_page_0044",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_006_page_0045",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_006_page_0046",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0016",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0025",
+      "num_chunks": 5,
+      "num_boundaries_attempted": 4,
+      "num_boundaries_valid": 4,
+      "mean_bc": 0.4806402948380921
+    },
+    {
+      "page_id": "kogov_007_page_0031",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0049",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0050",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0068",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0070",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0071",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0080",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0086",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0097",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0098",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0101",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0107",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0120",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0130",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0133",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0153",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_007_page_0166",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0014",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.912306970402522
+    },
+    {
+      "page_id": "kogov_008_page_0149",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0153",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0171",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0188",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6986028568081881
+    },
+    {
+      "page_id": "kogov_008_page_0198",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0221",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0285",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0291",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.4060939063080172
+    },
+    {
+      "page_id": "kogov_008_page_0300",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0311",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0319",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0326",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0332",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0340",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0378",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0399",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0415",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0441",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0469",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0488",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0508",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0519",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0544",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0591",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0605",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0614",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0698",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0707",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0733",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0762",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0810",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0843",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0851",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0863",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0953",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0972",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_0988",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1001",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1034",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1117",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1173",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1175",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1242",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1253",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1263",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1275",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1322",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1356",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1425",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1450",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1473",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1494",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1556",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1676",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1718",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1720",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1750",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1783",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1816",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1837",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1856",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1872",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1881",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_008_page_1912",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_009_page_0004",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 1.0063779147681797
+    },
+    {
+      "page_id": "kogov_009_page_0016",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.1314282773057687
+    },
+    {
+      "page_id": "kogov_009_page_0022",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.9951502164991612
+    },
+    {
+      "page_id": "kogov_009_page_0028",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 1.0054560189657888
+    },
+    {
+      "page_id": "kogov_009_page_0030",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_009_page_0033",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.80250026709631
+    },
+    {
+      "page_id": "kogov_009_page_0038",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 1.0900820403317226
+    },
+    {
+      "page_id": "kogov_009_page_0049",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 1.0847241858630159
+    },
+    {
+      "page_id": "kogov_010_page_0003",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.7328168720825121
+    },
+    {
+      "page_id": "kogov_010_page_0010",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.5709108351433132
+    },
+    {
+      "page_id": "kogov_010_page_0030",
+      "num_chunks": 6,
+      "num_boundaries_attempted": 5,
+      "num_boundaries_valid": 5,
+      "mean_bc": 0.4547444424319009
+    },
+    {
+      "page_id": "kogov_010_page_0039",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.4199992071044066
+    },
+    {
+      "page_id": "kogov_011_page_0021",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.9649087141343945
+    },
+    {
+      "page_id": "kogov_011_page_0022",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6906729853160569
+    },
+    {
+      "page_id": "kogov_011_page_0037",
+      "num_chunks": 2,
+      "num_boundaries_attempted": 1,
+      "num_boundaries_valid": 1,
+      "mean_bc": 0.6289271347613367
+    },
+    {
+      "page_id": "kogov_011_page_0040",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.8384565600846217
+    },
+    {
+      "page_id": "kogov_011_page_0044",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0048",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0076",
+      "num_chunks": 3,
+      "num_boundaries_attempted": 2,
+      "num_boundaries_valid": 2,
+      "mean_bc": 0.4071954414353105
+    },
+    {
+      "page_id": "kogov_011_page_0100",
+      "num_chunks": 4,
+      "num_boundaries_attempted": 3,
+      "num_boundaries_valid": 3,
+      "mean_bc": 0.46486251543852264
+    },
+    {
+      "page_id": "kogov_011_page_0108",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0117",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0118",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0119",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    },
+    {
+      "page_id": "kogov_011_page_0138",
+      "num_chunks": 1,
+      "num_boundaries_attempted": 0,
+      "num_boundaries_valid": 0,
+      "mean_bc": null
+    }
+  ],
+  "references": {
+    "sources": {
+      "bc": {
+        "path": "output/baselines/moc_bc_correlation.json",
+        "sha256": "f85cc91a7646bff18d9ef515654c08f1fe562c604d17f41b0fb573f1ec5bba21",
+        "note": "mean_bc values here are stored rounded to 4 decimal places"
+      },
+      "rcps": {
+        "path": "output/baselines/grid_v1_parser_native.json",
+        "sha256": "296d2e6aa2dea7e5c422240ebb24a23307196445b28bd37f72f91895da4f7acc"
+      },
+      "rcps_current": {
+        "path": "output/results/grid_MinerU-tableON_parser_native.json",
+        "sha256": "21940d1a06e6ef394e9f37f16ac79b5506b515fb554c1c2b31bbe38801a0b66d"
+      }
+    },
+    "mineru_off_bc": {
+      "parser": "MinerU",
+      "mean_bc": 0.7161,
+      "num_pages": 294,
+      "num_boundaries": 756,
+      "source": "bc"
+    },
+    "prod_bc": {
+      "parser": "WigtnOCR-2B (ours, v1)",
+      "mean_bc": 0.61,
+      "num_pages": 294,
+      "num_boundaries": 1161,
+      "source": "bc"
+    },
+    "mineru_on_rcps": {
+      "label": "MinerU-tableON",
+      "rcps": 0.1365278210049452,
+      "hit@1": 0.12267471091000504,
+      "num_pages": 294,
+      "num_chunks": 903,
+      "chunker": "parser_native",
+      "source": "rcps_current"
+    }
+  },
+  "comparisons": {
+    "bc_minus_mineru_off_bc": -0.0028889002928386143,
+    "bc_minus_prod_bc": 0.10321109970716136,
+    "note": "Reference BC values are stored rounded to 4 decimal places, so these differences carry at most 4-decimal precision. The reference run also recorded no model revision — see the caveats in docs/FINDINGS_mineru_tableon_bc.md."
+  },
+  "derived_correlations": {
+    "label": "complete_output_parsers_with_mineru_on",
+    "note": "4 parsers with complete 294-page output. Marker (38 pages) and PaddleOCR (0 boundaries) are excluded, as in the original analysis. MinerU-off is replaced by MinerU-on: they are the same 294 pages re-parsed with table recognition enabled, so including both would double-count one parser.",
+    "points": [
+      {
+        "parser": "Qwen3-VL-30B (teacher)",
+        "bc": 0.6232,
+        "bc_source": "existing",
+        "rcps": 0.5844008448583612,
+        "hit@1": 0.5444947209653092,
+        "rcps_source": "grid_v1_parser_native"
+      },
+      {
+        "parser": "WigtnOCR-2B (ours, v1)",
+        "bc": 0.61,
+        "bc_source": "existing",
+        "rcps": 0.5825728012002522,
+        "hit@1": 0.5485168426344896,
+        "rcps_source": "grid_v1_parser_native"
+      },
+      {
+        "parser": "Qwen3-VL-2B (base)",
+        "bc": 0.5199,
+        "bc_source": "existing",
+        "rcps": 0.5321093394622806,
+        "hit@1": 0.4997486173956762,
+        "rcps_source": "grid_v1_parser_native"
+      },
+      {
+        "parser": "MinerU-tableON",
+        "bc": 0.7132110997071613,
+        "bc_source": "this_run",
+        "rcps": 0.1365278210049452,
+        "hit@1": 0.12267471091000504,
+        "rcps_source": "grid_MinerU-tableON_parser_native"
+      }
+    ],
+    "BC_vs_RCPS": {
+      "label": "complete_output_4",
+      "n": 4,
+      "pearson_r": -0.7445,
+      "pearson_p": 0.2555,
+      "spearman_r": -0.2,
+      "spearman_p": 0.8
+    },
+    "BC_vs_Hit1": {
+      "label": "complete_output_4",
+      "n": 4,
+      "pearson_r": -0.7484,
+      "pearson_p": 0.2516,
+      "spearman_r": -0.4,
+      "spearman_p": 0.6
+    }
+  }
+}
