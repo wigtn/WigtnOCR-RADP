@@ -42,12 +42,8 @@ Document RAG ultimately depends on retrieval, yet parsers are commonly selected 
 
 \begin{figure*}[t]
 \centering
-% CAMERA-READY FIGURE BLOCKER (deferred until the final visual pass): establish
-% one canonical source before regeneration. The current export still shows
-% table-off MinerU and unsupported Distill values, omits the 229+65 page /
-% 527+136 Q--A composition, and is too small at 0.70 width.
-\includegraphics[width=0.70\textwidth]{fig_overview.pdf}
-\caption{\textbf{Overview.} \rcps{} selects parser--chunker combinations on a held-out retrieval probe. Coverage then distinguishes exact-span absence in parser output from chunk-boundary splitting. Only after selection and diagnosis do we assess parser-side training.}
+\includegraphics[width=\textwidth]{fig_overview.pdf}
+\caption{\textbf{RCPS workflow.} A held-out Q--A probe evaluates parser--chunker candidates. Intrinsic and \rcps{} parser rankings can disagree (C1); coverage separates spans absent from parser output from those split across chunk boundaries (C2); \rcps{} ranks candidates across fixed retrievers and cutoffs (C3); and parser training is reserved for unresolved parser-side failures before changed configurations are re-evaluated (C4).}
 \label{fig:overview}
 \end{figure*}
 
