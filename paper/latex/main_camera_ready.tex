@@ -55,7 +55,7 @@ Our production results show why selection must follow retrieval. MinerU-off \cit
 
 Coverage then locates the loss: $20.2\%$ of reference spans have no normalised exact match in Prod output before chunking, while no tested chunker splits more than $2.3\%$.
 
-Training is secondary: two RADP-DPO checkpoints are only about one Hit@5 point above Prod on an audited OHR-Bench compatibility subset. This frame differs from the selection comparison, so the effect sizes are not directly comparable.
+Training is secondary. We use Retrieval-Aware Document Parsing (RADP) as an umbrella term for parser-side training with retrieval-oriented feedback. \rcps{} evaluates and selects configurations; RADP trains the parser. Two RADP-DPO checkpoints are only about one Hit@5 point above Prod on an audited OHR-Bench compatibility subset. This frame differs from the selection comparison, so the effect sizes are not directly comparable.
 
 \paragraph{Contributions.} We show that intrinsic metrics can misrank parsers (C1); separate parser-side absence from chunker-side splitting (C2); define \rcps{} for selecting parsers and chunkers (C3); and quantify the smaller, uncertain differences associated with parser training (C4). Our scope is answer-span retrievability. Appendix~\ref{app:e2e} checks end-to-end answering for three parsers.
 
@@ -203,7 +203,7 @@ full \rcps{} & 30B $\succ$ Prod & --- \\
 \subsection{Training Does Not Meet the Pilot Target (C4)}
 \label{sec:c4}\label{sec:mechanism}
 
-On the held-out 73-page pilot, neither RADP-aux nor RADP-DPO meets the target: at least 5 \rcps{} points with a 95\% CI lower bound above zero. RADP-aux adds a hidden-state loss; RADP-DPO uses a page-local BGE-M3 reward \citep{rafailov2023dpo}. Appendix~\ref{app:dpo} reports both and the reference-free SimPO control \citep{meng2024simpo}. We omit the fidelity-based RADP-Distill control because aligned per-Q--A results are unavailable.
+Within the RADP family, RADP-aux adds a hidden-state loss, RADP-DPO uses a page-local BGE-M3 reward \citep{rafailov2023dpo}, and RADP-Distill is a fidelity-based control. On the held-out 73-page pilot, neither RADP-aux nor RADP-DPO meets the target: at least 5 \rcps{} points with a 95\% CI lower bound above zero. Appendix~\ref{app:dpo} reports both and the reference-free SimPO control \citep{meng2024simpo}. We omit RADP-Distill because aligned per-Q--A results are unavailable.
 
 R2 warm-starts a second preference round; R3 expands the candidate pool and adds full-corpus hard negatives (Appendix~\ref{app:milestones}). From 2{,}264 legacy per-Q--A observations, we exclude 228 with unaligned evidence pages, leaving a 2{,}036-Q--A, six-domain compatibility subset. R2 and R3 exceed Prod Hit@5 by $0.95$ and $1.15$ points (95\% CIs $[+0.33,+1.54]$ and $[+0.31,+2.05]$; Table~\ref{tab:ohr}). These post-audit estimates are neither a full v2 rerun nor a pre-specified confirmation.
 
