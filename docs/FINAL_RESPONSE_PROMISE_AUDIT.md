@@ -1,8 +1,12 @@
 # Final posted rebuttal authority and camera-ready mapping
 
-> Audited: 2026-08-22
+> Audited: 2026-08-22 · Rechecked: 2026-08-24
 > Source: user-provided copy of the final OpenReview rebuttal
 > SHA-256: `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`
+> Canonical paper baseline: PR #12 merge `a981bca`. At that baseline,
+> `paper/latex/main_camera_ready.tex` uses C2=RCPS, C3=coverage, Marker sensitivity
+> `r=-0.83`, E2E in Appendix B, and C4 details in Appendices E--G.
+> `paper/latex/main.tex` is the frozen submission and is excluded from current-number checks.
 
 This digest exists to prevent pre-posting reviewer drafts from being mistaken for
 the final author response. If a local reviewer-specific rebuttal file conflicts
@@ -27,12 +31,25 @@ future-tense “same 100-Q--A” plan. It is not the posted commitment.
 | Lead the Introduction with findings and the diagnostic | Reflected in `paper/latex/main_camera_ready.tex` |
 | Add parser I/O definition and a worked example in Appendix C | Reflected in Appendix C |
 | Split dense abstract prose and define parser/chunker/retriever up front | Reflected in the camera-ready text |
-| Move noise-family and DPO-milestone detail to appendices; compress parser training | Reflected in the current structure |
+| Move noise-family and DPO-milestone detail to appendices; compress parser training | Reflected: main C4 is a two-paragraph secondary study; details are in Appendices E--G |
 | Correct the MinerU table-recognition configuration and Limitations | Reflected in text and tables; public MinerU-off artifact still needs verification |
-| Add the end-to-end table | Reflected in Appendix G with same-configuration MinerU-on reporting |
+| Add the end-to-end table | Reflected in Appendix B with same-configuration MinerU-on reporting |
 | Add the full-grid probe-stability version | Pending a same-294-page full-grid artifact |
 | State retrieval rather than end-to-end generation as the primary scope | Reflected in Introduction, Discussion, and Limitations |
 | Add a reproducibility checklist and exact commands | Conditional wording in R1; final clean-checkout verification remains pending |
+
+The 2026-08-24 pass also narrowed the Abstract and Introduction from a broad
+“KoGovDoc-RAG evaluation files are released” statement to the artifact that is
+actually present: the frozen 663-Q--A probe and RCPS implementation. The missing
+portable source-page mapping and rerun artifacts are now stated at first mention
+and again in Appendix H.
+
+The 2026-08-24 hierarchy pass makes RCPS selection the visible centre of the
+paper without changing the promised Appendix C. Appendices A--D now support
+C1--C3 (OHR alignment/noise, end-to-end top-choice check, absent-label
+robustness, and chunker coverage), while Appendices E--G contain the secondary
+C4 parser-training material. Appendix C still contains the promised parser I/O
+definition, worked example, and human verification.
 
 ## Completed-response claims that still require artifact checks
 

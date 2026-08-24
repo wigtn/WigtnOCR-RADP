@@ -1,6 +1,6 @@
 # WigtnOCR-RADP
 
-**Retrieval-Aware Document Parsing (RADP) — *보기에* 가장 깨끗한 파서가 검색에 가장 좋은 파서는 아니다.**
+**RCPS로 검색 기반 선택, coverage로 진단, RADP는 필요할 때만 파서 학습에 사용한다.**
 
 > ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
 >
@@ -26,8 +26,8 @@ Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종�
 핵심 흐름은 **RCPS로 선택 → coverage로 진단 → 필요할 때만 P/C 변경 또는 학습 → 변경된 조합 재평가**다. `covered`이면 기존 조합을 그대로 배포하고, `absent`나 `split` 때문에 parser 또는 chunker를 바꾼 경우에만 같은 RCPS 기준으로 다시 평가한다. 기여는 네 가지다.
 
 - **C1** — 내재적 지표가 retrieval 순위를 잘못 매길 수 있음을 후보군과 source-aligned OHR perturbation으로 확인한다.
-- **C2** — **retriever-free coverage 진단**으로 parser-output exact-span absence와 chunk-boundary split을 구분한다. Prod에서는 각각 **20.2%**와 최대 **2.3%**다.
-- **C3** — **RCPS**(Retrieval-Conditional Parsing Score)로 파서·청커 후보를 학습 없이 선택한다. RCPS는 새 similarity 함수가 아니라 표준 MRR을 일관된 probe·retriever·relevance 규칙으로 묶은 프로토콜이다.
+- **C2** — **RCPS**(Retrieval-Conditional Parsing Score)로 파서·청커 후보를 학습 없이 선택한다. RCPS는 새 similarity 함수가 아니라 표준 MRR을 일관된 probe·retriever·relevance 규칙으로 묶은 프로토콜이다.
+- **C3** — **retriever-free coverage 진단**으로 parser-output exact-span absence와 chunk-boundary split을 구분한다. Prod에서는 각각 **20.2%**와 최대 **2.3%**다.
 - **C4** — 파서 학습 결과의 범위를 측정한다. 73페이지 pilot은 사전 목표를 충족하지 못했고, 별도의 2,036-Q–A OHR compatibility subset에서 RADP-DPO R2/R3의 Prod 대비 Hit@5 차이는 **+0.95 pp**, **+1.15 pp**다.
 
 현재 저장소에는 frozen **663-Q–A probe**, 242개 evidence page의 169/73 split, RCPS 구현,
@@ -58,15 +58,15 @@ OHR-Bench, EnterpriseDocBench와 동시기 연구도 parsing 품질과 retrieval
 | | 기여 | 헤드라인 결과 |
 |---|---|---|
 | **C1** | intrinsic parsing 지표와 retrieval 순위의 불일치를 후보군 안에서 측정하고, source-aligned OHR perturbation으로 두 지표가 다르게 반응함을 보인다. | BC가 있는 294페이지 출력 4종의 BC↔RCPS **r = −0.74**(기술통계); 별도 MinerU-on–Prod 비교 **Hit@1 +42.6 pp** |
-| **C2** | reference span을 *covered / split / absent*로 나누는 **retriever-free coverage 진단**. | **20.2% normalised exact-span absent** vs 최대 **2.3% split** |
-| **C3** | retriever 평균·format-normalised relevance·고정 Q–A probe를 사용하는 **RCPS 프로토콜**. | 완전한 294페이지 파서 5종 **0.137–0.584**; Prod 고정 청커 4종 **0.535–0.593** |
+| **C2** | retriever 평균·format-normalised relevance·고정 Q–A probe를 사용하는 **RCPS 프로토콜**. | 완전한 294페이지 파서 5종 **0.137–0.584**; Prod 고정 청커 4종 **0.535–0.593** |
+| **C3** | reference span을 *covered / split / absent*로 나누는 **retriever-free coverage 진단**. | **20.2% normalised exact-span absent** vs 최대 **2.3% split** |
 | **C4** | 평가 frame별로 파서 학습의 작고 불확실한 차이를 보고한다. aligned artifact가 없는 Distill과는 정량 비교하지 않는다. | 73페이지 pilot 목표 미달; OHR compatibility subset에서 R2/R3 Hit@5 **+0.95/+1.15 pp** vs Prod |
 
 ---
 
 ## 🔬 방법
 
-### RCPS — Retrieval-Conditional Parsing Score (C3)
+### RCPS — Retrieval-Conditional Parsing Score (C2)
 
 파서를 *출력이 얼마나 깨끗한가*가 아니라 *downstream 검색이 그 출력으로 무엇을 하는가*로 점수 매긴다. RCPS는 **새 유사도 함수가 아니라** 보통의 retrieval MRR을 세 가지 선택으로 감싼 **프로토콜**이다.
 
@@ -88,7 +88,7 @@ RCPS(P, C; D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K} MRR@k(r, C(P), D)
 normalised-span relevance rule을 사용한다. 표준 MRR을 평균하며 평가 자체에는 학습이 필요 없다.
 ([벡터 PDF](paper/figures/fig_rcps_protocol.pdf))
 
-### Coverage 진단 — 파서 vs 청커 (C2)
+### Coverage 진단 — 파서 vs 청커 (C3)
 
 RCPS는 파서+청커+retriever를 함께 채점하므로 낮은 점수만으로 어느 layer를 먼저 살펴야 하는지 알기 어렵다. 파서 출력을 고정하고 청커만 바꿔, 정규화한 reference span을 **covered**, **split**(페이지 출력에는 있지만 chunk 사이에 나뉨 — overlap으로 회복 가능), **absent**(정규화한 파서 출력에 exact match가 없어 re-chunking만으로 같은 span을 복원할 수 없음)로 분류한다. absent는 실제 내용 누락일 수도, 표면형 차이일 수도 있으므로 case-level 검토로 구분해야 한다. 코드: [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
 
@@ -165,15 +165,7 @@ Hit@1을 비교한다. MinerU-off는 별도 제출본 진단이며 table recogni
 
 clean GOT 출력은 없다. mild→severe에서 GOT RCPS는 **0.461 → 0.298**로 떨어지고 BC는 **0.586 → 0.624**로 오른다. 15개 행의 합산 상관 **r = −0.35**는 같은 family 안 변종들이 종속적이므로 기술통계로만 본다. 이 한정된 subset으로 더 넓은 도메인 일반성을 주장하지 않는다.
 
-### C2 — coverage 진단이 출력 부재와 chunk 경계를 구분
-
-Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 reference span(**20.2%**)은 정규화한 page output에 exact match가 없다. chunk boundary에 걸리는 span은 최대 15/663(**2.3%**)다. absent 비율은 **8개 chunker 전반에서 일정**하므로 re-chunking만으로 같은 exact span을 복원할 수 없다. 다만 `absent`는 matcher의 운영상 라벨이지 semantic omission의 증명은 아니다.
-
-라벨 견고성도 따로 확인했다. GPT-5.4는 Prod의 exact-match-absent case 중 **56%**를 recoverable surface artefact로 재분류했다. Q–A도 GPT 계열 모델이 생성했으므로 이 judge는 생성 과정과 독립적이지 않다.
-
-별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. 최종 per-case 인간 라벨은 아직 공개 artifact로 packaging되지 않았다.
-
-### C3 — RCPS로 파서와 청커 후보를 순위화한다
+### C2 — RCPS로 파서와 청커 후보를 순위화한다
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
@@ -194,6 +186,14 @@ hedge로 쓴다. format-sensitive 비교에 필요한 ranked chunk 목록은 저
 **23.8%**, PaddleOCR **20.5%**보다 높다. 다만 RCPS에서는 거의 동률인 하위 두 parser의 순서가
 뒤집히며, 같은 GPT-5.4 checkpoint가 답을 생성하고 판정한다. 따라서 full ranking 검증이 아니라
 top choice 확인으로만 해석한다.
+
+### C3 — coverage 진단이 출력 부재와 chunk 경계를 구분
+
+Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 reference span(**20.2%**)은 정규화한 page output에 exact match가 없다. chunk boundary에 걸리는 span은 최대 15/663(**2.3%**)다. absent 비율은 **8개 chunker 전반에서 일정**하므로 re-chunking만으로 같은 exact span을 복원할 수 없다. 다만 `absent`는 matcher의 운영상 라벨이지 semantic omission의 증명은 아니다.
+
+라벨 견고성도 따로 확인했다. GPT-5.4는 Prod의 exact-match-absent case 중 **56%**를 recoverable surface artefact로 재분류했다. Q–A도 GPT 계열 모델이 생성했으므로 이 judge는 생성 과정과 독립적이지 않다.
+
+별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. 최종 per-case 인간 라벨은 아직 공개 artifact로 packaging되지 않았다.
 
 ### C4 — 파서측 학습은 pilot 목표를 충족하지 못했다
 
@@ -272,8 +272,9 @@ end-to-end 실행법과 남은 공개 산출물은 아래의 camera-ready 작업
 
 > **그림 정본 안내:** camera-ready 정본은 `paper/figures/fig_overview.pdf`,
 > `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, `fig_disconnect.pdf`이며, 이 README에는 대응하는 PNG preview를
-> 표시한다. Figure 1의 최종 편집본은 `paper/figures/fig_overview_camera_ready.pptx`다. Legacy overview
-> generator와 중간 vector 시안은 정본이 아니며 이 파일들을 덮어쓰면 안 된다.
+> 표시한다. Figure 1의 편집 정본은 `paper/figures/fig_overview_camera_ready.pptx`이며 RCPS 배지는 C2,
+> coverage 배지는 C3이다. `scripts/figures/make_fig_overview.py`는 비정본 대체 렌더러이므로 승인된
+> PPTX 기반 PDF를 덮어쓰면 안 된다.
 
 ---
 

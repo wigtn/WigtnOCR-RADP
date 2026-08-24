@@ -1,6 +1,8 @@
 # RESEARCH DIRECTION — 연구 정의·가설·현재 위치
 
-> 최종 갱신: 2026-05-27. 이 문서가 연구의 **0순위 기준**이다. README는 이 문서의 요약.
+> 최종 갱신: 2026-05-27. 이 문서는 당시 연구 방향의 역사적 기록이다.
+
+> **정본 변경 (2026-08-24):** camera-ready의 0순위 기준은 `paper/latex/main_camera_ready.tex`, `docs/CAMERA_READY_PLAN.md`, `docs/PAPER_REVISION_WORKMAP.md`, `docs/PAPER_READABILITY_REVIEW_AUDIT.md`다. 아래 `r=-0.81`은 MinerU-off 기반 초기 grid이며, 현재 동일-구성 근거는 MinerU-on 포함 `r=-0.74`(Marker 포함 보조 분석 `r=-0.83`)다. 기여 순서도 C1 disconnect → C2 RCPS → C3 coverage → C4 training으로 확정됐다.
 
 ---
 

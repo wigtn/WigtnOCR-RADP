@@ -5,6 +5,8 @@
 > 전체. 실험 수치 + 선택지마다의 결정 사유.
 > 상세는 각 절에 링크된 문서 참조.
 
+> **역사적 결과 주의 (2026-08-24):** 이 문서의 `r=-0.81`은 MinerU-off를 사용한 초기 grid를 기록한다. 현재 camera-ready C1은 MinerU-on 포함 complete-output 4-parser `r=-0.74`를 본 근거로, Marker 포함 `r=-0.83`을 보조 분석으로 사용한다. 기여 번호도 C2=RCPS, C3=coverage로 변경됐다.
+
 ---
 
 ## 0. TL;DR (3줄)

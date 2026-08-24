@@ -6,6 +6,8 @@
 > 코드: `src/wigtnocr_radp/evaluation/coverage.py`, `scripts/evaluation/coverage_diagnostic.py`,
 > `tests/test_coverage.py` (branch `feat/radp-coverage-diagnostic`, ssw 기반).
 
+> **역사적 설계 주의 (2026-08-24):** 아래 `r=-0.81`과 옛 C-label은 MinerU-off 기반 당시 상태를 보존한다. 현재 camera-ready는 MinerU-on 포함 `r=-0.74`(Marker 포함 보조 분석 `r=-0.83`)와 C2=RCPS, C3=coverage를 사용한다.
+
 ---
 
 ## TL;DR

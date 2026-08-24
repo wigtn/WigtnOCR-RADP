@@ -1,6 +1,6 @@
 # WigtnOCR-RADP
 
-**Retrieval-Aware Document Parsing (RADP) — choose parsers by retrieval, not appearance.**
+**RCPS for retrieval-based selection, coverage for diagnosis, and RADP only for optional parser training.**
 
 > ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
 >
@@ -13,7 +13,7 @@
 >
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
 >
-> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 [`docs/RESEARCH_DIRECTION.md`](docs/RESEARCH_DIRECTION.md) (KO) · 🗓️ [`docs/TIMELINE.md`](docs/TIMELINE.md)
+> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md) (current audit) · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
 
 ---
 
@@ -81,15 +81,15 @@ diagnostic that separates exact-span absence from chunk-boundary splitting.
 | | Contribution | Headline result |
 |---|---|---|
 | **C1** | The parsing↔retrieval **disconnect**. On an aligned English OHR-Bench subset, semantic-noise perturbations lower retrieval while BC is stable or changes non-monotonically. | Audited 294-page BC↔RCPS **r = −0.74** (descriptive); MinerU-on and Prod differ by **42.6 Hit@1 points** (0.123→0.549; 4.47×) |
-| **C2** | A **retriever-free coverage diagnostic** — classify each reference span as *covered / split across chunks / absent from the normalized parser output*; a rule computable *before* any retriever runs. | **20.2% exact-span absent**, constant across 8 chunkers; split varies up to 2.3% ⇒ inspect parser output first |
-| **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | On the submitted grid containing MinerU-off, BGE-M3 alone flips the near-tied top parser; **Kendall τ = 0.80** against full RCPS |
+| **C2** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | On the submitted grid containing MinerU-off, BGE-M3 alone flips the near-tied top parser; **Kendall τ = 0.80** against full RCPS |
+| **C3** | A **retriever-free coverage diagnostic** — classify each reference span as *covered / split across chunks / absent from the normalised parser output*; a rule computable *before* any retriever runs. | **20.2% exact-span absent**, constant across 8 chunkers; split varies up to 2.3% ⇒ inspect parser output first |
 | **C4** | A **bounded** map of parser-side training; the pilot misses its target, and the matched Distill comparison remains unavailable. | Post-audit six-domain OHR compatibility subset: **R2 +0.95 pp**, **R3 +1.15 pp** Hit@5 vs Prod (n=2,036) |
 
 ---
 
 ## Method
 
-### RCPS — Retrieval-Conditional Parsing Score (C3)
+### RCPS — Retrieval-Conditional Parsing Score (C2)
 
 Score a parser by what *downstream retrieval* does with its output, not by how clean the output looks.
 RCPS is **not a new similarity function** but a protocol wrapping ordinary retrieval MRR in three choices:
@@ -115,12 +115,12 @@ Markdown normalisation. Evaluation requires **no training**. Reference implement
 and reference-page plus normalised-span relevance rule. RCPS averages standard MRR and requires no
 training. ([vector PDF](paper/figures/fig_rcps_protocol.pdf))
 
-### Coverage diagnostic — parser vs chunker (C2)
+### Coverage diagnostic — parser vs chunker (C3)
 
 RCPS scores parser + chunker + retriever jointly, so a low score does not say *which* layer is at fault.
 Holding the parser output fixed and varying the chunker, classify each normalised reference span as **covered**,
 **split** (present in the parsed page output but divided across chunks, and therefore potentially recoverable with overlap)
-or **absent** (no exact match in the normalized parser output, so re-chunking cannot restore that exact span).
+or **absent** (no exact match in the normalised parser output, so re-chunking cannot restore that exact span).
 This diagnostic identifies the layer to inspect first; an absent match can reflect a genuine omission or a
 surface-form mismatch, which requires case-level review to distinguish. Code:
 [`scripts/evaluation/coverage_diagnostic.py`](scripts/evaluation/coverage_diagnostic.py).
@@ -204,7 +204,8 @@ effect of table recognition. BC is Boundary Clarity (higher is better); CS is Ch
 
 *Figure 4 — Parsing quality can misrank retrieval candidates.* Panel (a) uses MinerU-on in the audited
 294-page deployment comparison; panel (b) compares MinerU-on and Prod on Hit@1. MinerU-off remains a
-separately labelled submitted-output diagnostic, not a causal table-recognition ablation. ([vector PDF](paper/figures/fig_disconnect.pdf))
+separately labelled submitted-output diagnostic, not a causal table-recognition ablation.
+([vector PDF](paper/figures/fig_disconnect.pdf))
 
 ### C1 — aligned perturbation diagnostic (cross-domain, OHR-Bench)
 
@@ -215,24 +216,7 @@ GOT has no clean output, but from mild to severe noise its RCPS falls **0.461 �
 **0.586 → 0.624**. The aggregate 15-row correlation is **r = −0.35**, reported descriptively because
 variants within a family are dependent. This restricted subset does not establish broader domain generality.
 
-### C2 — coverage diagnostic separates output absence from chunk boundaries
-
-On Prod's output (294 pages: **229 KoGov + 65 arXiv**; 663 Q–A, **no retriever**), **134/663 (20.2%)**
-of normalised reference spans have no exact match in the parser output, while at most **15/663 (2.3%)**
-are split across chunks.
-The exact-span absence rate is constant across all eight chunkers, so re-chunking cannot make those cases
-exact-span covered. This result points to parser-output inspection before chunker tuning; it does not, by
-itself, show that the answer semantics are entirely missing rather than rendered in a different surface form.
-
-We also test label robustness. GPT-5.4 reclassifies **56%** of Prod's exact-match-absent cases as
-recoverable surface artefacts, although this judge is not independent of the GPT-family Q–A generator.
-In a separate parser-masked, stratified sample of 100 absent cases, two authors independently agree on
-81/100 cases (**κ = 0.615**) before adjudication. After adjudication, retrieval-unusable rates are
-**42/50 (84.0%)** for MinerU-on, **12/30 (40.0%)** for Prod, and **19/20 (95.0%)** for PaddleOCR.
-Different sampling fractions and MinerU configurations prevent a population-level replication claim.
-The final per-case human labels are not yet packaged as a public artifact.
-
-### C3 — RCPS discriminates chunkers, and is not single-embedder MRR
+### C2 — RCPS discriminates chunkers, and is not single-embedder MRR
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|
@@ -255,6 +239,23 @@ In a separate three-parser end-to-end check, Prod also has the highest judged an
 (**72.5%**, versus **23.8%** for MinerU-on and **20.5%** for PaddleOCR). The lower pair reverses relative
 to RCPS, and the same GPT-5.4 checkpoint generates and judges answers. We therefore treat this only as a
 check of the top choice, not validation of the full ranking.
+
+### C3 — coverage diagnostic separates output absence from chunk boundaries
+
+On Prod's output (294 pages: **229 KoGov + 65 arXiv**; 663 Q–A, **no retriever**), **134/663 (20.2%)**
+of normalised reference spans have no exact match in the parser output, while at most **15/663 (2.3%)**
+are split across chunks.
+The exact-span absence rate is constant across all eight chunkers, so re-chunking cannot make those cases
+exact-span covered. This result points to parser-output inspection before chunker tuning; it does not, by
+itself, show that the answer semantics are entirely missing rather than rendered in a different surface form.
+
+We also test label robustness. GPT-5.4 reclassifies **56%** of Prod's exact-match-absent cases as
+recoverable surface artefacts, although this judge is not independent of the GPT-family Q–A generator.
+In a separate parser-masked, stratified sample of 100 absent cases, two authors independently agree on
+81/100 cases (**κ = 0.615**) before adjudication. After adjudication, retrieval-unusable rates are
+**42/50 (84.0%)** for MinerU-on, **12/30 (40.0%)** for Prod, and **19/20 (95.0%)** for PaddleOCR.
+Different sampling fractions and MinerU configurations prevent a population-level replication claim.
+The final per-case human labels are not yet packaged as a public artifact.
 
 ### C4 — parser-side training remains below the pilot target
 
@@ -336,9 +337,10 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 
 > **Figure source note:** the canonical camera-ready assets are
 > `paper/figures/fig_overview.pdf`, `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, and `fig_disconnect.pdf`;
-> the PNG files displayed in this README are their web previews. Figure 1's editable source is
-> `paper/figures/fig_overview_camera_ready.pptx`. Legacy overview generators and intermediate vector drafts
-> are not canonical and must not overwrite these files.
+> the PNG files displayed in this README are their web previews. Figure 1's canonical editable source is
+> `paper/figures/fig_overview_camera_ready.pptx`; its RCPS badge is C2 and its coverage badge is C3.
+> `scripts/figures/make_fig_overview.py` is a non-canonical alternative renderer and must not overwrite the
+> approved PPTX-derived PDF.
 
 ## Local code check (Linux/WSL CUDA environment)
 
@@ -397,8 +399,9 @@ corresponding-author marker is applied yet. Affiliations and emails will be adde
   camera-ready evidence.
 - **Aggregate human-check results** — the paper records the parser-masked 100-case absent-label study
   (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates).
-- **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews; Figure 1
-  also includes the final editable PPTX. The compiled paper was checked with embedded fonts and no Type 3 fonts.
+- **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews;
+  Figure 1 also includes its canonical editable PPTX. The compiled paper was checked with embedded fonts
+  and no Type 3 fonts.
 
 ### Camera-ready pending — not currently available
 
