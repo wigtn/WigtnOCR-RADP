@@ -5,6 +5,8 @@
 > PHASE_3_WEEK3.md §3.3 원안을 **RADP-B negative-result pivot**에 맞춰 갱신.
 > pivot 근거: `docs/WEEK2_FINDINGS.md`, proposal §9.
 
+> **역사적 outline 주의 (2026-08-24):** 이 문서는 acceptance 이전 구조와 MinerU-off 기반 수치를 보존한다. 현재 camera-ready 구조는 C1 disconnect → C2 RCPS selection → C3 coverage diagnosis → C4 optional training이며, C1의 MinerU-on 기준 상관은 `r=-0.74`(Marker 포함 보조 분석 `r=-0.83`)다.
+
 ## 0. pivot이 §3.3 원안에서 바꾼 것
 
 | 원안 항목 | pivot 후 | 이유 |

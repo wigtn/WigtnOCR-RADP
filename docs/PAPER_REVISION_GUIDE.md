@@ -1,6 +1,6 @@
 # PAPER REVISION GUIDE — EMNLP 2026 Industry Track (Direction A)
 
-> **상태 경고 (2026-08-22):** 이 문서는 acceptance 이전의 방향성 기록이며, 현재 무효화된 저자순서·OHR 수치·학습 비교·`retriever-agnostic` 주장 등이 남아 있다. 이 문서를 현재 실행 상태로 사용하지 않는다. 정본은 `CAMERA_READY_PLAN.md`, `PAPER_REVISION_WORKMAP.md`, `PAPER_READABILITY_REVIEW_AUDIT.md`, 그리고 `paper/latex/main_camera_ready.tex`이다.
+> **상태 경고 (2026-08-24):** 이 문서는 acceptance 이전의 방향성 기록이며, 현재 무효화된 저자순서·OHR 수치·학습 비교·`retriever-agnostic` 주장과 MinerU-off 기반 `r=-0.81`이 남아 있다. 이 문서를 현재 실행 상태로 사용하지 않는다. camera-ready의 MinerU-on 기준은 `r=-0.74`(Marker 포함 보조 분석 `r=-0.83`)이며, 정본은 `CAMERA_READY_PLAN.md`, `PAPER_REVISION_WORKMAP.md`, `PAPER_READABILITY_REVIEW_AUDIT.md`, 그리고 `paper/latex/main_camera_ready.tex`이다.
 
 > **이 문서의 목적.** `paper/draft/paper.md` (v0.6)를 **"방법·진단·교훈 중심(Direction A)"** 으로 다시 세워 EMNLP 2026 Industry Track에 제출 가능한 상태로 만드는 **실행 가이드**.
 > **소유권.** 연구 **설계**는 Harrison이 했고, **수행·완성·제출의 책임(실행 owner)은 손상우**가 온전히 진다. 이 문서는 *지시서가 아니라 지도*다 — 전략 프레임과 반드시 지켜야 할 것은 고정하되, 섹션별 판단·표현·취사선택은 **손상우가 결정**한다.

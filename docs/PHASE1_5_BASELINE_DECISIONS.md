@@ -4,6 +4,8 @@
 > Week 1 §1.5 "Additional Baselines"의 chunking / retriever baseline 결정과 그 근거.
 > 모든 결정은 사용자 승인하에 확정.
 
+> **역사적 baseline 기록 주의 (2026-08-24):** 아래 `r=-0.81`은 MinerU-off 기반 초기 grid다. 현재 camera-ready C1의 동일-구성 근거는 MinerU-on 포함 `r=-0.74`, Marker 포함 보조 분석은 `r=-0.83`이다.
+
 ## 요약
 
 | 항목 | 결정 | 핵심 사유 |

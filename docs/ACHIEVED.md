@@ -2,6 +2,8 @@
 
 > 최종 갱신: 2026-05-27. 각 항목은 근거(문서/Linear/코드)와 함께. 수치는 모두 frozen 73p eval 또는 663 Q-A 기준.
 
+> **역사적 기록 주의 (2026-08-24):** 아래 `r=-0.81`은 MinerU-off가 포함된 초기 grid 결과다. 현재 camera-ready의 동일-구성 C1 근거는 MinerU-on을 포함한 complete-output 4-parser `r=-0.74`이며, 38-page Marker를 더한 보조 분석은 `r=-0.83`이다. 현재 정본은 `paper/latex/main_camera_ready.tex`과 `docs/PAPER_READABILITY_REVIEW_AUDIT.md`다.
+
 ---
 
 ## C1 — Parsing↔Retrieval Disconnect 진단 ✅

@@ -4,6 +4,8 @@
 > H1 검증(PHASE_1 §1.6, BC/CS↔RCPS r≈0.18) 이후 한 모든 실험·검증의 종합.
 > 각 항목: **결과 / 왜 했나 / PRD와 차이 / 논문 활용**.
 
+> **역사적 실험 기록 주의 (2026-08-24):** 아래 KoGov `r=-0.81`은 MinerU-off 기반 초기 grid다. 현재 camera-ready의 MinerU-on 동일-구성 근거는 `r=-0.74`, Marker 포함 보조 분석은 `r=-0.83`이며 C2=RCPS, C3=coverage다.
+
 ## TL;DR
 
 EMNLP 2026 Industry Track 제출(6/16)에 필요한 **실험 증거 전부 확보 완료.** 다음 = PHASE_3 (writing).

@@ -4,6 +4,8 @@ EMNLP 2026 Industry Track 제출용 (마감 2026-06-16). 처음 구상부터 K=1
 
 각 항목 끝에 **Linear issue ID** + **git commit hash**를 달아 원본 추적 가능하게.
 
+> **역사적 로그 주의 (2026-08-24):** 아래 `r=-0.81`과 당시 C-label은 MinerU-off 기반 제출 전 의사결정 기록이다. 현재 camera-ready는 MinerU-on 포함 `r=-0.74`(Marker 포함 보조 분석 `r=-0.83`)와 C1 → C2 RCPS → C3 coverage → C4 순서를 사용한다.
+
 ---
 
 ## Phase 0 — Foundation (2026-05 초)
