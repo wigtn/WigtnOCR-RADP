@@ -2,16 +2,16 @@
 
 > 상태: EMNLP 2026 Industry Track Submission **#384 Accepted**. 현재 Poster로 기록되어 있으나 provisional이며 oral 변경 가능.
 > 대상·정본: `paper/latex/main_camera_ready.tex`. 심사 제출본 `paper/latex/main.tex`는 비교·감사용으로 동결하며 편집 금지.
-> Camera-ready form: **2026-08-23–2026-08-30**. 마감: **2026-08-30 AoE = 2026-08-31 20:59 KST**.
+> Camera-ready form: **2026-08-23–2026-08-30**. 마감: **2026-08-30 AoE = 2026-08-31 20:59 KST**. 내부 제출 목표는 마지막 시간대를 피한 **2026-08-30 KST 안**이다.
 > 재실행/외부 입력이 남아 있다. 특히 P7/P10/P12/P13/P15/P17과 P18 artifact 정리·병합을 완료로 간주하지 않는다. P14는 현재 공개 근거 범위의 재감사를 마쳤지만 외부 artifact 반영 후 다시 실행한다. P18/P19의 원고·README·활성 문서 반영과 PDF 정합 검수는 2026-08-24 완료했다.
 > 줄번호는 편집 전 기준(편집하면 밀림).
 
 ## 제출·메타데이터 게이트
 
-- 페이지: 본문 최대 **7쪽** + 필수 Limitations 최대 **1쪽** + 선택 Ethics 등 허용된 추가 페이지; References/Supplementary Material은 제한 없음.
+- 페이지: 본문 최대 **7쪽** + 필수 Limitations와 선택 Ethical Considerations를 합쳐 추가 최대 **1쪽**; References/Supplementary Material은 제한 없음.
 - 저자 순서 고정: `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`.
-- PDF·OpenReview·camera-ready form의 5인 이름/이메일을 같은 순서로 대조하고, **5인 모두 ORCID**를 입력한다.
-- presenter, registration, visa/travel, presentation preference를 Aug 23–30 form에 입력한다.
+- PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, **5인 모두 각자의 OpenReview 프로필에 ORCID를 등록**한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않는다.
+- 등록 담당자의 이름·이메일, 발표자의 이메일·거주 국가/지역·visa/초청장 여부, 대면/온라인 및 Oral/Poster 선호, 대면 발표자의 예상 여행일을 Aug 23–30 form에 입력한다.
 - Hyeong-seob Kim의 교신저자 주석은 Industry Track chairs 회신 대기. **서면 승인 전 별표·Correspondence 표기 금지**.
 - `refs.bib` 26개 키는 2026-08-21 1차 출처 기준으로 축약 저자를 전체 목록으로 확장했다. 최종 PDF의 저자·제목·venue·연도·ID/링크를 수동 검증한다.
 
@@ -54,6 +54,6 @@ A OHR alignment/noise(C1) / B E2E top-choice check(C2) / **C = 정의+worked-ex(
 ## 실행 순서
 1. **P18 MinerU-on BC artifact 정리·병합** → 2. **P17 full-v2/Distill 결정** → 3. **P7·P12 외부 artifact** → 4. **P10 exact commands** → 5. **P14·P15 최종 재감사**
 - WSL/외부 입력: P7 동일 294p full-grid, P12 tables-OFF·JSON·인간라벨, P17 full v2·Distill artifact/삭제 결정.
-- Aug 23–30 form: P13의 5인 이메일/ORCID와 presenter/registration/visa·travel/preference를 먼저 확정하고, chairs 답변에 따라 교신 표기 여부를 결정.
+- Aug 23–30 form: P13의 5인 이름·이메일 순서와 OpenReview ORCID, 등록 담당자, 발표자 visa·travel, 발표 방식·선호를 먼저 확정하고, chairs 답변에 따라 교신 표기 여부를 결정.
 - 외부 입력 수령 후: P10 exact-command clean-run → P17 full v2/Distill 결정 → P14 수치·lineage 감사 → P18/P19 반영 후 figure·번호 정합 재검증 → P15 약속-이행 최종 게이트.
-- 제출 직전: 본문 7p/Limitations 1p/추가 페이지 구획, 참고문헌 26건, 저자순서, 링크, 최종 렌더를 수동 확인.
+- 제출 직전: 본문 7p 이하/Limitations와 선택 Ethics를 합친 추가 1p 이하/References·Supplement 구획, 참고문헌 26건, 저자순서, 링크, 최종 렌더를 수동 확인하고 2026-08-30 KST 안에 제출.
