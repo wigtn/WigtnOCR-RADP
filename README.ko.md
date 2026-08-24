@@ -21,7 +21,7 @@
 
 문서 RAG에서 파서는 출력의 겉모양이 아니라 **실제 검색 결과**로 골라야 한다. RCPS는 같은 held-out Q–A를 각 파서–청커 조합에 적용하고, 세 retriever와 세 cutoff의 MRR을 평균해 후보를 비교하는 학습 없는 선택 프로토콜이다. KoGovDoc-RAG의 완전한 294페이지 출력 5종에서 RCPS는 **0.137–0.584**로 벌어진다. 별도로 감사한 MinerU-on–Prod 비교의 Hit@1 차이는 **+42.6 pp (0.123 → 0.549; 4.47×)** 다.
 
-Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종에서 **r = −0.74**이고, 38페이지짜리 Marker 결과를 더하면 **r = −0.81 (n = 5)** 다. 둘 다 일반 법칙이 아니라 이 작은 후보군에서 얻은 기술통계다.
+Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종에서 **r = −0.74**이고, 38페이지짜리 Marker 결과를 더하면 **r = −0.83 (n = 5)** 다. 둘 다 일반 법칙이 아니라 이 작은 후보군에서 얻은 기술통계다.
 
 핵심 흐름은 **RCPS로 선택 → coverage로 진단 → 필요할 때만 P/C 변경 또는 학습 → 변경된 조합 재평가**다. `covered`이면 기존 조합을 그대로 배포하고, `absent`나 `split` 때문에 parser 또는 chunker를 바꾼 경우에만 같은 RCPS 기준으로 다시 평가한다. 기여는 네 가지다.
 
@@ -47,7 +47,7 @@ chunker를 변경했다면 최종 배포 전에 같은 RCPS 프로토콜로 다�
 
 ## 💡 동기 — 파싱 품질과 검색 성능은 같지 않다
 
-> **제출 당시 MinerU-off 출력은 BC 0.716이지만 Hit@1은 0.197이다.** 별도의 MinerU-on 감사에서는 Hit@1이 0.123이고, Prod는 0.549다. MinerU-on에는 재현된 BC가 없으며 두 MinerU 실행은 software·retrieval 환경도 다르므로, off→on 차이를 table recognition의 인과 효과로 해석하지 않는다.
+> **감사된 deployment 비교에서 MinerU-on은 BC 0.713이지만 Hit@1은 0.123이다.** Prod는 BC 0.610, Hit@1 0.549다. 제출 당시 MinerU-off 출력은 별도 진단으로만 남기며, 두 MinerU 실행은 software·retrieval 환경도 다르므로 off→on 차이를 table recognition의 인과 효과로 해석하지 않는다.
 
 OHR-Bench, EnterpriseDocBench와 동시기 연구도 parsing 품질과 retrieval이 어긋날 수 있음을 보고한다. 이 논문의 좁은 차별점은 그 관찰을 **재사용 가능한 parser–chunker 선택 프로토콜**과 **absence/split 진단**, 그리고 **변경된 configuration의 재평가**로 연결한 데 있다. 파서 학습은 보조 연구이며 C1–C3에는 학습이 필요 없다.
 
@@ -139,9 +139,9 @@ KoGovDoc-RAG의 pseudo-reference는 수동 de-noise한 Qwen3-VL-30B 출력이고
 | **Prod (ours, 2B)** | 0.610 | 3.07 | 0.583 | **0.549** |
 | Qwen3-VL-2B (base) | 0.520 | 3.74 | 0.532 | 0.500 |
 | PaddleOCR | — | 3.46 | 0.140 | 0.125 |
-| MinerU-on | — | — | 0.137 | 0.123 |
+| MinerU-on | **0.713** | — | 0.137 | 0.123 |
 
-deployment 표에서 BC가 있는 행은 3개뿐이므로 상관 분석은 MinerU-on 대신 제출 당시 MinerU-off를 사용한다. Qwen3-VL-30B, Prod, Qwen3-VL-2B, MinerU-off의 BC와 RCPS 상관은 **r = −0.74**다. 38페이지 Marker를 추가하면 **r = −0.81 (n = 5)**다. 둘 다 작은 후보군의 기술통계이며 Marker는 complete-output 결과로 취급하지 않는다.
+BC가 정의된 완전한 294페이지 deployment configuration 4종(Qwen3-VL-30B, Prod, Qwen3-VL-2B, MinerU-on)의 BC와 RCPS 상관은 **r = −0.74**다. 38페이지 Marker를 추가하면 **r = −0.83 (n = 5)**다. 둘 다 작은 후보군의 기술통계다. PaddleOCR에는 측정된 BC가 없으며 Marker는 complete-output 결과로 취급하지 않는다.
 
 | 제출본/부분 출력 진단 | 범위 | BC | CS | RCPS | Hit@1 |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -151,12 +151,12 @@ deployment 표에서 BC가 있는 행은 3개뿐이므로 상관 분석은 Miner
 MinerU-on과 MinerU-off는 table handling 외에도 software·retrieval 환경이 다르므로 두 점수의 차이를 table recognition의 인과 효과로 해석하지 않는다. BC는 Boundary Clarity(높을수록 좋음), CS는 Chunk Stickiness(낮을수록 좋음)다.
 
 <p align="center">
-  <img src="paper/figures/fig_disconnect.png" width="100%" alt="MinerU-off를 사용한 Boundary Clarity와 RCPS 진단 및 별도의 MinerU-on 대 Prod Hit at 1 배포 감사를 보여주는 그림">
+  <img src="paper/figures/fig_disconnect.png" width="100%" alt="MinerU-on을 사용한 Boundary Clarity와 RCPS 배포 비교 및 MinerU-on 대 Prod Hit at 1 차이를 보여주는 그림">
 </p>
 
-*Figure 4 — intrinsic parsing 품질은 retrieval 후보를 잘못 순위화할 수 있다.* (a)는 MinerU-off를
-사용한 기술적 BC–RCPS 진단이고, (b)는 MinerU-on과 Prod를 별도로 비교한 deployment audit이다.
-두 MinerU 실행은 table recognition의 인과 ablation이 아니다.
+*Figure 4 — intrinsic parsing 품질은 retrieval 후보를 잘못 순위화할 수 있다.* (a)는 MinerU-on을
+포함한 294페이지 deployment configuration의 기술적 BC–RCPS 진단이고, (b)는 MinerU-on과 Prod의
+Hit@1을 비교한다. MinerU-off는 별도 제출본 진단이며 table recognition의 인과 ablation이 아니다.
 ([벡터 PDF](paper/figures/fig_disconnect.pdf))
 
 ### C1 — 정렬된 OHR Law–Manual 노이즈 실험

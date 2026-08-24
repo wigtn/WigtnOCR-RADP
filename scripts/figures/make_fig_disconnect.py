@@ -1,14 +1,16 @@
 """Generate the camera-ready parsing-retrieval disconnect figure.
 
-Panel (a) uses the submitted MinerU-off output for the Boundary Clarity (BC)
+Panel (a) uses the table-enabled MinerU-on output for the Boundary Clarity (BC)
 diagnostic.  The complete 294-page parsers are the primary correlation; Marker
-is shown separately because it covers only 38 pages.  Panel (b) is a distinct
-deployment audit using the table-enabled MinerU-on output.
+is shown separately because it covers only 38 pages.  Panel (b) compares the
+same MinerU-on configuration with Prod on deployment Hit@1.
 
 Sources:
   - output/baselines/moc_bc_correlation.json
   - output/baselines/grid_v1_parser_native.json
   - output/results/grid_MinerU-tableON_parser_native.json
+  - output/baselines/moc_bc_mineru_tableon.json (pending P18 branch merge;
+    the verified mean is pinned below until that artifact lands)
 Output: paper/figures/fig_disconnect.{pdf,png}
 """
 
@@ -20,11 +22,14 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.transforms import ScaledTranslation
 
 OUT_DIR = Path("paper/figures")
 BC_SRC = Path("output/baselines/moc_bc_correlation.json")
 GRID_SRC = Path("output/baselines/grid_v1_parser_native.json")
 MINERU_ON_SRC = Path("output/results/grid_MinerU-tableON_parser_native.json")
+MINERU_ON_BC_SRC = Path("output/baselines/moc_bc_mineru_tableon.json")
+VERIFIED_MINERU_ON_BC = 0.7132110997071613
 
 INK = "#263238"
 BLUE = "#245a7a"
@@ -39,12 +44,16 @@ _GRID = {
     for parser in json.loads(GRID_SRC.read_text())["parsers"]
 }
 _MINERU_ON = json.loads(MINERU_ON_SRC.read_text())
+_MINERU_ON_BC = (
+    json.loads(MINERU_ON_BC_SRC.read_text())["summary"]["mean_bc"]
+    if MINERU_ON_BC_SRC.exists()
+    else VERIFIED_MINERU_ON_BC
+)
 
 _SHORT = {
     "Qwen3-VL-30B (teacher)": "Qwen3-VL-30B\n(teacher)",
     "WigtnOCR-2B (ours, v1)": "Prod",
     "Qwen3-VL-2B (base)": "Qwen3-VL-2B\n(base)",
-    "MinerU": "MinerU-off",
     "PaddleOCR": "PaddleOCR",
     "Marker": "Marker (38p)",
 }
@@ -52,6 +61,8 @@ _SHORT = {
 # (display name, BC, RCPS).  PaddleOCR has undefined BC and is omitted below.
 PARSERS = []
 for parser in _BC:
+    if parser["parser"] == "MinerU":
+        continue
     grid_row = _GRID.get(parser["parser"], {})
     PARSERS.append(
         (
@@ -60,6 +71,7 @@ for parser in _BC:
             grid_row.get("rcps"),
         )
     )
+PARSERS.append(("MinerU-on", _MINERU_ON_BC, float(_MINERU_ON["rcps"])))
 
 plt.rcParams.update(
     {
@@ -81,7 +93,7 @@ def main() -> None:
         gridspec_kw={"width_ratios": [1.55, 1.0], "wspace": 0.33},
     )
 
-    # ---- (a) MinerU-off diagnostic: complete outputs first, Marker as sensitivity ----
+    # ---- (a) MinerU-on diagnostic: complete outputs first, Marker as sensitivity ----
     valid = [
         (bc, rcps, name)
         for name, bc, rcps in PARSERS
@@ -109,20 +121,31 @@ def main() -> None:
         linewidth=0.7,
         zorder=3,
     )
+    # Nudge the rendered Marker diamond and its label left as one visual group;
+    # the underlying data coordinate stays unchanged for the diagnostic.
+    marker_group_dx = -2.05
+    marker_label_dx = -3.0
+    marker_transform = ax_s.transData + ScaledTranslation(
+        marker_group_dx / 72.0, 0, fig.dpi_scale_trans
+    )
     ax_s.scatter(
         [marker[0]],
         [marker[1]],
-        s=60,
+        # A diamond has wider path bounds than a circle at the same scatter
+        # area.  Starting from the width-matched s=24, multiplying the area by
+        # 0.9^2 makes the diamond's visible width and height 10% smaller.
+        s=24 * 0.9**2,
         marker="D",
         facecolor="white",
         edgecolor=INK,
-        linewidth=1.1,
+        linewidth=0.7,
+        transform=marker_transform,
         zorder=3,
     )
 
     label_offsets = {
-        "MinerU-off": (8, 0),
-        "Marker (38p)": (8, -1),
+        "MinerU-on": (8, 0),
+        "Marker (38p)": (8 + marker_label_dx, 0),
         "Prod": (0, 10),
         "Qwen3-VL-30B\n(teacher)": (9, 4),
         "Qwen3-VL-2B\n(base)": (0, 12),
@@ -145,8 +168,8 @@ def main() -> None:
     ax_s.text(
         0.03,
         0.05,
-        f"294-page parsers: r = {r_complete:.2f} (n = 4)\n"
-        f"+ Marker (38p): r = {r_with_marker:.2f} (n = 5)",
+        rf"294-page parsers: $r={r_complete:.2f}$ ($n=4$)" "\n"
+        rf"+ Marker (38p): $r={r_with_marker:.2f}$ ($n=5$)",
         transform=ax_s.transAxes,
         fontsize=7.2,
         ha="left",
@@ -157,12 +180,12 @@ def main() -> None:
     )
     ax_s.set_xlabel("Boundary Clarity (intrinsic)", fontsize=8.0)
     ax_s.set_ylabel("RCPS (retrieval)", fontsize=8.0)
-    ax_s.set_title("(a) MinerU-off diagnostic: BC can misrank", fontsize=8.6, pad=6)
+    ax_s.set_title("(a) MinerU-on diagnostic: BC can misrank", fontsize=8.6, pad=6)
     ax_s.set_ylim(0, 0.68)
     ax_s.set_xlim(0.48, 0.76)
     ax_s.grid(color="#dddddd", linewidth=0.55, zorder=0)
     ax_s.tick_params(labelsize=7.4)
-    # ---- (b) Separate deployment audit: MinerU-on versus Prod ----
+    # ---- (b) Deployment audit: MinerU-on versus Prod ----
     mineru_on_hit1 = float(_MINERU_ON["hit@1"])
     prod_hit1 = float(_GRID["WigtnOCR-2B (ours, v1)"]["hit@1"])
     values = [mineru_on_hit1, prod_hit1]

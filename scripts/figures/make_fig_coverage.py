@@ -15,7 +15,6 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import FancyBboxPatch
 
 SRC = Path("output/diagnostics/coverage_diagnostic_v1.json")
 OUT_DIR = Path("paper/figures")
@@ -23,8 +22,6 @@ OUT_DIR = Path("paper/figures")
 INK = "#263238"
 BLUE = "#245a7a"
 PALE_BLUE = "#e3edf3"
-AMBER = "#a55400"
-PALE_AMBER = "#faead2"
 
 plt.rcParams.update(
     {
@@ -60,36 +57,21 @@ def main() -> None:
     absent_count = round(absent_rate / 100 * 663)
 
     # Sized close to one ACL/EMNLP column to preserve 8 pt labels after inclusion.
-    fig = plt.figure(figsize=(3.35, 2.58))
-    # Match the header's centre (0.635) to the plot-title centre below it.
-    ax_head = fig.add_axes([0.27, 0.825, 0.73, 0.11])
-    ax_head.set_xlim(0, 1)
-    ax_head.set_ylim(0, 1)
-    ax_head.axis("off")
-    ax_head.add_patch(
-        FancyBboxPatch(
-            (0.01, 0.06),
-            0.98,
-            0.88,
-            boxstyle="round,pad=0.008,rounding_size=0.06",
-            linewidth=0.9,
-            edgecolor=AMBER,
-            facecolor=PALE_AMBER,
-        )
-    )
-    ax_head.text(
-        0.5,
-        0.50,
-        f"Pre-chunking no-match: {absent_count}/663 ({absent_rate:.1f}%)",
-        ha="center",
-        va="center",
-        fontsize=7.25,
-        fontweight="bold",
-        color=INK,
-    )
-    ax = fig.add_axes([0.31, 0.14, 0.65, 0.59])
+    # Keep the plot's physical size while removing the former top callout.
+    fig = plt.figure(figsize=(3.35, 2.15))
+    ax = fig.add_axes([0.31, 0.17, 0.65, 0.70])
     y = np.arange(len(names))
-    ax.hlines(y, 0, split, color=PALE_BLUE, linewidth=3.0, zorder=1)
+    # Extend each guide a little behind its marker so the visual direction
+    # reaches the endpoint instead of appearing detached by the white outline.
+    guide_end = np.where(split > 0, split + 0.035, 0.045)
+    ax.hlines(
+        y,
+        0,
+        guide_end,
+        color=PALE_BLUE,
+        linewidth=3.2,
+        zorder=1,
+    )
     ax.scatter(
         split,
         y,
@@ -97,7 +79,7 @@ def main() -> None:
         marker="o",
         color=BLUE,
         edgecolor="white",
-        linewidth=0.6,
+        linewidth=0.35,
         zorder=3,
     )
 
@@ -120,7 +102,7 @@ def main() -> None:
     ax.set_xticks(np.arange(0, 2.6, 0.5))
     ax.set_xlabel("Reference spans split across chunks (%)", fontsize=7.7)
     ax.set_title(
-        f"Chunk-boundary split: 0.0-{split.max():.1f}% across eight chunkers",
+        rf"Chunk-boundary split: $0.0$-${split.max():.1f}\%$ across eight chunkers",
         fontsize=8.0,
         fontweight="bold",
         pad=4,
