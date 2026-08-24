@@ -3,6 +3,9 @@
 > 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-24
 > 원고 정본: `paper/latex/main_camera_ready.tex`
 > 동결본: `paper/latex/main.tex`는 편집하지 않음
+> 정합성 기준 커밋: PR #12 merge `a981bca`. 이 기준에서 C2=RCPS, C3=coverage,
+> Marker 포함 보조 상관은 `r=-0.83`, E2E는 Appendix B, C4 상세는 Appendices E--G다.
+> PR diff의 삭제 행과 동결본 `main.tex`는 현재 camera-ready 상태 판정에 사용하지 않는다.
 > 판정 원칙: 근거가 현재 원고 또는 추적 가능한 산출물에 없으면 완료로 표시하지 않음
 > rebuttal 정본: 2026-08-22 사용자 제공 OpenReview 최종 게시본(SHA-256 `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`). 로컬 reviewer별 초안과 충돌하면 최종 게시본을 우선함.
 

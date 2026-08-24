@@ -3,6 +3,10 @@
 > Audited: 2026-08-22 · Rechecked: 2026-08-24
 > Source: user-provided copy of the final OpenReview rebuttal
 > SHA-256: `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`
+> Canonical paper baseline: PR #12 merge `a981bca`. At that baseline,
+> `paper/latex/main_camera_ready.tex` uses C2=RCPS, C3=coverage, Marker sensitivity
+> `r=-0.83`, E2E in Appendix B, and C4 details in Appendices E--G.
+> `paper/latex/main.tex` is the frozen submission and is excluded from current-number checks.
 
 This digest exists to prevent pre-posting reviewer drafts from being mistaken for
 the final author response. If a local reviewer-specific rebuttal file conflicts
