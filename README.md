@@ -23,9 +23,9 @@ Document RAG ultimately depends on retrieval, yet parsers are often selected by 
 as edit distance or Boundary Clarity (BC). **RCPS instead ranks parser–chunker combinations on a fixed,
 held-out retrieval probe, without training.** The resulting workflow is:
 
-1. **Select with RCPS.** Five complete parser configurations span **0.137–0.584 RCPS**. The submitted
-   MinerU-off output has higher BC than Prod (**0.716 vs 0.610**) but lower Hit@1 (**0.197 vs 0.549**).
-   In a separate MinerU-on audit, the Hit@1 gap to Prod is **42.6 points** (**0.123 vs 0.549; 4.47×**).
+1. **Select with RCPS.** Five complete parser configurations span **0.137–0.584 RCPS**. Audited
+   MinerU-on has higher BC than Prod (**0.713 vs 0.610**) but a **42.6-point** lower Hit@1
+   (**0.123 vs 0.549; Prod is 4.47× as high**). MinerU-off is retained only as a submitted-output diagnostic.
 2. **Diagnose with coverage.** In Prod output, **20.2%** of reference spans have no normalised exact match
    before chunking, while no tested chunker splits more than **2.3%**.
 3. **Act or train only if needed.** For *absent* spans, inspect or switch the parser; for *split* spans,
@@ -63,10 +63,10 @@ changed parser or chunker is evaluated again before final deployment. ([vector P
 
 ## Motivation — parsing quality ≠ retrieval performance
 
-In the submitted-output diagnostic, MinerU-off has the highest full-set BC (**0.716**) but Hit@1
-**0.197**, compared with Prod's BC **0.610** and Hit@1 **0.549**. The separate MinerU-on deployment
-audit reaches Hit@1 **0.123**. Both comparisons show the operational risk: clean-looking boundaries do
-not guarantee that answer spans remain retrievable.
+In the audited deployment comparison, MinerU-on has higher BC than Prod (**0.713 vs 0.610**) but much
+lower Hit@1 (**0.123 vs 0.549**). The separately retained submitted-output MinerU-off diagnostic has BC
+**0.716** and Hit@1 **0.197**. These configurations are not a causal table-recognition ablation; together,
+they show the operational risk of choosing a parser by boundary appearance alone.
 
 OHR-Bench, EnterpriseDocBench, and concurrent OCR-for-RAG studies report related mismatches in English
 and enterprise settings. Our contribution is to turn that observation into a deployment workflow:
@@ -80,7 +80,7 @@ diagnostic that separates exact-span absence from chunk-boundary splitting.
 
 | | Contribution | Headline result |
 |---|---|---|
-| **C1** | The parsing↔retrieval **disconnect**. On an aligned English OHR-Bench subset, semantic-noise perturbations lower retrieval while BC is stable or changes non-monotonically. | Submitted-output BC↔RCPS **r = −0.74** (descriptive); separate MinerU-on comparison differs by **42.6 Hit@1 points** (0.123→0.549; 4.47×) |
+| **C1** | The parsing↔retrieval **disconnect**. On an aligned English OHR-Bench subset, semantic-noise perturbations lower retrieval while BC is stable or changes non-monotonically. | Audited 294-page BC↔RCPS **r = −0.74** (descriptive); MinerU-on and Prod differ by **42.6 Hit@1 points** (0.123→0.549; 4.47×) |
 | **C2** | A **retriever-free coverage diagnostic** — classify each reference span as *covered / split across chunks / absent from the normalized parser output*; a rule computable *before* any retriever runs. | **20.2% exact-span absent**, constant across 8 chunkers; split varies up to 2.3% ⇒ inspect parser output first |
 | **C3** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | On the submitted grid containing MinerU-off, BGE-M3 alone flips the near-tied top parser; **Kendall τ = 0.80** against full RCPS |
 | **C4** | A **bounded** map of parser-side training; the pilot misses its target, and the matched Distill comparison remains unavailable. | Post-audit six-domain OHR compatibility subset: **R2 +0.95 pp**, **R3 +1.15 pp** Hit@5 vs Prod (n=2,036) |
@@ -183,12 +183,12 @@ table-enabled configuration used in that comparison.
 | **Prod (ours, 2B)** | 0.610 | 3.07 | 0.583 | **0.549** |
 | Qwen3-VL-2B (base) | 0.520 | 3.74 | 0.532 | 0.500 |
 | PaddleOCR | — | 3.46 | 0.140 | 0.125 |
-| MinerU-on | — | — | 0.137 | 0.123 |
+| MinerU-on | **0.713** | — | 0.137 | 0.123 |
 
-Boundary Clarity is available for only three of those deployment rows, so the BC correlation uses the
-submitted MinerU-off output as a separate diagnostic. Across Qwen3-VL-30B, Prod, Qwen3-VL-2B, and
-MinerU-off, **Pearson r = −0.74**. Adding Marker's 38-page result gives **r = −0.81 (n = 5)**.
-Both estimates are descriptive; Marker is never treated as a complete-output result.
+Boundary Clarity is defined for four complete 294-page deployment configurations
+(Qwen3-VL-30B, Prod, Qwen3-VL-2B, and MinerU-on). Their BC–RCPS correlation is
+**Pearson r = −0.74**. Adding Marker's 38-page result gives **r = −0.83 (n = 5)**.
+Both estimates are descriptive; PaddleOCR has no measured BC and Marker is not a complete-output result.
 
 | Submitted/subset diagnostic | Scope | BC | CS | RCPS | Hit@1 |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -199,12 +199,12 @@ MinerU-on and MinerU-off differ in more than table handling, so their scores do 
 effect of table recognition. BC is Boundary Clarity (higher is better); CS is Chunk Stickiness (lower is better).
 
 <p align="center">
-  <img src="paper/figures/fig_disconnect.png" width="100%" alt="Boundary Clarity versus RCPS for the MinerU-off diagnostic and the separate MinerU-on versus Prod deployment Hit at 1 audit">
+  <img src="paper/figures/fig_disconnect.png" width="100%" alt="Boundary Clarity versus RCPS using MinerU-on in the audited deployment comparison, plus the MinerU-on versus Prod Hit at 1 gap">
 </p>
 
-*Figure 4 — Parsing quality can misrank retrieval candidates.* Panel (a) uses MinerU-off for the descriptive
-BC–RCPS diagnostic; panel (b) separately compares MinerU-on and Prod in the deployment audit. The two
-MinerU runs are not a causal table-recognition ablation. ([vector PDF](paper/figures/fig_disconnect.pdf))
+*Figure 4 — Parsing quality can misrank retrieval candidates.* Panel (a) uses MinerU-on in the audited
+294-page deployment comparison; panel (b) compares MinerU-on and Prod on Hit@1. MinerU-off remains a
+separately labelled submitted-output diagnostic, not a causal table-recognition ablation. ([vector PDF](paper/figures/fig_disconnect.pdf))
 
 ### C1 — aligned perturbation diagnostic (cross-domain, OHR-Bench)
 
