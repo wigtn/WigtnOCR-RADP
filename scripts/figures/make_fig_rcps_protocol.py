@@ -26,7 +26,7 @@ GRAY = "#eeeeee"
 plt.rcParams.update(
     {
         "font.family": "DejaVu Sans",
-        "font.size": 8.2,
+        "font.size": 7.2,
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
     }
@@ -42,7 +42,7 @@ def rounded_box(
     text: str,
     facecolor: str,
     *,
-    fontsize: float = 8.0,
+    fontsize: float = 7.0,
     bold: bool = False,
 ) -> None:
     ax.add_patch(
@@ -80,6 +80,8 @@ def arrow(ax, start: tuple[float, float], end: tuple[float, float]) -> None:
             mutation_scale=10,
             linewidth=1.0,
             color=INK,
+            shrinkA=0.0,
+            shrinkB=0.0,
             zorder=1,
         )
     )
@@ -94,74 +96,76 @@ def main() -> None:
 
     rounded_box(
         ax,
-        0.04,
-        0.885,
-        0.92,
-        0.085,
-        "Evaluation pages + candidate (P,C)",
+        0.06,
+        0.875,
+        0.88,
+        0.095,
+        r"Evaluation pages + candidate $(P,C)$",
         GRAY,
-        fontsize=7.8,
+        fontsize=6.6,
         bold=True,
     )
-    arrow(ax, (0.5, 0.885), (0.5, 0.825))
+    arrow(ax, (0.5, 0.875), (0.5, 0.815))
 
     rounded_box(
         ax,
-        0.08,
+        0.06,
         0.715,
-        0.84,
+        0.88,
         0.10,
-        "Parse with P, chunk with C,\nand index",
+        r"Parse with $P$, chunk with $C$," "\n" r"and index $C(P)$",
         BLUE,
-        fontsize=7.7,
+        fontsize=6.7,
     )
-    arrow(ax, (0.5, 0.715), (0.5, 0.655))
+    arrow(ax, (0.5, 0.715), (0.5, 0.645))
 
     rounded_box(
         ax,
-        0.08,
+        0.06,
         0.545,
-        0.84,
+        0.88,
         0.10,
-        "Retrieve fixed probe D\nwith declared R and K",
+        r"Retrieve fixed probe $D$" "\n" r"with declared $R$ and $K$",
         BLUE,
-        fontsize=7.7,
+        fontsize=6.7,
     )
-    arrow(ax, (0.5, 0.545), (0.5, 0.485))
+    arrow(ax, (0.5, 0.545), (0.5, 0.475))
 
     rounded_box(
         ax,
-        0.08,
+        0.06,
         0.375,
-        0.84,
+        0.88,
         0.10,
         "Relevant = reference page\n+ normalised answer span",
         AMBER,
-        fontsize=7.8,
+        fontsize=6.8,
     )
-    arrow(ax, (0.5, 0.375), (0.5, 0.315))
+    arrow(ax, (0.5, 0.375), (0.5, 0.305))
 
     rounded_box(
         ax,
-        0.08,
+        0.06,
         0.205,
-        0.84,
+        0.88,
         0.10,
-        "RCPS(P,C) = mean MRR@k\nover r in R and k in K = {1, 5, 10}",
+        r"$\mathrm{RCPS}(P,C)=\mathrm{mean}_{r\in R,\,k\in K}\,\mathrm{MRR}@k$"
+        "\n"
+        r"$\left(r,C(P),D\right),\quad K=\{1,5,10\}$",
         BLUE,
-        fontsize=7.35,
+        fontsize=5.65,
     )
-    arrow(ax, (0.5, 0.205), (0.5, 0.145))
+    arrow(ax, (0.5, 0.205), (0.5, 0.135))
 
     rounded_box(
         ax,
-        0.05,
-        0.045,
-        0.90,
+        0.06,
+        0.035,
+        0.88,
         0.09,
         "Rank candidates - no training",
         GREEN,
-        fontsize=8.0,
+        fontsize=7.0,
         bold=True,
     )
 
