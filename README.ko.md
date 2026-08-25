@@ -9,7 +9,7 @@
 >
 > ⏳ **Camera-ready 마감: 2026년 8월 30일 (AoE)**
 >
-> 📄 제목: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance*
+> 📄 제목: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [camera-ready 작업 PDF](paper/latex/main_camera_ready.pdf)
 >
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
 >
@@ -19,7 +19,9 @@
 
 ## 📌 핵심 요약
 
-문서 RAG에서 파서는 출력의 겉모양이 아니라 **실제 검색 결과**로 골라야 한다. RCPS는 같은 held-out Q–A를 각 파서–청커 조합에 적용하고, 세 retriever와 세 cutoff의 MRR을 평균해 후보를 비교하는 학습 없는 선택 프로토콜이다. KoGovDoc-RAG의 완전한 294페이지 출력 5종에서 RCPS는 **0.137–0.584**로 벌어진다. 별도로 감사한 MinerU-on–Prod 비교의 Hit@1 차이는 **+42.6 pp (0.123 → 0.549; 4.47×)** 다.
+문서 RAG에서 파서는 출력의 겉모양이 아니라 **실제 검색 결과**로 골라야 한다. RCPS는 같은 held-out Q–A를 각 파서–청커 조합에 적용하고, 세 retriever와 세 검색 깊이의 MRR을 평균해 후보를 비교하는 학습 없는 선택 프로토콜이다.
+
+KoGovDoc-RAG의 완전한 294페이지 출력 5종에서 RCPS는 **0.137–0.584**로 벌어진다. 별도로 감사한 MinerU-on–Prod 비교의 Hit@1 차이는 **+42.6 pp (0.123 → 0.549; 4.47×)**다.
 
 Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종에서 **r = −0.74**이고, 38페이지짜리 Marker 결과를 더하면 **r = −0.83 (n = 5)** 다. 둘 다 일반 법칙이 아니라 이 작은 후보군에서 얻은 기술통계다.
 
@@ -80,11 +82,13 @@ RCPS(P, C; D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K} MRR@k(r, C(P), D)
 
 여기서 `P`는 parser, `C`는 chunker, `D`는 고정 Q–A probe다. `R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}`, `K = {1, 5, 10}`을 사용한다. chunk는 출처 페이지가 reference page와 같고, 공백·Markdown을 정규화한 뒤 reference answer span을 포함할 때만 relevant다. 평가는 학습 없이 실행한다. 구현: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
+각 질의에서 MRR@`k`는 첫 relevant chunk가 `j ≤ k`위에 나오면 `1/j`, 상위 `k`개 안에 없으면 0을 부여한 뒤 질의 전체에서 평균한 값이다.
+
 <p align="center">
   <img src="paper/figures/fig_rcps_protocol.png" width="62%" alt="각 parser-chunker index에서 고정 probe를 검색하고 reference page와 normalised span으로 relevance를 판정한 뒤 MRR을 평균해 후보를 순위화하는 RCPS 프로토콜">
 </p>
 
-*Figure 2 — RCPS 평가 프로토콜.* 모든 후보는 같은 probe, retriever/cutoff 명세, reference-page +
+*Figure 2 — RCPS 평가 프로토콜.* 모든 후보는 같은 probe, retriever·검색 깊이 명세, reference-page +
 normalised-span relevance rule을 사용한다. 표준 MRR을 평균하며 평가 자체에는 학습이 필요 없다.
 ([벡터 PDF](paper/figures/fig_rcps_protocol.pdf))
 
@@ -127,7 +131,7 @@ coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 con
 
 KoGovDoc-RAG의 pseudo-reference는 수동 de-noise한 Qwen3-VL-30B 출력이고 Q–A는 `gpt-5.4-2026-03-05`로 생성했다. 별도의 LLM 기반 점검은 층화 표본 100개 중 94개를 accept했지만, 전체 reference나 Q–A가 인간 검증된 것은 아니다. 학습 preference는 평가셋과 page-disjoint인 **2,667페이지 / 6,164 Q–A** corpus에서만 만든다.
 
-**Prod**는 한국 문서 파싱용으로 fine-tune한 Qwen3-VL-2B다. 학습은 LoRA(`r=8`, `α=32`)를 사용한다. RCPS는 세 retriever × 세 cutoff를 평균하고, delta의 신뢰구간은 별도 표기가 없으면 Q–A-level paired percentile bootstrap으로 계산한다.
+**Prod**는 한국 문서 파싱용으로 fine-tune한 Qwen3-VL-2B다. 학습은 LoRA(`r=8`, `α=32`)를 사용한다. RCPS는 세 retriever × 세 검색 깊이를 평균하고, delta의 신뢰구간은 별도 표기가 없으면 Q–A-level paired percentile bootstrap으로 계산한다.
 
 ### C1 — 경계가 선명해도 검색 순위는 낮을 수 있다
 
