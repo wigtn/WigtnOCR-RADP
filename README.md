@@ -9,7 +9,7 @@
 >
 > ⏳ **Camera-ready deadline: August 30, 2026 (AoE)**
 >
-> 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance*
+> 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [camera-ready working PDF](paper/latex/main_camera_ready.pdf)
 >
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
 >
@@ -19,9 +19,9 @@
 
 ## TL;DR
 
-Document RAG ultimately depends on retrieval, yet parsers are often selected by intrinsic measures such
-as edit distance or Boundary Clarity (BC). **RCPS instead ranks parser–chunker combinations on a fixed,
-held-out retrieval probe, without training.** The resulting workflow is:
+Document RAG retrieves from parser outputs, yet parsers are often selected by intrinsic measures such as
+edit distance or Boundary Clarity (BC), rather than by retrieval performance. **RCPS instead ranks
+parser–chunker combinations on a fixed held-out retrieval probe, without training.** The resulting workflow is:
 
 1. **Select with RCPS.** Five complete parser configurations span **0.137–0.584 RCPS**. Audited
    MinerU-on has higher BC than Prod (**0.713 vs 0.610**) but a **42.6-point** lower Hit@1
@@ -81,7 +81,7 @@ diagnostic that separates exact-span absence from chunk-boundary splitting.
 | | Contribution | Headline result |
 |---|---|---|
 | **C1** | The parsing↔retrieval **disconnect**. On an aligned English OHR-Bench subset, semantic-noise perturbations lower retrieval while BC is stable or changes non-monotonically. | Audited 294-page BC↔RCPS **r = −0.74** (descriptive); MinerU-on and Prod differ by **42.6 Hit@1 points** (0.123→0.549; 4.47×) |
-| **C2** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | On the submitted grid containing MinerU-off, BGE-M3 alone flips the near-tied top parser; **Kendall τ = 0.80** against full RCPS |
+| **C2** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | Complete 294-page parsers span **0.137–0.584**; with Prod fixed, four chunkers span **0.535–0.593** |
 | **C3** | A **retriever-free coverage diagnostic** — classify each reference span as *covered / split across chunks / absent from the normalised parser output*; a rule computable *before* any retriever runs. | **20.2% exact-span absent**, constant across 8 chunkers; split varies up to 2.3% ⇒ inspect parser output first |
 | **C4** | A **bounded** map of parser-side training; the pilot misses its target, and the matched Distill comparison remains unavailable. | Post-audit six-domain OHR compatibility subset: **R2 +0.95 pp**, **R3 +1.15 pp** Hit@5 vs Prod (n=2,036) |
 
@@ -104,14 +104,16 @@ RCPS(P, C; D, R, K) = (1 / |R||K|) · Σ_{r∈R} Σ_{k∈K} MRR@k(r, C(P), D)
 Here, `P` is a parser, `C` is a chunker, and `D` is the fixed held-out Q–A probe.
 `R = {BGE-M3, multilingual-e5-large, Qwen3-Embedding-8B}` and `K = {1, 5, 10}`. A chunk is **relevant**
 iff its source page matches the answer's page and contains the reference span after shared whitespace and
-Markdown normalisation. Evaluation requires **no training**. Reference implementation:
+Markdown normalisation. For each query, MRR@`k` is `1/j` when the first relevant chunk appears at rank
+`j ≤ k`, and zero when no relevant chunk appears in the top `k`; the values are then averaged over queries.
+Evaluation requires **no training**. Reference implementation:
 [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 
 <p align="center">
   <img src="paper/figures/fig_rcps_protocol.png" width="62%" alt="RCPS protocol: build each parser-chunker index, retrieve a fixed probe, apply reference-page and normalised-span relevance, average MRR, and rank candidates">
 </p>
 
-*Figure 2 — RCPS evaluation protocol.* Every candidate uses the same probe, retriever/cutoff specification,
+*Figure 2 — RCPS evaluation protocol.* Every candidate uses the same probe, retriever/retrieval-depth specification,
 and reference-page plus normalised-span relevance rule. RCPS averages standard MRR and requires no
 training. ([vector PDF](paper/figures/fig_rcps_protocol.pdf))
 
@@ -169,7 +171,7 @@ When the coverage diagnostic points to parser output, we test the following appr
   legacy `notes` rows and five Q–A whose evidence page is absent from the current parser bundle. Neither
   frame is a substitute for a full v2 rerun.
 - **Model and scoring** — **Prod** is Qwen3-VL-2B fine-tuned for Korean document parsing; trained variants
-  use LoRA (r=8, α=32). RCPS averages 3 retrievers × 3 cutoffs. Reported uncertainty uses paired
+  use LoRA (r=8, α=32). RCPS averages 3 retrievers × 3 retrieval depths. Reported uncertainty uses paired
   Q–A-level percentile bootstrap unless stated otherwise.
 
 ### C1 — the disconnect (KoGovDoc-RAG evaluation set)
@@ -216,7 +218,7 @@ GOT has no clean output, but from mild to severe noise its RCPS falls **0.461 �
 **0.586 → 0.624**. The aggregate 15-row correlation is **r = −0.35**, reported descriptively because
 variants within a family are dependent. This restricted subset does not establish broader domain generality.
 
-### C2 — RCPS discriminates chunkers, and is not single-embedder MRR
+### C2 — RCPS ranks parsers and chunkers
 
 | Chunker | RCPS | Hit@1 | MRR@10 |
 |---|:---:|:---:|:---:|

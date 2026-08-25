@@ -98,7 +98,9 @@ def main() -> None:
     ax.set_yticks(y)
     ax.set_yticklabels(names, fontsize=7.2)
     ax.invert_yaxis()
-    ax.set_xlim(0, 2.65)
+    # Leave a narrow margin before zero so exact-zero markers are not clipped
+    # by the axes boundary in the two-column paper rendering.
+    ax.set_xlim(-0.06, 2.65)
     ax.set_xticks(np.arange(0, 2.6, 0.5))
     ax.set_xlabel("Reference spans split across chunks (%)", fontsize=7.7)
     ax.set_title(
