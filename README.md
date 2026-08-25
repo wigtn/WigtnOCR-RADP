@@ -365,19 +365,22 @@ listed explicitly below.
 
 ---
 
-## Authors (OpenReview order)
+## Authors (camera-ready order)
 
 Follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
 
 1. Sang-Woo Son
-2. Hyeong-seob Kim
-3. Hyeonsang Kim
-4. Hyun-woo Cho
-5. Jinmo Kim
+2. Hyeonsang Kim
+3. Hyun-woo Cho
+4. Jinmo Kim
+5. Hyeong-seob Kim\*
 
-The author list and order will remain exactly as submitted. The request to designate Hyeong-seob Kim as
-corresponding author is awaiting written confirmation from the Industry Track chairs, so no
-corresponding-author marker is applied yet. Affiliations and emails will be added only from confirmed metadata.
+\* Corresponding author.
+
+The camera-ready author order is confirmed, with the corresponding author listed last. This section
+previously carried the OpenReview submission order while the corresponding-author designation awaited
+written confirmation from the Industry Track chairs. Affiliations and emails will be added only from
+confirmed metadata.
 
 ---
 

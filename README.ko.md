@@ -282,19 +282,21 @@ end-to-end 실행법과 남은 공개 산출물은 아래의 camera-ready 작업
 
 ---
 
-## 👥 저자 (OpenReview 순서)
+## 👥 저자 (camera-ready 순서)
 
 **WigtnOCR v1**(Qwen3-VL-2B 문서 파싱 fine-tuning)의 후속 연구.
 
 1. Sang-Woo Son
-2. Hyeong-seob Kim
-3. Hyeonsang Kim
-4. Hyun-woo Cho
-5. Jinmo Kim
+2. Hyeonsang Kim
+3. Hyun-woo Cho
+4. Jinmo Kim
+5. Hyeong-seob Kim\*
 
-저자 명단과 순서는 제출 당시 그대로 유지한다. Hyeong-seob Kim의 교신저자 지정은 Industry Track
-chairs의 서면 확인을 기다리는 중이므로 아직 교신저자 표시를 붙이지 않는다. 소속과 이메일도
-확인된 metadata만 추후 반영한다.
+\* 교신저자.
+
+camera-ready 저자 순서가 확정되어 교신저자를 맨 뒤에 둔다. 이 절은 이전까지 Industry Track chairs의
+교신저자 지정 서면 확인을 기다리며 OpenReview 제출 순서를 유지했다. 소속과 이메일은 확인된
+metadata만 추후 반영한다.
 
 ---
 
