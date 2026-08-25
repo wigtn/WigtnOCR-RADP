@@ -1,0 +1,74 @@
+name: Paper CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/paper-ci.yml"
+      - "paper/figures/**"
+      - "paper/latex/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/paper-ci.yml"
+      - "paper/figures/**"
+      - "paper/latex/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paper-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  camera-ready:
+    name: Build and validate camera-ready PDF
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Compile and validate camera-ready PDF
+        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # v4.1.0
+        with:
+          root_file: main_camera_ready.tex
+          working_directory: paper/latex
+          texlive_version: 2026
+          os: debian
+          extra_system_packages: poppler-utils
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+          post_compile: |
+            pdf_file="main_camera_ready.pdf"
+            log_file="main_camera_ready.log"
+
+            test -s "$pdf_file"
+            test -s "$log_file"
+
+            page_count="$(pdfinfo "$pdf_file" | awk '/^Pages:/ {print $2}')"
+            if [ "$page_count" != "14" ]; then
+              echo "::error::Expected a 14-page camera-ready PDF, found ${page_count:-unknown}."
+              exit 1
+            fi
+
+            if pdffonts "$pdf_file" | grep -q "Type 3"; then
+              echo "::error::Type 3 fonts are not allowed in the camera-ready PDF."
+              pdffonts "$pdf_file"
+              exit 1
+            fi
+
+            if grep -E "Overfull|undefined references|undefined citations|LaTeX Warning" "$log_file"; then
+              echo "::error::LaTeX layout, reference, citation, or warning check failed."
+              exit 1
+            fi
+
+      - name: Upload compiled camera-ready PDF
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: camera-ready-pdf
+          path: paper/latex/main_camera_ready.pdf
+          if-no-files-found: error
+          retention-days: 14
