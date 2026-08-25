@@ -36,6 +36,7 @@ jobs:
         uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # v4.1.0
         with:
           root_file: main_camera_ready.tex
+          # refs.bib is a tracked symlink to ../refs.bib from this directory.
           working_directory: paper/latex
           texlive_version: 2026
           os: debian
@@ -45,6 +46,7 @@ jobs:
             pdf_file="main_camera_ready.pdf"
             log_file="main_camera_ready.log"
 
+            test -s "refs.bib"
             test -s "$pdf_file"
             test -s "$log_file"
 
