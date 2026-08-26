@@ -109,7 +109,7 @@ chunker를 바꿀 때 달라지는 것은 split이며 8개 chunker에서 최대 
 coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 control은 다음과 같다.
 
 - **RADP-aux** *(hidden-state 보조손실).* `L_total = L_parse + λ·L_contrast`로 답-span hidden state와 frozen BGE-M3 임베딩을 정렬한다. 73페이지 pilot에서 사전 목표를 충족하지 못했다.
-- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 시작하고, R3는 후보 pool과 hard negative를 확장한다.
+- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 `beta = 0.1`로 시작하고, R3는 후보 pool과 hard negative를 확장한다. 원본 R2 실행 로그로 확인한 portable config와 source-log hash는 [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md)에 기록했다.
 - **RADP-Distill** *(fidelity-based control).* 후보를 page-local BGE-M3 MRR retrieval reward 대신 reference Markdown과의 edit-distance로 순위한다. 정렬된 per-QA artifact가 현재 없어 이 README에서는 Distill과 DPO의 정량 비교를 하지 않는다.
 - **SimPO** *(reference-free control).* 242페이지 분석의 point estimate는 음수지만 모든 신뢰구간이 0을 포함하며, 어떤 최적화 차이가 원인인지는 이 실험만으로 분리하지 못한다.
 
@@ -326,7 +326,7 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
 - full OHR-Bench v2 rerun과 새 current/quarantine manifest의 clean-machine 검증. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - 동일 aligned subset의 RADP-Distill per-QA·CI artifact. 복구 전에는 Distill-vs-DPO 정량 비교를 지원하지 않는다.
 - complete BC/CS mechanism data와 aligned uncertainty estimate.
-- RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. 특히 R2의 실행 `beta`는 원 checkpoint/log 확인이 필요하다.
+- RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. R2 실행 config(`beta = 0.1`)는 원본 로그로 확인을 마쳤다.
 - 외부 데이터, parser 출력, embedding cache, checkpoint 획득, 머신 종속 실행 가정을 포함한
   **portable fresh-clone end-to-end 재현 경로**.
 

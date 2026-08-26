@@ -40,7 +40,7 @@
 4. **Methods:** parser, chunker, retriever, RCPS score/protocol, format-normalised relevance, covered/split/absent를 처음 나올 때 정의했다. `absent`가 곧 실제 semantic omission을 뜻하지 않는다고 제한했다.
 5. **Experiments:** 294-page full corpus, 242-page evidence fold, 73-page pilot, 1,043-Q–A Law–Manual, 2,036-Q–A compatibility subset을 섞지 않았다. MinerU-off와 MinerU-on을 서로 다른 configuration으로 분리했다.
 6. **Results:** 작은 표본의 BC correlation은 descriptive로 낮췄다. parser range와 VLM-only range를 함께 제시해 heterogeneous candidate-pool 효과를 숨기지 않았다. fixed retriever가 있으면 그 retriever를 쓰고, averaging은 미정·near-tie 상황의 hedge라고 명시했다.
-7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16(기존 두 후보+신규 14개)으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. 실행 provenance가 확인되지 않은 R2 beta 값은 camera-ready 산문에서 제외하고 source comment의 blocker로 남겼다.
+7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16(기존 두 후보+신규 14개)으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. 원본 R2 실행 로그와 명령에서 beta=0.1을 확인해 camera-ready 산문과 portable provenance record에 반영했다.
 8. **Robustness:** parser I/O와 폐기 요소를 정의하고 pseudo-reference임을 명시했다. 원문–MinerU-on 출력 대비표를 추가했다. model-free matcher, cross-family judge, absent-label 인간 검증의 역할과 한계를 분리했다.
 9. **Discussion/Limitations:** selection gap과 training delta를 직접 비교하지 않았다. boundary mechanism과 TextNED를 causal claim이 아닌 post hoc observation으로 낮췄다. Q–A lineage, matcher dependence, generator–judge self-evaluation, candidate-pool 범위를 명시했다.
 10. **MinerU correction:** MinerU-off submitted-output 진단과 MinerU-on deployment 비교를 분리하고, tables-on의 42.6pp/4.47×, table-evidence 87.9→41.7%, overall absence-gap 50.2→45.9pp, mixed RCPS 0.212→0.137을 Limitations에 연결했다. 두 실행에서 software/retrieval 환경도 달라 35.1pp를 lower bound나 causal table ablation으로 재주장하지 않았다.
@@ -77,7 +77,7 @@
 
 ### 아직 문장만으로 닫을 수 없는 항목
 
-- R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/checkpoint config 확인이 필요하다. 현재 Git의 0.05는 논문 서술이고 0.1은 실행 코드/default이므로 어느 쪽도 단독 provenance가 아니다.
+- R2 executed checkpoint의 `beta=0.1`은 원본 `v4_train.log`의 시작 기록과 exact command에서 확인했다. Portable config와 원본 로그 SHA-256을 `docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`에 기록했다.
 - MRR@10-only aggregate ranking은 완료됐다. 동일 294-page full-grid probe-resampling stability와 format-normalisation sensitivity는 여전히 재실행이 필요하다.
 - full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
 - 교신저자 표기는 chairs의 서면 승인에 따라 `Correspondence: harrison@wigtn.com`으로 반영했다. 저자 affiliation/나머지 email/ORCID와 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
@@ -163,7 +163,7 @@
 ## 8. 제출 전 우선순위
 
 1. 동일 294-page full grid의 per-Q--A를 확보해 probe-resampling stability와 normalisation sensitivity를 재실행한다. MRR@10-only aggregate 순위 검증은 이미 완료됐다.
-2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
+2. R2 beta의 executed provenance는 완료했다. R2/R3 checkpoint 공개 범위와 배포 위치를 확정한다.
 3. MinerU-off predictions, full-grid JSON, portable manifest, exact clean-clone commands를 공개·검증한다. Human adjudication 원본은 author-only audit package에 유지한다.
 4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
 5. 외부 artifact와 metadata를 반영한 최종판에서 P14 수치·lineage와 P15 reviewer-promise 매핑을 다시 실행한다.

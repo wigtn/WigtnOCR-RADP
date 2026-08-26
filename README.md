@@ -145,7 +145,9 @@ When the coverage diagnostic points to parser output, we test the following appr
 - **RADP-DPO** *(discrete-output retrieval-reward DPO).* Sample K parses from the production parser, score
   each by page-local BGE-M3 MRR averaged over `k = {1, 5, 10}`, form preference pairs, and train with a
   **LoRA-toggle reference** (`π_θ` = LoRA on, `π_ref` = LoRA off). The candidate pool and negatives expand
-  across **R1 → R2 → R3**.
+  across **R1 → R2 → R3**. The original R2 execution log verifies `beta = 0.1`; its portable executed
+  configuration and source-log hash are recorded in
+  [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md).
 - **RADP-Distill** *(fidelity-based control).* Candidates are ranked by edit distance to reference Markdown
   instead of the page-local BGE-M3 MRR retrieval reward. Its aligned per-QA artifact is currently unavailable,
   so this README makes no quantitative Distill-versus-DPO claim.
@@ -423,8 +425,7 @@ be added only from confirmed metadata.
   no quantitative Distill-versus-DPO comparison is supported.
 - Complete BC/CS mechanism data and aligned uncertainty estimates.
 - Complete executed-configuration/log provenance and model checkpoints for RADP-Distill, RADP-aux,
-  RADP-DPO, and SimPO. In particular, the executed R2 `beta` requires confirmation from the original
-  checkpoint or log.
+  RADP-DPO, and SimPO, except for the now-verified R2 executed configuration (`beta = 0.1`).
 - A portable **fresh-clone, end-to-end reproduction path**, including external data, parser outputs,
   embedding caches, checkpoint acquisition, and removal of machine-specific runtime assumptions.
 
