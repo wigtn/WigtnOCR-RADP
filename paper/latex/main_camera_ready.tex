@@ -44,7 +44,7 @@
 \maketitle
 
 \begin{abstract}
-Document RAG retrieves from parser outputs, yet parsers are commonly selected by intrinsic measures of transcription fidelity and boundary quality rather than by retrieval performance. We introduce the Retrieval-Conditional Parsing Score (\rcps{}), a training-free protocol that ranks parser--chunker combinations on a fixed held-out Q--A retrieval probe. \rcps{} averages standard MRR across specified retrievers and retrieval depths, using the same format-normalised exact-span relevance rule for every candidate. On KoGovDoc-RAG, table-enabled MinerU-on has a higher Boundary Clarity score than our production parser, Prod ($0.713$ versus $0.610$). Yet its Hit@1 is $42.6$ percentage points lower ($0.123$ versus $0.549$). Across five parsers evaluated on all 294 pages, \rcps{} ranges from $0.137$ to $0.584$. With Prod fixed, four chunkers span only $0.535$ to $0.593$. A retriever-free coverage diagnostic finds no normalised exact match for $20.2\%$ of reference spans in Prod output. No tested chunker splits more than $2.3\%$. On source-aligned OHR-Bench data, semantic noise lowers retrieval while Boundary Clarity remains stable or changes non-monotonically. In a secondary parser-training study, two direct preference optimization checkpoints have Hit@5 estimates only $0.95$ and $1.15$ percentage points above Prod on an audited six-domain compatibility subset. The workflow therefore selects with \rcps{}, diagnoses with coverage, and trains only if needed. We release the 663-Q--A KoGovDoc-RAG probe and an \rcps{} reference implementation; Appendix~\ref{app:repro} identifies artifacts that remain pending.
+Document RAG retrieves from parser outputs, yet parsers are commonly selected by intrinsic measures of transcription fidelity and boundary quality rather than by retrieval performance. We introduce the Retrieval-Conditional Parsing Score (\rcps{}), a training-free protocol that ranks parser--chunker combinations on a fixed held-out Q--A retrieval probe. \rcps{} averages standard MRR across specified retrievers and retrieval depths, using the same format-normalised exact-span relevance rule for every candidate. On KoGovDoc-RAG, table-enabled MinerU-on has a higher Boundary Clarity score than our production parser, Prod ($0.713$ versus $0.610$). Yet its Hit@1 is $42.6$ percentage points lower ($0.123$ versus $0.549$). Across five parsers evaluated on all 294 pages, \rcps{} ranges from $0.137$ to $0.584$. With Prod fixed, four chunkers span only $0.535$ to $0.593$. A retriever-free coverage diagnostic finds no normalised exact match for $20.2\%$ of reference spans in Prod output. No tested chunker splits more than $2.3\%$. On source-aligned OHR-Bench data, semantic noise lowers retrieval while Boundary Clarity remains stable or changes non-monotonically. In a secondary parser-training study, two direct preference optimization checkpoints have Hit@5 estimates only $0.95$ and $1.15$ percentage points above Prod on an audited six-domain compatibility subset. The workflow therefore selects with \rcps{}, diagnoses with coverage, and trains only if needed. We release the 663-Q--A KoGovDoc-RAG probe and an \rcps{} reference implementation. Appendix~\ref{app:repro} identifies artifacts that remain pending.
 \end{abstract}
 
 \section{Introduction}
@@ -177,7 +177,7 @@ Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 
 \paragraph{Selecting parsers.} The 30B teacher ranks first at $0.584$ \rcps{}, followed by Prod at $0.583$. Prod nevertheless has slightly higher Hit@1 ($0.549$ versus $0.545$). The point estimates are near-tied, but paired uncertainty is unavailable for this grid. Latency and compute may therefore decide between them. MinerU-on reaches only $0.137$ \rcps{} and $0.123$ Hit@1. Prod's Hit@1 is $4.47\times$ as high.
 
-\paragraph{Selecting chunkers.} With Prod fixed, the point-estimate order is md-h3 ($0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-500 ($0.535$). This $0.058$ range is much smaller than the $0.447$ range across the heterogeneous parser pool and similar to the $0.052$ range among its three vision--language parsers.
+\paragraph{Selecting chunkers.} With Prod fixed, the point-estimate order is md-h3 ($0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-500 ($0.535$). The chunker range is $0.058$. This is much smaller than the $0.447$ range across the heterogeneous parser pool and close to the $0.052$ range among its three vision--language parsers.
 
 \paragraph{Retriever and depth robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. In the stored aggregate grid, averaging three retrievers at MRR@10 alone preserves both the five-parser and four-chunker orders ($\tau=1.0$). A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}. Aligned per-Q--A arrays for the complete grid are unavailable, so we do not report probe-resampling stability.
 
@@ -252,7 +252,7 @@ GOT & BC & --- & 0.586 & 0.620 & 0.624 \\
 \end{center}
 
 \newpage
-\section{Does the \rcps{} Top Choice Lead on Answering?}
+\section{Does the \rcps{} Top Choice Also Lead in Answer Generation?}
 \label{app:e2e}
 
 We ask whether the \rcps{} top choice among Prod, MinerU-on, and PaddleOCR also leads in answer generation. The evaluation covers all 663 KoGovDoc-RAG Q--A. BGE-M3 first retrieves the top five chunks from each parser corpus. \texttt{gpt-5.4-2026-03-05} then generates an answer from those chunks and judges it against the reference answer.
@@ -325,7 +325,7 @@ PaddleOCR$-$Prod & +42.8 & +42.5 & +42.4 & +35.7 & +43.6 \\
 
 \paragraph{Cross-family model judge.} We next ask GPT-5.4, a different model family from the evaluated parsers, whether evidence remains recoverable in each L1-absent parser--answer pair (Table~\ref{tab:judge}). \emph{Present} denotes a recoverable surface mismatch. \emph{Degraded} means that evidence remains but is too corrupted for reliable retrieval, and \emph{absent} denotes missing content. We combine the latter two labels as \emph{retrieval-unusable}. We apply the same procedure independently to every parser. The MinerU analysis here uses MinerU-off.
 
-The Q--A were also generated by a GPT-family model, so this judge is not independent of Q--A generation. The model-free matchers above avoid that dependence. The judge marks $56\%$ of Prod's L1-absent cases as surface artefacts, compared with about $16\%$ for both MinerU and PaddleOCR. After those artefacts are removed, the MinerU--Prod retrieval-unusable gap remains $50.4$ percentage points. The corresponding gaps are $50.2$ points under L1 exact matching and $51.7$ points under the L4 OCR-tolerant criterion.
+The Q--A pairs were also generated by a GPT-family model, so this judge is not independent of Q--A generation. The model-free matchers above avoid that dependence. The judge marks $56\%$ of Prod's L1-absent cases as surface artefacts, compared with about $16\%$ for both MinerU and PaddleOCR. After those artefacts are removed, the MinerU--Prod retrieval-unusable gap remains $50.4$ percentage points. The corresponding gaps are $50.2$ points under L1 exact matching and $51.7$ points under the L4 OCR-tolerant criterion.
 
 \begin{table}[ht!]
 \centering\footnotesize
@@ -346,7 +346,7 @@ PaddleOCR & 16\% & 22\% & 63\% & \textbf{52.8\%} \\
 
 \paragraph{Human verification of absent labels.} Two authors independently labelled 100 parser-masked L1-absent cases, stratified by question type. The sample contains 50 MinerU-on, 30 Prod, and 20 PaddleOCR cases. This study evaluates coverage labels. It is separate from the 100-pair Q--A quality check. Before adjudication, the authors agreed on 81/100 cases, with $\kappa=0.615$. They then jointly resolved the remaining 19 cases.
 
-After adjudication, 42/50 MinerU-on cases were retrieval-unusable ($84.0\%$, Wilson 95\% CI $[71.5,91.7]$). The result was 12/30 for Prod ($40.0\%$, $[24.6,57.7]$) and 19/20 for PaddleOCR ($95.0\%$, $[76.4,99.1]$).
+After adjudication, 42/50 MinerU-on cases were retrieval-unusable ($84.0\%$, Wilson 95\% CI $[71.5,91.7]$). The corresponding rates were 12/30 for Prod ($40.0\%$, $[24.6,57.7]$) and 19/20 for PaddleOCR ($95.0\%$, $[76.4,99.1]$).
 
 Ninety-three human-labelled cases also appear in the automated-judge set: 43 MinerU, 30 Prod, and 20 PaddleOCR cases. We exclude seven MinerU-on cases that have no corresponding MinerU-off instance. On the matched set, the judge's retrieval-unusable rates are $84.2\%$ for MinerU, $84.1\%$ for PaddleOCR, and $44.0\%$ for Prod. Pooled binary human--judge agreement is 84/93 ($90.3\%$). The human labels thus confirm the direction of the OCR-parser gap in this stratified sample. Different sampling fractions and MinerU configurations preclude a population-level replication claim.
 % CAMERA-READY ARTIFACT BLOCKER: add the adjudicated human-label artifact and
@@ -379,7 +379,7 @@ fixed1000 & 79.3\% & 0.5\% & 20.2\% \\
 fixed1000\_ov200 & 79.8\% & 0.0\% & 20.2\% \\
 \bottomrule
 \end{tabular}
-\captionof{table}{No tested chunker splits more than $2.3\%$ of answers. The pre-chunking absent rate stays $20.2\%$ (Prod, 294 pages, 663 Q--A). \texttt{parser\_native} uses blank-line paragraph boundaries. md\_h$k$ uses Markdown heading depth $k$. fixed~$N$[\_ov$M$] uses $N$-character windows with optional $M$-character overlap.}
+\captionof{table}{No tested chunker splits more than $2.3\%$ of reference spans. The pre-chunking absent rate stays $20.2\%$ (Prod, 294 pages, 663 Q--A). \texttt{parser\_native} uses blank-line paragraph boundaries. md\_h$k$ uses Markdown heading depth $k$. fixed~$N$[\_ov$M$] uses $N$-character windows with optional $M$-character overlap.}
 \label{tab:coverage}
 \end{minipage}
 \end{center}
