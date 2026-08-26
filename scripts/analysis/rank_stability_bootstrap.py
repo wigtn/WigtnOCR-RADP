@@ -8,6 +8,7 @@ and reports:
   (b) the mean Kendall tau between the subset ranking and the full-probe
       ranking, plus the fraction of resamples whose ranking is unchanged;
   (c) the per-system rank distribution.
+  (d) optional pairwise ordering rates requested with `--pair LEFT>RIGHT`.
 
 Two input modes (mixable is not supported — pick one):
 
@@ -134,6 +135,10 @@ def main() -> int:
     ap.add_argument("--iters", type=int, default=1000)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--top", default="Prod", help="system for the headline top-1 rate")
+    ap.add_argument(
+        "--pair", action="append", default=[],
+        help='pairwise stability as "LEFT>RIGHT" using display names (repeatable)',
+    )
     ap.add_argument("--expect", action="append", default=[],
                     help='"NAME=VALUE" full-probe mean sanity check (abs tol 1e-6)')
     ap.add_argument("--out", default=None, help="write the result JSON here")
@@ -164,10 +169,24 @@ def main() -> int:
         if name not in full_means:
             raise SystemExit(f"--expect {name}: unknown system")
         if abs(full_means[name] - float(val)) > 1e-6:
-            raise SystemExit(f"sanity FAIL {name}: full mean {full_means[name]:.6f} != expected {val}")
+            raise SystemExit(
+                f"sanity FAIL {name}: full mean {full_means[name]:.6f} != expected {val}"
+            )
     full_rank = ranking(full_means)
     if args.top not in full_means:
         raise SystemExit(f"--top {args.top!r} not among systems {sorted(full_means)}")
+    pairs: list[tuple[str, str]] = []
+    for spec in args.pair:
+        if ">" not in spec:
+            raise SystemExit(f"--pair {spec!r}: expected LEFT>RIGHT")
+        left, right = (part.strip() for part in spec.split(">", 1))
+        if left not in full_means or right not in full_means:
+            raise SystemExit(
+                f"--pair {spec!r}: names must be among {sorted(full_means)}"
+            )
+        if left == right:
+            raise SystemExit(f"--pair {spec!r}: LEFT and RIGHT must differ")
+        pairs.append((left, right))
 
     rng = random.Random(args.seed)
     idx_all = range(n)
@@ -175,6 +194,7 @@ def main() -> int:
     rank_dist: dict[str, Counter] = {s: Counter() for s in scores}
     taus: list[float] = []
     unchanged = 0
+    pair_counts = {pair: Counter() for pair in pairs}
     for _ in range(args.iters):
         idx = rng.sample(idx_all, args.subset_size)
         means = {s: sum(v[i] for i in idx) / args.subset_size for s, v in scores.items()}
@@ -184,6 +204,13 @@ def main() -> int:
             rank_dist[s][r] += 1
         taus.append(kendall_tau(full_rank, sub_rank))
         unchanged += sub_rank == full_rank
+        for left, right in pairs:
+            if means[left] > means[right]:
+                pair_counts[(left, right)]["left_above"] += 1
+            elif means[left] < means[right]:
+                pair_counts[(left, right)]["right_above"] += 1
+            else:
+                pair_counts[(left, right)]["tie"] += 1
 
     result = {
         "config": {
@@ -197,22 +224,45 @@ def main() -> int:
         "ranking_unchanged_rate": unchanged / args.iters,
         "rank_distribution": {s: {str(r): c / args.iters for r, c in sorted(rank_dist[s].items())}
                               for s in full_rank},
+        "pairwise_ordering": {
+            f"{left}>{right}": {
+                "full_probe_delta": full_means[left] - full_means[right],
+                "left_above_rate": pair_counts[(left, right)]["left_above"] / args.iters,
+                "tie_rate": pair_counts[(left, right)]["tie"] / args.iters,
+                "right_above_rate": pair_counts[(left, right)]["right_above"] / args.iters,
+            }
+            for left, right in pairs
+        },
     }
 
     print(f"metric={metric}  n={n}  subset={args.subset_size}x{args.iters}  seed={args.seed}")
     print(f"full ranking: {' > '.join(full_rank)}  "
           f"(means: {', '.join(f'{s}={full_means[s]:.4f}' for s in full_rank)})")
     print(f"(a) top-1 rate [{args.top}]: {result['top1_rate'].get(args.top, 0.0):.1%}")
-    print(f"(b) Kendall tau: mean={result['kendall_tau']['mean']:.4f} min={result['kendall_tau']['min']:.2f}  "
-          f"ranking unchanged: {result['ranking_unchanged_rate']:.1%}")
+    print(
+        f"(b) Kendall tau: mean={result['kendall_tau']['mean']:.4f} "
+        f"min={result['kendall_tau']['min']:.2f}  "
+        f"ranking unchanged: {result['ranking_unchanged_rate']:.1%}"
+    )
     print("(c) rank distribution:")
     for s in full_rank:
         cells = "  ".join(f"r{r}:{result['rank_distribution'][s].get(str(r), 0.0):.1%}"
                           for r in range(1, len(full_rank) + 1))
         print(f"    {s:<18} {cells}")
+    if pairs:
+        print("(d) pairwise ordering:")
+        for left, right in pairs:
+            stats = result["pairwise_ordering"][f"{left}>{right}"]
+            print(
+                f"    {left} > {right}: {stats['left_above_rate']:.1%} "
+                f"(tie {stats['tie_rate']:.1%}, reversed {stats['right_above_rate']:.1%}; "
+                f"full delta={stats['full_probe_delta']:.6f})"
+            )
 
     if args.out:
-        Path(args.out).write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+        Path(args.out).write_text(
+            json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8"
+        )
         print(f"wrote {args.out}")
     return 0
 

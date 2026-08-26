@@ -1,6 +1,6 @@
 # EMNLP 2026 camera-ready 문장·리뷰 요구사항 전수 감사
 
-> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-24
+> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-27
 > 원고 정본: `paper/latex/main_camera_ready.tex`
 > 동결본: `paper/latex/main.tex`는 편집하지 않음
 > 정합성 기준 커밋: PR #12 merge `a981bca`. 이 기준에서 C2=RCPS, C3=coverage,
@@ -11,12 +11,14 @@
 
 > **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. `main_camera_ready.pdf`는 14쪽이며 overflow·깨진 참조가 없고 Type3 font는 0개다. 아래의 과거 pass 설명은 당시 이력으로만 읽는다.
 
+> **2026-08-27 P7 후속 갱신:** 동일 294페이지 full-grid 수치와 probe bootstrap 문단을 반영한 현재 `main_camera_ready.pdf`는 15쪽이다. 본문과 Limitations는 1--6쪽, References는 7--9쪽, Appendix는 10쪽부터이며, 15쪽 전부를 다시 렌더해 잘림·겹침·overflow와 Type3 font가 없음을 확인했다.
+
 > **2026-08-24 C2 중심 hierarchy pass:** Abstract에서 parser training을 secondary study로 낮추고, §4.5 C4를 RADP의 operational definition과 제한된 결과 두 단락으로 압축했다. RADP-aux는 answer-span hidden state--frozen BGE-M3 contrastive alignment, RADP-DPO는 page-local MRR로 후보 parse를 순위화한 DPO pair, RADP-Distill은 edit-distance fidelity control로 구분했다. 부록은 A OHR(C1) → B E2E(C2) → C absent robustness → D coverage(C3) → E--G training(C4) → H release로 재배열했다. 리버털이 약속한 Appendix C의 parser I/O, worked example, human verification는 그대로 유지된다.
 
 ## 1. 결론
 
 - **문장·문단 감사:** 정본의 Abstract부터 Appendix H까지 모든 산문 문장, 절 제목, 표 머리글, 표 캡션, 그림 캡션을 순서대로 읽고 말투, 주어·대상, 선후 논리, 용어, 분모, parser configuration, claim–evidence 범위를 대조했다. 문장과 내러티브 수정은 반영했다.
-- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 최종 게시본의 100-case absent-label human verification과 MRR@10-only aggregate audit은 원고에 반영됐지만, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증, 일부 공개 아티팩트가 아직 없다.
+- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 100-case absent-label human verification, MRR@10-only aggregate audit, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증은 원고와 산출물에 반영했다. 일부 공개 아티팩트와 full OHR-Bench v2 rerun은 아직 없다.
 - **시각물:** Figure 1--4를 camera-ready 수치·정의와 새 기여 순서에 맞춰 반영했다. 벡터 PDF 삽입, 실제 2단 PDF 렌더, 흑백 구분, Type 3 font 0개를 확인했다.
 - **SHACL:** 별도 저장소 `/Users/sangwoo/Desktop/naacl2027-demo`에 분리돼 있다(파일럿 이관 `a2f0a6f`, 엔진 `7d94c98`). EMNLP 저장소의 현재 트리·도달 가능한 이력·원격에는 SHACL 파일이나 브랜치가 없으며, 이번 EMNLP 커밋에서는 수정하지 않았다. 단, 별도 SHACL 작업을 이번 턴에 추가 진행한 것은 아니다.
 
@@ -40,7 +42,7 @@
 4. **Methods:** parser, chunker, retriever, RCPS score/protocol, format-normalised relevance, covered/split/absent를 처음 나올 때 정의했다. `absent`가 곧 실제 semantic omission을 뜻하지 않는다고 제한했다.
 5. **Experiments:** 294-page full corpus, 242-page evidence fold, 73-page pilot, 1,043-Q–A Law–Manual, 2,036-Q–A compatibility subset을 섞지 않았다. MinerU-off와 MinerU-on을 서로 다른 configuration으로 분리했다.
 6. **Results:** 작은 표본의 BC correlation은 descriptive로 낮췄다. parser range와 VLM-only range를 함께 제시해 heterogeneous candidate-pool 효과를 숨기지 않았다. fixed retriever가 있으면 그 retriever를 쓰고, averaging은 미정·near-tie 상황의 hedge라고 명시했다.
-7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16(기존 두 후보+신규 14개)으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. 실행 provenance가 확인되지 않은 R2 beta 값은 camera-ready 산문에서 제외하고 source comment의 blocker로 남겼다.
+7. **Training:** R1/R2/R3 구성과 R2 warm start를 설명하고 R3의 pool을 K=16(기존 두 후보+신규 14개)으로 정정했다. DPO·SimPO 표기와 입력을 정의했다. 원본 R2 실행 로그와 명령에서 beta=0.1을 확인해 camera-ready 산문과 portable provenance record에 반영했다.
 8. **Robustness:** parser I/O와 폐기 요소를 정의하고 pseudo-reference임을 명시했다. 원문–MinerU-on 출력 대비표를 추가했다. model-free matcher, cross-family judge, absent-label 인간 검증의 역할과 한계를 분리했다.
 9. **Discussion/Limitations:** selection gap과 training delta를 직접 비교하지 않았다. boundary mechanism과 TextNED를 causal claim이 아닌 post hoc observation으로 낮췄다. Q–A lineage, matcher dependence, generator–judge self-evaluation, candidate-pool 범위를 명시했다.
 10. **MinerU correction:** MinerU-off submitted-output 진단과 MinerU-on deployment 비교를 분리하고, tables-on의 42.6pp/4.47×, table-evidence 87.9→41.7%, overall absence-gap 50.2→45.9pp, mixed RCPS 0.212→0.137을 Limitations에 연결했다. 두 실행에서 software/retrieval 환경도 달라 35.1pp를 lower bound나 causal table ablation으로 재주장하지 않았다.
@@ -77,10 +79,10 @@
 
 ### 아직 문장만으로 닫을 수 없는 항목
 
-- R2 executed checkpoint의 `beta`가 0.1인지 0.05인지 원 로그/checkpoint config 확인이 필요하다. 현재 Git의 0.05는 논문 서술이고 0.1은 실행 코드/default이므로 어느 쪽도 단독 provenance가 아니다.
-- MRR@10-only aggregate ranking은 완료됐다. 동일 294-page full-grid probe-resampling stability와 format-normalisation sensitivity는 여전히 재실행이 필요하다.
+- R2 executed checkpoint의 `beta=0.1`은 원본 `v4_train.log`의 시작 기록과 exact command에서 확인했다. Portable config와 원본 로그 SHA-256을 `docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`에 기록했다.
+- 동일 294-page full-grid의 9개 unique system per-Q--A 재색인, probe-resampling stability, format-normalisation sensitivity를 완료했다. Prod는 Base와 세 OCR configuration보다 1,000/1,000 draws에서 높다. 전체 chunker 순서는 96.1% 유지됐고 normalised-vs-raw score 차이는 0.024--0.041이며 두 pool 모두 순서가 유지됐다.
 - full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
-- 저자 affiliation/email/ORCID, 교신저자 chairs 회신, 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
+- 교신저자 표기는 chairs의 서면 승인에 따라 `Correspondence: harrison@wigtn.com`으로 반영했다. 저자 affiliation/나머지 email/ORCID와 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
 - Figure 1--4 시각 수정은 완료했다. 이후 그림 파일이 다시 바뀌면 합본 렌더·흑백·폰트 검사를 재실행해야 한다.
 
 ## 4. Reviewer NAor1 요구사항
@@ -108,7 +110,7 @@
 | model-free L0–L4 matcher ladder | **완료** | matcher 정의·분모·해석 반영. |
 | cross-family recoverability judge | **완료** | GPT-family QA 생성과 완전히 독립적이지 않다는 제한까지 명시. |
 | blind human absent-case subsample | **완료(분석)** | 100 cases, κ=0.615, 81/100 raw agreement, Wilson CI, 93-case overlap 반영. |
-| adjudicated human labels 공개 | **대기** | per-case artifact와 manifest 필요. |
+| adjudicated human labels | **완료(비공개 감사)** | 저자 전용 패키지의 100×2 판정, sampling manifest, 19건 adjudication을 scorer로 재검증. 공개본에는 aggregate만 보고. |
 | MinerU tables-on correction | **완료(원고)** | 본문·표·Limitations 정정. MinerU-off 공개는 P12 대기. |
 | RCPS를 새 similarity metric으로 주장하지 않기 | **완료** | standard MRR 기반 protocol로 명시. |
 | Findings/diagnostics를 foreground | **완료** | Abstract와 Intro에 absent/split 및 bounded training 결과 반영. |
@@ -124,11 +126,11 @@
 | fixed Q–A와 paired evaluation | **완료** | 동일 probe와 paired CI 명시. |
 | Qwen same-family 우려 완화 | **완료(원고)** | matcher ladder, cross-family judge, 최종 게시본의 100-case absent-label human study를 함께 반영. |
 | **최종 게시본의 100-case blind human verification** | **완료(원고)** | 최종 답변은 `LLM-judged absent sets`에서 층화한 100건을 명시한다. κ=0.615, raw 81/100, 19건 공동 adjudication, human–LLM 90.3%(n=93)를 반영. 로컬 R3 초안의 “same 100 Q–A”는 비정본 문구. |
-| human labels 공개 | **대기** | adjudicated labels와 protocol/manifest 필요. |
+| human labels 감사 | **완료(비공개)** | adjudicated labels와 sampling manifest를 내부 정본으로 확인했으며 원본은 author-only protocol에 따라 공개하지 않음. |
 | parser-training section 압축 | **완료** | 본문은 RADP 정의와 제한된 결과 두 단락, 상세 setup·표·mechanism은 Appendix E--G. |
 | MRR@10-only에서도 ranking 유지 | **완료** | tracked 294-page aggregate를 `fullgrid_aggregate_audit.py`로 재구성. 5개 full-page parser와 Prod×4 chunker 모두 RCPS 대비 순위 동일($\tau_a=1.0$). Marker는 38-page 행으로 별도 표시. |
-| format normalisation 영향 0.02–0.03, reorder 없음 | **대기** | 근거 artifact 없음. 재계산 전 원고에 넣지 않음. |
-| probe-subset bootstrap stability | **대기** | aggregate는 있으나 aligned per-QA가 MinerU-on 한 configuration뿐이다. 동일 294 pages / 663 Q–A / 9 unique systems 실행과 JSON·CI 필요. 242-page fold와 혼합 금지. |
+| format normalisation 영향과 reorder 여부 | **완료(수치 정정)** | 동일 ranked lists의 raw matching 대비 normalised RCPS 차이는 0.024--0.041이다. MinerU-on이 0.041이므로 provisional 0.02--0.03을 정정했다. Parser/chunker order는 모두 유지된다. |
+| probe-subset bootstrap stability | **완료** | 동일 294 pages / 663 Q–A / 9 unique systems에서 500-Q–A 무복원 추출을 1,000회 실행했다. Parser mean $\tau_a=0.902$, chunker full-order 96.1%, Prod-vs-Base/OCR 100%다. 242-page fold는 혼합하지 않았다. |
 | end-to-end table과 top choice 확인 | **완료** | Prod top choice만 확인. near-tied lower pair reversal을 공개하고 full-ranking claim을 하지 않음. |
 | generator/judge self-evaluation 제한 | **완료** | 같은 checkpoint임을 밝히고 top-choice check로만 해석. |
 | retrieval vs generated-answer scope | **완료** | Intro, Discussion, Limitations에 명시. |
@@ -143,15 +145,15 @@
 | P1 parser definition + worked example | **완료** | 정의, taxonomy, 수치, pseudo-reference↔output 대비표 반영. |
 | P2 Appendix 재배치 | **완료** | A--D가 C1--C3 검증, E--G가 C4 상세이며 Appendix C 약속과 모든 참조가 일치. |
 | P3 Intro 재구성 | **완료** | 핵심 발견과 scope를 전면 배치. |
-| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 압축하고 14쪽 최종 렌더에서 본문 6쪽·Limitations 구획을 재검증. |
+| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 압축하고 15쪽 최종 렌더에서 본문 6쪽·Limitations 구획을 재검증. |
 | P5 human verification | **완료(원고)** | 최종 게시본의 absent-label 100-case study와 수치를 반영. per-case human label 공개는 P12에서 별도 추적. |
 | P6 E2E table | **완료** | same-configuration을 지키고 off 값은 별도 서술. |
-| P7 294-page full-grid stability | **대기** | WSL/full-grid artifact 필요. |
+| P7 294-page full-grid stability | **완료** | aligned 9-system per-Q--A JSON, parser/chunker bootstrap JSON, exporter와 input tree hash를 저장했다. |
 | P8 MinerU tables-on 정정 | **완료(원고)** | 공개 artifact의 off half는 P12 대기. |
 | P9 pseudo-ground-truth 정정 | **완료** | camera-ready 정본 전역에서 과장 표현 제거. |
 | P10 exact commands/fresh clone | **대기** | 최종 release tag와 외부 artifact 필요. |
 | P11 composition/contamination | **부분 완료** | 구성·page-disjoint는 완료. 4.9pp는 엄밀한 contamination upper bound가 아니므로 scale로만 보고; 약속 수정 필요. |
-| P12 artifact release | **부분 완료** | strict audit/current-vs-legacy manifest는 완료. MinerU-off, full-grid, human labels, checkpoints 등 대기. |
+| P12 artifact release | **부분 완료** | strict audit/current-vs-legacy manifest와 full-grid 공개 JSON은 완료. Human labels는 비공개 내부 감사를 완료했고, MinerU-off 원출력과 checkpoints 등은 대기. |
 | P13 metadata | **대기** | 5인 순서는 고정. affiliation/email/ORCID/form/교신 회신 필요. |
 | P14 numeric/lineage final audit | **부분 완료** | 현재 원고의 수치·분모·구성·manifest와 C2/C3 순서는 재감사 완료. full v2와 외부 artifact가 들어오면 최종 재실행 필요. |
 | P15 promises-to-paper gate | **대기** | 모든 외부 blocker 종료 뒤 최종 실행. |
@@ -162,18 +164,18 @@
 
 ## 8. 제출 전 우선순위
 
-1. 동일 294-page full grid의 per-Q--A를 확보해 probe-resampling stability와 normalisation sensitivity를 재실행한다. MRR@10-only aggregate 순위 검증은 이미 완료됐다.
-2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
-3. MinerU-off predictions, human adjudication labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
+1. P7 full-grid per-Q--A, probe bootstrap, normalisation sensitivity는 완료했다. 최종 원고와 manifest hash를 다시 대조한다.
+2. R2 beta의 executed provenance는 완료했다. R2/R3 checkpoint 공개 범위와 배포 위치를 확정한다.
+3. MinerU-off predictions, portable source-page manifest, exact clean-clone commands를 공개·검증한다. Human adjudication 원본은 author-only audit package에 유지한다.
 4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
 5. 외부 artifact와 metadata를 반영한 최종판에서 P14 수치·lineage와 P15 reviewer-promise 매핑을 다시 실행한다.
 
 ## 9. 현재 PDF 빌드·렌더 검증
 
 - `latexmk -pdf -g -interaction=nonstopmode -halt-on-error main_camera_ready.tex` 빌드 성공.
-- 최종 작업 PDF는 14쪽이다. 본문과 Limitations는 1–6쪽에 들어가며, References는 6쪽에서 시작하고 Appendix는 9쪽에서 시작한다.
+- 최종 작업 PDF는 15쪽이다. 본문과 Limitations는 1–6쪽, References는 7–9쪽이며, Appendix는 10쪽에서 시작한다.
 - undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다.
-- 2026-08-24의 C2 중심 hierarchy/RADP 압축/부록 재배열 뒤 14쪽 전부를 150dpi PNG로 다시 렌더해 육안 확인했다. C4는 6쪽 상단에서 시작해 중간 페이지 분할이 사라졌고, 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
+- 2026-08-27 P7 문단 반영 뒤 15쪽 전부를 PNG로 다시 렌더해 육안 확인했다. C4는 6쪽 상단에서 시작하고, 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
 - P16의 Figure 1--4 blocker는 해소됐다. 최신 수치·정의, 실제 삽입 크기, 흑백 구분, Type3=0을 확인했다. 현재 남은 blocker는 시각물이 아니라 외부 artifact·metadata·clean-checkout 재현이다.
 - 참고문헌 마지막 쪽과 마지막 Appendix 쪽의 여백은 내용 손실이 아니라 section/page break에 따른 비치명적 조판 여백이다.
 - current `MANIFEST.sha256`의 모든 항목이 일치했다. OHR 2,036-Q--A alignment audit의 `--check`와 294-page aggregate grid 재구성도 통과했다. `src/`, `scripts/`, `tests/` 전체 Python 문법 컴파일도 임시 캐시 경로에서 통과했다. 이 Mac에는 `uv`와 `pytest`가 없어 unit test suite 자체는 실행하지 못했으며, 이는 clean-checkout 환경 게이트로 남긴다.

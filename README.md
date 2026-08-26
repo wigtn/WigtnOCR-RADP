@@ -145,7 +145,9 @@ When the coverage diagnostic points to parser output, we test the following appr
 - **RADP-DPO** *(discrete-output retrieval-reward DPO).* Sample K parses from the production parser, score
   each by page-local BGE-M3 MRR averaged over `k = {1, 5, 10}`, form preference pairs, and train with a
   **LoRA-toggle reference** (`π_θ` = LoRA on, `π_ref` = LoRA off). The candidate pool and negatives expand
-  across **R1 → R2 → R3**.
+  across **R1 → R2 → R3**. The original R2 execution log verifies `beta = 0.1`; its portable executed
+  configuration and source-log hash are recorded in
+  [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md).
 - **RADP-Distill** *(fidelity-based control).* Candidates are ranked by edit distance to reference Markdown
   instead of the page-local BGE-M3 MRR retrieval reward. Its aligned per-QA artifact is currently unavailable,
   so this README makes no quantitative Distill-versus-DPO claim.
@@ -257,7 +259,9 @@ In a separate parser-masked, stratified sample of 100 absent cases, two authors 
 81/100 cases (**κ = 0.615**) before adjudication. After adjudication, retrieval-unusable rates are
 **42/50 (84.0%)** for MinerU-on, **12/30 (40.0%)** for Prod, and **19/20 (95.0%)** for PaddleOCR.
 Different sampling fractions and MinerU configurations prevent a population-level replication claim.
-The final per-case human labels are not yet packaged as a public artifact.
+The sampling manifest, both rating files, and the 19-case adjudication record were independently
+rechecked with the repository scorer. They are retained in an author-only audit package; the public
+release reports only the aggregate results above.
 
 ### C4 — parser-side training remains below the pilot target
 
@@ -365,22 +369,20 @@ listed explicitly below.
 
 ---
 
-## Authors (camera-ready order)
+## Authors (OpenReview and camera-ready order)
 
 Follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
 
 1. Sang-Woo Son
-2. Hyeonsang Kim
-3. Hyun-woo Cho
-4. Jinmo Kim
-5. Hyeong-seob Kim\*
+2. Hyeong-seob Kim
+3. Hyeonsang Kim
+4. Hyun-woo Cho
+5. Jinmo Kim
 
-\* Corresponding author.
-
-The camera-ready author order is confirmed, with the corresponding author listed last. This section
-previously carried the OpenReview submission order while the corresponding-author designation awaited
-written confirmation from the Industry Track chairs. Affiliations and emails will be added only from
-confirmed metadata.
+The author list and order remain exactly as submitted. The Industry Track chairs confirmed in writing that
+Hyeong-seob Kim may be designated as corresponding author without changing that order. The camera-ready PDF
+therefore uses the ACL-template line `Correspondence: harrison@wigtn.com`. Affiliations and other emails will
+be added only from confirmed metadata.
 
 ---
 
@@ -394,16 +396,21 @@ confirmed metadata.
   corpus and mapping are not packaged here. A separate LLM-assisted 100-pair Q–A quality-check sample
   and its aggregate 94/100 result are tracked; the sample's blank `verification` fields are not human annotations.
 - **RCPS reference implementation** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
-- **Selected evaluation artifacts** — aggregate parser/chunker grids, per-Q–A arrays for audited training
-  comparisons, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
-  and MinerU-on.
+- **Selected evaluation artifacts** — aggregate parser/chunker grids, aligned full-grid and audited-training
+  per-Q–A arrays, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
+  and MinerU-on. The 294-page full-grid audit includes
+  [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json) and fixed-seed parser/chunker
+  [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) results. Across 1,000
+  500-of-663 draws, Prod stays above Base and every OCR parser in 100% of draws; the complete chunker
+  order is unchanged in 96.1%. Raw matching lowers RCPS by 0.024–0.041 without reordering either pool.
 - **Aligned OHR audit artifacts** — the 1,043-Q–A Law–Manual C1 result and a deterministic derivation of
   the strict 2,036-Q–A legacy compatibility subset. Older seven-domain outputs remain in the tree for
   provenance and are listed in
   [`MANIFEST.legacy-invalid.sha256`](output/results/MANIFEST.legacy-invalid.sha256); they are not valid
   camera-ready evidence.
 - **Aggregate human-check results** — the paper records the parser-masked 100-case absent-label study
-  (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates).
+  (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates). The underlying
+  sampling, rating, and adjudication records were rechecked and are retained in an author-only audit package.
 - **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews;
   Figure 1 also includes its canonical editable PPTX. The compiled paper was checked with embedded fonts
   and no Type 3 fonts.
@@ -413,20 +420,13 @@ confirmed metadata.
 - The source-page mapping that links `val_####` Q–A IDs to tracked parser-output filenames
   (`data/KoGovDoc-Bench/val.jsonl`), or an equivalent portable manifest.
 - MinerU **table-OFF**, Qwen3-VL-30B, and Qwen3-VL-2B-base parser outputs, plus exact rerun commands.
-- Per-Q–A arrays for the complete 294-page parser/chunker grid and the corresponding probe-resampling
-  **ranking-stability** artifact. The tracked aggregate-grid audit and end-to-end stability check are
-  different analyses and are already present.
-- Final per-case labels and adjudications from the separate parser-masked, two-author 100-case absent-label
-  study. Its aggregate results are reported in the paper, but the per-case artifact is not currently in Git;
-  release and packaging remain pending. This is distinct from the tracked 100-pair Q–A quality check.
 - A full OHR-Bench v2 rerun and clean-checkout validation of the current/quarantine workflow; legacy
   seven-domain / combined-CI / OHR-TextNED artifacts are already separated in the quarantine manifest.
 - RADP-Distill per-QA and confidence-interval artifacts evaluated on the same aligned subset; until then,
   no quantitative Distill-versus-DPO comparison is supported.
 - Complete BC/CS mechanism data and aligned uncertainty estimates.
 - Complete executed-configuration/log provenance and model checkpoints for RADP-Distill, RADP-aux,
-  RADP-DPO, and SimPO. In particular, the executed R2 `beta` requires confirmation from the original
-  checkpoint or log.
+  RADP-DPO, and SimPO, except for the now-verified R2 executed configuration (`beta = 0.1`).
 - A portable **fresh-clone, end-to-end reproduction path**, including external data, parser outputs,
   embedding caches, checkpoint acquisition, and removal of machine-specific runtime assumptions.
 

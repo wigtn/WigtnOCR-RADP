@@ -109,7 +109,7 @@ chunker를 바꿀 때 달라지는 것은 split이며 8개 chunker에서 최대 
 coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 control은 다음과 같다.
 
 - **RADP-aux** *(hidden-state 보조손실).* `L_total = L_parse + λ·L_contrast`로 답-span hidden state와 frozen BGE-M3 임베딩을 정렬한다. 73페이지 pilot에서 사전 목표를 충족하지 못했다.
-- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 시작하고, R3는 후보 pool과 hard negative를 확장한다.
+- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 `beta = 0.1`로 시작하고, R3는 후보 pool과 hard negative를 확장한다. 원본 R2 실행 로그로 확인한 portable config와 source-log hash는 [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md)에 기록했다.
 - **RADP-Distill** *(fidelity-based control).* 후보를 page-local BGE-M3 MRR retrieval reward 대신 reference Markdown과의 edit-distance로 순위한다. 정렬된 per-QA artifact가 현재 없어 이 README에서는 Distill과 DPO의 정량 비교를 하지 않는다.
 - **SimPO** *(reference-free control).* 242페이지 분석의 point estimate는 음수지만 모든 신뢰구간이 0을 포함하며, 어떤 최적화 차이가 원인인지는 이 실험만으로 분리하지 못한다.
 
@@ -197,7 +197,7 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 
 라벨 견고성도 따로 확인했다. GPT-5.4는 Prod의 exact-match-absent case 중 **56%**를 recoverable surface artefact로 재분류했다. Q–A도 GPT 계열 모델이 생성했으므로 이 judge는 생성 과정과 독립적이지 않다.
 
-별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. 최종 per-case 인간 라벨은 아직 공개 artifact로 packaging되지 않았다.
+별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. Sampling manifest, 두 평가 파일, 19건의 adjudication 기록은 저장소 scorer로 재검증했다. 원본은 저자 전용 감사 패키지에 보관하고 공개본에는 aggregate 결과만 보고한다.
 
 ### C4 — 파서측 학습은 pilot 목표를 충족하지 못했다
 
@@ -282,21 +282,20 @@ end-to-end 실행법과 남은 공개 산출물은 아래의 camera-ready 작업
 
 ---
 
-## 👥 저자 (camera-ready 순서)
+## 👥 저자 (OpenReview 및 camera-ready 순서)
 
 **WigtnOCR v1**(Qwen3-VL-2B 문서 파싱 fine-tuning)의 후속 연구.
 
 1. Sang-Woo Son
-2. Hyeonsang Kim
-3. Hyun-woo Cho
-4. Jinmo Kim
-5. Hyeong-seob Kim\*
+2. Hyeong-seob Kim
+3. Hyeonsang Kim
+4. Hyun-woo Cho
+5. Jinmo Kim
 
-\* 교신저자.
-
-camera-ready 저자 순서가 확정되어 교신저자를 맨 뒤에 둔다. 이 절은 이전까지 Industry Track chairs의
-교신저자 지정 서면 확인을 기다리며 OpenReview 제출 순서를 유지했다. 소속과 이메일은 확인된
-metadata만 추후 반영한다.
+저자 명단과 순서는 제출 당시 그대로 유지한다. Industry Track chairs가 이 순서를 바꾸지 않고
+Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. 카메라레디 PDF에는 ACL 템플릿의
+`Correspondence: harrison@wigtn.com` 표기를 사용한다. 소속과 나머지 이메일은 확인된 metadata만
+추후 반영한다.
 
 ---
 
@@ -310,9 +309,15 @@ metadata만 추후 반영한다.
   별도의 LLM-assisted 100-pair Q–A 품질 점검 표본과 aggregate 94/100 결과도 있다. 이 표본의 빈
   `verification` 필드는 인간 라벨이 아니다.
 - **RCPS 레퍼런스 구현** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
-- **선별된 평가 산출물** — tracked aggregate grid, audited training per-Q–A 배열, Prod·PaddleOCR·MinerU-on의 294페이지 출력과 관련 결과 JSON.
+- **선별된 평가 산출물** — tracked aggregate grid, full-grid와 audited training의 aligned per-Q–A 배열,
+  Prod·PaddleOCR·MinerU-on의 294페이지 출력과 관련 결과 JSON. 동일 294페이지 full-grid 감사는
+  [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json)과 parser/chunker
+  [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) 결과를 포함한다.
+  663개 중 500개를 뽑는 고정-seed 1,000회에서 Prod는 Base와 모든 OCR parser보다 100% 높았고,
+  전체 chunker 순서는 96.1% 유지됐다. Raw matching은 두 pool의 순서를 바꾸지 않으면서 RCPS를
+  0.024–0.041 낮췄다.
 - **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과와 strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
-- **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했고, 감사 문서는 검증 완료와 agreement를 추적한다. 최종 per-case 라벨은 아직 공개하지 않았다.
+- **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했다. Sampling·평가·adjudication 원본은 재검증을 마쳤으며 저자 전용 감사 패키지에 보관한다.
 - **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
   PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
 
@@ -321,15 +326,10 @@ metadata만 추후 반영한다.
 - `val_####` Q–A page ID를 tracked parser-output filename에 연결하는 source-page mapping
   (`data/KoGovDoc-Bench/val.jsonl`) 또는 이에 해당하는 portable manifest.
 - MinerU **table-OFF**, Qwen3-VL-30B, Qwen3-VL-2B-base 파서 출력과 정확한 rerun 명령.
-- 전체 294페이지 parser/chunker grid의 per-Q–A 배열과 이에 대응하는 probe-resampling
-  **ranking-stability** 산출물. tracked aggregate-grid audit와 end-to-end stability check는 다른
-  분석이며 이미 저장소에 있다.
-- 별도의 two-author 100-case absent-label 연구에서 나온 최종 per-case 라벨과 adjudication.
-  현재 Git에는 없으며 공개 여부 결정과 packaging이 아직 남아 있다.
 - full OHR-Bench v2 rerun과 새 current/quarantine manifest의 clean-machine 검증. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - 동일 aligned subset의 RADP-Distill per-QA·CI artifact. 복구 전에는 Distill-vs-DPO 정량 비교를 지원하지 않는다.
 - complete BC/CS mechanism data와 aligned uncertainty estimate.
-- RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. 특히 R2의 실행 `beta`는 원 checkpoint/log 확인이 필요하다.
+- RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. R2 실행 config(`beta = 0.1`)는 원본 로그로 확인을 마쳤다.
 - 외부 데이터, parser 출력, embedding cache, checkpoint 획득, 머신 종속 실행 가정을 포함한
   **portable fresh-clone end-to-end 재현 경로**.
 

@@ -34,19 +34,18 @@ n=5 상관 −0.81→**−0.83** 갱신(독립 재계산 −0.8292 일치 확인
 
 ## 2. 남은 작업 (우선순위 순)
 
-### A. P7 — full-grid probe-resampling 【최대 blocker, 유일한 실험+본문 동시 항목】
+### A. P7 — full-grid probe-resampling 【2026-08-27 완료】
 
-bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했는데, 현재 본문은
-반대로 "Missing aligned per-Q--A arrays prevent a probe-resampling test"(L183)라고 자인한다.
+bXGg Q1의 **"The full-grid version goes into the revision"** 약속은 동일 294페이지·663 Q--A·
+9-system artifact와 parser/chunker bootstrap 결과로 닫았다. 과거의 missing-array 문장은 원고에서 교체했다.
 
-1. WSL에서 동일 294p·663 Q--A·동일 retriever/cutoff로 **9개 시스템 per-QA 수출**
-   (30B/Prod/2B-base/MinerU-off/MinerU-on/Paddle × parser_native + Prod × 나머지 3청커).
-   Marker 제외. 242p fold와 절대 혼합 금지 (PLAN P7의 풀 정의 그대로).
-2. `scripts/analysis/rank_stability_bootstrap.py`(e005ad7) 실행 → 결과 JSON + MANIFEST 커밋.
-3. 본문 L183 문장을 결과로 교체하고, rebuttal의 provisional 수치(100%/98.8%)는 full-grid
-   결과로 **대체**한다(승격 금지 원칙 유지).
-4. ⚠️ "format normalisation shifts scores by 0.02–0.03" 문장은 재계산 근거가 나오기 전까지
-   논문에 넣지 않는다 (현 상태 유지가 정답).
+1. 동일 294p·663 Q--A·동일 retriever/cutoff로 **9개 시스템 per-QA 수출 완료**.
+   Marker와 242p fold는 제외했다.
+2. `rank_stability_bootstrap.py` 실행과 결과 JSON·MANIFEST 반영 완료.
+3. 본문의 missing-array 문장을 실제 full-grid 수치로 교체했다. Provisional 98.8%는
+   md-h3 $>$ parser-native 96.5%로 정정했다.
+4. Format normalisation은 raw 대비 0.024--0.041 상승하고 두 pool 순서를 바꾸지 않는다.
+   기존 0.02--0.03 범위는 MinerU-on 0.041 때문에 정정했다.
 
 ### B. P12 — 아티팩트 3건
 
@@ -57,10 +56,10 @@ bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했�
    "does not yet contain … checkpoints"라고 자인한다. 게시 주장과 논문이 정면 충돌.
    → 권고: 최소 R2/R3 LoRA 어댑터 + 실행 config 공개(HF 또는 repo). 불가하면 App H 서술과
    별개로 공개 계획을 명시해야 하나, 공개가 정공법이다.
-3. **인간 검수 per-case 라벨** — tex L365 `CAMERA-READY ARTIFACT BLOCKER` 주석 잔존.
-   adjudicated 100건 라벨 + 93건 overlap manifest 공개 여부를 상우가 결정하고, 공개 시
-   검수자는 "author A/B" 익명 표기. 결정 후 **blocker 주석 2건(L241 R2-β 포함) 제거**가
-   최종 PDF 게이트다.
+3. **인간 검수 per-case 라벨** — 저자 전용 패키지의 두 평가 파일, sampling manifest,
+   19건 adjudication 기록을 scorer로 재검증했다. κ=0.615, 81/100, parser별 비율,
+   human--LLM 90.3%(n=93)가 모두 원고와 일치한다. 원본은 패키지 규칙에 따라 공개하지 않으며,
+   tex의 관련 blocker 주석과 `final human labels missing` 표현은 제거했다.
 
 ### C. 문안 미세갭 2건 (짧은 수정)
 
@@ -72,8 +71,10 @@ bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했�
 
 ### D. 메타데이터 (폼 8/23–30, 외부 의존)
 
-5인 소속·이메일·ORCID 순서별 대조, presenter/등록/visa/preference, chairs 교신저자 회신
-(회신 전 별표 금지 유지), R2 β=0.1 vs 0.05 provenance 확인(트레이닝 로그). PLAN §0 게이트 그대로.
+5인 소속·이메일·ORCID 순서별 대조, presenter/등록/visa/preference와 대면 발표자의 Budapest
+도착·출발일 및 선택적 scheduling constraints 입력, R2 β=0.1 vs 0.05 provenance 확인(트레이닝 로그).
+교신저자는 chairs의 서면 승인에 따라 이름 별표 없이 `Correspondence: harrison@wigtn.com`으로 반영했다.
+PLAN §0 게이트 그대로.
 
 ### E. BC 0.713 / r=−0.83의 근거 아티팩트 머지 【PR #12로 승격됨 — 이제 필수】
 
