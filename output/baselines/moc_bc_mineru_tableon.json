@@ -3,15 +3,19 @@
   "label": "MinerU-on",
   "metric_definition": "MoC Boundary Clarity (arXiv:2503.09600). For a chunk d and the chunk q immediately following it on the same page, BC(q|d) = ppl(q|d) / ppl(q) = exp(NLL(q|d) - NLL(q)), where NLL is the mean token negative log-likelihood under the scoring LM. Higher BC = the next chunk is less predictable from the previous one = a cleaner, better separated boundary. Only within-page adjacent chunk pairs are scored; no boundary is formed across a page break. The corpus number is the unweighted mean over every valid boundary (not a mean of per-page means). BC is not clamped to [0, 1].",
   "provenance": {
-    "git_commit": "b563327c3c7d417f3e6500869be148c545fff6cb",
+    "git_commit": "4aeb998cb03d395a75368c2b8c03b8f9e9e39a9b",
+    "git_commit_role": "execution checkout supplying package and input files; runner_source_sha256 identifies the executed runner",
     "git_dirty": true,
-    "executed_at_utc": "2026-08-23T14:36:37Z",
+    "git_tracked_dirty": false,
+    "executed_at_utc": "2026-08-26T19:14:36Z",
+    "runner_source": "scripts/evaluation/compute_parser_bc.py",
+    "runner_source_sha256": "a4a4945c5e63da076d1bc8be513baa6e80baf88780735aeda5f18d13823173c8",
     "model_id": "Qwen/Qwen3-VL-2B-Instruct",
     "model_revision": "89644892e4d85e24eaac8bacfd4f463576704203",
     "dtype": "torch.bfloat16",
     "device": "cuda",
-    "gpu": "NVIDIA GeForce RTX 5070",
-    "python_version": "3.13.13",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "python_version": "3.13.5",
     "torch_version": "2.8.0+cu128",
     "transformers_version": "5.8.1",
     "cuda_version": "12.8"
@@ -31,7 +35,33 @@
     "aggregation": "unweighted_mean_over_all_valid_adjacent_boundaries",
     "clamped": false,
     "boundaries": "within_page_adjacent_only",
-    "std_bc_definition": "sample standard deviation (n-1)"
+    "std_bc_definition": "sample standard deviation (n-1)",
+    "fingerprint": {
+      "schema_version": "1.0.0",
+      "sha256": "9fe594ef2ff0f34609c27ed2f93c10f48249646c82023fd02e216d7784de712b",
+      "components": {
+        "input_manifest_sha256": "1fd8559a1efc9653d956d012b453a236ffbeb7107de385d5b7875a3886867803",
+        "boundary_manifest_sha256": "077882792aa4b94df6a202168a038e822e6ba8694c6136c92bee21d1837a5d15",
+        "num_boundaries": 609,
+        "model_id": "Qwen/Qwen3-VL-2B-Instruct",
+        "model_revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+        "dtype": "torch.bfloat16",
+        "max_tokens": 1024,
+        "chunker": {
+          "name": "parser_native",
+          "min_chars": 30
+        },
+        "metric_definition_sha256": "083eae37d369555e743faef25a4d02a764fd000e9cc8c42ff54eecbb0a43c740",
+        "scoring_source_sha256": "43d34400ac1a7c3eed295cd150163b6c92f8e1622205f5d2e45a54aa96b874d2",
+        "runner_source_sha256": "a4a4945c5e63da076d1bc8be513baa6e80baf88780735aeda5f18d13823173c8"
+      }
+    }
+  },
+  "checkpoint": {
+    "enabled": false,
+    "resumed_records": 0,
+    "fingerprint": null,
+    "note": "When enabled, cached boundary scores are reused only after the sidecar fingerprint matches the input, boundary texts, model revision, chunker, metric, and scoring source hashes."
   },
   "summary": {
     "num_pages": 294,
@@ -41,11 +71,11 @@
     "num_boundaries_valid": 609,
     "num_boundaries_skipped": 0,
     "skipped_by_reason": {},
-    "mean_bc": 0.7132110997071613,
-    "median_bc": 0.728879578420269,
-    "std_bc": 0.25673201000103274,
-    "min_bc": 0.052985575780483275,
-    "max_bc": 1.7136804372892338
+    "mean_bc": 0.7131232508982984,
+    "median_bc": 0.7268471243986776,
+    "std_bc": 0.25583351119563696,
+    "min_bc": 0.05230371461529283,
+    "max_bc": 1.6889491022575358
   },
   "per_page": [
     {
@@ -53,7 +83,7 @@
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6768108698266985
+      "mean_bc": 0.6766926672564212
     },
     {
       "page_id": "arxiv_001_page_0013",
@@ -67,182 +97,182 @@
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.7455967637902603
+      "mean_bc": 0.7440295426377613
     },
     {
       "page_id": "arxiv_004_page_0009",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.7516546083461494
+      "mean_bc": 0.7521720546343333
     },
     {
       "page_id": "arxiv_004_page_0035",
       "num_chunks": 12,
       "num_boundaries_attempted": 11,
       "num_boundaries_valid": 11,
-      "mean_bc": 0.688868873353521
+      "mean_bc": 0.6886018489121555
     },
     {
       "page_id": "arxiv_004_page_0040",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6563427468398361
+      "mean_bc": 0.6578260186471236
     },
     {
       "page_id": "arxiv_004_page_0057",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 1.0966556159699243
+      "mean_bc": 1.089361324323278
     },
     {
       "page_id": "arxiv_004_page_0066",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.3388212025286858
+      "mean_bc": 0.3441332793810139
     },
     {
       "page_id": "arxiv_005_page_0003",
       "num_chunks": 7,
       "num_boundaries_attempted": 6,
       "num_boundaries_valid": 6,
-      "mean_bc": 0.7463974052999719
+      "mean_bc": 0.73773950660894
     },
     {
       "page_id": "arxiv_005_page_0004",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.6018980567489566
+      "mean_bc": 0.60131284477348
     },
     {
       "page_id": "arxiv_005_page_0010",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.703059899658167
+      "mean_bc": 0.7018283555660939
     },
     {
       "page_id": "arxiv_007_page_0002",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.7648295981856293
+      "mean_bc": 0.7638921042891956
     },
     {
       "page_id": "arxiv_007_page_0008",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.7294643170728924
+      "mean_bc": 0.7304078316158793
     },
     {
       "page_id": "arxiv_008_page_0010",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.6313549718254905
+      "mean_bc": 0.6337469426761265
     },
     {
       "page_id": "arxiv_009_page_0007",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6999667040534939
+      "mean_bc": 0.6977401406956635
     },
     {
       "page_id": "arxiv_010_page_0008",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.5940557040296335
+      "mean_bc": 0.5990990870189987
     },
     {
       "page_id": "arxiv_010_page_0013",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.6644863240874498
+      "mean_bc": 0.6607469078580545
     },
     {
       "page_id": "arxiv_010_page_0014",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.6220219964261192
+      "mean_bc": 0.6206676341146447
     },
     {
       "page_id": "arxiv_010_page_0019",
       "num_chunks": 14,
       "num_boundaries_attempted": 13,
       "num_boundaries_valid": 13,
-      "mean_bc": 0.5688401204075876
+      "mean_bc": 0.5681859508278919
     },
     {
       "page_id": "arxiv_010_page_0023",
       "num_chunks": 12,
       "num_boundaries_attempted": 11,
       "num_boundaries_valid": 11,
-      "mean_bc": 0.6972736570651414
+      "mean_bc": 0.6994131951530416
     },
     {
       "page_id": "arxiv_010_page_0024",
       "num_chunks": 16,
       "num_boundaries_attempted": 15,
       "num_boundaries_valid": 15,
-      "mean_bc": 0.6589006920415701
+      "mean_bc": 0.6603461245902503
     },
     {
       "page_id": "arxiv_010_page_0025",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.5927384395083041
+      "mean_bc": 0.5943354905503148
     },
     {
       "page_id": "arxiv_011_page_0011",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.8787663576825967
+      "mean_bc": 0.887391475183699
     },
     {
       "page_id": "arxiv_012_page_0001",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.732519623140265
+      "mean_bc": 0.7347952972692721
     },
     {
       "page_id": "arxiv_012_page_0007",
       "num_chunks": 11,
       "num_boundaries_attempted": 10,
       "num_boundaries_valid": 10,
-      "mean_bc": 0.6099310561318558
+      "mean_bc": 0.6077974754318631
     },
     {
       "page_id": "arxiv_013_page_0002",
       "num_chunks": 13,
       "num_boundaries_attempted": 12,
       "num_boundaries_valid": 12,
-      "mean_bc": 0.6824501570179943
+      "mean_bc": 0.6828206924461226
     },
     {
       "page_id": "arxiv_013_page_0003",
       "num_chunks": 12,
       "num_boundaries_attempted": 11,
       "num_boundaries_valid": 11,
-      "mean_bc": 0.6882166217498752
+      "mean_bc": 0.6891718983344747
     },
     {
       "page_id": "arxiv_013_page_0005",
       "num_chunks": 11,
       "num_boundaries_attempted": 10,
       "num_boundaries_valid": 10,
-      "mean_bc": 0.6630767883598916
+      "mean_bc": 0.664058338927801
     },
     {
       "page_id": "arxiv_015_page_0010",
@@ -256,35 +286,35 @@
       "num_chunks": 7,
       "num_boundaries_attempted": 6,
       "num_boundaries_valid": 6,
-      "mean_bc": 0.694055874919508
+      "mean_bc": 0.6912340208108043
     },
     {
       "page_id": "arxiv_016_page_0008",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6550591999724681
+      "mean_bc": 0.6575536632284693
     },
     {
       "page_id": "arxiv_017_page_0021",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.648499176440354
+      "mean_bc": 0.6464296642469435
     },
     {
       "page_id": "arxiv_017_page_0026",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9797809743230184
+      "mean_bc": 0.9815301959705769
     },
     {
       "page_id": "arxiv_018_page_0006",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6541087436043164
+      "mean_bc": 0.6506882662901109
     },
     {
       "page_id": "arxiv_018_page_0033",
@@ -298,7 +328,7 @@
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.5573443286639715
+      "mean_bc": 0.5581443332611993
     },
     {
       "page_id": "arxiv_019_page_0045",
@@ -312,7 +342,7 @@
       "num_chunks": 11,
       "num_boundaries_attempted": 10,
       "num_boundaries_valid": 10,
-      "mean_bc": 0.6518097621649629
+      "mean_bc": 0.6535718306908336
     },
     {
       "page_id": "arxiv_020_page_0022",
@@ -326,14 +356,14 @@
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.713655393991555
+      "mean_bc": 0.7153066445592823
     },
     {
       "page_id": "arxiv_024_page_0003",
       "num_chunks": 10,
       "num_boundaries_attempted": 9,
       "num_boundaries_valid": 9,
-      "mean_bc": 0.5644201983086377
+      "mean_bc": 0.5636685444842922
     },
     {
       "page_id": "arxiv_026_page_0010",
@@ -347,7 +377,7 @@
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.7012813559033554
+      "mean_bc": 0.7034449934931972
     },
     {
       "page_id": "arxiv_027_page_0016",
@@ -361,21 +391,21 @@
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.8069655935013712
+      "mean_bc": 0.8096307131658603
     },
     {
       "page_id": "arxiv_029_page_0002",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6293494972382264
+      "mean_bc": 0.6289729908809734
     },
     {
       "page_id": "arxiv_029_page_0008",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.6151224249456985
+      "mean_bc": 0.6152774614270056
     },
     {
       "page_id": "arxiv_029_page_0013",
@@ -389,77 +419,77 @@
       "num_chunks": 12,
       "num_boundaries_attempted": 11,
       "num_boundaries_valid": 11,
-      "mean_bc": 0.6959562466411513
+      "mean_bc": 0.6968896132003183
     },
     {
       "page_id": "arxiv_032_page_0014",
       "num_chunks": 9,
       "num_boundaries_attempted": 8,
       "num_boundaries_valid": 8,
-      "mean_bc": 0.7408929765730263
+      "mean_bc": 0.7404445475526343
     },
     {
       "page_id": "arxiv_032_page_0016",
       "num_chunks": 11,
       "num_boundaries_attempted": 10,
       "num_boundaries_valid": 10,
-      "mean_bc": 0.7575476383929274
+      "mean_bc": 0.7497222687308449
     },
     {
       "page_id": "arxiv_033_page_0013",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.7121848332215137
+      "mean_bc": 0.7121549899387318
     },
     {
       "page_id": "arxiv_033_page_0024",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.7612041210897371
+      "mean_bc": 0.7651379826827205
     },
     {
       "page_id": "arxiv_033_page_0026",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.7845127241940546
+      "mean_bc": 0.7881902809862947
     },
     {
       "page_id": "arxiv_033_page_0027",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.787372249900554
+      "mean_bc": 0.7894537857067003
     },
     {
       "page_id": "arxiv_033_page_0036",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.6008831919373308
+      "mean_bc": 0.5989158035067684
     },
     {
       "page_id": "arxiv_033_page_0039",
       "num_chunks": 14,
       "num_boundaries_attempted": 13,
       "num_boundaries_valid": 13,
-      "mean_bc": 0.7413777395957898
+      "mean_bc": 0.7417701972654561
     },
     {
       "page_id": "arxiv_033_page_0047",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.7464236827312735
+      "mean_bc": 0.7482489273984994
     },
     {
       "page_id": "arxiv_033_page_0050",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.7531294913238382
+      "mean_bc": 0.748528378647519
     },
     {
       "page_id": "arxiv_033_page_0075",
@@ -473,35 +503,35 @@
       "num_chunks": 16,
       "num_boundaries_attempted": 15,
       "num_boundaries_valid": 15,
-      "mean_bc": 0.6789369473368573
+      "mean_bc": 0.6808841341189995
     },
     {
       "page_id": "arxiv_036_page_0023",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.675816836629184
+      "mean_bc": 0.6768728255561778
     },
     {
       "page_id": "arxiv_036_page_0025",
       "num_chunks": 7,
       "num_boundaries_attempted": 6,
       "num_boundaries_valid": 6,
-      "mean_bc": 0.5867403452416149
+      "mean_bc": 0.5903320935541042
     },
     {
       "page_id": "arxiv_038_page_0005",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.7408163433898658
+      "mean_bc": 0.7428081705697964
     },
     {
       "page_id": "arxiv_039_page_0013",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.6893918716178417
+      "mean_bc": 0.6915592026559749
     },
     {
       "page_id": "kogov_001_page_0001",
@@ -543,14 +573,14 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9714740928903883
+      "mean_bc": 0.9676363798828442
     },
     {
       "page_id": "kogov_001_page_0036",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.8222135523343381
+      "mean_bc": 0.8180563277600713
     },
     {
       "page_id": "kogov_001_page_0038",
@@ -585,91 +615,91 @@
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.42507499286336803
+      "mean_bc": 0.42661730556441535
     },
     {
       "page_id": "kogov_003_page_0044",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 1.0385723214768419
+      "mean_bc": 1.0339629542032256
     },
     {
       "page_id": "kogov_003_page_0054",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8655688710385002
+      "mean_bc": 0.8613116371074329
     },
     {
       "page_id": "kogov_003_page_0060",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9421108112211218
+      "mean_bc": 0.9422348499421986
     },
     {
       "page_id": "kogov_003_page_0079",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9323156358247056
+      "mean_bc": 0.9543948275127956
     },
     {
       "page_id": "kogov_003_page_0095",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.9549426001193869
+      "mean_bc": 0.9529898072113515
     },
     {
       "page_id": "kogov_003_page_0099",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8522945576780084
+      "mean_bc": 0.8676913192585171
     },
     {
       "page_id": "kogov_003_page_0112",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.7538318775199037
+      "mean_bc": 0.7470720085568084
     },
     {
       "page_id": "kogov_003_page_0138",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.0147517758337568
+      "mean_bc": 1.0129796945033829
     },
     {
       "page_id": "kogov_003_page_0162",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.9370037693204608
+      "mean_bc": 0.9385186042262698
     },
     {
       "page_id": "kogov_003_page_0163",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.411669847304316
+      "mean_bc": 1.4163268668355704
     },
     {
       "page_id": "kogov_003_page_0180",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6015452159708362
+      "mean_bc": 0.6071875362852218
     },
     {
       "page_id": "kogov_003_page_0194",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.9797882023153934
+      "mean_bc": 0.964103602438922
     },
     {
       "page_id": "kogov_003_page_0205",
@@ -683,21 +713,21 @@
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9833984173626051
+      "mean_bc": 0.9930314831505017
     },
     {
       "page_id": "kogov_003_page_0235",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.9188662075251521
+      "mean_bc": 0.9120541565016357
     },
     {
       "page_id": "kogov_003_page_0250",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9840814057389033
+      "mean_bc": 0.9795050014586639
     },
     {
       "page_id": "kogov_003_page_0272",
@@ -711,7 +741,7 @@
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8656021399318495
+      "mean_bc": 0.8610394392704439
     },
     {
       "page_id": "kogov_003_page_0320",
@@ -725,14 +755,14 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.7691309120575858
+      "mean_bc": 0.7659173026197151
     },
     {
       "page_id": "kogov_003_page_0337",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.7852028532249149
+      "mean_bc": 0.7758416573299048
     },
     {
       "page_id": "kogov_003_page_0352",
@@ -781,14 +811,14 @@
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.777311293727096
+      "mean_bc": 0.7753642339367458
     },
     {
       "page_id": "kogov_003_page_0421",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6462588575557543
+      "mean_bc": 0.6408284440046692
     },
     {
       "page_id": "kogov_003_page_0422",
@@ -809,7 +839,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.4156867310302886
+      "mean_bc": 0.43013012182688665
     },
     {
       "page_id": "kogov_003_page_0433",
@@ -830,63 +860,63 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.5140228661479608
+      "mean_bc": 0.519012761741063
     },
     {
       "page_id": "kogov_003_page_0478",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9577389922022262
+      "mean_bc": 0.9354236304232146
     },
     {
       "page_id": "kogov_003_page_0493",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9046848342506496
+      "mean_bc": 0.9016715005114092
     },
     {
       "page_id": "kogov_003_page_0500",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.949026560888405
+      "mean_bc": 0.9419976028724526
     },
     {
       "page_id": "kogov_003_page_0501",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9148104113130656
+      "mean_bc": 0.9111003869511025
     },
     {
       "page_id": "kogov_003_page_0532",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.6245758633248453
+      "mean_bc": 0.6196822862322696
     },
     {
       "page_id": "kogov_003_page_0533",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.5100822409878876
+      "mean_bc": 0.5174913188423877
     },
     {
       "page_id": "kogov_003_page_0534",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.4477812860841532
+      "mean_bc": 0.4438309191227753
     },
     {
       "page_id": "kogov_003_page_0537",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.5215219207617504
+      "mean_bc": 0.5232127696745928
     },
     {
       "page_id": "kogov_003_page_0543",
@@ -900,91 +930,91 @@
       "num_chunks": 10,
       "num_boundaries_attempted": 9,
       "num_boundaries_valid": 9,
-      "mean_bc": 0.7864364322829114
+      "mean_bc": 0.7855495870808874
     },
     {
       "page_id": "kogov_003_page_0556",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.7759803256429254
+      "mean_bc": 0.7750941981777142
     },
     {
       "page_id": "kogov_003_page_0559",
       "num_chunks": 7,
       "num_boundaries_attempted": 6,
       "num_boundaries_valid": 6,
-      "mean_bc": 1.1507911899666694
+      "mean_bc": 1.1396151565427954
     },
     {
       "page_id": "kogov_003_page_0561",
       "num_chunks": 8,
       "num_boundaries_attempted": 7,
       "num_boundaries_valid": 7,
-      "mean_bc": 0.6203202410691905
+      "mean_bc": 0.6203175213835245
     },
     {
       "page_id": "kogov_003_page_0572",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.6581289834944702
+      "mean_bc": 0.6576399865307689
     },
     {
       "page_id": "kogov_003_page_0589",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8691696640791536
+      "mean_bc": 0.8645761149257042
     },
     {
       "page_id": "kogov_003_page_0595",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.8901518771649968
+      "mean_bc": 0.8973228797324996
     },
     {
       "page_id": "kogov_003_page_0605",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.0632551372864993
+      "mean_bc": 1.0642650527290043
     },
     {
       "page_id": "kogov_003_page_0609",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.7949685420301831
+      "mean_bc": 0.79449373846486
     },
     {
       "page_id": "kogov_003_page_0612",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.1279790819010902
+      "mean_bc": 1.1314410906706296
     },
     {
       "page_id": "kogov_003_page_0613",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8831954603053797
+      "mean_bc": 0.8871257947235373
     },
     {
       "page_id": "kogov_003_page_0616",
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.8763439448538424
+      "mean_bc": 0.8774116920434887
     },
     {
       "page_id": "kogov_003_page_0622",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9717404895030031
+      "mean_bc": 0.9725675949036464
     },
     {
       "page_id": "kogov_003_page_0629",
@@ -1012,21 +1042,21 @@
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.45161988164425426
+      "mean_bc": 0.45461637670354094
     },
     {
       "page_id": "kogov_003_page_0707",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.8596961946182422
+      "mean_bc": 0.8634427377231669
     },
     {
       "page_id": "kogov_003_page_0714",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.4898575277501392
+      "mean_bc": 0.4973999142783103
     },
     {
       "page_id": "kogov_003_page_0729",
@@ -1061,7 +1091,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.591264559532223
+      "mean_bc": 0.5906827871809037
     },
     {
       "page_id": "kogov_003_page_0774",
@@ -1082,7 +1112,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6470357338458645
+      "mean_bc": 0.6488154680174604
     },
     {
       "page_id": "kogov_003_page_0800",
@@ -1152,35 +1182,35 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6475096561837752
+      "mean_bc": 0.6468219574071803
     },
     {
       "page_id": "kogov_004_page_0071",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.711906835155993
+      "mean_bc": 0.7081787966137048
     },
     {
       "page_id": "kogov_004_page_0074",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.7771302656788275
+      "mean_bc": 0.7811530643757929
     },
     {
       "page_id": "kogov_004_page_0094",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.8609241299609212
+      "mean_bc": 0.8622729102915425
     },
     {
       "page_id": "kogov_004_page_0101",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9799807932328904
+      "mean_bc": 0.9808606301047669
     },
     {
       "page_id": "kogov_004_page_0102",
@@ -1201,21 +1231,21 @@
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.5251383059152696
+      "mean_bc": 0.5276121445492149
     },
     {
       "page_id": "kogov_004_page_0124",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 1.1358564694681348
+      "mean_bc": 1.135792350845189
     },
     {
       "page_id": "kogov_004_page_0130",
       "num_chunks": 12,
       "num_boundaries_attempted": 11,
       "num_boundaries_valid": 11,
-      "mean_bc": 0.5298003891135526
+      "mean_bc": 0.5288759053124125
     },
     {
       "page_id": "kogov_004_page_0138",
@@ -1229,7 +1259,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9189683005250369
+      "mean_bc": 0.932890632684443
     },
     {
       "page_id": "kogov_004_page_0165",
@@ -1250,7 +1280,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6441758997329879
+      "mean_bc": 0.636212769690801
     },
     {
       "page_id": "kogov_004_page_0220",
@@ -1320,7 +1350,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.569730412004701
+      "mean_bc": 1.5626662388571044
     },
     {
       "page_id": "kogov_006_page_0044",
@@ -1355,7 +1385,7 @@
       "num_chunks": 5,
       "num_boundaries_attempted": 4,
       "num_boundaries_valid": 4,
-      "mean_bc": 0.4806402948380921
+      "mean_bc": 0.47917026879030633
     },
     {
       "page_id": "kogov_007_page_0031",
@@ -1481,7 +1511,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.912306970402522
+      "mean_bc": 0.9246362745427144
     },
     {
       "page_id": "kogov_008_page_0149",
@@ -1509,7 +1539,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6986028568081881
+      "mean_bc": 0.7023915044135247
     },
     {
       "page_id": "kogov_008_page_0198",
@@ -1537,7 +1567,7 @@
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.4060939063080172
+      "mean_bc": 0.40715489161033386
     },
     {
       "page_id": "kogov_008_page_0300",
@@ -1936,28 +1966,28 @@
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 1.0063779147681797
+      "mean_bc": 1.0140727380929753
     },
     {
       "page_id": "kogov_009_page_0016",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.1314282773057687
+      "mean_bc": 1.1466338559533054
     },
     {
       "page_id": "kogov_009_page_0022",
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.9951502164991612
+      "mean_bc": 1.0031830841446168
     },
     {
       "page_id": "kogov_009_page_0028",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 1.0054560189657888
+      "mean_bc": 1.007932728809523
     },
     {
       "page_id": "kogov_009_page_0030",
@@ -1971,77 +2001,77 @@
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.80250026709631
+      "mean_bc": 0.8067202650102512
     },
     {
       "page_id": "kogov_009_page_0038",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 1.0900820403317226
+      "mean_bc": 1.0921520425946523
     },
     {
       "page_id": "kogov_009_page_0049",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 1.0847241858630159
+      "mean_bc": 1.0886193624636744
     },
     {
       "page_id": "kogov_010_page_0003",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.7328168720825121
+      "mean_bc": 0.7281611850814081
     },
     {
       "page_id": "kogov_010_page_0010",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.5709108351433132
+      "mean_bc": 0.5696810381485554
     },
     {
       "page_id": "kogov_010_page_0030",
       "num_chunks": 6,
       "num_boundaries_attempted": 5,
       "num_boundaries_valid": 5,
-      "mean_bc": 0.4547444424319009
+      "mean_bc": 0.45653196638314836
     },
     {
       "page_id": "kogov_010_page_0039",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.4199992071044066
+      "mean_bc": 0.42159258155887835
     },
     {
       "page_id": "kogov_011_page_0021",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.9649087141343945
+      "mean_bc": 0.9668863108920838
     },
     {
       "page_id": "kogov_011_page_0022",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6906729853160569
+      "mean_bc": 0.687593147081881
     },
     {
       "page_id": "kogov_011_page_0037",
       "num_chunks": 2,
       "num_boundaries_attempted": 1,
       "num_boundaries_valid": 1,
-      "mean_bc": 0.6289271347613367
+      "mean_bc": 0.6391533589118132
     },
     {
       "page_id": "kogov_011_page_0040",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.8384565600846217
+      "mean_bc": 0.836555661601305
     },
     {
       "page_id": "kogov_011_page_0044",
@@ -2062,14 +2092,14 @@
       "num_chunks": 3,
       "num_boundaries_attempted": 2,
       "num_boundaries_valid": 2,
-      "mean_bc": 0.4071954414353105
+      "mean_bc": 0.40379514847841014
     },
     {
       "page_id": "kogov_011_page_0100",
       "num_chunks": 4,
       "num_boundaries_attempted": 3,
       "num_boundaries_valid": 3,
-      "mean_bc": 0.46486251543852264
+      "mean_bc": 0.4632777824448117
     },
     {
       "page_id": "kogov_011_page_0108",
@@ -2148,13 +2178,13 @@
     }
   },
   "comparisons": {
-    "bc_minus_mineru_off_bc": -0.0028889002928386143,
-    "bc_minus_prod_bc": 0.10321109970716136,
+    "bc_minus_mineru_off_bc": -0.002976749101701537,
+    "bc_minus_prod_bc": 0.10312325089829844,
     "note": "Reference BC values are stored rounded to 4 decimal places, so these differences carry at most 4-decimal precision. The reference run also recorded no model revision — see the caveats in docs/FINDINGS_mineru_tableon_bc.md."
   },
   "derived_correlations": {
     "label": "complete_output_parsers_with_mineru_on",
-    "note": "4 parsers with complete 294-page output. Marker (38 pages) and PaddleOCR (0 boundaries) are excluded, as in the original analysis. MinerU-off is replaced by MinerU-on: they are the same 294 pages re-parsed with table recognition enabled, so including both would double-count one parser.",
+    "note": "4 parsers with complete 294-page output and measured BC. Marker is partial (38 pages), and PaddleOCR has no measured BC in the stored source audit; both are excluded. MinerU-off is replaced by MinerU-on: they are the same 294 pages parsed under two configurations, so including both would double-count one parser family/configuration comparison.",
     "points": [
       {
         "parser": "Qwen3-VL-30B (teacher)",
@@ -2182,7 +2212,7 @@
       },
       {
         "parser": "MinerU-tableON",
-        "bc": 0.7132110997071613,
+        "bc": 0.7131232508982984,
         "bc_source": "this_run",
         "rcps": 0.1365278210049452,
         "hit@1": 0.12267471091000504,
@@ -2192,16 +2222,16 @@
     "BC_vs_RCPS": {
       "label": "complete_output_4",
       "n": 4,
-      "pearson_r": -0.7445,
-      "pearson_p": 0.2555,
+      "pearson_r": -0.7443,
+      "pearson_p": 0.2557,
       "spearman_r": -0.2,
       "spearman_p": 0.8
     },
     "BC_vs_Hit1": {
       "label": "complete_output_4",
       "n": 4,
-      "pearson_r": -0.7484,
-      "pearson_p": 0.2516,
+      "pearson_r": -0.7481,
+      "pearson_p": 0.2519,
       "spearman_r": -0.4,
       "spearman_p": 0.6
     }

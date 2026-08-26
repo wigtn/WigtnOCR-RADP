@@ -53,6 +53,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger("compute_parser_bc")
 
 SCHEMA_VERSION = "1.0.0"
+CHECKPOINT_SCHEMA_VERSION = "1.0.0"
+REPO_ROOT_ENV = "WIGTNOCR_RADP_REPO_ROOT"
+RUNNER_SOURCE_ID = "scripts/evaluation/compute_parser_bc.py"
 
 METRIC_DEFINITION = (
     "MoC Boundary Clarity (arXiv:2503.09600). For a chunk d and the chunk q "
@@ -69,9 +72,9 @@ METRIC_DEFINITION = (
 AGGREGATION = "unweighted_mean_over_all_valid_adjacent_boundaries"
 
 # Parsers whose BC is already recorded in moc_bc_correlation.json and whose
-# output covers all 294 validation pages with >0 measurable boundaries. Marker
-# (38 pages) and PaddleOCR (0 boundaries) are complete-output failures and are
-# excluded from the 4-point correlation, exactly as in the original analysis.
+# output covers all 294 validation pages with measurable BC. Marker is partial
+# (38 pages), while PaddleOCR has no measured BC in the stored source audit;
+# both are excluded from the 4-point correlation.
 COMPLETE_OUTPUT_REFERENCE_PARSERS = (
     "Qwen3-VL-30B (teacher)",
     "WigtnOCR-2B (ours, v1)",
@@ -93,6 +96,9 @@ BC_REFERENCE_ALIASES = {
 
 def repo_root() -> Path:
     """Repository root (this file lives at <root>/scripts/evaluation/)."""
+    configured = os.environ.get(REPO_ROOT_ENV)
+    if configured:
+        return Path(configured).resolve()
     return Path(__file__).resolve().parents[2]
 
 
@@ -135,6 +141,17 @@ def manifest_sha256(files: Sequence[Path], root: Path | None = None) -> str:
 
 def file_sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def canonical_sha256(payload: Any) -> str:
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def load_pages(files: Sequence[Path]) -> list[tuple[str, str]]:
@@ -198,6 +215,50 @@ def enumerate_boundaries(
     return boundaries, page_stats
 
 
+def boundary_manifest_sha256(boundaries: Sequence[Boundary]) -> str:
+    """Hash boundary keys and both texts, in scoring order."""
+    h = hashlib.sha256()
+    for boundary in boundaries:
+        for value in (boundary.key, boundary.prev_text, boundary.next_text):
+            raw = value.encode("utf-8")
+            h.update(len(raw).to_bytes(8, "big"))
+            h.update(raw)
+    return h.hexdigest()
+
+
+def build_checkpoint_fingerprint(
+    *,
+    boundaries: Sequence[Boundary],
+    input_manifest: str,
+    model_id: str,
+    model_revision: str | None,
+    max_tokens: int,
+    min_chars: int,
+) -> dict[str, Any]:
+    """Bind a resumable checkpoint to its complete scientific configuration."""
+    scoring_source = repo_root() / "src/wigtnocr_radp/evaluation/boundary_clarity.py"
+    components = {
+        "input_manifest_sha256": input_manifest,
+        "boundary_manifest_sha256": boundary_manifest_sha256(boundaries),
+        "num_boundaries": len(boundaries),
+        "model_id": model_id,
+        "model_revision": model_revision,
+        "dtype": "torch.bfloat16",
+        "max_tokens": max_tokens,
+        "chunker": {"name": "parser_native", "min_chars": min_chars},
+        "metric_definition_sha256": hashlib.sha256(
+            METRIC_DEFINITION.encode("utf-8")
+        ).hexdigest(),
+        "scoring_source_sha256": file_sha256(scoring_source),
+        "runner_source_sha256": file_sha256(Path(__file__)),
+    }
+    return {
+        "schema_version": CHECKPOINT_SCHEMA_VERSION,
+        "sha256": canonical_sha256(components),
+        "components": components,
+    }
+
+
 def validate_inputs(
     *,
     num_pages: int,
@@ -217,6 +278,31 @@ def validate_inputs(
             f"expected {expected_chunks} (the num_chunks of the matching RCPS run). "
             "Refusing to run — BC and RCPS would not be measured over the same chunking."
         )
+
+
+def validate_reference_inputs(paths: Sequence[Path]) -> None:
+    missing = [str(path) for path in paths if not Path(path).is_file()]
+    if missing:
+        raise FileNotFoundError(
+            "reference files are missing; refusing to load the LM before this "
+            f"preflight passes: {missing}"
+        )
+
+
+def cuda_preflight(device: str) -> None:
+    """Initialise CUDA and allocate one scalar before the model is loaded."""
+    if not device.startswith("cuda"):
+        return
+    import torch
+
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA preflight failed: torch.cuda.is_available() is false")
+    index = int(device.split(":", 1)[1]) if ":" in device else 0
+    torch.cuda.set_device(index)
+    probe = torch.ones(1, device=device)
+    if probe.item() != 1.0:
+        raise RuntimeError("CUDA preflight returned an unexpected allocation value")
+    logger.info("CUDA preflight OK: %s", torch.cuda.get_device_name(index))
 
 
 # --------------------------------------------------------------------------
@@ -267,14 +353,47 @@ def load_checkpoint(path: Path | None) -> dict[str, BoundaryScore]:
     return done
 
 
+def checkpoint_meta_path(path: Path) -> Path:
+    return Path(f"{path}.meta.json")
+
+
+def prepare_checkpoint(path: Path, fingerprint: dict[str, Any]) -> None:
+    """Create or verify the checkpoint sidecar before cached scores are read."""
+    path = Path(path)
+    meta_path = checkpoint_meta_path(path)
+    has_scores = path.exists() and path.stat().st_size > 0
+    if has_scores and not meta_path.exists():
+        raise RuntimeError(
+            f"checkpoint {path} has no fingerprint sidecar {meta_path}; "
+            "refusing to reuse unbound scores"
+        )
+    if meta_path.exists():
+        try:
+            stored = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            raise RuntimeError(f"checkpoint fingerprint is unreadable: {meta_path}") from exc
+        if stored != fingerprint:
+            raise RuntimeError(
+                f"checkpoint fingerprint mismatch for {path}: "
+                f"stored={stored.get('sha256')} current={fingerprint.get('sha256')}"
+            )
+    else:
+        write_atomic(meta_path, dumps_strict(fingerprint))
+
+
 def score_boundaries(
     boundaries: Sequence[Boundary],
     score_fn: Callable[[str, str], float | None],
     *,
     checkpoint_path: Path | None = None,
+    checkpoint_fingerprint: dict[str, Any] | None = None,
     log_every: int = 50,
 ) -> list[BoundaryScore]:
     """Score every boundary, resuming from and appending to a checkpoint."""
+    if checkpoint_path is not None:
+        if checkpoint_fingerprint is None:
+            raise ValueError("checkpoint_path requires checkpoint_fingerprint")
+        prepare_checkpoint(checkpoint_path, checkpoint_fingerprint)
     done = load_checkpoint(checkpoint_path)
     if done:
         logger.info("checkpoint: resuming with %d boundaries already scored", len(done))
@@ -512,6 +631,20 @@ def git_is_dirty() -> bool | None:
         return None
 
 
+def git_tracked_is_dirty() -> bool | None:
+    try:
+        out = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=repo_root(),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return bool(out.stdout.strip())
+    except (subprocess.CalledProcessError, OSError):
+        return None
+
+
 def build_provenance(
     *, model_id: str, model_revision: str | None, dtype: str, device: str, gpu: str | None
 ) -> dict[str, Any]:
@@ -520,8 +653,15 @@ def build_provenance(
 
     return {
         "git_commit": git_commit(),
+        "git_commit_role": (
+            "execution checkout supplying package and input files; "
+            "runner_source_sha256 identifies the executed runner"
+        ),
         "git_dirty": git_is_dirty(),
+        "git_tracked_dirty": git_tracked_is_dirty(),
         "executed_at_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "runner_source": RUNNER_SOURCE_ID,
+        "runner_source_sha256": file_sha256(Path(__file__)),
         "model_id": model_id,
         "model_revision": model_revision,
         "dtype": dtype,
@@ -643,16 +783,53 @@ def build_derived_correlations(
     return {
         "label": "complete_output_parsers_with_mineru_on",
         "note": (
-            "4 parsers with complete 294-page output. Marker (38 pages) and "
-            "PaddleOCR (0 boundaries) are excluded, as in the original analysis. "
+            "4 parsers with complete 294-page output and measured BC. Marker "
+            "is partial (38 pages), and PaddleOCR has no measured BC in the "
+            "stored source audit; both are excluded. "
             "MinerU-off is replaced by MinerU-on: they are the same 294 pages "
-            "re-parsed with table recognition enabled, so including both would "
-            "double-count one parser."
+            "parsed under two configurations, so including both would double-count "
+            "one parser family/configuration comparison."
         ),
         "points": points,
         "BC_vs_RCPS": corr_block("complete_output_4", bcs, [p["rcps"] for p in points]),
         "BC_vs_Hit1": corr_block("complete_output_4", bcs, [p["hit@1"] for p in points]),
     }
+
+
+def attach_reference_blocks(
+    report: dict[str, Any],
+    *,
+    bc_ref_path: Path,
+    rcps_ref_path: Path,
+    rcps_current_path: Path,
+) -> dict[str, Any]:
+    """Attach deterministic comparison blocks to a core GPU result."""
+    refs = build_references(
+        bc_ref_path=bc_ref_path,
+        rcps_ref_path=rcps_ref_path,
+        rcps_current_path=rcps_current_path,
+    )
+    mean_bc = report["summary"]["mean_bc"]
+    if not isinstance(mean_bc, (int, float)) or not math.isfinite(mean_bc):
+        raise ValueError("core result has no finite summary.mean_bc")
+    report["references"] = refs
+    report["comparisons"] = {
+        "bc_minus_mineru_off_bc": mean_bc - refs["mineru_off_bc"]["mean_bc"],
+        "bc_minus_prod_bc": mean_bc - refs["prod_bc"]["mean_bc"],
+        "note": (
+            "Reference BC values are stored rounded to 4 decimal places, so "
+            "these differences carry at most 4-decimal precision. The "
+            "reference run also recorded no model revision — see the caveats "
+            "in docs/FINDINGS_mineru_tableon_bc.md."
+        ),
+    }
+    report["derived_correlations"] = build_derived_correlations(
+        mean_bc=mean_bc,
+        bc_ref_path=bc_ref_path,
+        rcps_ref_path=rcps_ref_path,
+        rcps_current_path=rcps_current_path,
+    )
+    return report
 
 
 # --------------------------------------------------------------------------
@@ -693,8 +870,13 @@ def write_atomic(path: Path, text: str) -> None:
 
 def main(argv: Sequence[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--parser-dir", type=Path, required=True)
-    ap.add_argument("--label", required=True, help="system label, e.g. MinerU-on")
+    ap.add_argument("--parser-dir", type=Path)
+    ap.add_argument("--label", help="system label, e.g. MinerU-on")
+    ap.add_argument(
+        "--augment-existing",
+        type=Path,
+        help="attach reference/correlation blocks to an existing core result; no LM load",
+    )
     ap.add_argument("--model", default="Qwen/Qwen3-VL-2B-Instruct")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--max-tokens", type=int, default=1024)
@@ -720,6 +902,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--dry-run", action="store_true", help="validate inputs and exit without loading the LM")
     args = ap.parse_args(argv)
 
+    if args.augment_existing is not None:
+        if args.no_references:
+            ap.error("--augment-existing cannot be combined with --no-references")
+        validate_reference_inputs(
+            [args.bc_reference, args.rcps_reference, args.rcps_current]
+        )
+        report = json.loads(args.augment_existing.read_text(encoding="utf-8"))
+        attach_reference_blocks(
+            report,
+            bc_ref_path=args.bc_reference,
+            rcps_ref_path=args.rcps_reference,
+            rcps_current_path=args.rcps_current,
+        )
+        write_atomic(args.out, dumps_strict(report))
+        logger.info("augmented %s -> %s", args.augment_existing, args.out)
+        return 0
+
+    if args.parser_dir is None or args.label is None:
+        ap.error("--parser-dir and --label are required unless --augment-existing is used")
+
     from wigtnocr_radp.evaluation.chunkers import ParserNativeChunker
 
     files = list_prediction_files(args.parser_dir)
@@ -741,6 +943,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         expected_pages=args.expected_pages,
         expected_chunks=args.expected_chunks,
     )
+    if not args.no_references:
+        validate_reference_inputs(
+            [args.bc_reference, args.rcps_reference, args.rcps_current]
+        )
 
     manifest = manifest_sha256(files)
     logger.info("input manifest sha256=%s", manifest)
@@ -748,6 +954,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.dry_run:
         logger.info("--dry-run: inputs validated, exiting before LM load")
         return 0
+
+    cuda_preflight(args.device)
 
     checkpoint = None
     if not args.no_checkpoint:
@@ -760,9 +968,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     from wigtnocr_radp.evaluation.boundary_clarity import PerplexityLM
 
     ppl = PerplexityLM(model_id=args.model, device=args.device, max_tokens=args.max_tokens)
-    gpu = torch.cuda.get_device_name(0) if args.device.startswith("cuda") and torch.cuda.is_available() else None
-
-    scores = score_boundaries(boundaries, ppl.boundary_clarity, checkpoint_path=checkpoint)
+    gpu = (
+        torch.cuda.get_device_name(0)
+        if args.device.startswith("cuda") and torch.cuda.is_available()
+        else None
+    )
+    model_revision = model_revision_of(ppl.model)
+    fingerprint = build_checkpoint_fingerprint(
+        boundaries=boundaries,
+        input_manifest=manifest,
+        model_id=args.model,
+        model_revision=model_revision,
+        max_tokens=args.max_tokens,
+        min_chars=args.min_chars,
+    )
+    resumed_records = len(load_checkpoint(checkpoint)) if checkpoint is not None else 0
+    scores = score_boundaries(
+        boundaries,
+        ppl.boundary_clarity,
+        checkpoint_path=checkpoint,
+        checkpoint_fingerprint=fingerprint if checkpoint is not None else None,
+    )
     summary, per_page, reasons = summarize(scores, page_stats)
 
     if summary["mean_bc"] is None:
@@ -783,7 +1009,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "metric_definition": METRIC_DEFINITION,
         "provenance": build_provenance(
             model_id=args.model,
-            model_revision=model_revision_of(ppl.model),
+            model_revision=model_revision,
             dtype="torch.bfloat16",
             device=args.device,
             gpu=gpu,
@@ -804,30 +1030,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             "clamped": False,
             "boundaries": "within_page_adjacent_only",
             "std_bc_definition": "sample standard deviation (n-1)",
+            "fingerprint": fingerprint,
+        },
+        "checkpoint": {
+            "enabled": checkpoint is not None,
+            "resumed_records": resumed_records,
+            "fingerprint": fingerprint if checkpoint is not None else None,
+            "note": (
+                "When enabled, cached boundary scores are reused only after the "
+                "sidecar fingerprint matches the input, boundary texts, model "
+                "revision, chunker, metric, and scoring source hashes."
+            ),
         },
         "summary": summary,
         "per_page": per_page,
     }
 
     if not args.no_references:
-        refs = build_references(
-            bc_ref_path=args.bc_reference,
-            rcps_ref_path=args.rcps_reference,
-            rcps_current_path=args.rcps_current,
-        )
-        report["references"] = refs
-        report["comparisons"] = {
-            "bc_minus_mineru_off_bc": summary["mean_bc"] - refs["mineru_off_bc"]["mean_bc"],
-            "bc_minus_prod_bc": summary["mean_bc"] - refs["prod_bc"]["mean_bc"],
-            "note": (
-                "Reference BC values are stored rounded to 4 decimal places, so "
-                "these differences carry at most 4-decimal precision. The "
-                "reference run also recorded no model revision — see the caveats "
-                "in docs/FINDINGS_mineru_tableon_bc.md."
-            ),
-        }
-        report["derived_correlations"] = build_derived_correlations(
-            mean_bc=summary["mean_bc"],
+        attach_reference_blocks(
+            report,
             bc_ref_path=args.bc_reference,
             rcps_ref_path=args.rcps_reference,
             rcps_current_path=args.rcps_current,

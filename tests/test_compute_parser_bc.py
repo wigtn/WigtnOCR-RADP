@@ -181,6 +181,12 @@ def test_validate_inputs_skips_checks_when_expectations_are_absent():
     cpb.validate_inputs(num_pages=7, num_chunks=9, expected_pages=None, expected_chunks=None)
 
 
+def test_validate_reference_inputs_fails_before_model_load(tmp_path):
+    missing = tmp_path / "missing.json"
+    with pytest.raises(FileNotFoundError, match="reference files are missing"):
+        cpb.validate_reference_inputs([missing])
+
+
 # --------------------------------------------------------------------------
 # manifest hashing
 # --------------------------------------------------------------------------
@@ -294,14 +300,32 @@ def test_end_to_end_with_fake_scorer_and_checkpoint_resume(tmp_path):
         return 0.5 + 0.1 * len(calls)
 
     ckpt = tmp_path / "scratch" / "ckpt.jsonl"
-    first = cpb.score_boundaries(bounds, fake, checkpoint_path=ckpt, log_every=0)
+    fingerprint = {
+        "schema_version": cpb.CHECKPOINT_SCHEMA_VERSION,
+        "sha256": "test-fingerprint",
+        "components": {"fixture": "stable"},
+    }
+    first = cpb.score_boundaries(
+        bounds,
+        fake,
+        checkpoint_path=ckpt,
+        checkpoint_fingerprint=fingerprint,
+        log_every=0,
+    )
     assert len(calls) == 3
+    assert json.loads(cpb.checkpoint_meta_path(ckpt).read_text()) == fingerprint
 
     # resuming must reuse the checkpoint and not re-invoke the scorer
     def exploding(prev: str, nxt: str) -> float:
         raise AssertionError("scorer must not be called on a fully-checkpointed resume")
 
-    second = cpb.score_boundaries(bounds, exploding, checkpoint_path=ckpt, log_every=0)
+    second = cpb.score_boundaries(
+        bounds,
+        exploding,
+        checkpoint_path=ckpt,
+        checkpoint_fingerprint=fingerprint,
+        log_every=0,
+    )
     assert [s.bc for s in second] == [s.bc for s in first]
 
     summary, per_page, _ = cpb.summarize(second, page_stats)
@@ -316,6 +340,69 @@ def test_end_to_end_with_fake_scorer_and_checkpoint_resume(tmp_path):
 
     text = cpb.dumps_strict({"summary": summary, "per_page": per_page})
     assert "NaN" not in text
+
+
+def test_checkpoint_rejects_missing_or_mismatched_fingerprint(tmp_path):
+    ckpt = tmp_path / "checkpoint.jsonl"
+    ckpt.write_text('{"key":"p1#0","page_id":"p1","index":0,"bc":0.5}\n')
+    fingerprint = {
+        "schema_version": cpb.CHECKPOINT_SCHEMA_VERSION,
+        "sha256": "expected",
+        "components": {},
+    }
+
+    with pytest.raises(RuntimeError, match="no fingerprint sidecar"):
+        cpb.prepare_checkpoint(ckpt, fingerprint)
+
+    cpb.write_atomic(
+        cpb.checkpoint_meta_path(ckpt),
+        cpb.dumps_strict({**fingerprint, "sha256": "different"}),
+    )
+    with pytest.raises(RuntimeError, match="fingerprint mismatch"):
+        cpb.prepare_checkpoint(ckpt, fingerprint)
+
+
+def test_checkpoint_fingerprint_binds_inputs_model_and_boundaries():
+    boundaries = [cpb.Boundary("p1", 0, CHUNK_A, CHUNK_B)]
+    common = {
+        "boundaries": boundaries,
+        "input_manifest": "input-a",
+        "model_id": "model-a",
+        "model_revision": "revision-a",
+        "max_tokens": 1024,
+        "min_chars": 30,
+    }
+    first = cpb.build_checkpoint_fingerprint(**common)
+    assert first == cpb.build_checkpoint_fingerprint(**common)
+    assert first["sha256"] != cpb.build_checkpoint_fingerprint(
+        **{**common, "input_manifest": "input-b"}
+    )["sha256"]
+    assert first["sha256"] != cpb.build_checkpoint_fingerprint(
+        **{**common, "model_revision": "revision-b"}
+    )["sha256"]
+    changed = [cpb.Boundary("p1", 0, CHUNK_A, CHUNK_C)]
+    assert first["sha256"] != cpb.build_checkpoint_fingerprint(
+        **{**common, "boundaries": changed}
+    )["sha256"]
+
+
+def test_attach_reference_blocks_uses_hashed_repository_sources():
+    root = cpb.repo_root()
+    report = {"summary": {"mean_bc": 0.7131232508982984}}
+    result = cpb.attach_reference_blocks(
+        report,
+        bc_ref_path=root / "output/baselines/moc_bc_correlation.json",
+        rcps_ref_path=root / "output/baselines/grid_v1_parser_native.json",
+        rcps_current_path=root / "output/results/grid_MinerU-tableON_parser_native.json",
+    )
+
+    assert result["references"]["mineru_on_rcps"]["num_chunks"] == 903
+    assert result["derived_correlations"]["BC_vs_RCPS"]["n"] == 4
+    assert result["derived_correlations"]["points"][-1]["bc"] == pytest.approx(
+        0.7131232508982984
+    )
+    for source in result["references"]["sources"].values():
+        assert len(source["sha256"]) == 64
 
 
 # --------------------------------------------------------------------------
