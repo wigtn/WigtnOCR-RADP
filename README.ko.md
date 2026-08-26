@@ -197,7 +197,7 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 
 라벨 견고성도 따로 확인했다. GPT-5.4는 Prod의 exact-match-absent case 중 **56%**를 recoverable surface artefact로 재분류했다. Q–A도 GPT 계열 모델이 생성했으므로 이 judge는 생성 과정과 독립적이지 않다.
 
-별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. 최종 per-case 인간 라벨은 아직 공개 artifact로 packaging되지 않았다.
+별도의 parser-masked 100-case 층화 표본을 두 저자가 독립 판정했을 때 사전 일치도는 **κ=0.615, 81/100**이었다. adjudication 뒤 retrieval-unusable 비율은 MinerU-on **42/50(84.0%)**, Prod **12/30(40.0%)**, PaddleOCR **19/20(95.0%)**였다. 표본 비율과 MinerU configuration이 서로 달라 모집단 수준의 재현으로 해석하지 않는다. Sampling manifest, 두 평가 파일, 19건의 adjudication 기록은 저장소 scorer로 재검증했다. 원본은 저자 전용 감사 패키지에 보관하고 공개본에는 aggregate 결과만 보고한다.
 
 ### C4 — 파서측 학습은 pilot 목표를 충족하지 못했다
 
@@ -311,7 +311,7 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
 - **RCPS 레퍼런스 구현** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 - **선별된 평가 산출물** — tracked aggregate grid, audited training per-Q–A 배열, Prod·PaddleOCR·MinerU-on의 294페이지 출력과 관련 결과 JSON.
 - **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과와 strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
-- **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했고, 감사 문서는 검증 완료와 agreement를 추적한다. 최종 per-case 라벨은 아직 공개하지 않았다.
+- **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했다. Sampling·평가·adjudication 원본은 재검증을 마쳤으며 저자 전용 감사 패키지에 보관한다.
 - **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
   PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
 
@@ -323,8 +323,6 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
 - 전체 294페이지 parser/chunker grid의 per-Q–A 배열과 이에 대응하는 probe-resampling
   **ranking-stability** 산출물. tracked aggregate-grid audit와 end-to-end stability check는 다른
   분석이며 이미 저장소에 있다.
-- 별도의 two-author 100-case absent-label 연구에서 나온 최종 per-case 라벨과 adjudication.
-  현재 Git에는 없으며 공개 여부 결정과 packaging이 아직 남아 있다.
 - full OHR-Bench v2 rerun과 새 current/quarantine manifest의 clean-machine 검증. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - 동일 aligned subset의 RADP-Distill per-QA·CI artifact. 복구 전에는 Distill-vs-DPO 정량 비교를 지원하지 않는다.
 - complete BC/CS mechanism data와 aligned uncertainty estimate.

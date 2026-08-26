@@ -108,7 +108,7 @@
 | model-free L0–L4 matcher ladder | **완료** | matcher 정의·분모·해석 반영. |
 | cross-family recoverability judge | **완료** | GPT-family QA 생성과 완전히 독립적이지 않다는 제한까지 명시. |
 | blind human absent-case subsample | **완료(분석)** | 100 cases, κ=0.615, 81/100 raw agreement, Wilson CI, 93-case overlap 반영. |
-| adjudicated human labels 공개 | **대기** | per-case artifact와 manifest 필요. |
+| adjudicated human labels | **완료(비공개 감사)** | 저자 전용 패키지의 100×2 판정, sampling manifest, 19건 adjudication을 scorer로 재검증. 공개본에는 aggregate만 보고. |
 | MinerU tables-on correction | **완료(원고)** | 본문·표·Limitations 정정. MinerU-off 공개는 P12 대기. |
 | RCPS를 새 similarity metric으로 주장하지 않기 | **완료** | standard MRR 기반 protocol로 명시. |
 | Findings/diagnostics를 foreground | **완료** | Abstract와 Intro에 absent/split 및 bounded training 결과 반영. |
@@ -124,7 +124,7 @@
 | fixed Q–A와 paired evaluation | **완료** | 동일 probe와 paired CI 명시. |
 | Qwen same-family 우려 완화 | **완료(원고)** | matcher ladder, cross-family judge, 최종 게시본의 100-case absent-label human study를 함께 반영. |
 | **최종 게시본의 100-case blind human verification** | **완료(원고)** | 최종 답변은 `LLM-judged absent sets`에서 층화한 100건을 명시한다. κ=0.615, raw 81/100, 19건 공동 adjudication, human–LLM 90.3%(n=93)를 반영. 로컬 R3 초안의 “same 100 Q–A”는 비정본 문구. |
-| human labels 공개 | **대기** | adjudicated labels와 protocol/manifest 필요. |
+| human labels 감사 | **완료(비공개)** | adjudicated labels와 sampling manifest를 내부 정본으로 확인했으며 원본은 author-only protocol에 따라 공개하지 않음. |
 | parser-training section 압축 | **완료** | 본문은 RADP 정의와 제한된 결과 두 단락, 상세 setup·표·mechanism은 Appendix E--G. |
 | MRR@10-only에서도 ranking 유지 | **완료** | tracked 294-page aggregate를 `fullgrid_aggregate_audit.py`로 재구성. 5개 full-page parser와 Prod×4 chunker 모두 RCPS 대비 순위 동일($\tau_a=1.0$). Marker는 38-page 행으로 별도 표시. |
 | format normalisation 영향 0.02–0.03, reorder 없음 | **대기** | 근거 artifact 없음. 재계산 전 원고에 넣지 않음. |
@@ -151,7 +151,7 @@
 | P9 pseudo-ground-truth 정정 | **완료** | camera-ready 정본 전역에서 과장 표현 제거. |
 | P10 exact commands/fresh clone | **대기** | 최종 release tag와 외부 artifact 필요. |
 | P11 composition/contamination | **부분 완료** | 구성·page-disjoint는 완료. 4.9pp는 엄밀한 contamination upper bound가 아니므로 scale로만 보고; 약속 수정 필요. |
-| P12 artifact release | **부분 완료** | strict audit/current-vs-legacy manifest는 완료. MinerU-off, full-grid, human labels, checkpoints 등 대기. |
+| P12 artifact release | **부분 완료** | strict audit/current-vs-legacy manifest는 완료. Human labels는 비공개 내부 감사를 완료했고, MinerU-off, full-grid, checkpoints 등은 대기. |
 | P13 metadata | **대기** | 5인 순서는 고정. affiliation/email/ORCID/form/교신 회신 필요. |
 | P14 numeric/lineage final audit | **부분 완료** | 현재 원고의 수치·분모·구성·manifest와 C2/C3 순서는 재감사 완료. full v2와 외부 artifact가 들어오면 최종 재실행 필요. |
 | P15 promises-to-paper gate | **대기** | 모든 외부 blocker 종료 뒤 최종 실행. |
@@ -164,7 +164,7 @@
 
 1. 동일 294-page full grid의 per-Q--A를 확보해 probe-resampling stability와 normalisation sensitivity를 재실행한다. MRR@10-only aggregate 순위 검증은 이미 완료됐다.
 2. R2 beta의 executed provenance와 checkpoints/config 공개 범위를 확정한다.
-3. MinerU-off predictions, human adjudication labels, full-grid JSON, manifest, exact clean-clone commands를 공개·검증한다.
+3. MinerU-off predictions, full-grid JSON, portable manifest, exact clean-clone commands를 공개·검증한다. Human adjudication 원본은 author-only audit package에 유지한다.
 4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
 5. 외부 artifact와 metadata를 반영한 최종판에서 P14 수치·lineage와 P15 reviewer-promise 매핑을 다시 실행한다.
 

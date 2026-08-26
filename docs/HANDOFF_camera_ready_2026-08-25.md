@@ -57,10 +57,10 @@ bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했�
    "does not yet contain … checkpoints"라고 자인한다. 게시 주장과 논문이 정면 충돌.
    → 권고: 최소 R2/R3 LoRA 어댑터 + 실행 config 공개(HF 또는 repo). 불가하면 App H 서술과
    별개로 공개 계획을 명시해야 하나, 공개가 정공법이다.
-3. **인간 검수 per-case 라벨** — tex L365 `CAMERA-READY ARTIFACT BLOCKER` 주석 잔존.
-   adjudicated 100건 라벨 + 93건 overlap manifest 공개 여부를 상우가 결정하고, 공개 시
-   검수자는 "author A/B" 익명 표기. 결정 후 **blocker 주석 2건(L241 R2-β 포함) 제거**가
-   최종 PDF 게이트다.
+3. **인간 검수 per-case 라벨** — 저자 전용 패키지의 두 평가 파일, sampling manifest,
+   19건 adjudication 기록을 scorer로 재검증했다. κ=0.615, 81/100, parser별 비율,
+   human--LLM 90.3%(n=93)가 모두 원고와 일치한다. 원본은 패키지 규칙에 따라 공개하지 않으며,
+   tex의 관련 blocker 주석과 `final human labels missing` 표현은 제거했다.
 
 ### C. 문안 미세갭 2건 (짧은 수정)
 

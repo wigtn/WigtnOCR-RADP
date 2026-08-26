@@ -257,7 +257,9 @@ In a separate parser-masked, stratified sample of 100 absent cases, two authors 
 81/100 cases (**κ = 0.615**) before adjudication. After adjudication, retrieval-unusable rates are
 **42/50 (84.0%)** for MinerU-on, **12/30 (40.0%)** for Prod, and **19/20 (95.0%)** for PaddleOCR.
 Different sampling fractions and MinerU configurations prevent a population-level replication claim.
-The final per-case human labels are not yet packaged as a public artifact.
+The sampling manifest, both rating files, and the 19-case adjudication record were independently
+rechecked with the repository scorer. They are retained in an author-only audit package; the public
+release reports only the aggregate results above.
 
 ### C4 — parser-side training remains below the pilot target
 
@@ -401,7 +403,8 @@ be added only from confirmed metadata.
   [`MANIFEST.legacy-invalid.sha256`](output/results/MANIFEST.legacy-invalid.sha256); they are not valid
   camera-ready evidence.
 - **Aggregate human-check results** — the paper records the parser-masked 100-case absent-label study
-  (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates).
+  (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates). The underlying
+  sampling, rating, and adjudication records were rechecked and are retained in an author-only audit package.
 - **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews;
   Figure 1 also includes its canonical editable PPTX. The compiled paper was checked with embedded fonts
   and no Type 3 fonts.
@@ -414,9 +417,6 @@ be added only from confirmed metadata.
 - Per-Q–A arrays for the complete 294-page parser/chunker grid and the corresponding probe-resampling
   **ranking-stability** artifact. The tracked aggregate-grid audit and end-to-end stability check are
   different analyses and are already present.
-- Final per-case labels and adjudications from the separate parser-masked, two-author 100-case absent-label
-  study. Its aggregate results are reported in the paper, but the per-case artifact is not currently in Git;
-  release and packaging remain pending. This is distinct from the tracked 100-pair Q–A quality check.
 - A full OHR-Bench v2 rerun and clean-checkout validation of the current/quarantine workflow; legacy
   seven-domain / combined-CI / OHR-TextNED artifacts are already separated in the quarantine manifest.
 - RADP-Distill per-QA and confidence-interval artifacts evaluated on the same aligned subset; until then,
