@@ -1,0 +1,106 @@
+{
+ "config": {
+  "metric": "rcps",
+  "n_qa": 663,
+  "subset_size": 500,
+  "iters": 1000,
+  "seed": 42,
+  "sampling": "without replacement",
+  "inputs": [
+   "output/results/fullgrid_perqa_294p.json"
+  ]
+ },
+ "full_probe": {
+  "means": {
+   "Teacher": 0.5844008448583612,
+   "Prod": 0.5825728012002522,
+   "Base": 0.5321093394622807,
+   "MinerU-off": 0.21204022919709192,
+   "MinerU-on": 0.13750794714847,
+   "PaddleOCR": 0.1397407301002072
+  },
+  "ranking": [
+   "Teacher",
+   "Prod",
+   "Base",
+   "MinerU-off",
+   "PaddleOCR",
+   "MinerU-on"
+  ]
+ },
+ "top1_rate": {
+  "Teacher": 0.625,
+  "Prod": 0.375,
+  "Base": 0.0,
+  "MinerU-off": 0.0,
+  "PaddleOCR": 0.0,
+  "MinerU-on": 0.0
+ },
+ "kendall_tau": {
+  "mean": 0.902,
+  "min": 0.7333333333333333
+ },
+ "ranking_unchanged_rate": 0.394,
+ "rank_distribution": {
+  "Teacher": {
+   "1": 0.625,
+   "2": 0.375
+  },
+  "Prod": {
+   "1": 0.375,
+   "2": 0.625
+  },
+  "Base": {
+   "3": 1.0
+  },
+  "MinerU-off": {
+   "4": 1.0
+  },
+  "PaddleOCR": {
+   "5": 0.64,
+   "6": 0.36
+  },
+  "MinerU-on": {
+   "5": 0.36,
+   "6": 0.64
+  }
+ },
+ "pairwise_ordering": {
+  "Teacher>Prod": {
+   "full_probe_delta": 0.0018280436581089576,
+   "left_above_rate": 0.625,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.375
+  },
+  "Prod>Base": {
+   "full_probe_delta": 0.05046346173797156,
+   "left_above_rate": 1.0,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.0
+  },
+  "Prod>MinerU-off": {
+   "full_probe_delta": 0.3705325720031603,
+   "left_above_rate": 1.0,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.0
+  },
+  "Prod>PaddleOCR": {
+   "full_probe_delta": 0.442832071100045,
+   "left_above_rate": 1.0,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.0
+  },
+  "Prod>MinerU-on": {
+   "full_probe_delta": 0.4450648540517822,
+   "left_above_rate": 1.0,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.0
+  },
+  "PaddleOCR>MinerU-on": {
+   "full_probe_delta": 0.0022327829517372055,
+   "left_above_rate": 0.64,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.36
+  }
+ }
+}

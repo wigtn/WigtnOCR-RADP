@@ -34,7 +34,7 @@ future-tense “same 100-Q--A” plan. It is not the posted commitment.
 | Move noise-family and DPO-milestone detail to appendices; compress parser training | Reflected: main C4 is a two-paragraph secondary study; details are in Appendices E--G |
 | Correct the MinerU table-recognition configuration and Limitations | Reflected in text and tables; public MinerU-off artifact still needs verification |
 | Add the end-to-end table | Reflected in Appendix B with same-configuration MinerU-on reporting |
-| Add the full-grid probe-stability version | Pending a same-294-page full-grid artifact |
+| Add the full-grid probe-stability version | Completed with the aligned 294-page, 663-Q--A, nine-system artifact and parser/chunker bootstrap outputs |
 | State retrieval rather than end-to-end generation as the primary scope | Reflected in Introduction, Discussion, and Limitations |
 | Add a reproducibility checklist and exact commands | Conditional wording in R1; final clean-checkout verification remains pending |
 
@@ -53,12 +53,12 @@ definition, worked example, and human verification.
 
 ## Completed-response claims that still require artifact checks
 
-- MRR@10-only aggregate ranking is now traceable through
-  `output/results/fullgrid_aggregate_audit.json`: the RCPS and MRR@10-only
-  orders agree for the five 294-page parsers and Prod's four chunkers. This does
-  not close the separate probe-resampling promise. The reported 0.02--0.03
-  normalisation shift still needs ranked chunk lists or a re-index before
-  inclusion.
+- MRR@10-only aggregate ranking is traceable through
+  `output/results/fullgrid_aggregate_audit.json`. The separate same-294-page
+  per-Q--A re-index and probe bootstrap are now stored in
+  `fullgrid_perqa_294p.json` and the two `rank_stability_*_294p.json` files.
+  Raw matching lowers RCPS by 0.024--0.041 without reordering either pool, so
+  the response-period 0.02--0.03 description is replaced rather than repeated.
 - The final response says corrected outputs, per-case verdicts, analysis scripts,
   and checkpoints are released. The current Git tree contains analysis scripts
   and the automated-judge cache, but the final human adjudication labels,

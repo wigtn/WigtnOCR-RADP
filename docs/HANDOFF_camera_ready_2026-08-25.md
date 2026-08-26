@@ -34,19 +34,18 @@ n=5 상관 −0.81→**−0.83** 갱신(독립 재계산 −0.8292 일치 확인
 
 ## 2. 남은 작업 (우선순위 순)
 
-### A. P7 — full-grid probe-resampling 【최대 blocker, 유일한 실험+본문 동시 항목】
+### A. P7 — full-grid probe-resampling 【2026-08-27 완료】
 
-bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했는데, 현재 본문은
-반대로 "Missing aligned per-Q--A arrays prevent a probe-resampling test"(L183)라고 자인한다.
+bXGg Q1의 **"The full-grid version goes into the revision"** 약속은 동일 294페이지·663 Q--A·
+9-system artifact와 parser/chunker bootstrap 결과로 닫았다. 과거의 missing-array 문장은 원고에서 교체했다.
 
-1. WSL에서 동일 294p·663 Q--A·동일 retriever/cutoff로 **9개 시스템 per-QA 수출**
-   (30B/Prod/2B-base/MinerU-off/MinerU-on/Paddle × parser_native + Prod × 나머지 3청커).
-   Marker 제외. 242p fold와 절대 혼합 금지 (PLAN P7의 풀 정의 그대로).
-2. `scripts/analysis/rank_stability_bootstrap.py`(e005ad7) 실행 → 결과 JSON + MANIFEST 커밋.
-3. 본문 L183 문장을 결과로 교체하고, rebuttal의 provisional 수치(100%/98.8%)는 full-grid
-   결과로 **대체**한다(승격 금지 원칙 유지).
-4. ⚠️ "format normalisation shifts scores by 0.02–0.03" 문장은 재계산 근거가 나오기 전까지
-   논문에 넣지 않는다 (현 상태 유지가 정답).
+1. 동일 294p·663 Q--A·동일 retriever/cutoff로 **9개 시스템 per-QA 수출 완료**.
+   Marker와 242p fold는 제외했다.
+2. `rank_stability_bootstrap.py` 실행과 결과 JSON·MANIFEST 반영 완료.
+3. 본문의 missing-array 문장을 실제 full-grid 수치로 교체했다. Provisional 98.8%는
+   md-h3 $>$ parser-native 96.5%로 정정했다.
+4. Format normalisation은 raw 대비 0.024--0.041 상승하고 두 pool 순서를 바꾸지 않는다.
+   기존 0.02--0.03 범위는 MinerU-on 0.041 때문에 정정했다.
 
 ### B. P12 — 아티팩트 3건
 

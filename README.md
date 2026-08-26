@@ -396,9 +396,13 @@ be added only from confirmed metadata.
   corpus and mapping are not packaged here. A separate LLM-assisted 100-pair Q–A quality-check sample
   and its aggregate 94/100 result are tracked; the sample's blank `verification` fields are not human annotations.
 - **RCPS reference implementation** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
-- **Selected evaluation artifacts** — aggregate parser/chunker grids, per-Q–A arrays for audited training
-  comparisons, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
-  and MinerU-on.
+- **Selected evaluation artifacts** — aggregate parser/chunker grids, aligned full-grid and audited-training
+  per-Q–A arrays, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
+  and MinerU-on. The 294-page full-grid audit includes
+  [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json) and fixed-seed parser/chunker
+  [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) results. Across 1,000
+  500-of-663 draws, Prod stays above Base and every OCR parser in 100% of draws; the complete chunker
+  order is unchanged in 96.1%. Raw matching lowers RCPS by 0.024–0.041 without reordering either pool.
 - **Aligned OHR audit artifacts** — the 1,043-Q–A Law–Manual C1 result and a deterministic derivation of
   the strict 2,036-Q–A legacy compatibility subset. Older seven-domain outputs remain in the tree for
   provenance and are listed in
@@ -416,9 +420,6 @@ be added only from confirmed metadata.
 - The source-page mapping that links `val_####` Q–A IDs to tracked parser-output filenames
   (`data/KoGovDoc-Bench/val.jsonl`), or an equivalent portable manifest.
 - MinerU **table-OFF**, Qwen3-VL-30B, and Qwen3-VL-2B-base parser outputs, plus exact rerun commands.
-- Per-Q–A arrays for the complete 294-page parser/chunker grid and the corresponding probe-resampling
-  **ranking-stability** artifact. The tracked aggregate-grid audit and end-to-end stability check are
-  different analyses and are already present.
 - A full OHR-Bench v2 rerun and clean-checkout validation of the current/quarantine workflow; legacy
   seven-domain / combined-CI / OHR-TextNED artifacts are already separated in the quarantine manifest.
 - RADP-Distill per-QA and confidence-interval artifacts evaluated on the same aligned subset; until then,

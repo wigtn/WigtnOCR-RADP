@@ -1,0 +1,78 @@
+{
+ "config": {
+  "metric": "rcps",
+  "n_qa": 663,
+  "subset_size": 500,
+  "iters": 1000,
+  "seed": 42,
+  "sampling": "without replacement",
+  "inputs": [
+   "output/results/fullgrid_perqa_294p.json"
+  ]
+ },
+ "full_probe": {
+  "means": {
+   "md_h3": 0.592873901697431,
+   "parser_native": 0.5825728012002522,
+   "lumberchunker": 0.5570510160379442,
+   "fixed500": 0.5353763822718071
+  },
+  "ranking": [
+   "md_h3",
+   "parser_native",
+   "lumberchunker",
+   "fixed500"
+  ]
+ },
+ "top1_rate": {
+  "md_h3": 0.965,
+  "parser_native": 0.035,
+  "lumberchunker": 0.0,
+  "fixed500": 0.0
+ },
+ "kendall_tau": {
+  "mean": 0.987,
+  "min": 0.6666666666666666
+ },
+ "ranking_unchanged_rate": 0.961,
+ "rank_distribution": {
+  "md_h3": {
+   "1": 0.965,
+   "2": 0.035
+  },
+  "parser_native": {
+   "1": 0.035,
+   "2": 0.964,
+   "3": 0.001
+  },
+  "lumberchunker": {
+   "2": 0.001,
+   "3": 0.996,
+   "4": 0.003
+  },
+  "fixed500": {
+   "3": 0.003,
+   "4": 0.997
+  }
+ },
+ "pairwise_ordering": {
+  "md_h3>parser_native": {
+   "full_probe_delta": 0.010301100497178806,
+   "left_above_rate": 0.965,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.035
+  },
+  "parser_native>lumberchunker": {
+   "full_probe_delta": 0.025521785162308075,
+   "left_above_rate": 0.999,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.001
+  },
+  "lumberchunker>fixed500": {
+   "full_probe_delta": 0.021674633766137097,
+   "left_above_rate": 0.997,
+   "tie_rate": 0.0,
+   "right_above_rate": 0.003
+  }
+ }
+}
