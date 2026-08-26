@@ -72,8 +72,10 @@ bXGg Q1에 **"The full-grid version goes into the revision"** 으로 약속했�
 
 ### D. 메타데이터 (폼 8/23–30, 외부 의존)
 
-5인 소속·이메일·ORCID 순서별 대조, presenter/등록/visa/preference, chairs 교신저자 회신
-(회신 전 별표 금지 유지), R2 β=0.1 vs 0.05 provenance 확인(트레이닝 로그). PLAN §0 게이트 그대로.
+5인 소속·이메일·ORCID 순서별 대조, presenter/등록/visa/preference와 대면 발표자의 Budapest
+도착·출발일 및 선택적 scheduling constraints 입력, R2 β=0.1 vs 0.05 provenance 확인(트레이닝 로그).
+교신저자는 chairs의 서면 승인에 따라 이름 별표 없이 `Correspondence: harrison@wigtn.com`으로 반영했다.
+PLAN §0 게이트 그대로.
 
 ### E. BC 0.713 / r=−0.83의 근거 아티팩트 머지 【PR #12로 승격됨 — 이제 필수】
 

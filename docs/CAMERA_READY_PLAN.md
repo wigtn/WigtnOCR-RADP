@@ -19,9 +19,9 @@
 | 페이지 | 본문 최대 **7쪽** + 필수 Limitations와 선택 Ethical Considerations를 합쳐 추가 최대 **1쪽**; References와 Supplementary Material은 제한 없음 |
 | 저자 순서 | `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정 |
 | 저자 메타데이터 | PDF의 저자 이름 순서와 camera-ready form의 **5인 이름·이메일 순서**를 대조; **5인 전원의 OpenReview 프로필에 ORCID 등록 필수** |
-| 교신저자 | Hyeong-seob Kim 표기 가능 여부를 Industry Track chairs에 문의했고 **회신 대기 중**. 회신 전에는 이름 별표·Correspondence 문구를 넣지 않음 |
-| 폼 운영 정보 | 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부, 대면/온라인 및 Oral/Poster 선호, 대면 발표자의 예상 여행일을 확인해 Aug 23–30 폼에 입력 |
-| 참고문헌 | `refs.bib`의 26개 키를 1차 출처로 수동 대조하고 축약 저자를 전체 목록으로 확장함(2026-08-21). 최종 PDF에서 저자·제목·venue·연도·ID/링크를 다시 눈으로 확인 |
+| 교신저자 | Industry Track chairs가 저자 순서를 유지한 채 Hyeong-seob Kim을 교신저자로 지정하고 PDF에 각주로 표시해도 된다고 **서면 승인**. 이름 별표 없이 ACL 템플릿의 `Correspondence: harrison@wigtn.com` 줄을 사용하며, 공유된 form 항목에는 전용 교신저자 필드가 없음 |
+| 폼 운영 정보 | 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부와 대면/온라인 여부를 입력. 발표 형식 선호는 **Oral / Poster / No preference** 중 선택. 대면 발표자는 Budapest 도착일·출발일을 `YYYY-MM-DD`로 입력하고, 가상 발표이면 비워 둠. 추가 일정 제약은 선택 입력 |
+| 참고문헌 | `refs.bib`의 26개 키를 공식 출판·venue·arXiv 기록과 다시 대조하고 출판 버전·전체 저자·DOI·페이지를 정정함(2026-08-26). 최종 PDF에서 저자·제목·venue·연도·ID/링크를 저자가 다시 눈으로 확인 |
 
 제출 전 메타데이터 게이트:
 
@@ -29,8 +29,8 @@
 - [ ] 5인 모두 OpenReview 프로필에 ORCID를 등록하고 각 ORCID 프로필의 이름과 저자 정보를 대조
 - [ ] 논문 등록 담당자의 이름·이메일과 presenter 1인을 확정
 - [ ] 발표자의 이메일·거주 국가/지역·visa 상태·Visa Invitation Letter 필요 여부를 확인
-- [ ] 대면/온라인 발표 방식과 Oral/Poster 선호를 확정하고, 대면 발표이면 발표자의 예상 conference travel dates를 확인
-- [ ] chairs의 교신저자 회신 반영 여부 결정; 회신이 없거나 불허면 별표·Correspondence 없이 제출
+- [ ] 대면/온라인 발표 방식을 확정하고 선호를 Oral / Poster / No preference 중 선택. 대면 발표이면 Budapest 도착일·출발일을 각각 `YYYY-MM-DD`로 확인하고, 선택적 scheduling constraints를 정리
+- [x] chairs의 교신저자 서면 승인을 반영해 저자 순서를 유지하고 PDF에 `Correspondence: harrison@wigtn.com` 표기
 - [ ] 7쪽 이하 본문 / Limitations와 선택 Ethics를 합친 추가 1쪽 이하 / References·Supplement 구획을 최종 PDF 페이지 단위로 확인
 - [ ] AI 도구의 결과만으로 종결하지 않고, 렌더링된 참고문헌 26건을 저자가 실제 논문·공식 출판 페이지와 수동 대조
 - [ ] 공식 마감보다 앞선 내부 목표인 2026-08-30 KST 안에 form과 PDF 제출 완료
@@ -125,7 +125,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P13. De-anonymization 【camera-ready 관례】
 
-- **외부 입력 대기**: 저자 순서는 `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정한다. PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, 5인 전원의 OpenReview 프로필에 ORCID를 등록한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않으므로 이를 메일 요구사항으로 간주하지 않는다. 소속·acks·라이브 링크(HF/GitHub)는 최종 템플릿과 저자 결정에 따라 복원하되, Hyeong-seob Kim의 교신저자 별표·Correspondence는 Industry chairs의 서면 회신 전 추가 금지.
+- **부분 완료 / 외부 입력 대기**: 저자 순서는 `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정한다. Industry chairs가 Hyeong-seob Kim의 교신저자 지정과 PDF 각주 표기를 서면 승인했고, 원고에는 이름 별표 없이 ACL 템플릿의 `Correspondence: harrison@wigtn.com` 줄을 반영했다. PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, 5인 전원의 OpenReview 프로필에 ORCID를 등록한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않으므로 이를 메일 요구사항으로 간주하지 않는다. 소속·acks·라이브 링크(HF/GitHub)는 최종 템플릿과 저자 결정에 따라 복원한다.
 - 벤치마크 명명 일관성(논문 "KoGov" 표기 vs HF "KoGovDoc-RAG") 정책 확정 후 통일. HF 카드 정정은 CR-2와 함께.
 
 ### P14. 수치·lineage 정합 감사 (자동)
@@ -194,7 +194,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 3. **페이지 제한 오해** — 공식 게이트는 본문 최대 7쪽, 필수 Limitations와 선택 Ethical Considerations를 합쳐 추가 최대 1쪽, References/Supplement 무제한이다. Ethics에 별도 추가 페이지가 더 허용된다고 해석하지 말고 최종 PDF에서 구획별 페이지를 직접 센다.
 4. Marker 38페이지 각주 유지(코퍼스 불일치).
 5. **구성 혼합** — 242p 훈련 fold와 294p 평가 full-grid, MinerU table-off/on, E2E generator/judge cache를 한 결과처럼 섞지 않는다.
-6. **메타데이터 지연** — 5인 이름·이메일 순서, 전원 OpenReview ORCID, 등록 담당자, 발표자 거주지·visa·초청장·대면 시 여행일, 발표 방식·선호 및 chairs 회신이 P13/P15의 외부 의존성이다. Aug 23 폼 오픈 즉시 누락자 추적.
+6. **메타데이터 지연** — 교신저자 승인은 완료됐다. 남은 외부 의존성은 5인 이름·이메일 순서, 전원 OpenReview ORCID, 등록 담당자, 발표자 거주지·visa·초청장, 발표 방식, Oral / Poster / No preference 선택, 대면 시 Budapest 도착·출발일과 선택적 scheduling constraints다. Aug 23 폼 오픈 즉시 누락자 추적.
 7. **OHR 버전 혼용 재발** — 구 manifest에 hash가 있다는 사실은 validity 증거가 아니다. dataset/version SHA, evidence-page coverage 100%, exclusion/CI derivation이 함께 맞지 않으면 수치·표·그림을 사용하지 않는다.
 8. **폰트** — 최종 Figure 1--4와 합본 PDF를 `pdffonts`로 검사해 Type3=0을 확인했다. 이후 그림을 재수출하면 같은 검사를 다시 수행한다.
 
@@ -203,4 +203,4 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 - **상우**: P1–P19 실행(1저자 전권), WSL 런(P7·P12-①·P17 full v2·P18 BC), form owner.
 - **Harrison + 클로드코드**: P14·P15 감사 자동화, 개편·아키텍처 리뷰, 수치·참고문헌 대조.
 - **전 저자 5인**: 이름·이메일 순서 확인, 각자 OpenReview 프로필에 ORCID 등록.
-- **등록 담당자·발표자**: 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부, 대면 시 예상 여행일 제공; 저자진은 대면/온라인 및 Oral/Poster 선호 확정.
+- **등록 담당자·발표자**: 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부 제공. 저자진은 대면/온라인 여부와 Oral / Poster / No preference를 확정하고, 대면 발표이면 Budapest 도착·출발일(`YYYY-MM-DD`)과 선택적 scheduling constraints를 제공.

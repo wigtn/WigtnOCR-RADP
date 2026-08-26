@@ -11,9 +11,9 @@
 - 페이지: 본문 최대 **7쪽** + 필수 Limitations와 선택 Ethical Considerations를 합쳐 추가 최대 **1쪽**; References/Supplementary Material은 제한 없음.
 - 저자 순서 고정: `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`.
 - PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, **5인 모두 각자의 OpenReview 프로필에 ORCID를 등록**한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않는다.
-- 등록 담당자의 이름·이메일, 발표자의 이메일·거주 국가/지역·visa/초청장 여부, 대면/온라인 및 Oral/Poster 선호, 대면 발표자의 예상 여행일을 Aug 23–30 form에 입력한다.
-- Hyeong-seob Kim의 교신저자 주석은 Industry Track chairs 회신 대기. **서면 승인 전 별표·Correspondence 표기 금지**.
-- `refs.bib` 26개 키는 2026-08-21 1차 출처 기준으로 축약 저자를 전체 목록으로 확장했다. 최종 PDF의 저자·제목·venue·연도·ID/링크를 수동 검증한다.
+- 등록 담당자의 이름·이메일, 발표자의 이메일·거주 국가/지역·visa/초청장 여부와 대면/온라인 여부를 Aug 23–30 form에 입력한다. 선호는 Oral / Poster / No preference 중 선택하고, 대면 발표자는 Budapest 도착·출발일을 `YYYY-MM-DD`로 입력하며 선택적 scheduling constraints를 정리한다.
+- Industry Track chairs가 저자 순서를 유지한 Hyeong-seob Kim의 교신저자 지정과 PDF 각주 표기를 서면 승인했다. 이름 별표 없이 ACL 템플릿의 `Correspondence: harrison@wigtn.com` 줄을 반영한다.
+- `refs.bib` 26개 키는 2026-08-26 공식 출판·venue·arXiv 기록 기준으로 재검증해 출판 버전·전체 저자·DOI·페이지를 정정했다. 최종 PDF의 저자·제목·venue·연도·ID/링크를 저자가 수동 검증한다.
 
 ## 현재 구조 (P18/P19 반영 후)
 - Abstract · §1 Introduction(+Fig1) · §2 Related Work
@@ -43,7 +43,7 @@ A OHR alignment/noise(C1) / B E2E top-choice check(C2) / **C = 정의+worked-ex(
 | **P10** | App H | 재현성 체크리스트/명령어 골격은 존재. P7의 294p 결과, P12 공개 경로·릴리스 태그, 최종 URL 수령 후 clean checkout에서 exact commands 실행 검증. 검증 전 “exact/released” 완료 표기 금지 | ⏳ **외부 입력 대기** |
 | **P11** | App H 또는 Limitations | 데이터 구성(294=229KoGov+65arXiv, Q–A527+136, 페이지분할)은 반영. 4.9pp는 오염의 엄밀한 상한이 아니므로 원고에서 규모 참고값으로만 표기. 상한 논리 입증 또는 약속 철회, CR-1/CR-2 최종 검증 필요 | ⚠️ **부분 완료** |
 | **P12** | 레포 | OHR mixed-version manifest 격리·strict audit hash 교체는 완료. MinerU tables-OFF 원본 회수(WSL), 동일 294p full-grid JSON, 인간라벨 공개 결정은 대기. 닫히기 전 “Everything is released” 금지 | ⏳ **외부 입력/WSL 대기** |
-| **P13** | 전역 | 5인 고정 순서로 de-anon하고 소속·이메일·ORCID·acks·라이브링크를 확정. OpenReview/form/PDF 순서 일치. Hyeong-seob 교신 별표/Correspondence는 chairs 서면 회신 전 금지 | ⏳ **저자 메타데이터·chairs 회신 대기** |
+| **P13** | 전역 | 5인 고정 순서로 de-anon하고 소속·이메일·ORCID·acks·라이브링크를 확정. OpenReview/form/PDF 순서 일치. Chairs의 서면 승인에 따라 PDF에 `Correspondence: harrison@wigtn.com` 반영 완료 | 🚧 **교신저자 완료, 나머지 저자 메타데이터 대기** |
 | **P14** | 자동 | 응답↔본문 수치 라운딩 + dataset SHA/version + QA→page coverage + 제외 223+5 + n=1,043/2,036 + seed42 CI + 표/캡션/figure source 전수 대조. 현재 공개 artifact 범위는 2026-08-24 재감사했고, full v2/외부 artifact 반영 뒤 최종 재실행 | 🚧 **현재 범위 완료, 최종 외부 입력 대기** |
 | **P15** | 자동 | P7/P10/P12/P13/**P17**과 공개 URL/릴리스, chairs 회신을 닫고 P18/P19 원고 반영까지 끝낸 최종판에서 REBUTTAL_FINAL 미래형 문장 전수→개정판 매핑 체크 | ⏳ **외부 입력·구조 편집 후 최종 감사** |
 | **P16** | Fig1–4/아키텍처·캡션 | Fig1은 승인된 원래 디자인을 원복하고 RCPS 배지만 C2, coverage 배지만 C3로 교체했다. 편집 정본은 `paper/figures/fig_overview_camera_ready.pptx`, 삽입 정본은 `paper/figures/fig_overview.pdf`다. Fig2는 수식과 box-to-box 화살표를 정리했고 Fig3 guide endpoint를 연장했다. Fig4는 MinerU-on -0.74/-0.83과 42.6pp/4.47×를 반영했다. 14쪽 합본·Type3=0 확인 | ✅ **최종 시각·수치 재검수 완료** |
