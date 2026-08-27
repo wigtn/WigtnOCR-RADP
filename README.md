@@ -83,7 +83,7 @@ diagnostic that separates exact-span absence from chunk-boundary splitting.
 | **C1** | The parsing↔retrieval **disconnect**. On an aligned English OHR-Bench subset, semantic-noise perturbations lower retrieval while BC is stable or changes non-monotonically. | Audited 294-page BC↔RCPS **r = −0.74** (descriptive); MinerU-on and Prod differ by **42.6 Hit@1 points** (0.123→0.549; 4.47×) |
 | **C2** | **RCPS** — a retriever-averaged, format-normalised, held-out-Q–A **protocol** for choosing parsers/chunkers with no training. | Complete 294-page parsers span **0.137–0.584**; with Prod fixed, four chunkers span **0.535–0.593** |
 | **C3** | A **retriever-free coverage diagnostic** — classify each reference span as *covered / split across chunks / absent from the normalised parser output*; a rule computable *before* any retriever runs. | **20.2% exact-span absent**, constant across 8 chunkers; split varies up to 2.3% ⇒ inspect parser output first |
-| **C4** | A **bounded** map of parser-side training; the pilot misses its target, and the matched Distill comparison remains unavailable. | Post-audit six-domain OHR compatibility subset: **R2 +0.95 pp**, **R3 +1.15 pp** Hit@5 vs Prod (n=2,036) |
+| **C4** | A **bounded** map of parser-side training; the pilot misses its target, and retrieval-reward training does not separate from a matched Distill control. | Post-audit six-domain OHR compatibility subset: **R2 +0.95 pp**, **R3 +1.15 pp**, **Distill +1.36 pp** Hit@5 vs Prod (n=2,036) |
 
 ---
 
@@ -149,8 +149,8 @@ When the coverage diagnostic points to parser output, we test the following appr
   configuration and source-log hash are recorded in
   [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md).
 - **RADP-Distill** *(fidelity-based control).* Candidates are ranked by edit distance to reference Markdown
-  instead of the page-local BGE-M3 MRR retrieval reward. Its aligned per-QA artifact is currently unavailable,
-  so this README makes no quantitative Distill-versus-DPO claim.
+  instead of the page-local BGE-M3 MRR retrieval reward. On the aligned 2,036-Q–A frame, its Hit@5 delta
+  is **+1.36 pp** versus Prod. Direct Distill-minus-R2 and Distill-minus-R3 intervals both include zero.
 - **SimPO** *(reference-free control).* Its 242-page Hit@5 point estimates are negative, but both confidence
   intervals cross zero; the runs do not isolate which optimization difference caused that result.
 
@@ -274,17 +274,20 @@ Q–A tied to a missing evidence page, the tracked arrays yield this strict six-
 |---|:---:|:---:|:---:|:---:|:---:|
 | RADP-DPO R2 (retrieval reward) | +0.59 | +0.95 | +0.90 | +0.78 | +0.82 |
 | RADP-DPO R3 (hard-negative) | +1.46 | +1.15 | +0.90 | +1.30 | +1.28 |
+| RADP-Distill (edit-distance control) | +0.98 | +1.36 | +1.47 | +1.12 | +1.16 |
 
 *Post-audit legacy compatibility subset, n=2,036, three-retriever macro, 1,000 Q–A-level paired-bootstrap
-resamples (seed 42). Hit@5 95% CIs: R2 **[+0.33,+1.54]**, R3 **[+0.31,+2.05]**. This subset was defined
-after the version audit; it is neither the original confirmatory analysis nor a full OHR-Bench v2 evaluation.*
+resamples (seed 42). Hit@5 95% CIs: R2 **[+0.33,+1.54]**, R3 **[+0.31,+2.05]**, Distill
+**[+0.43,+2.29]**. Distill−R2 is **+0.41 pp [−0.43,+1.26]** and Distill−R3 is
+**+0.21 pp [−0.61,+1.05]**. This subset was defined after the version audit; it is neither the original
+confirmatory analysis nor a full OHR-Bench v2 evaluation.*
 
 On the exploratory KoGov fold (242 pages, n = 663), the RADP-DPO milestones reach +1.96 to +2.11 pp Hit@5
 (P[Δ>0] ≈ 0.90; all two-sided intervals cross zero). SimPO Hit@5 point estimates are **−0.85 pp** with
 md-h3 and **−0.70 pp** with parser-native chunking; both confidence intervals cross zero.
 This pooled analysis combines the 169 development and 73 held-out evidence pages, so it is not a new
-independent holdout. RADP-Distill quantitative results remain omitted until its per-QA artifact is restored
-on the same subset.
+independent holdout. The matched OHR comparison does not show that retrieval-reward pair selection
+outperforms edit-distance pair selection.
 
 ### C4 — available measurements do not identify a training mechanism
 
@@ -403,8 +406,8 @@ be added only from confirmed metadata.
   [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) results. Across 1,000
   500-of-663 draws, Prod stays above Base and every OCR parser in 100% of draws; the complete chunker
   order is unchanged in 96.1%. Raw matching lowers RCPS by 0.024–0.041 without reordering either pool.
-- **Aligned OHR audit artifacts** — the 1,043-Q–A Law–Manual C1 result and a deterministic derivation of
-  the strict 2,036-Q–A legacy compatibility subset. Older seven-domain outputs remain in the tree for
+- **Aligned OHR audit artifacts** — the 1,043-Q–A Law–Manual C1 result, the aligned RADP-Distill per-Q–A
+  arrays, and a deterministic derivation of the strict 2,036-Q–A legacy compatibility subset. Older seven-domain outputs remain in the tree for
   provenance and are listed in
   [`MANIFEST.legacy-invalid.sha256`](output/results/MANIFEST.legacy-invalid.sha256); they are not valid
   camera-ready evidence.
@@ -420,10 +423,9 @@ be added only from confirmed metadata.
 - The source-page mapping that links `val_####` Q–A IDs to tracked parser-output filenames
   (`data/KoGovDoc-Bench/val.jsonl`), or an equivalent portable manifest.
 - MinerU **table-OFF**, Qwen3-VL-30B, and Qwen3-VL-2B-base parser outputs, plus exact rerun commands.
-- A full OHR-Bench v2 rerun and clean-checkout validation of the current/quarantine workflow; legacy
-  seven-domain / combined-CI / OHR-TextNED artifacts are already separated in the quarantine manifest.
-- RADP-Distill per-QA and confidence-interval artifacts evaluated on the same aligned subset; until then,
-  no quantitative Distill-versus-DPO comparison is supported.
+- Clean-checkout validation of the current/quarantine workflow. The paper makes no full OHR-Bench v2
+  claim; a future full-v2 experiment would require the official v2 Q–A plus fresh parser and retrieval runs.
+  Legacy seven-domain / combined-CI / OHR-TextNED artifacts remain separated in the quarantine manifest.
 - Complete BC/CS mechanism data and aligned uncertainty estimates.
 - Complete executed-configuration/log provenance and model checkpoints for RADP-Distill, RADP-aux,
   RADP-DPO, and SimPO, except for the now-verified R2 executed configuration (`beta = 0.1`).

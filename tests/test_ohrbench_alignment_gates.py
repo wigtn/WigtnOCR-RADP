@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from scripts.analysis.audit_ohrbench_legacy_alignment import build_report
 from scripts.evaluation.ohrbench_combined_ci import load_ohr_perqa
 from scripts.evaluation.ohrbench_v1dpo_full import (
     apply_strict_compatibility_mask,
@@ -106,3 +107,28 @@ def test_strict_regeneration_filter_and_overwrite_guard(tmp_path: Path) -> None:
     assert [qa.qa_id for qa in filtered] == ["q-law", "q-manual"]
     with pytest.raises(ValueError, match="refusing to overwrite"):
         require_non_destructive_output(tmp_path / "source.json", audit)
+
+
+def test_tracked_audit_includes_aligned_distill_direct_contrasts() -> None:
+    report = build_report()
+    c4 = report["c4_strict_compatibility_subset"]
+
+    assert c4["num_qa"] == 2036
+    assert c4["delta_vs_prod_pp"]["RADP-Distill"]["hit_at_5"] == {
+        "delta_pp": 1.358874,
+        "ci95_lo_pp": 0.425671,
+        "ci95_hi_pp": 2.292076,
+    }
+    assert c4["paired_hit_at_5_contrasts_pp"] == {
+        "RADP-Distill_minus_RADP-DPO-R2": {
+            "delta_pp": 0.409299,
+            "ci95_lo_pp": -0.426081,
+            "ci95_hi_pp": 1.261051,
+        },
+        "RADP-Distill_minus_RADP-DPO-R3": {
+            "delta_pp": 0.212836,
+            "ci95_lo_pp": -0.605763,
+            "ci95_hi_pp": 1.047806,
+        },
+    }
+    assert report["submission_gate"]["radp_distill_comparison_available"] is True

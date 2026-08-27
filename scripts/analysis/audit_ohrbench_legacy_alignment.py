@@ -9,8 +9,11 @@ script removes observations known to be invalid in the stored arrays:
 * five Q-A for a legacy textbook page absent from the v2 parser bundle.
 
 The resulting 2,036-Q-A set is suitable only as a corrected compatibility
-subset.  A full v2 evaluation still requires ``OHR-Bench_v2.parquet`` and
-``qas_v2.json`` plus fresh parser and retrieval runs.
+subset.  The audit also aligns the RADP-Distill per-QA artifact to this exact
+mask and verifies that its shared Prod and R2 arrays are byte-for-byte equal to
+the corresponding arrays in the R2 artifact.  A full v2 evaluation would still
+require ``OHR-Bench_v2.parquet`` and ``qas_v2.json`` plus fresh parser and
+retrieval runs; the camera-ready paper makes no full-v2 claim.
 
 Usage:
     python scripts/analysis/audit_ohrbench_legacy_alignment.py
@@ -33,6 +36,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 R2_PATH = ROOT / "output/results/ohrbench_v1dpo_perqa.json"
 R3_PATH = ROOT / "output/results/ohr_v5_perqa.json"
+DISTILL_PATH = ROOT / "output/results/arm_b_ohr_perqa.json"
 C1_RCPS_PATH = ROOT / "output/results/ohrbench_noise.json"
 C1_BC_PATH = ROOT / "output/results/ohrbench_bc_noise.json"
 
@@ -132,11 +136,52 @@ def _model_metrics(
     return metrics
 
 
+def _assert_same_observations(reference: dict[str, Any], candidate: dict[str, Any], label: str) -> None:
+    if reference["qa_ids"] != candidate["qa_ids"] or reference["domains"] != candidate["domains"]:
+        raise ValueError(f"{label} does not share the R2 observation order")
+
+
+def _assert_same_model_arrays(
+    reference: dict[str, Any],
+    candidate: dict[str, Any],
+    *,
+    reference_model: str,
+    candidate_model: str,
+    label: str,
+) -> None:
+    reference_arrays = reference["models"][reference_model]
+    candidate_arrays = candidate["models"][candidate_model]
+    if reference_arrays.keys() != candidate_arrays.keys():
+        raise ValueError(f"{label} metric cells differ")
+    for key in reference_arrays:
+        if reference_arrays[key] != candidate_arrays[key]:
+            raise ValueError(f"{label} differs at {key}")
+
+
+def _hit_at_5(artifact: dict[str, Any], model: str, mask: np.ndarray) -> np.ndarray:
+    return _cross_retriever(artifact, model, "hit", 5, mask)
+
+
 def build_report() -> dict[str, Any]:
     r2 = _read_json(R2_PATH)
     r3 = _read_json(R3_PATH)
-    if r2["qa_ids"] != r3["qa_ids"] or r2["domains"] != r3["domains"]:
-        raise ValueError("R2 and R3 per-QA artifacts do not share an identical observation order")
+    distill = _read_json(DISTILL_PATH)
+    _assert_same_observations(r2, r3, "R3")
+    _assert_same_observations(r2, distill, "RADP-Distill")
+    _assert_same_model_arrays(
+        r2,
+        distill,
+        reference_model="v1",
+        candidate_model="v1",
+        label="RADP-Distill Prod control",
+    )
+    _assert_same_model_arrays(
+        r2,
+        distill,
+        reference_model="dpo_v4",
+        candidate_model="dpo_v4",
+        label="RADP-Distill R2 control",
+    )
 
     qa_ids = list(r2["qa_ids"])
     domains = list(r2["domains"])
@@ -167,12 +212,13 @@ def build_report() -> dict[str, Any]:
         raise ValueError("C1 BC artifact is not the audited 15-variant Law--Manual grid")
 
     return {
-        "schema_version": 1,
-        "status": "corrected_legacy_compatibility_subset_not_full_v2",
+        "schema_version": 2,
+        "status": "audited_legacy_compatibility_subset_with_aligned_distill_not_full_v2",
         "generated_by": "scripts/analysis/audit_ohrbench_legacy_alignment.py",
         "source_artifacts": {
             str(R2_PATH.relative_to(ROOT)): _sha256(R2_PATH),
             str(R3_PATH.relative_to(ROOT)): _sha256(R3_PATH),
+            str(DISTILL_PATH.relative_to(ROOT)): _sha256(DISTILL_PATH),
             str(C1_RCPS_PATH.relative_to(ROOT)): _sha256(C1_RCPS_PATH),
             str(C1_BC_PATH.relative_to(ROOT)): _sha256(C1_BC_PATH),
         },
@@ -202,15 +248,29 @@ def build_report() -> dict[str, Any]:
             "delta_vs_prod_pp": {
                 "RADP-DPO-R2": _model_metrics(r2, "dpo_v4", mask),
                 "RADP-DPO-R3": _model_metrics(r3, "v5", mask),
+                "RADP-Distill": _model_metrics(distill, "arm_b", mask),
+            },
+            "paired_hit_at_5_contrasts_pp": {
+                "RADP-Distill_minus_RADP-DPO-R2": _paired_delta(
+                    _hit_at_5(distill, "arm_b", mask),
+                    _hit_at_5(r2, "dpo_v4", mask),
+                ),
+                "RADP-Distill_minus_RADP-DPO-R3": _paired_delta(
+                    _hit_at_5(distill, "arm_b", mask),
+                    _hit_at_5(r3, "v5", mask),
+                ),
             },
         },
         "submission_gate": {
-            "full_v2_rerun_required": True,
+            "full_v2_rerun_completed": False,
             "full_v2_inputs": ["OHR-Bench_v2.parquet", "data/qas_v2.json"],
-            "radp_distill_comparison_available": False,
+            "camera_ready_scope_decision": (
+                "retain the source-aligned 2,036-Q-A compatibility subset and make no full-v2 claim"
+            ),
+            "radp_distill_comparison_available": True,
             "warning": (
-                "Do not restore seven-domain, 2,264-Q-A, OHR TextNED, or RADP-Distill quantitative claims "
-                "without source-page-aligned per-QA artifacts."
+                "Do not cite unfiltered seven-domain, 2,264-Q-A, or OHR TextNED results. "
+                "RADP-Distill is valid only after applying this strict 2,036-Q-A mask."
             ),
         },
     }

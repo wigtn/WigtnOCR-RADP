@@ -1,10 +1,11 @@
 {
-  "schema_version": 1,
-  "status": "corrected_legacy_compatibility_subset_not_full_v2",
+  "schema_version": 2,
+  "status": "audited_legacy_compatibility_subset_with_aligned_distill_not_full_v2",
   "generated_by": "scripts/analysis/audit_ohrbench_legacy_alignment.py",
   "source_artifacts": {
     "output/results/ohrbench_v1dpo_perqa.json": "f8e501e4e3b5117bf5c4f802b29c48de4339308320418d0d0b1df5def9c5c71c",
     "output/results/ohr_v5_perqa.json": "737e3d2e9cdc362eefadef15377c0ebd285d78c8f981ee4ccc6b473411b0e7f4",
+    "output/results/arm_b_ohr_perqa.json": "7d158f62dc60c3697415913996043b37b5d7bf8b345e98ec4b41acfc4749e082",
     "output/results/ohrbench_noise.json": "8e235e1dea9abbc73b1a371e26eca452193b0aafb1b1bd77a4497cd4355cc08e",
     "output/results/ohrbench_bc_noise.json": "075a997339645f524e5d5b0d85dc35753ecdfa2a355393fe7839f071fadff7df"
   },
@@ -121,16 +122,61 @@
           "ci95_lo_pp": 0.59116,
           "ci95_hi_pp": 2.12024
         }
+      },
+      "RADP-Distill": {
+        "hit_at_1": {
+          "delta_pp": 0.982318,
+          "ci95_lo_pp": 0.196054,
+          "ci95_hi_pp": 1.883186
+        },
+        "hit_at_5": {
+          "delta_pp": 1.358874,
+          "ci95_lo_pp": 0.425671,
+          "ci95_hi_pp": 2.292076
+        },
+        "hit_at_10": {
+          "delta_pp": 1.473477,
+          "ci95_lo_pp": 0.637688,
+          "ci95_hi_pp": 2.390308
+        },
+        "mrr_at_10": {
+          "delta_pp": 1.120083,
+          "ci95_lo_pp": 0.345756,
+          "ci95_hi_pp": 1.919243
+        },
+        "ndcg_at_5": {
+          "delta_pp": 1.164284,
+          "ci95_lo_pp": 0.380156,
+          "ci95_hi_pp": 2.004799
+        },
+        "rcps": {
+          "delta_pp": 1.068442,
+          "ci95_lo_pp": 0.30175,
+          "ci95_hi_pp": 1.917212
+        }
+      }
+    },
+    "paired_hit_at_5_contrasts_pp": {
+      "RADP-Distill_minus_RADP-DPO-R2": {
+        "delta_pp": 0.409299,
+        "ci95_lo_pp": -0.426081,
+        "ci95_hi_pp": 1.261051
+      },
+      "RADP-Distill_minus_RADP-DPO-R3": {
+        "delta_pp": 0.212836,
+        "ci95_lo_pp": -0.605763,
+        "ci95_hi_pp": 1.047806
       }
     }
   },
   "submission_gate": {
-    "full_v2_rerun_required": true,
+    "full_v2_rerun_completed": false,
     "full_v2_inputs": [
       "OHR-Bench_v2.parquet",
       "data/qas_v2.json"
     ],
-    "radp_distill_comparison_available": false,
-    "warning": "Do not restore seven-domain, 2,264-Q-A, OHR TextNED, or RADP-Distill quantitative claims without source-page-aligned per-QA artifacts."
+    "camera_ready_scope_decision": "retain the source-aligned 2,036-Q-A compatibility subset and make no full-v2 claim",
+    "radp_distill_comparison_available": true,
+    "warning": "Do not cite unfiltered seven-domain, 2,264-Q-A, or OHR TextNED results. RADP-Distill is valid only after applying this strict 2,036-Q-A mask."
   }
 }

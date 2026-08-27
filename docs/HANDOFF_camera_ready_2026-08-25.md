@@ -21,14 +21,14 @@ n=5 상관 −0.81→**−0.83** 갱신(독립 재계산 −0.8292 일치 확인
 |---|---|
 | P1·P2 Appendix C: 정의(`sec:parser-def`) + worked example(val_0155) + 3원인 수치 + 응답 원문 "Appendix C" 5곳 글자 일치 | ✅ |
 | P3 Intro 재구성(발견 lead, scope 문장) | ✅ (미세갭 §3-b) |
-| P4 밀도: 본문 p.6 종료(총 14p), noise·DPO 표 appendix, C4 압축 | ✅ |
+| P4 밀도: 본문 p.6 종료(현재 총 15p), noise·DPO 표 appendix, C4 압축 | ✅ |
 | P5 인간 검증 수치 반영(κ=0.615, 84.0% CI, 90.3% n=93, 제외 사유 각주) | ✅ (라벨 공개는 §2-B3) |
 | P6 E2E 표(`tab:e2e`), MinerU-on 페어링 원칙 | ✅ |
 | P8 Table 1 3구획 분리, 42.6pp/4.47× 헤드라인, "lower bound" 제거 | ✅ (미세갭 §3-a) |
 | P9 pseudo-GT 3곳 | ✅ |
 | P11 4.9pp "scale only" 격하 + 229+65/527+136 | ✅ |
 | P16 그림: overview `294=229+65`, disconnect r=−0.74/−0.81, stale 35.1/2.8× 제거, **Type3=0** | ✅ |
-| P17 감사부: alignment audit 커밋, 1,043/2,036 분리, "not a full v2 rerun" 명시, Distill 정량 제외 | ✅ |
+| P17 감사부: alignment audit, 1,043/2,036 분리, "not a full v2 rerun" 명시, aligned Distill 직접 비교 복원 | ✅ |
 | MRR@10-only 약속(τ=1.0, `fullgrid_aggregate_audit`) 본문 반영 | ✅ |
 | refs.bib 26키, 저자 순서 고정, PDF A4 | ✅ |
 
@@ -95,8 +95,8 @@ Limitations)을 인용하는데, **이 수치를 생성한 아티팩트가 main�
 방어 가능하지만 리뷰어가 응답과 대조할 수 있는 지점. 최종 게이트에서 "의도된 편차"로 기록한다.
 
 1. NAor1 답변 "seven domains, 2,264 Q--A" → 수락 후 감사로 **2,036/6-domain** 교체 (App F에 사유 공개 ✅).
-2. bXGg 답변 "does not beat a fidelity-distillation control" → Distill 아티팩트 제외로 논문의
-   부정 결과 근거가 "파일럿 타깃 미달 + SimPO 음수"로 변경 (App B에 사유 공개 ✅).
+2. bXGg 답변 "does not beat a fidelity-distillation control" → 동일 2,036-Q–A frame의 Distill 아티팩트를
+   복원했다. Distill−R2/R3 직접 paired CI가 모두 0을 포함해 이 부정 결과를 다시 직접 뒷받침한다 ✅.
 3. NAor1 답변 "checkpoints are all released" → §2-B2로 해소 전까지 **미해소 모순**.
 4. ZQv618·bXGg 답변의 "Boundary Clarity **r = −0.81**" → camera-ready는 MinerU-on 재베이스로
    **r = −0.83** (n=5, 방향 동일·더 강함, 독립 재계산 일치). 방어 가능하나 리뷰어가 응답과
