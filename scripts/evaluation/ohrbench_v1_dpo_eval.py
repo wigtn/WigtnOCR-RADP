@@ -42,6 +42,7 @@ from wigtnocr_radp.ohrbench_paths import (
     document_basename,
     ohr_page_id,
     require_compatibility_cache_path,
+    require_supported_ohr_alignment_audit,
     resolve_document_files,
 )
 
@@ -56,8 +57,6 @@ ALIGNMENT_AUDIT = ROOT / "output/results/ohrbench_alignment_audit.json"
 
 PARSE_CACHE = ROOT / "output/parses_ohrbench_compat2036"
 PNG_CACHE = ROOT / "output/ohrbench_pngs_compat2036"
-
-AUDIT_STATUS = "corrected_legacy_compatibility_subset_not_full_v2"
 
 SYSTEM_PROMPT = """You are WigtnOCR, a specialized document parser for Korean government documents.
 Convert the given document page image into well-structured Markdown format.
@@ -111,7 +110,8 @@ def pdf_to_png(pdf_path: Path, page_idx: int, out_png: Path) -> bool:
 def load_alignment_audit(path: Path) -> dict[str, Any]:
     audit = json.loads(path.read_text(encoding="utf-8"))
     strict = audit.get("c4_strict_compatibility_subset")
-    if audit.get("status") != AUDIT_STATUS or not isinstance(strict, dict):
+    require_supported_ohr_alignment_audit(audit, path=path)
+    if not isinstance(strict, dict):
         raise ValueError(f"unsupported OHR alignment audit: {path}")
     if int(strict.get("num_qa", -1)) != 2036:
         raise ValueError(f"alignment audit does not define the 2,036-Q-A subset: {path}")

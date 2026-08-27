@@ -8,13 +8,16 @@ from pathlib import Path
 import pytest
 
 from wigtnocr_radp.ohrbench_paths import (
+    ALIGNED_DISTILL_OHR_ALIGNMENT_AUDIT_STATUS,
     EvidencePageCoverageError,
+    LEGACY_OHR_ALIGNMENT_AUDIT_STATUS,
     PROTECTED_OHR_RESULT_BASENAMES,
     build_document_index,
     ohr_page_id,
     require_compatibility_cache_path,
     require_compatibility_output_path,
     require_evidence_page_coverage,
+    require_supported_ohr_alignment_audit,
     resolve_document_files,
 )
 
@@ -23,6 +26,28 @@ from wigtnocr_radp.ohrbench_paths import (
 class _QA:
     qa_id: str
     page_id: str
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        LEGACY_OHR_ALIGNMENT_AUDIT_STATUS,
+        ALIGNED_DISTILL_OHR_ALIGNMENT_AUDIT_STATUS,
+    ],
+)
+def test_alignment_audit_accepts_legacy_and_aligned_distill_statuses(status: str) -> None:
+    require_supported_ohr_alignment_audit(
+        {"status": status},
+        path=Path("output/results/ohrbench_alignment_audit.json"),
+    )
+
+
+def test_alignment_audit_rejects_unknown_status() -> None:
+    with pytest.raises(ValueError, match="unsupported OHR alignment audit status"):
+        require_supported_ohr_alignment_audit(
+            {"status": "full_v2_unverified"},
+            path=Path("output/results/ohrbench_alignment_audit.json"),
+        )
 
 
 def _touch(path: Path, text: str = "[]") -> None:

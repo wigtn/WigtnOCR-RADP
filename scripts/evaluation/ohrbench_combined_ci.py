@@ -28,7 +28,10 @@ from pathlib import Path
 import numpy as np
 
 from wigtnocr_radp.evaluation.bootstrap import bootstrap_paired_delta
-from wigtnocr_radp.ohrbench_paths import require_compatibility_output_path
+from wigtnocr_radp.ohrbench_paths import (
+    require_compatibility_output_path,
+    require_supported_ohr_alignment_audit,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("combined_ci")
@@ -188,8 +191,7 @@ def load_ohr_perqa(path: Path, alignment_audit: Path):
     """Load OHR per-QA arrays after applying the tracked compatibility mask."""
     d = json.loads(path.read_text())
     audit = json.loads(alignment_audit.read_text())
-    if audit.get("status") != "corrected_legacy_compatibility_subset_not_full_v2":
-        raise ValueError(f"unsupported OHR alignment audit status: {alignment_audit}")
+    require_supported_ohr_alignment_audit(audit, path=alignment_audit)
     _require_audited_source(path, audit)
     mask = _compatibility_mask(d, audit)
     expected_n = int(audit["c4_strict_compatibility_subset"]["num_qa"])

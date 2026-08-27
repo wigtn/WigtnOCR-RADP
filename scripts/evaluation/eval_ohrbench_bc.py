@@ -33,6 +33,7 @@ from wigtnocr_radp.evaluation.chunkers import ParserNativeChunker
 from wigtnocr_radp.ohrbench_paths import (
     require_compatibility_output_path,
     require_evidence_page_coverage,
+    require_supported_ohr_alignment_audit,
 )
 
 logging.basicConfig(
@@ -67,8 +68,7 @@ def _validate_rcps_input(path: Path, artifact: dict, audit_path: Path) -> None:
         )
 
     audit = json.loads(audit_path.read_text(encoding="utf-8"))
-    if audit.get("status") != "corrected_legacy_compatibility_subset_not_full_v2":
-        raise ValueError(f"unsupported OHR alignment audit status: {audit_path}")
+    require_supported_ohr_alignment_audit(audit, path=audit_path)
     sources = audit.get("source_artifacts", {})
     try:
         repo_key = path.resolve().relative_to(ROOT).as_posix()

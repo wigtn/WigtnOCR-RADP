@@ -38,6 +38,19 @@ PROTECTED_OHR_RESULT_BASENAMES = frozenset(
 
 COMPATIBILITY_OUTPUT_MARKERS = ("compat", "strict")
 
+LEGACY_OHR_ALIGNMENT_AUDIT_STATUS = (
+    "corrected_legacy_compatibility_subset_not_full_v2"
+)
+ALIGNED_DISTILL_OHR_ALIGNMENT_AUDIT_STATUS = (
+    "audited_legacy_compatibility_subset_with_aligned_distill_not_full_v2"
+)
+SUPPORTED_OHR_ALIGNMENT_AUDIT_STATUSES = frozenset(
+    {
+        LEGACY_OHR_ALIGNMENT_AUDIT_STATUS,
+        ALIGNED_DISTILL_OHR_ALIGNMENT_AUDIT_STATUS,
+    }
+)
+
 
 class EvidencePair(Protocol):
     """Minimal Q-A shape required by the evidence-page coverage gate."""
@@ -53,6 +66,17 @@ class EvidencePair(Protocol):
 
 class EvidencePageCoverageError(RuntimeError):
     """Raised when an evaluation corpus omits a Q-A evidence page."""
+
+
+def require_supported_ohr_alignment_audit(
+    audit: Mapping[str, object],
+    *,
+    path: Path,
+) -> None:
+    """Accept the legacy audit and its schema-2 aligned-Distill successor."""
+
+    if audit.get("status") not in SUPPORTED_OHR_ALIGNMENT_AUDIT_STATUSES:
+        raise ValueError(f"unsupported OHR alignment audit status: {path}")
 
 
 def require_compatibility_output_path(path: Path) -> None:
