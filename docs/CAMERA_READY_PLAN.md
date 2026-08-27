@@ -44,7 +44,7 @@
 | ZQv618 (공식 R2) | **4,994** | **6 ⚠️** |
 | bXGg (공식 R3) | **4,987** | **13 ⚠️** |
 
-KoGov 수치는 재대조했지만 OHR의 구 7-domain 산출물은 legacy parquet와 v2 parser bundle을 섞은 것으로 사후 확인됐다. 해당 수치와 Distill 비교는 camera-ready 근거에서 제외했으며, 아래 P17을 통과해야 한다. ZQv618·bXGg 게시본은 이력으로 동결한다.
+KoGov 수치는 재대조했지만 OHR의 구 7-domain 산출물은 legacy parquet와 v2 parser bundle을 섞은 것으로 사후 확인됐다. 구 7-domain 수치는 camera-ready 근거에서 제외했다. Distill per-QA는 이후 R2/R3와 동일 관측 순서임을 확인하고 strict 2,036 mask로 복원했다. ZQv618·bXGg 게시본은 이력으로 동결한다.
 
 ---
 
@@ -121,7 +121,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 - 완료 ✅: judge cache 1,017(d4a41bb) · e2e dual-ref · 분석 스크립트(rank_stability 포함) · MinerU tables-on predictions · MANIFEST.
 - **외부 입력 대기 / 미완**: ① **MinerU tables-OFF predictions** 원본 회수·커밋("release both outputs" 약속의 나머지 절반) ② 인간 검수 per-case 라벨 공개에 대한 저자 결정. P7 full-grid stability JSON은 완료했다. 남은 항목이 닫히기 전 “Everything is released” 문구를 사용하지 않는다.
-- **OHR manifest 교정 완료 ✅**: mixed-version 7-domain/OHR TextNED/구 CI를 `MANIFEST.legacy-invalid.sha256`로 격리하고, current `MANIFEST.sha256`에는 raw per-QA의 용도 경고와 `ohrbench_alignment_audit.json`·생성 스크립트 hash를 넣었다. 두 manifest 모두 checksum 검증을 통과했다. full v2 rerun 전에는 strict 2,036 compatibility audit만 current evidence로 표시한다.
+- **OHR manifest 교정 완료 ✅**: mixed-version 7-domain/OHR TextNED/구 CI를 `MANIFEST.legacy-invalid.sha256`로 격리하고, current `MANIFEST.sha256`에는 R2/R3/Distill raw per-QA의 용도 경고와 `ohrbench_alignment_audit.json`·생성 스크립트 hash를 넣었다. 두 manifest 모두 checksum 검증을 통과한다. camera-ready는 strict 2,036 compatibility audit만 OHR training evidence로 사용하며 full-v2 결과를 주장하지 않는다.
 
 ### P13. De-anonymization 【camera-ready 관례】
 
@@ -132,11 +132,11 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 - 응답과 아티팩트 간 미세 라운딩 통일 — 예: 응답 "−1.3 to +5.0pp"(같은 가족 gap)의 −1.3은 아티팩트 표(−1.4, 1.36의 반올림) 기준으로 논문에선 −1.4 계열 사용.
 - 기존 검증 스크립트(scratchpad verify_pack.py) 확장 → camera-ready 본문 수치 전수 자동 대조 1회.
-- OHR dataset SHA/version, `QA target page IDs ⊆ parser page IDs`(누락 0 hard gate), 제외 223+5, n=1,043/2,036, seed42 CI, 표·캡션·figure source를 함께 검사한다. **최종 figure와 full v2 결과 전까지 pending**이다.
+- OHR dataset SHA/version, `QA target page IDs ⊆ parser page IDs`(누락 0 hard gate), 제외 223+5, n=1,043/2,036, seed42 CI, R2/R3/Distill 직접 비교, 표·캡션·figure source를 함께 검사한다. P12 외부 artifact 반영 뒤 최종 재실행한다.
 
 ### P15. 약속-이행 최종 게이트
 
-- **외부 입력 대기**: P10·P12·P13·**P17**이 닫힌 최종 개정판에서 실행한다. P7, P18/P19 원고 반영과 chairs 회신은 완료했다. 공개 URL/릴리스도 확정한 뒤 `REBUTTAL_FINAL_EN.md`의 모든 미래형 문장("will …", "goes into the revision", "we add …") 추출 → 개정판 대응 위치 매핑 체크리스트를 실행한다. 하나라도 미이행이면 camera-ready 제출 보류.
+- **외부 입력 대기**: P10·P12·P13이 닫힌 최종 개정판에서 실행한다. P7/P17/P18, P19 원고 반영과 chairs 회신은 완료했다. 공개 URL/릴리스도 확정한 뒤 `REBUTTAL_FINAL_EN.md`의 모든 미래형 문장("will …", "goes into the revision", "we add …") 추출 → 개정판 대응 위치 매핑 체크리스트를 실행한다. 하나라도 미이행이면 camera-ready 제출 보류.
 
 ### P16. 아키텍처·개요 그림 개정 【camera-ready 시각·수치 정합】
 
@@ -148,21 +148,21 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 - **canonical source 충돌 제거(2026-08-24 최종 결정)**: camera-ready 삽입 정본은 `paper/figures/fig_overview.pdf`, 편집 정본은 `paper/figures/fig_overview_camera_ready.pptx`다. 원래 디자인은 유지하고 RCPS 배지만 C2, coverage 배지만 C3로 교체했다. `scripts/figures/make_fig_overview.py`와 중간 `fig_overview_vector.*`는 비정본 시안이며 정본을 덮어쓰지 않는다.
 - **그림별 수정 명세**: Fig1은 Distill/구 OHR 수치와 `35.1pp/2.8×`를 제거하고 294=229+65 및 527+136 Q--A를 표기한다. Fig2의 `Hit@1 0.20→0.55`와 `retriever-agnostic`을 제거한다. Fig3의 인과 문구를 exact-span 한정으로 낮추고 글자/폰트를 키운다. Fig4는 tables-on `0.123→0.549`, `42.6pp/4.47×`로 맞춘다. OHR visual은 Law--Manual 1,043만 사용하며 full v2 전 7-domain 그림을 금지한다.
 - **출력 QA**: Fig1 0.9–1.0 textwidth, Fig2/3 0.9–1.0 column, Fig4 0.75–0.9 textwidth를 목표로 하고 100% 화면·흑백·Type3=0을 확인한다.
-- **진행 기록(2026-08-24)**: Fig1--4를 최신 수치로 재생성·합본 삽입하고 실제 PDF 렌더를 검수했다. Fig1은 원래 색을 유지하면서 C2=RCPS/C3=coverage 배지, 수식 표기, 균형 잡힌 박스 비율, 선택 체크 포인트를 반영했다. Fig2의 수식·박스 연결 화살표와 Fig3의 endpoint guide를 연장했고, Fig4에는 42.6pp/4.47×를 같은 MinerU-on 구성으로 표시했다. 전체 14쪽 빌드에서 overflow·깨진 참조가 없고 Type3 font는 0개다.
+- **진행 기록(2026-08-27)**: Fig1--4를 최신 수치로 재생성·합본 삽입하고 실제 PDF 렌더를 검수했다. Fig1은 원래 색을 유지하면서 C2=RCPS/C3=coverage 배지, 수식 표기, 균형 잡힌 박스 비율, 선택 체크 포인트를 반영했다. Fig2의 수식·박스 연결 화살표와 Fig3의 endpoint guide를 연장했고, Fig4에는 42.6pp/4.47×를 같은 MinerU-on 구성으로 표시했다. P17 Distill 행 반영 뒤 전체 15쪽 빌드에서 overflow·깨진 참조가 없고 Type3 font는 0개다.
 
 ### P17. OHR-Bench 버전·source-page 정합 게이트 【post-acceptance P0 audit】
 
 - legacy parquet(4,330p)와 v2 parser/PDF bundle(8,561p)을 섞은 7-domain artifact를 camera-ready 근거에서 제외한다.
 - C1은 source-aligned Law--Manual **1,043 Q–A**만 사용한다. C4는 stored-zero `notes` 223건과 missing-page 5건을 제외한 strict 6-domain **2,036 Q–A**만 사용한다.
-- 완료 ✅: `scripts/analysis/audit_ohrbench_legacy_alignment.py`와 `output/results/ohrbench_alignment_audit.json`이 strict mask, 5개 QA ID, domain count, 1k paired bootstrap(seed 42)을 deterministic하게 재현한다. OHR scorer에는 전역 basename resolver와 evidence-page coverage hard gate를 추가했다.
-- 미완 ⏳: official v2 parquet+`qas_v2.json` 전체 재실행, clean-machine audit, Distill per-QA 동일 2,036 subset 복원 및 직접 paired contrast. Distill을 복원하지 못하면 정량 행과 우월성 문구를 완전히 제외한다.
+- 완료 ✅: `scripts/analysis/audit_ohrbench_legacy_alignment.py`와 `output/results/ohrbench_alignment_audit.json`이 strict mask, 5개 QA ID, domain count, R2/R3/Distill의 1k paired bootstrap(seed 42)을 deterministic하게 재현한다. Distill artifact의 Q-A/domain 순서와 공유 Prod/R2 배열도 기존 R2 artifact와 완전 일치해야 통과한다. OHR scorer에는 전역 basename resolver와 evidence-page coverage hard gate를 추가했다.
+- 범위 결정 ✅: full-v2 전체 재실행은 수행·주장하지 않는다. camera-ready의 외부 training 결과는 source-aligned strict 2,036 compatibility subset으로 한정한다. Distill은 이 동일 subset에서 복원했으며, Distill−R2/R3 직접 paired CI가 모두 0을 포함함을 보고한다.
 - `ohrbench_7dom_*`, 구 CI/combined CI, administration per-domain, OHR TextNED는 validity 상태를 manifest/README에 명시한다. `fig_noise_family`는 aligned Law--Manual로 재생성하기 전 사용 금지다.
 
 ### P18. MinerU-on Boundary Clarity 완결 【독해 중 발견한 correctness/evidence 보강】
 
-- **측정 완료, 정리·병합 대기**: 원격 `codex/mineru-on-bc`의 `524fd58`이 MinerU-on 294페이지·903청크·609경계에서 BC **0.713211**(유효 609/609, 누락 0)을 산출했다. 입력 manifest와 참조 artifact hash, 경계 수 가중 평균은 2026-08-23 로컬 감사에서 일치했다. MinerU-off BC 0.7161과 수치상 가깝고 Prod 0.610보다 0.1032 높으며, MinerU-on을 사용한 complete-output 4-parser BC--RCPS Pearson은 **-0.7445**로 두 자리 표기 **-0.74**를 유지한다.
-- **병합 전 게이트**: 결과 문서의 `statistically indistinguishable`를 `numerically nearly identical`로 낮추고, PaddleOCR에도 BC가 없으므로 “every other complete-output parser has BC”를 “the other three vision--language parsers have BC”로 고친다. `4.7x worse`는 “Prod Hit@1 is **4.47x** MinerU-on's”로 바로잡는다.
-- **provenance 게이트**: 현재 JSON은 새 runner를 포함하지 않은 `b563327`과 `git_dirty=true`를 기록한다. runner/tests 수정본을 먼저 커밋한 뒤 clean code commit에서 재실행하고, checkpoint에는 input manifest·model revision·max_tokens·min_chars fingerprint를 넣어 설정 불일치 resume를 거부한다. 최종 pytest/ruff의 실제 통과 개수도 실행 기록에 남긴다.
+- **완료 ✅**: clean runner로 MinerU-on 294페이지·903청크·609경계를 다시 계산해 BC **0.713123**(유효 609/609, 누락 0)을 얻었다. 이전 WSL 값 0.713211과의 차이는 $8.8\times10^{-5}$이며 통계적 동등성으로 표현하지 않는다. complete-output 4-parser BC--RCPS Pearson은 **-0.7443**으로 두 자리 표기 **-0.74**를 유지한다.
+- runner는 입력·boundary manifest, 모델 revision, source hash를 묶은 scoring fingerprint와 tracked-dirty 상태를 기록하고 legacy/mismatch checkpoint 재사용을 거부한다. CPU test 44개가 통과했다.
+- 결과 문구는 PaddleOCR BC 범위, `4.47x`, 실행 provenance를 정정했으며 PR #21로 main에 병합했다.
 - **원고·Figure 4 반영 완료(2026-08-24)**: Table 1의 MinerU-on BC를 `0.713`으로 채우고 C1의 complete-output 4-parser 상관을 MinerU-on 기반 **-0.74**로 통일했다. Marker까지 추가한 n=5도 MinerU-on/current RCPS로 재기준화해 **-0.83**으로 갱신했다. Figure 4는 동일한 on 구성과 42.6pp/4.47x를 사용한다. MinerU-off는 submitted-output diagnostic으로만 분리하고 on/off 차이를 table recognition의 인과효과로 해석하지 않는다.
 
 ### P19. 기여 번호와 결과 절을 실제 workflow 순서로 재배열 【사용자 확정 editorial 변경】
@@ -171,7 +171,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 - 편집 전 §3 Methods는 이미 `RCPS -> Coverage` 순서였으므로 정의 순서는 유지했다. 편집 전 §4 Experiments의 `C1 -> Coverage(C2) -> RCPS(C3) -> C4`는 **C1 -> RCPS(new C2) -> Coverage(new C3) -> C4**로 subsection 본문 자체를 이동했다. 단순 문자열 치환으로 끝내지 않았다.
 - 전역 동기화 대상: Abstract의 workflow, Introduction contributions, Related Work의 `C1--C3`, Figure 1 내부 C1--C4와 caption, §4 subsection 제목·도입·표/그림 caption, Discussion/Conclusion, Limitations, Appendix의 contribution 참조, README/README.ko 및 재현 문서. 이동 뒤 `\label`/`\ref`와 첫 등장 정의를 다시 검사한다.
 - RADP는 C4 첫 등장에 **Retrieval-Aware Document Parsing (RADP)**로 풀고 parser-training umbrella임을 한 문장으로 한정한다. C4 이전에는 일반적인 parser-side training 예고만 남긴다. RCPS는 training-free 선택 protocol, coverage는 retriever-free 진단, RADP는 선택·진단 뒤 필요한 경우의 학습으로 구분한다. §4.1의 LoRA/λ/decoding/preference-sampling 같은 학습 전용 setup은 C4 또는 Appendix로 옮기고 main C4는 결과 중심으로 압축한다.
-- 데이터 문구는 294=229 government+65 arXiv, 663=527+136, 242 evidence pages+52 distractors를 섞지 않고, 663 Q--A가 RCPS·coverage·E2E에 쓰인다는 점과 전체 human-written answer key가 아니라 pseudo-reference+LLM-generated Q--A라는 점을 유지한다. C4는 audited compatibility subset에서 관측된 약 1pp 차이로만 제한하며, unavailable aligned Distill artifact로 matched-objective/causal claim을 만들지 않는다.
+- 데이터 문구는 294=229 government+65 arXiv, 663=527+136, 242 evidence pages+52 distractors를 섞지 않고, 663 Q--A가 RCPS·coverage·E2E에 쓰인다는 점과 전체 human-written answer key가 아니라 pseudo-reference+LLM-generated Q--A라는 점을 유지한다. C4는 audited compatibility subset에서 관측된 약 1pp 차이로만 제한한다. matched Distill 비교는 retrieval reward의 우월성을 보이지 않으며 causal mechanism claim을 만들지 않는다.
 - **명시적 제외**: Figure 1의 `Ref. page + span`을 `Reference page + answer span`으로 풀어 쓰는 제안은 사용자 결정에 따라 수정 목록에서 제외한다.
 - **전역 반영 완료(2026-08-24)**: Abstract/Introduction/§4/Discussion/Limitations와 Figure 1 badge를 새 C1→C2 RCPS→C3 coverage→C4 순서로 동기화했다. §4의 RCPS와 coverage subsection은 본문 블록 자체를 이동했다. 후속 hierarchy pass에서 C4를 optional secondary study로 명시하고 RADP-aux/DPO/Distill을 operational하게 정의했으며, Appendix A--D는 C1--C3 검증, E--G는 C4 상세로 재배열했다. Appendix C 약속과 `Ref. page + span` 문구는 보존했다.
 
@@ -181,9 +181,9 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ```
 [완료]               P2 → P1·P5·P6·P8 → P3·P4 → P9·P11 → P16 Figure 1--4 시각 정합
-[지금–폼 오픈 전]   P18 MinerU-on BC artifact 정리·병합 · P17 OHR strict audit 완료분 고정·full v2 준비 · P12 tables-OFF 회수 (P7 동일 294p full-grid 완료)
+[지금–폼 오픈 전]   P12 tables-OFF 회수 (P7 full-grid, P17 aligned Distill, P18 MinerU-on BC 완료)
 [Aug 23–30]          form 메타데이터(5인 이름·email, OpenReview ORCID, 등록 담당자, 발표자 visa·travel, 발표 방식·선호) 입력 · P13 de-anon 확정
-[외부 입력 수령 후] P12·P17 full v2/Distill 결정 → P10 exact-command 검증 → P14 수치·lineage 감사 → figure/번호 정합 재검증 → P15 약속-이행 최종 게이트
+[외부 입력 수령 후] P12 → P10 exact-command 검증 → P14 수치·lineage 감사 → figure/번호 정합 재검증 → P15 약속-이행 최종 게이트
 [제출 직전]          페이지 규칙·수동 참고문헌·저자순서·PDF 렌더·링크 최종 확인 → 내부 목표인 Aug 30 KST 안에 업로드
 ```
 
@@ -200,7 +200,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ## 5. 역할
 
-- **상우**: P1–P19 실행(1저자 전권), 외부 런(P12-①·P17 full v2·P18 BC), form owner. P7 GPU run은 완료.
+- **상우**: P1–P19 실행(1저자 전권), 외부 런(P12-①), form owner. P7 full-grid, P17 Distill 정합 감사, P18 BC run은 완료.
 - **Harrison + 클로드코드**: P14·P15 감사 자동화, 개편·아키텍처 리뷰, 수치·참고문헌 대조.
 - **전 저자 5인**: 이름·이메일 순서 확인, 각자 OpenReview 프로필에 ORCID 등록.
 - **등록 담당자·발표자**: 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부 제공. 저자진은 대면/온라인 여부와 Oral / Poster / No preference를 확정하고, 대면 발표이면 Budapest 도착·출발일(`YYYY-MM-DD`)과 선택적 scheduling constraints를 제공.

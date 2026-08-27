@@ -30,7 +30,7 @@ Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종�
 - **C1** — 내재적 지표가 retrieval 순위를 잘못 매길 수 있음을 후보군과 source-aligned OHR perturbation으로 확인한다.
 - **C2** — **RCPS**(Retrieval-Conditional Parsing Score)로 파서·청커 후보를 학습 없이 선택한다. RCPS는 새 similarity 함수가 아니라 표준 MRR을 일관된 probe·retriever·relevance 규칙으로 묶은 프로토콜이다.
 - **C3** — **retriever-free coverage 진단**으로 parser-output exact-span absence와 chunk-boundary split을 구분한다. Prod에서는 각각 **20.2%**와 최대 **2.3%**다.
-- **C4** — 파서 학습 결과의 범위를 측정한다. 73페이지 pilot은 사전 목표를 충족하지 못했고, 별도의 2,036-Q–A OHR compatibility subset에서 RADP-DPO R2/R3의 Prod 대비 Hit@5 차이는 **+0.95 pp**, **+1.15 pp**다.
+- **C4** — 파서 학습 결과의 범위를 측정한다. 73페이지 pilot은 사전 목표를 충족하지 못했고, 별도의 2,036-Q–A OHR compatibility subset에서 R2/R3/Distill의 Prod 대비 Hit@5 차이는 **+0.95/+1.15/+1.36 pp**다. Distill과 DPO의 직접 비교 구간은 모두 0을 포함한다.
 
 현재 저장소에는 frozen **663-Q–A probe**, 242개 evidence page의 169/73 split, RCPS 구현,
 Prod·PaddleOCR·MinerU-on의 294페이지 출력과 선별된 결과 산출물이 있다. source-page mapping,
@@ -62,7 +62,7 @@ OHR-Bench, EnterpriseDocBench와 동시기 연구도 parsing 품질과 retrieval
 | **C1** | intrinsic parsing 지표와 retrieval 순위의 불일치를 후보군 안에서 측정하고, source-aligned OHR perturbation으로 두 지표가 다르게 반응함을 보인다. | BC가 있는 294페이지 출력 4종의 BC↔RCPS **r = −0.74**(기술통계); 별도 MinerU-on–Prod 비교 **Hit@1 +42.6 pp** |
 | **C2** | retriever 평균·format-normalised relevance·고정 Q–A probe를 사용하는 **RCPS 프로토콜**. | 완전한 294페이지 파서 5종 **0.137–0.584**; Prod 고정 청커 4종 **0.535–0.593** |
 | **C3** | reference span을 *covered / split / absent*로 나누는 **retriever-free coverage 진단**. | **20.2% normalised exact-span absent** vs 최대 **2.3% split** |
-| **C4** | 평가 frame별로 파서 학습의 작고 불확실한 차이를 보고한다. aligned artifact가 없는 Distill과는 정량 비교하지 않는다. | 73페이지 pilot 목표 미달; OHR compatibility subset에서 R2/R3 Hit@5 **+0.95/+1.15 pp** vs Prod |
+| **C4** | 평가 frame별로 파서 학습의 작고 불확실한 차이를 보고한다. retrieval-reward 학습은 matched Distill control과 분리되지 않는다. | 73페이지 pilot 목표 미달; OHR compatibility subset에서 R2/R3/Distill Hit@5 **+0.95/+1.15/+1.36 pp** vs Prod |
 
 ---
 
@@ -110,7 +110,7 @@ coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 con
 
 - **RADP-aux** *(hidden-state 보조손실).* `L_total = L_parse + λ·L_contrast`로 답-span hidden state와 frozen BGE-M3 임베딩을 정렬한다. 73페이지 pilot에서 사전 목표를 충족하지 못했다.
 - **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 `beta = 0.1`로 시작하고, R3는 후보 pool과 hard negative를 확장한다. 원본 R2 실행 로그로 확인한 portable config와 source-log hash는 [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md)에 기록했다.
-- **RADP-Distill** *(fidelity-based control).* 후보를 page-local BGE-M3 MRR retrieval reward 대신 reference Markdown과의 edit-distance로 순위한다. 정렬된 per-QA artifact가 현재 없어 이 README에서는 Distill과 DPO의 정량 비교를 하지 않는다.
+- **RADP-Distill** *(fidelity-based control).* 후보를 page-local BGE-M3 MRR retrieval reward 대신 reference Markdown과의 edit-distance로 순위한다. 동일한 2,036-Q–A frame에서 Hit@5는 Prod보다 **+1.36 pp**이며, Distill−R2와 Distill−R3의 직접 비교 신뢰구간은 모두 0을 포함한다.
 - **SimPO** *(reference-free control).* 242페이지 분석의 point estimate는 음수지만 모든 신뢰구간이 0을 포함하며, 어떤 최적화 차이가 원인인지는 이 실험만으로 분리하지 못한다.
 
 ---
@@ -127,7 +127,7 @@ coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 con
 | KoGovDoc-RAG training/mechanism | **242페이지**, 같은 663 Q–A | DPO·SimPO와 mechanism의 탐색적 pooled 분석. 73페이지 pilot과 같은 독립 holdout이 아니다. |
 | KoGovDoc-RAG pilot | **73페이지, 202 Q–A** | RADP-aux·RADP-DPO를 사전 성공 기준으로 확인한 held-out pilot. |
 | OHR Law–Manual | **1,043 Q–A** | C1 semantic-noise perturbation. 3개 benchmark output + 12개 종속 변종이며 15개 독립 파서가 아니다. |
-| OHR compatibility | **6개 domain, 2,036 Q–A** | C4의 post-audit R2/R3 비교. full OHR-Bench v2 rerun이 아니다. |
+| OHR compatibility | **6개 domain, 2,036 Q–A** | C4의 post-audit R2/R3/Distill 비교. full OHR-Bench v2 rerun이 아니다. |
 
 KoGovDoc-RAG의 pseudo-reference는 수동 de-noise한 Qwen3-VL-30B 출력이고 Q–A는 `gpt-5.4-2026-03-05`로 생성했다. 별도의 LLM 기반 점검은 층화 표본 100개 중 94개를 accept했지만, 전체 reference나 Q–A가 인간 검증된 것은 아니다. 학습 preference는 평가셋과 page-disjoint인 **2,667페이지 / 6,164 Q–A** corpus에서만 만든다.
 
@@ -209,10 +209,11 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 |---|:---:|:---:|:---:|:---:|:---:|
 | RADP-DPO R2 (retrieval reward) | +0.59 | +0.95 | +0.90 | +0.78 | +0.82 |
 | RADP-DPO R3 (hard-negative) | +1.46 | +1.15 | +0.90 | +1.30 | +1.28 |
+| RADP-Distill (edit-distance control) | +0.98 | +1.36 | +1.47 | +1.12 | +1.16 |
 
-*post-audit legacy compatibility subset, n=2,036, 3-retriever macro, Q–A-level paired bootstrap 1,000회(seed 42). Hit@5 95% CI는 R2 **[+0.33,+1.54]**, R3 **[+0.31,+2.05]**다. audit 뒤 정의한 subset이므로 기존 confirmatory analysis나 full OHR-Bench v2 평가로 취급하지 않는다.*
+*post-audit legacy compatibility subset, n=2,036, 3-retriever macro, Q–A-level paired bootstrap 1,000회(seed 42). Hit@5 95% CI는 R2 **[+0.33,+1.54]**, R3 **[+0.31,+2.05]**, Distill **[+0.43,+2.29]**다. Distill−R2는 **+0.41 pp [−0.43,+1.26]**, Distill−R3는 **+0.21 pp [−0.61,+1.05]**로 두 구간 모두 0을 포함한다. audit 뒤 정의한 subset이므로 기존 confirmatory analysis나 full OHR-Bench v2 평가로 취급하지 않는다.*
 
-242페이지 분석에서 SimPO의 Hit@5 point estimate는 md-h3 **−0.85 pp**, parser-native **−0.70 pp**이며 두 신뢰구간 모두 0을 포함한다. RADP-Distill은 동일 subset의 aligned per-QA artifact를 복구할 때까지 정량 결과에서 제외한다.
+242페이지 분석에서 SimPO의 Hit@5 point estimate는 md-h3 **−0.85 pp**, parser-native **−0.70 pp**이며 두 신뢰구간 모두 0을 포함한다. 동일 OHR frame의 직접 비교에서는 retrieval-reward pair selection이 edit-distance pair selection보다 낫다는 증거가 없다.
 
 ### C4 — fidelity·boundary 측정만으로 학습 메커니즘을 확정할 수 없다
 
@@ -316,7 +317,7 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
   663개 중 500개를 뽑는 고정-seed 1,000회에서 Prod는 Base와 모든 OCR parser보다 100% 높았고,
   전체 chunker 순서는 96.1% 유지됐다. Raw matching은 두 pool의 순서를 바꾸지 않으면서 RCPS를
   0.024–0.041 낮췄다.
-- **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과와 strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
+- **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과, aligned RADP-Distill per-QA 배열, strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
 - **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했다. Sampling·평가·adjudication 원본은 재검증을 마쳤으며 저자 전용 감사 패키지에 보관한다.
 - **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
   PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
@@ -326,8 +327,7 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
 - `val_####` Q–A page ID를 tracked parser-output filename에 연결하는 source-page mapping
   (`data/KoGovDoc-Bench/val.jsonl`) 또는 이에 해당하는 portable manifest.
 - MinerU **table-OFF**, Qwen3-VL-30B, Qwen3-VL-2B-base 파서 출력과 정확한 rerun 명령.
-- full OHR-Bench v2 rerun과 새 current/quarantine manifest의 clean-machine 검증. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
-- 동일 aligned subset의 RADP-Distill per-QA·CI artifact. 복구 전에는 Distill-vs-DPO 정량 비교를 지원하지 않는다.
+- current/quarantine workflow의 clean-machine 검증. 논문은 full OHR-Bench v2 결과를 주장하지 않으며, 향후 full-v2 실험에는 공식 v2 Q–A와 새 parser·retrieval run이 필요하다. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - complete BC/CS mechanism data와 aligned uncertainty estimate.
 - RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. R2 실행 config(`beta = 0.1`)는 원본 로그로 확인을 마쳤다.
 - 외부 데이터, parser 출력, embedding cache, checkpoint 획득, 머신 종속 실행 가정을 포함한

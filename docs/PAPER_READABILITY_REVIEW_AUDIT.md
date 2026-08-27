@@ -9,7 +9,7 @@
 > 판정 원칙: 근거가 현재 원고 또는 추적 가능한 산출물에 없으면 완료로 표시하지 않음
 > rebuttal 정본: 2026-08-22 사용자 제공 OpenReview 최종 게시본(SHA-256 `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`). 로컬 reviewer별 초안과 충돌하면 최종 게시본을 우선함.
 
-> **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. `main_camera_ready.pdf`는 14쪽이며 overflow·깨진 참조가 없고 Type3 font는 0개다. 아래의 과거 pass 설명은 당시 이력으로만 읽는다.
+> **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. 당시 `main_camera_ready.pdf`는 14쪽이었고, 아래 2026-08-27 갱신이 현재 15쪽 정본을 기록한다.
 
 > **2026-08-27 P7 후속 갱신:** 동일 294페이지 full-grid 수치와 probe bootstrap 문단을 반영한 현재 `main_camera_ready.pdf`는 15쪽이다. 본문과 Limitations는 1--6쪽, References는 7--9쪽, Appendix는 10쪽부터이며, 15쪽 전부를 다시 렌더해 잘림·겹침·overflow와 Type3 font가 없음을 확인했다.
 
@@ -18,7 +18,7 @@
 ## 1. 결론
 
 - **문장·문단 감사:** 정본의 Abstract부터 Appendix H까지 모든 산문 문장, 절 제목, 표 머리글, 표 캡션, 그림 캡션을 순서대로 읽고 말투, 주어·대상, 선후 논리, 용어, 분모, parser configuration, claim–evidence 범위를 대조했다. 문장과 내러티브 수정은 반영했다.
-- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 100-case absent-label human verification, MRR@10-only aggregate audit, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증은 원고와 산출물에 반영했다. 일부 공개 아티팩트와 full OHR-Bench v2 rerun은 아직 없다.
+- **리뷰 약속 감사:** R1/R2/R3 요구사항은 **전부 완료된 상태가 아니다.** 100-case absent-label human verification, MRR@10-only aggregate audit, 동일 294페이지 full-grid probe bootstrap, format-normalisation 재검증, aligned Distill comparison은 원고와 산출물에 반영했다. 일부 공개 아티팩트는 아직 없으며 full OHR-Bench v2 결과는 주장하지 않는다.
 - **시각물:** Figure 1--4를 camera-ready 수치·정의와 새 기여 순서에 맞춰 반영했다. 벡터 PDF 삽입, 실제 2단 PDF 렌더, 흑백 구분, Type 3 font 0개를 확인했다.
 - **SHACL:** 별도 저장소 `/Users/sangwoo/Desktop/naacl2027-demo`에 분리돼 있다(파일럿 이관 `a2f0a6f`, 엔진 `7d94c98`). EMNLP 저장소의 현재 트리·도달 가능한 이력·원격에는 SHACL 파일이나 브랜치가 없으며, 이번 EMNLP 커밋에서는 수정하지 않았다. 단, 별도 SHACL 작업을 이번 턴에 추가 진행한 것은 아니다.
 
@@ -81,7 +81,7 @@
 
 - R2 executed checkpoint의 `beta=0.1`은 원본 `v4_train.log`의 시작 기록과 exact command에서 확인했다. Portable config와 원본 로그 SHA-256을 `docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`에 기록했다.
 - 동일 294-page full-grid의 9개 unique system per-Q--A 재색인, probe-resampling stability, format-normalisation sensitivity를 완료했다. Prod는 Base와 세 OCR configuration보다 1,000/1,000 draws에서 높다. 전체 chunker 순서는 96.1% 유지됐고 normalised-vs-raw score 차이는 0.024--0.041이며 두 pool 모두 순서가 유지됐다.
-- full OHR-Bench v2 rerun과 RADP-Distill same-subset artifact가 없다. 현재 원고는 호환성 subset으로 범위를 낮추고 Distill 비교를 제외했다.
+- full OHR-Bench v2 rerun은 수행하지 않고 호환성 subset으로 범위를 고정했다. RADP-Distill same-subset artifact는 복구했으며 직접 DPO 비교 구간이 모두 0을 포함한다.
 - 교신저자 표기는 chairs의 서면 승인에 따라 `Correspondence: harrison@wigtn.com`으로 반영했다. 저자 affiliation/나머지 email/ORCID와 공개 URL/checkpoint/fresh-clone 명령 검증이 남아 있다.
 - Figure 1--4 시각 수정은 완료했다. 이후 그림 파일이 다시 바뀌면 합본 렌더·흑백·폰트 검사를 재실행해야 한다.
 
@@ -136,7 +136,7 @@
 | retrieval vs generated-answer scope | **완료** | Intro, Discussion, Limitations에 명시. |
 | candidate-pool / generalisation bound | **완료** | score가 pool/probe 상대적이고 broader pool을 future work로 제한. |
 | fixed deployment retriever vs averaging 지침 | **완료** | fixed이면 그 retriever, 미정/near-tie면 averaging이라고 조건화. |
-| Distill matched comparison | **대기/제외** | aligned per-Q–A artifact 복원 전 objective comparison을 원고에서 제외. |
+| Distill matched comparison | **완료** | aligned per-Q–A artifact와 strict 2,036 mask를 복원. Distill−R2/R3 paired CI가 모두 0을 포함함을 원고에 반영. |
 
 ## 7. P1–P19 실행 상태
 
@@ -155,11 +155,11 @@
 | P11 composition/contamination | **부분 완료** | 구성·page-disjoint는 완료. 4.9pp는 엄밀한 contamination upper bound가 아니므로 scale로만 보고; 약속 수정 필요. |
 | P12 artifact release | **부분 완료** | strict audit/current-vs-legacy manifest와 full-grid 공개 JSON은 완료. Human labels는 비공개 내부 감사를 완료했고, MinerU-off 원출력과 checkpoints 등은 대기. |
 | P13 metadata | **대기** | 5인 순서는 고정. affiliation/email/ORCID/form/교신 회신 필요. |
-| P14 numeric/lineage final audit | **부분 완료** | 현재 원고의 수치·분모·구성·manifest와 C2/C3 순서는 재감사 완료. full v2와 외부 artifact가 들어오면 최종 재실행 필요. |
+| P14 numeric/lineage final audit | **부분 완료** | 현재 원고의 수치·분모·구성·manifest와 C2/C3 순서는 재감사 완료. P17 Distill 복원분과 이후 외부 artifact를 포함해 최종 재실행 필요. |
 | P15 promises-to-paper gate | **대기** | 모든 외부 blocker 종료 뒤 최종 실행. |
 | P16 figures/architecture | **완료** | Figure 1--4 재생성·합본 렌더·흑백·Type3=0 검증 완료. |
-| P17 OHR version correction | **부분 완료** | mixed-version 근거 격리 및 aligned replacement 완료. full v2와 Distill same-subset은 대기. |
-| P18 MinerU-on BC | **완료(원고), artifact 정리 대기** | BC 0.713, four-parser $r=-0.74$, Marker 포함 $r=-0.83$을 원고·README에 반영. 원격 결과의 clean provenance 정리·병합은 대기. |
+| P17 OHR version correction | **완료** | mixed-version 근거 격리, strict 2,036 replacement, aligned Distill direct comparison 완료. full-v2 claim은 하지 않는 것으로 범위 고정. |
+| P18 MinerU-on BC | **완료** | clean rerun BC 0.713123, four-parser $r=-0.7443$을 감사했고 원고·README에는 0.713/$-0.74$, Marker 포함 $-0.83$을 반영. PR #21 병합 완료. |
 | P19 C2/C3 순서 | **완료** | 원고·활성 계획/감사 문서를 C1→C2 RCPS→C3 coverage→C4로 통일하고, 부록도 C1--C3 검증을 C4보다 먼저 배치. |
 
 ## 8. 제출 전 우선순위

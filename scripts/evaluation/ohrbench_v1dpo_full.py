@@ -45,6 +45,7 @@ from wigtnocr_radp.ohrbench_paths import (
     require_compatibility_cache_path,
     require_compatibility_output_path,
     require_evidence_page_coverage,
+    require_supported_ohr_alignment_audit,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -56,9 +57,6 @@ DEFAULT_PARSE_ROOT = ROOT / "output/parses_ohrbench_compat2036"
 
 _BAD_ANSWERS = {"yes", "no", "true", "false", "n/a", "none", "not specified"}
 
-AUDIT_STATUS = "corrected_legacy_compatibility_subset_not_full_v2"
-
-
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -69,8 +67,7 @@ def _sha256(path: Path) -> str:
 
 def load_alignment_audit(path: Path) -> dict[str, Any]:
     audit = json.loads(path.read_text(encoding="utf-8"))
-    if audit.get("status") != AUDIT_STATUS:
-        raise ValueError(f"unsupported OHR alignment audit status: {path}")
+    require_supported_ohr_alignment_audit(audit, path=path)
     if not isinstance(audit.get("c4_strict_compatibility_subset"), dict):
         raise ValueError(f"OHR alignment audit lacks strict-subset metadata: {path}")
     return audit

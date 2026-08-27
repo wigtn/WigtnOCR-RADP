@@ -67,6 +67,11 @@ definition, worked example, and human verification.
 - The response-period seven-domain OHR claims were invalidated by the later
   legacy/v2 source-page audit. The camera-ready text correctly restricts itself
   to source-aligned replacements rather than repeating the invalid claim.
+- The response says retrieval-aware training does not beat a fidelity-distillation
+  control. The recovered Distill per-Q--A artifact shares the R2/R3 observation
+  order and strict 2,036-Q--A mask. Distill-minus-R2 and Distill-minus-R3 Hit@5
+  intervals both include zero, so the camera-ready text now directly supports
+  that bounded negative result without restoring the invalid 2,264-Q--A summary.
 - The response's 4.9-point “upper bound” language does not isolate contamination;
   the camera-ready text treats it only as a scale comparison.
 

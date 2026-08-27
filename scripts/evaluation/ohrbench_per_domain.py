@@ -36,6 +36,7 @@ from wigtnocr_radp.ohrbench_paths import (
     ohr_page_id,
     require_compatibility_output_path,
     require_evidence_page_coverage,
+    require_supported_ohr_alignment_audit,
     resolve_document_files,
 )
 
@@ -46,7 +47,6 @@ RETRIEVAL_TO_PARQUET = {
     "academic": "paper", "administration": "notes",
 }
 _BAD_ANSWERS = {"yes", "no", "true", "false", "n/a", "none", "not specified"}
-AUDIT_STATUS = "corrected_legacy_compatibility_subset_not_full_v2"
 RESULT_STATUS = "strict_legacy_compatibility_subset_not_full_v2"
 DEFAULT_ALIGNMENT_AUDIT = Path("output/results/ohrbench_alignment_audit.json")
 DEFAULT_OUT = Path("output/results/ohrbench_per_domain_compat2036.json")
@@ -63,7 +63,8 @@ def _sha256(path: Path) -> str:
 def load_alignment_audit(path: Path) -> dict[str, Any]:
     audit = json.loads(path.read_text(encoding="utf-8"))
     strict = audit.get("c4_strict_compatibility_subset")
-    if audit.get("status") != AUDIT_STATUS or not isinstance(strict, dict):
+    require_supported_ohr_alignment_audit(audit, path=path)
+    if not isinstance(strict, dict):
         raise ValueError(f"unsupported OHR alignment audit: {path}")
     if int(strict.get("num_qa", -1)) != 2036:
         raise ValueError(f"alignment audit does not define the 2,036-Q-A subset: {path}")
