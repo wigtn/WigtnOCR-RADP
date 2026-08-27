@@ -398,6 +398,10 @@ def test_attach_reference_blocks_uses_hashed_repository_sources():
 
     assert result["references"]["mineru_on_rcps"]["num_chunks"] == 903
     assert result["derived_correlations"]["BC_vs_RCPS"]["n"] == 4
+    marker_sensitivity = result["derived_correlations"]["partial_marker_sensitivity"]
+    assert marker_sensitivity["BC_vs_RCPS"]["n"] == 5
+    assert marker_sensitivity["BC_vs_RCPS"]["pearson_r"] == pytest.approx(-0.8291)
+    assert marker_sensitivity["points"][-1]["num_pages"] == 38
     assert result["derived_correlations"]["points"][-1]["bc"] == pytest.approx(
         0.7131232508982984
     )

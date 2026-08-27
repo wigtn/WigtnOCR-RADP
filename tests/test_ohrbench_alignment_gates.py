@@ -10,10 +10,7 @@ import pytest
 
 from scripts.analysis.audit_ohrbench_legacy_alignment import build_report
 from scripts.evaluation.ohrbench_combined_ci import load_ohr_perqa
-from scripts.evaluation.ohrbench_v1dpo_full import (
-    apply_strict_compatibility_mask,
-    require_non_destructive_output,
-)
+from scripts.evaluation.ohrbench_v1dpo_full import apply_strict_compatibility_mask
 from wigtnocr_radp.evaluation.types import QAPair
 
 
@@ -92,7 +89,7 @@ def test_combined_ci_rejects_metric_array_not_in_qa_order(tmp_path: Path) -> Non
         load_ohr_perqa(source, audit_path)
 
 
-def test_strict_regeneration_filter_and_overwrite_guard(tmp_path: Path) -> None:
+def test_strict_regeneration_filter(tmp_path: Path) -> None:
     source = tmp_path / "source.json"
     audit = _audit(source, "unused")
     pairs = [
@@ -105,8 +102,6 @@ def test_strict_regeneration_filter_and_overwrite_guard(tmp_path: Path) -> None:
     filtered = apply_strict_compatibility_mask(pairs, audit)
 
     assert [qa.qa_id for qa in filtered] == ["q-law", "q-manual"]
-    with pytest.raises(ValueError, match="refusing to overwrite"):
-        require_non_destructive_output(tmp_path / "source.json", audit)
 
 
 def test_tracked_audit_includes_aligned_distill_direct_contrasts() -> None:

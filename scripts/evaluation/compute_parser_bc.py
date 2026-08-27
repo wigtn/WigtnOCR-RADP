@@ -779,7 +779,23 @@ def build_derived_correlations(
         }
     )
 
+    marker_bc = _find_parser(bc_doc["parsers"], "parser", "Marker")
+    marker_rcps = _find_parser(rcps_doc["parsers"], "name", "Marker")
+    if marker_bc is None or marker_rcps is None:
+        raise KeyError("missing reference row for the partial Marker sensitivity point")
+    marker_point = {
+        "parser": "Marker",
+        "bc": marker_bc["mean_bc"],
+        "bc_source": "existing_partial_38_pages",
+        "rcps": marker_rcps["rcps"],
+        "hit@1": marker_rcps["hit@1"],
+        "rcps_source": "grid_v1_parser_native_partial_38_pages",
+        "num_pages": marker_bc["num_pages"],
+    }
+
     bcs = [p["bc"] for p in points]
+    sensitivity_points = [*points, marker_point]
+    sensitivity_bcs = [p["bc"] for p in sensitivity_points]
     return {
         "label": "complete_output_parsers_with_mineru_on",
         "note": (
@@ -793,6 +809,24 @@ def build_derived_correlations(
         "points": points,
         "BC_vs_RCPS": corr_block("complete_output_4", bcs, [p["rcps"] for p in points]),
         "BC_vs_Hit1": corr_block("complete_output_4", bcs, [p["hit@1"] for p in points]),
+        "partial_marker_sensitivity": {
+            "note": (
+                "Sensitivity analysis only: Marker covers 38 pages rather than "
+                "the complete 294-page frame and remains excluded from the "
+                "primary comparison."
+            ),
+            "points": sensitivity_points,
+            "BC_vs_RCPS": corr_block(
+                "complete_output_4_plus_partial_marker",
+                sensitivity_bcs,
+                [p["rcps"] for p in sensitivity_points],
+            ),
+            "BC_vs_Hit1": corr_block(
+                "complete_output_4_plus_partial_marker",
+                sensitivity_bcs,
+                [p["hit@1"] for p in sensitivity_points],
+            ),
+        },
     }
 
 

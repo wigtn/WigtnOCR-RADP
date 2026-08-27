@@ -250,7 +250,7 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 ├── scripts/
 │   ├── training/             # 후보 생성, preference / edit-distance pair, DPO/Distill/SimPO 파이프라인
 │   ├── evaluation/           # baseline_grid, chunking_grid, coverage_diagnostic, rcps_protocol_ablation, OHR 체인
-│   └── figures/              # 논문 그림 생성기 (disconnect, RCPS protocol, overview PPTX)
+│   └── figures/              # 논문 그림 생성기 (disconnect, coverage, RCPS protocol, noise family)
 ├── experiments/              # RADP-Distill 학습·평가 harness
 ├── paper/                    # 제출 동결본 + camera-ready 작업 LaTeX + figures
 ├── data/KoGovDoc-RAG/        # frozen 663-Q–A probe와 242 evidence-page split
@@ -265,7 +265,8 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 uv sync --extra dev
 uv run pytest
 uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
-uv run python scripts/analysis/audit_mineru_output_release.py --check
+uv run python scripts/analysis/audit_mineru_output_release.py --check output/results/mineru_output_release_audit.json
+uv run python scripts/analysis/audit_kogov_training_table.py --check output/results/kogov_training_table_10k_audit.json
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
@@ -335,6 +336,8 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
   Prod·PaddleOCR·MinerU-on 및 submitted-output MinerU-off의 294페이지 출력과 관련 결과 JSON.
   회수한 off 출력은 deterministic [`release audit`](output/results/mineru_output_release_audit.json)으로
   기존 aggregate와 연결하며, on/off 차이를 table-recognition의 통제 실험으로 해석하지 않는다.
+  10,000회 [`KoGov training-table audit`](output/results/kogov_training_table_10k_audit.json)은 tracked
+  MRR 배열에서 Hit@5를 복원해 camera-ready Table 8의 모든 값을 재현한다.
   동일 294페이지 full-grid 감사는
   [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json)과 parser/chunker
   [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) 결과를 포함한다.
@@ -350,6 +353,8 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
   RADP-DPO R1–R3, RADP-Distill, RADP-SimPO가 들어 있다.
 - **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
   PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
+- **Legacy metric 격리** — `output/baselines/correlation_v1.json`은 non-MoC boundary 정의를 사용한
+  Phase-1 역사 자료로 명시했으며 camera-ready 근거로 사용하지 않는다.
 
 ### Camera-ready 전까지 남은 공개 항목
 

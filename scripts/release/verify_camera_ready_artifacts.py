@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULT_MANIFEST = ROOT / "output/results/MANIFEST.sha256"
+MINERU_ON_BC = ROOT / "output/baselines/moc_bc_mineru_tableon.json"
 
 
 def _sha256(path: Path) -> str:
@@ -34,6 +35,17 @@ def verify_result_manifest() -> None:
         path = (RESULT_MANIFEST.parent / relative).resolve()
         if _sha256(path) != expected:
             raise ValueError(f"manifest mismatch at line {line_number}: {relative}")
+
+
+def verify_mineru_on_bc_evidence() -> None:
+    report = json.loads(MINERU_ON_BC.read_text(encoding="utf-8"))
+    primary = report["derived_correlations"]["BC_vs_RCPS"]
+    sensitivity = report["derived_correlations"]["partial_marker_sensitivity"]
+    if primary["n"] != 4 or primary["pearson_r"] != -0.7443:
+        raise ValueError("MinerU-on complete-output BC correlation is stale")
+    marker = sensitivity["BC_vs_RCPS"]
+    if marker["n"] != 5 or marker["pearson_r"] != -0.8291:
+        raise ValueError("MinerU-on + partial Marker BC sensitivity is stale")
 
 
 def _run(*parts: str) -> None:
@@ -66,6 +78,7 @@ def main() -> int:
     args = parser.parse_args()
 
     verify_result_manifest()
+    verify_mineru_on_bc_evidence()
     python = sys.executable
     _run(
         python,
@@ -84,6 +97,12 @@ def main() -> int:
         "scripts/analysis/audit_ohrbench_legacy_alignment.py",
         "--check",
         "output/results/ohrbench_alignment_audit.json",
+    )
+    _run(
+        python,
+        "scripts/analysis/audit_kogov_training_table.py",
+        "--check",
+        "output/results/kogov_training_table_10k_audit.json",
     )
     verify_fullgrid_aggregate(python)
     _run(

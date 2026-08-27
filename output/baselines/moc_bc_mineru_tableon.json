@@ -2234,6 +2234,68 @@
       "pearson_p": 0.2519,
       "spearman_r": -0.4,
       "spearman_p": 0.6
+    },
+    "partial_marker_sensitivity": {
+      "note": "Sensitivity analysis only: Marker covers 38 pages rather than the complete 294-page frame and remains excluded from the primary comparison.",
+      "points": [
+        {
+          "parser": "Qwen3-VL-30B (teacher)",
+          "bc": 0.6232,
+          "bc_source": "existing",
+          "rcps": 0.5844008448583612,
+          "hit@1": 0.5444947209653092,
+          "rcps_source": "grid_v1_parser_native"
+        },
+        {
+          "parser": "WigtnOCR-2B (ours, v1)",
+          "bc": 0.61,
+          "bc_source": "existing",
+          "rcps": 0.5825728012002522,
+          "hit@1": 0.5485168426344896,
+          "rcps_source": "grid_v1_parser_native"
+        },
+        {
+          "parser": "Qwen3-VL-2B (base)",
+          "bc": 0.5199,
+          "bc_source": "existing",
+          "rcps": 0.5321093394622806,
+          "hit@1": 0.4997486173956762,
+          "rcps_source": "grid_v1_parser_native"
+        },
+        {
+          "parser": "MinerU-tableON",
+          "bc": 0.7131232508982984,
+          "bc_source": "this_run",
+          "rcps": 0.1365278210049452,
+          "hit@1": 0.12267471091000504,
+          "rcps_source": "grid_MinerU-tableON_parser_native"
+        },
+        {
+          "parser": "Marker",
+          "bc": 0.7168,
+          "bc_source": "existing_partial_38_pages",
+          "rcps": 0.0731881831555034,
+          "hit@1": 0.06787330316742081,
+          "rcps_source": "grid_v1_parser_native_partial_38_pages",
+          "num_pages": 38
+        }
+      ],
+      "BC_vs_RCPS": {
+        "label": "complete_output_4_plus_partial_marker",
+        "n": 5,
+        "pearson_r": -0.8291,
+        "pearson_p": 0.0826,
+        "spearman_r": -0.6,
+        "spearman_p": 0.2848
+      },
+      "BC_vs_Hit1": {
+        "label": "complete_output_4_plus_partial_marker",
+        "n": 5,
+        "pearson_r": -0.8316,
+        "pearson_p": 0.0808,
+        "spearman_r": -0.7,
+        "spearman_p": 0.1881
+      }
     }
   }
 }
