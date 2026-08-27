@@ -299,8 +299,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 > **그림 정본 안내:** camera-ready 정본은 `paper/figures/fig_overview.pdf`,
 > `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, `fig_disconnect.pdf`이며, 이 README에는 대응하는 PNG preview를
 > 표시한다. Figure 1의 편집 정본은 `paper/figures/fig_overview_camera_ready.pptx`이며 RCPS 배지는 C2,
-> coverage 배지는 C3이다. `scripts/figures/make_fig_overview.py`는 비정본 대체 렌더러이므로 승인된
-> PPTX 기반 PDF를 덮어쓰면 안 된다.
+> coverage 배지는 C3이다.
 
 ---
 

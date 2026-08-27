@@ -69,7 +69,7 @@
 ### 기타
 
 - **페이지:** PDF 11pp(부록 포함). 본문 경계 `L190`(Limitations) / refs `L200` / appendix `L202`. **EMNLP Industry Track 한도 재확인** 필요.
-- **Figure 1:** `paper/figures/fig_overview.pptx` 수작업 → 현재 C2를 C3 하위처럼 그림. **C2를 C3와 동급**으로 재export(§3 "Two Tools"와 정합).
+- **Figure 1:** 당시 구형 `paper/figures/fig_overview.pptx` 수작업본은 C2를 C3 하위처럼 표시했다. 해당 파일은 현재 트리에서 제거했으며, 최종 편집 정본은 `fig_overview_camera_ready.pptx`다.
 - 참고문헌·그림 완성본 ✓ (이전 placeholder 해결됨).
 
 ---
@@ -208,7 +208,7 @@
 ### 기타
 
 - **페이지:** PDF 11pp(부록 포함). 본문 경계 `L190`(Limitations) / refs `L200` / appendix `L202`. **EMNLP Industry Track 한도 재확인** 필요.
-- **Figure 1:** `paper/figures/fig_overview.pptx` 수작업 → 현재 C2를 C3 하위처럼 그림. **C2를 C3와 동급**으로 재export(§3 "Two Tools"와 정합).
+- **Figure 1:** 당시 구형 `paper/figures/fig_overview.pptx` 수작업본은 C2를 C3 하위처럼 표시했다. 해당 파일은 현재 트리에서 제거했으며, 최종 편집 정본은 `fig_overview_camera_ready.pptx`다.
 - 참고문헌·그림 완성본 ✓ (이전 placeholder 해결됨).
 
 ---

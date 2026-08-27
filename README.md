@@ -353,8 +353,6 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 > `paper/figures/fig_overview.pdf`, `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, and `fig_disconnect.pdf`;
 > the PNG files displayed in this README are their web previews. Figure 1's canonical editable source is
 > `paper/figures/fig_overview_camera_ready.pptx`; its RCPS badge is C2 and its coverage badge is C3.
-> `scripts/figures/make_fig_overview.py` is a non-canonical alternative renderer and must not overwrite the
-> approved PPTX-derived PDF.
 
 ## Local code check (Linux/WSL CUDA environment)
 

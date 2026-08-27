@@ -75,7 +75,7 @@
 - Figure 1은 승인된 기존 디자인·색·크기·문구를 유지하고, RCPS 배지의 C3를 C2로, coverage 배지의 C2를 C3로 교체했다. 그 밖의 시각 요소는 변경하지 않았다.
 - Figure 2는 박스 폭을 통일하고 모든 세로 화살표가 인접 박스 경계까지 닿게 했다. RCPS 정의도 일반 문장 대신 수식으로 표시했다.
 - Figure 3은 lollipop guide가 endpoint marker 뒤까지 이어지도록 연장하고 상단의 pre-chunking no-match callout을 제거했다. Figure 4는 MinerU-on 기준 $r=-0.74/-0.83$과 Hit@1 0.123/0.549를 재확인하고, 파생값 callout은 제거했으며 두 막대 값을 동일하게 막대 위에 배치했다. BC 패널은 Marker 다이아몬드를 MinerU-on 원과 같은 시각 폭으로 줄이고 두 라벨에 같은 오프셋을 적용했다.
-- `paper/figures/fig_overview_camera_ready.pptx`가 최종 편집 정본이며, 여기서 export한 `paper/figures/fig_overview.pdf`가 삽입 정본이다. `scripts/figures/make_fig_overview.py`는 비정본 시안으로 정본을 덮어쓰지 않는다.
+- `paper/figures/fig_overview_camera_ready.pptx`가 최종 편집 정본이며, 여기서 export한 `paper/figures/fig_overview.pdf`가 삽입 정본이다.
 
 ### 아직 문장만으로 닫을 수 없는 항목
 
