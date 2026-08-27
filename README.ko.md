@@ -33,8 +33,9 @@ Boundary Clarity(BC)와 RCPS의 상관은 BC가 있는 294페이지 출력 4종�
 - **C4** — 파서 학습 결과의 범위를 측정한다. 73페이지 pilot은 사전 목표를 충족하지 못했고, 별도의 2,036-Q–A OHR compatibility subset에서 R2/R3/Distill의 Prod 대비 Hit@5 차이는 **+0.95/+1.15/+1.36 pp**다. Distill과 DPO의 직접 비교 구간은 모두 0을 포함한다.
 
 현재 저장소에는 frozen **663-Q–A probe**, 242개 evidence page의 169/73 split, RCPS 구현,
-Prod·PaddleOCR·MinerU-on의 294페이지 출력과 선별된 결과 산출물이 있다. source-page mapping,
-일부 parser 출력과 checkpoint처럼 아직 제공되지 않은 항목은 아래에서 따로 구분한다.
+portable 294-page source map, 네 공개 parser 설정의 294페이지 출력과 선별된 결과 산출물, 그리고
+평가한 parser-training adapter 9종의 공개 릴리스가 있다. 원본 source document와 일부 parser 출력 등
+전체 fresh-clone 재실행에 필요하지만 아직 제공하지 않은 항목은 아래에서 따로 구분한다.
 
 <p align="center">
   <img src="paper/figures/fig_overview.png" width="100%" alt="고정 평가 프레임부터 후보 생성, RCPS 선택, coverage 진단, 선택적 조치와 최종 배포까지 이어지는 RCPS 워크플로">
@@ -108,8 +109,8 @@ chunker를 바꿀 때 달라지는 것은 split이며 8개 chunker에서 최대 
 
 coverage 진단이 파서 출력을 가리킬 때 시험한 학습 접근과 control은 다음과 같다.
 
-- **RADP-aux** *(hidden-state 보조손실).* `L_total = L_parse + λ·L_contrast`로 답-span hidden state와 frozen BGE-M3 임베딩을 정렬한다. 73페이지 pilot에서 사전 목표를 충족하지 못했다.
-- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 `beta = 0.1`로 시작하고, R3는 후보 pool과 hard negative를 확장한다. 원본 R2 실행 로그로 확인한 portable config와 source-log hash는 [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md)에 기록했다.
+- **RADP-aux** *(hidden-state 보조손실).* `L_total = L_parse + λ·L_contrast`로 답-span hidden state와 frozen BGE-M3 임베딩을 정렬한다. 73페이지 pilot에서 사전 목표를 충족하지 못했다. 실제 sweep은 `Qwen/Qwen3-VL-2B-Instruct`에서 adapter를 학습한 뒤 Prod에 적용해 평가했으므로 preference-based variant와 같은 base를 사용한 통제 비교는 아니다.
+- **RADP-DPO** *(discrete-output retrieval-reward DPO).* 별도의 2,667페이지 training corpus에서 Prod 후보 parse를 샘플하고 page-local BGE-M3 MRR로 preference pair를 만든다. 학습 시 `π_θ`는 LoRA on, `π_ref`는 LoRA off다. R2는 R1 checkpoint에서 두 번째 preference round를 `beta = 0.1`로 시작하고, R3는 후보 pool과 hard negative를 확장한다. 원본 R2 실행 로그로 확인한 portable config와 source-log hash는 [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md)에 기록했다. 9개 adapter 전체의 release inventory와 원본/release hash는 [`checkpoint_release_manifest.json`](docs/provenance/checkpoint_release_manifest.json)에 기록했다.
 - **RADP-Distill** *(fidelity-based control).* 후보를 page-local BGE-M3 MRR retrieval reward 대신 reference Markdown과의 edit-distance로 순위한다. 동일한 2,036-Q–A frame에서 Hit@5는 Prod보다 **+1.36 pp**이며, Distill−R2와 Distill−R3의 직접 비교 신뢰구간은 모두 0을 포함한다.
 - **SimPO** *(reference-free control).* 242페이지 분석의 point estimate는 음수지만 모든 신뢰구간이 0을 포함하며, 어떤 최적화 차이가 원인인지는 이 실험만으로 분리하지 못한다.
 
@@ -263,17 +264,37 @@ Prod 출력(294페이지, 663 Q–A, **retriever 없음**)에서 134/663 referen
 ```bash
 uv sync --extra dev
 uv run pytest
+uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
+uv run python scripts/analysis/audit_mineru_output_release.py --check
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
 이 명령들은 `pyproject.toml`과 `uv.lock`에 고정된 Linux/WSL CUDA 12.8 의존성 환경을 전제로 한다.
-깨끗한 macOS/CPU 설치 경로는 아직 packaging·검증되지 않았다. 마지막 coverage 계산 자체는 CPU 기반이며,
-기본 Prod 294페이지 출력과 663 Q–A는 tracked이다. 다만 source-page mapping
-`data/KoGovDoc-Bench/val.jsonl`은 gitignore되어 있어 현재 명령만으로는 fresh-clone 재현이 완결되지 않는다.
+전체 의존성을 대상으로 한 깨끗한 macOS/CPU 설치 경로는 아직 packaging·검증되지 않았다. 마지막 coverage 계산 자체는 CPU 기반이며,
+기본 Prod 294페이지 출력과 663 Q–A는 tracked이다. Portable source-page map은 inventory 감사를 지원하지만,
+coverage 명령이 사용하는 private training-format `data/KoGovDoc-Bench/val.jsonl`에는 reference transcription이
+포함되어 있고 공개하지 않았다. 따라서 현재 명령만으로는 fresh-clone 재현이 완결되지 않는다.
 동등한 로컬 입력이 있다면 `--parser_dir`와 `--val_jsonl`로 경로를 지정할 수 있다.
 이 명령들은 논문 실험 전체의 **fresh-clone 재현**을 의미하지 않는다.
-전체 파이프라인은 외부 데이터·일부 parser 출력·embedding cache·checkpoint에 아직 의존한다. portable
+전체 파이프라인은 외부 source document·일부 parser 출력·embedding cache·parser runtime에 아직 의존한다. portable
 end-to-end 실행법과 남은 공개 산출물은 아래의 camera-ready 작업 항목이다.
+
+### CPU-only artifact·checkpoint 검증
+
+공개한 평가 artifact와 LoRA adapter 9종은 GPU 없이 clean checkout에서 감사할 수 있다.
+
+```bash
+RCPS_RELEASE_DIR="$(mktemp -d)"
+curl -fL -o /tmp/RCPS-RADP-Adapters-v1.tar.gz \
+  https://github.com/wigtn/RCPS-RADP-Adapters/releases/download/v1.0.0/RCPS-RADP-Adapters-v1.tar.gz
+tar -xzf /tmp/RCPS-RADP-Adapters-v1.tar.gz -C "$RCPS_RELEASE_DIR"
+python3 scripts/release/verify_camera_ready_artifacts.py \
+  --checkpoint-dir "$RCPS_RELEASE_DIR"
+```
+
+릴리스 압축본의 SHA-256은
+`22b4a0d4f5560f4d7c31633a1c885bbe3568a2bef841bfd94bf2407c339f08c6`이다. Deterministic builder,
+공개 다운로드 manifest, 포함 정책은 [`CHECKPOINT_RELEASE.md`](docs/provenance/CHECKPOINT_RELEASE.md)에 적었다.
 
 > **그림 정본 안내:** camera-ready 정본은 `paper/figures/fig_overview.pdf`,
 > `fig_rcps_protocol.pdf`, `fig_coverage.pdf`, `fig_disconnect.pdf`이며, 이 README에는 대응하는 PNG preview를
@@ -306,12 +327,16 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
 
 - **KoGovDoc-RAG 평가 파일** — 663 Q–A와 242개 evidence page의 frozen 169/73 split. 논문의 selection
   frame은 이 242쪽과 Q–A가 없는 distractor 52쪽을 함께 index해 총 294페이지(**KoGov 229 + arXiv 65**)를 사용한다.
-  원본 source-page corpus와 portable mapping은 아직 packaging되지 않았다.
-  별도의 LLM-assisted 100-pair Q–A 품질 점검 표본과 aggregate 94/100 결과도 있다. 이 표본의 빈
-  `verification` 필드는 인간 라벨이 아니다.
+  원본 source-page corpus는 포함하지 않지만, portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)이
+  모든 `val_####` ID를 domain 및 tracked parser-output filename에 연결한다. 이 map에는 머신 로컬 경로나
+  reference transcription을 넣지 않았다. 별도의 LLM-assisted 100-pair Q–A 품질 점검 표본과 aggregate
+  94/100 결과도 있다. 이 표본의 빈 `verification` 필드는 인간 라벨이 아니다.
 - **RCPS 레퍼런스 구현** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 - **선별된 평가 산출물** — tracked aggregate grid, full-grid와 audited training의 aligned per-Q–A 배열,
-  Prod·PaddleOCR·MinerU-on의 294페이지 출력과 관련 결과 JSON. 동일 294페이지 full-grid 감사는
+  Prod·PaddleOCR·MinerU-on 및 submitted-output MinerU-off의 294페이지 출력과 관련 결과 JSON.
+  회수한 off 출력은 deterministic [`release audit`](output/results/mineru_output_release_audit.json)으로
+  기존 aggregate와 연결하며, on/off 차이를 table-recognition의 통제 실험으로 해석하지 않는다.
+  동일 294페이지 full-grid 감사는
   [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json)과 parser/chunker
   [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) 결과를 포함한다.
   663개 중 500개를 뽑는 고정-seed 1,000회에서 Prod는 Base와 모든 OCR parser보다 100% 높았고,
@@ -319,18 +344,22 @@ Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. �
   0.024–0.041 낮췄다.
 - **정렬된 OHR 감사 artifact** — Law–Manual 1,043 Q–A C1 결과, aligned RADP-Distill per-QA 배열, strict 2,036-Q–A legacy compatibility subset의 deterministic derivation. 구 7-domain 산출물은 provenance 용도로 남아 있지만 camera-ready 근거로는 유효하지 않다.
 - **100-case absent-label 인간 검증의 aggregate 결과** — 원고에 κ=0.615, raw 81/100과 adjudication 후 parser별 비율을 기록했다. Sampling·평가·adjudication 원본은 재검증을 마쳤으며 저자 전용 감사 패키지에 보관한다.
+- **Parser-training checkpoint** — 평가한 LoRA adapter 9종을
+  [`wigtn/RCPS-RADP-Adapters` 릴리스 `v1.0.0`](https://github.com/wigtn/RCPS-RADP-Adapters/releases/tag/v1.0.0)에 공개했다.
+  Tracked [`release manifest`](docs/provenance/checkpoint_release_manifest.json)는 source/release hash,
+  training/evaluation base model, executed configuration을 기록한다. 릴리스에는 RADP-aux 4종,
+  RADP-DPO R1–R3, RADP-Distill, RADP-SimPO가 들어 있다.
 - **Camera-ready Figure 1–4** — vector PDF와 README용 PNG preview를 저장했고, Figure 1은 최종 editable
   PPTX도 포함한다. 합본 PDF는 모든 font embedded 및 Type 3 font 0개를 확인했다.
 
 ### Camera-ready 전까지 남은 공개 항목
 
-- `val_####` Q–A page ID를 tracked parser-output filename에 연결하는 source-page mapping
-  (`data/KoGovDoc-Bench/val.jsonl`) 또는 이에 해당하는 portable manifest.
-- MinerU **table-OFF**, Qwen3-VL-30B, Qwen3-VL-2B-base 파서 출력과 정확한 rerun 명령.
-- current/quarantine workflow의 clean-machine 검증. 논문은 full OHR-Bench v2 결과를 주장하지 않으며, 향후 full-v2 실험에는 공식 v2 Q–A와 새 parser·retrieval run이 필요하다. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
+- Qwen3-VL-30B·Qwen3-VL-2B-base 파서 출력과 공개 parser의 정확한 rerun 명령.
+- 논문은 full OHR-Bench v2 결과를 주장하지 않으며, 향후 full-v2 실험에는 공식 v2 Q–A와 새 parser·retrieval run이 필요하다. legacy 7-domain/combined-CI/OHR-TextNED artifact는 이미 quarantine manifest로 분리했다.
 - complete BC/CS mechanism data와 aligned uncertainty estimate.
-- RADP-Distill, RADP-aux, RADP-DPO, SimPO의 complete executed-config/log provenance와 모델 체크포인트. R2 실행 config(`beta = 0.1`)는 원본 로그로 확인을 마쳤다.
-- 외부 데이터, parser 출력, embedding cache, checkpoint 획득, 머신 종속 실행 가정을 포함한
+- 원본 preference-pair text와 complete training log. 공개 checkpoint 릴리스에는 대신 portable executed
+  configuration, 검증된 adapter, 사용 가능한 structured trainer state를 포함했다.
+- 외부 데이터, parser 출력, embedding cache, base model 획득, 머신 종속 실행 가정을 포함한
   **portable fresh-clone end-to-end 재현 경로**.
 
 ## 📄 License & Citation

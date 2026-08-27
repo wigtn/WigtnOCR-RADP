@@ -32,17 +32,17 @@ future-tense “same 100-Q--A” plan. It is not the posted commitment.
 | Add parser I/O definition and a worked example in Appendix C | Reflected in Appendix C |
 | Split dense abstract prose and define parser/chunker/retriever up front | Reflected in the camera-ready text |
 | Move noise-family and DPO-milestone detail to appendices; compress parser training | Reflected: main C4 is a two-paragraph secondary study; details are in Appendices E--G |
-| Correct the MinerU table-recognition configuration and Limitations | Reflected in text and tables; public MinerU-off artifact still needs verification |
+| Correct the MinerU table-recognition configuration and Limitations | Reflected in text and tables; the recovered public MinerU-off artifact now has a deterministic release audit |
 | Add the end-to-end table | Reflected in Appendix B with same-configuration MinerU-on reporting |
 | Add the full-grid probe-stability version | Completed with the aligned 294-page, 663-Q--A, nine-system artifact and parser/chunker bootstrap outputs |
 | State retrieval rather than end-to-end generation as the primary scope | Reflected in Introduction, Discussion, and Limitations |
-| Add a reproducibility checklist and exact commands | Conditional wording in R1; final clean-checkout verification remains pending |
+| Add a reproducibility checklist and exact commands | Public `v1.0.0` download and CPU-only artifact gate are documented and verified from a clean checkout |
 
 The 2026-08-24 pass also narrowed the Abstract and Introduction from a broad
-“KoGovDoc-RAG evaluation files are released” statement to the artifact that is
-actually present: the frozen 663-Q--A probe and RCPS implementation. The missing
-portable source-page mapping and rerun artifacts are now stated at first mention
-and again in Appendix H.
+“KoGovDoc-RAG evaluation files are released” statement to the artifact that was
+then present. The current tree additionally contains the portable 294-page
+source map and both MinerU configurations' output sets. Remaining rerun gaps are
+stated at first mention and again in Appendix H.
 
 The 2026-08-24 hierarchy pass makes RCPS selection the visible centre of the
 paper without changing the promised Appendix C. Appendices A--D now support
@@ -60,10 +60,13 @@ definition, worked example, and human verification.
   Raw matching lowers RCPS by 0.024--0.041 without reordering either pool, so
   the response-period 0.02--0.03 description is replaced rather than repeated.
 - The final response says corrected outputs, per-case verdicts, analysis scripts,
-  and checkpoints are released. The current Git tree contains analysis scripts
-  and the automated-judge cache, but the final human adjudication labels,
-  MinerU-off predictions, and parser-training checkpoint/config release are not
-  presently traceable here.
+  and checkpoints are released. The Git tree contains both MinerU configurations'
+  294-page outputs, a deterministic tables-off release audit, a portable 294-page
+  source map, analysis scripts, and the automated-judge cache. All nine evaluated
+  LoRA adapters are in the public `wigtn/RCPS-RADP-Adapters` `v1.0.0` release;
+  the tracked manifest records their source/release hashes and base-model lineage.
+  Human adjudication records are deliberately retained in the author-only audit
+  package, so “per-case verdicts” is not interpreted as publishing those private labels.
 - The response-period seven-domain OHR claims were invalidated by the later
   legacy/v2 source-page audit. The camera-ready text correctly restricts itself
   to source-aligned replacements rather than repeating the invalid claim.

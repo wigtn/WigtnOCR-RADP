@@ -109,7 +109,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P10. 재현성 체크리스트 + exact run commands appendix 【NAor1 조건부 제안 — 이행 권장】
 
-- 문안·명령어 골격과 P7 full-grid 산출물은 준비됐다. **외부 입력 대기**: P12의 공개 경로/릴리스 태그와 최종 공개 URL이 확정돼야 exact command를 실제 clean checkout에서 실행 검증할 수 있다. 검증 전에는 “exact/released” 완료로 표시하지 않는다.
+- 완료 ✅: public release `wigtn/RCPS-RADP-Adapters` `v1.0.0`을 익명 다운로드하고 tarball SHA-256와 9개 adapter 내부 hash를 검증했다. README의 CPU-only exact command와 `verify_camera_ready_artifacts.py`를 clean checkout에서 실행해 source map, MinerU-off, OHR alignment, full-grid aggregate, checkpoint manifest를 한 번에 검증했다. 이 경로는 공개 artifact 감사용이며, 외부 source document·parser runtime·embedding cache가 필요한 전체 end-to-end rerun으로 과장하지 않는다.
 
 ### P11. 데이터 구성·오염 상한 문장 【GR】
 
@@ -119,8 +119,9 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P12. 아티팩트 공개 정합 — "Everything is released" 실체화 【GR】
 
-- 완료 ✅: judge cache 1,017(d4a41bb) · e2e dual-ref · 분석 스크립트(rank_stability 포함) · MinerU tables-on predictions · MANIFEST.
-- **외부 입력 대기 / 미완**: ① **MinerU tables-OFF predictions** 원본 회수·커밋("release both outputs" 약속의 나머지 절반) ② 인간 검수 per-case 라벨 공개에 대한 저자 결정. P7 full-grid stability JSON은 완료했다. 남은 항목이 닫히기 전 “Everything is released” 문구를 사용하지 않는다.
+- 완료 ✅: judge cache 1,017(d4a41bb) · e2e dual-ref · 분석 스크립트(rank_stability 포함) · MinerU tables-on/off 294페이지 predictions · MANIFEST. Tables-off는 35번 서버의 원본 294건을 회수했고 `audit_mineru_output_release.py`가 229 KoGov+65 arXiv, tables-on과 동일 filename set, tree SHA-256, submitted aggregate 연결을 검증한다.
+- 인간 검수 원본 처리 결정 ✅: sampling manifest, 두 평가 파일, 19건 adjudication 기록은 저자 전용 감사 패키지에 유지하고 공개본에는 aggregate만 보고한다. Portable source-page map도 생성해 294개 page ID, 229/65 domain 구성, 4개 parser filename set, 242 evidence + 52 distractor 구성을 자동 검증한다.
+- Checkpoint/config 공개 완료 ✅: RADP-aux 4종, RADP-DPO R1–R3, RADP-Distill, RADP-SimPO의 최종 LoRA adapter 9종을 public `v1.0.0` release로 배포했다. 추적 manifest에 source/release hash, training/evaluation base, portable executed config, 사용 가능한 trainer state를 기록했다. RADP-aux가 Qwen3-VL-2B-Instruct에서 학습되고 Prod에 적용된 cross-base 실행이었음을 원고·README에 정정했다. 인간 per-case 라벨은 의도한 author-only 예외이며, raw preference text·완전한 training log·외부 source document는 공개 범위가 아니다.
 - **OHR manifest 교정 완료 ✅**: mixed-version 7-domain/OHR TextNED/구 CI를 `MANIFEST.legacy-invalid.sha256`로 격리하고, current `MANIFEST.sha256`에는 R2/R3/Distill raw per-QA의 용도 경고와 `ohrbench_alignment_audit.json`·생성 스크립트 hash를 넣었다. 두 manifest 모두 checksum 검증을 통과한다. camera-ready는 strict 2,036 compatibility audit만 OHR training evidence로 사용하며 full-v2 결과를 주장하지 않는다.
 
 ### P13. De-anonymization 【camera-ready 관례】
@@ -132,11 +133,11 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 - 응답과 아티팩트 간 미세 라운딩 통일 — 예: 응답 "−1.3 to +5.0pp"(같은 가족 gap)의 −1.3은 아티팩트 표(−1.4, 1.36의 반올림) 기준으로 논문에선 −1.4 계열 사용.
 - 기존 검증 스크립트(scratchpad verify_pack.py) 확장 → camera-ready 본문 수치 전수 자동 대조 1회.
-- OHR dataset SHA/version, `QA target page IDs ⊆ parser page IDs`(누락 0 hard gate), 제외 223+5, n=1,043/2,036, seed42 CI, R2/R3/Distill 직접 비교, 표·캡션·figure source를 함께 검사한다. P12 외부 artifact 반영 뒤 최종 재실행한다.
+- 최종 artifact 재감사 완료 ✅: OHR dataset version/mask, `QA target page IDs ⊆ parser page IDs`(누락 0), 제외 223+5, n=1,043/2,036, R2/R3/Distill 정렬, MinerU-on/off, 294-page full-grid, public checkpoint manifest/hash를 검증했다. RADP-aux training/evaluation base 차이를 발견해 원고·README의 “all variants are Prod fine-tunes” 계열 표현을 실제 lineage로 정정했다.
 
 ### P15. 약속-이행 최종 게이트
 
-- **외부 입력 대기**: P10·P12·P13이 닫힌 최종 개정판에서 실행한다. P7/P17/P18, P19 원고 반영과 chairs 회신은 완료했다. 공개 URL/릴리스도 확정한 뒤 `REBUTTAL_FINAL_EN.md`의 모든 미래형 문장("will …", "goes into the revision", "we add …") 추출 → 개정판 대응 위치 매핑 체크리스트를 실행한다. 하나라도 미이행이면 camera-ready 제출 보류.
+- Artifact/rebuttal 약속 게이트 완료 ✅: 공개 URL·릴리스, corrected MinerU outputs, source map, analysis scripts, checkpoint 공개, Appendix C, E2E, stability, Distill 비교를 개정판과 매핑했다. 수락 후 감사로 무효화된 OHR 7-domain/2,264 Q--A 주장은 6-domain/2,036 compatibility subset으로 교체하고 원고에 한계를 밝혔다. 남은 제출 blocker는 P13의 저자 ORCID·폼·발표자 메타데이터와 저자 수동 참고문헌 대조다.
 
 ### P16. 아키텍처·개요 그림 개정 【camera-ready 시각·수치 정합】
 

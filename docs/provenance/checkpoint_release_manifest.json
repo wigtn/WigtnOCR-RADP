@@ -1,0 +1,267 @@
+{
+  "num_variants": 9,
+  "release_asset": "https://github.com/wigtn/RCPS-RADP-Adapters/releases/download/v1.0.0/RCPS-RADP-Adapters-v1.tar.gz",
+  "release_repository": "https://github.com/wigtn/RCPS-RADP-Adapters",
+  "schema_version": 1,
+  "scope": {
+    "excludes": "optimizer states, training images, preference-pair text, tokenizers duplicated from public bases, and RADP-aux projection heads unused for parser inference",
+    "includes": "final PEFT adapters, portable configs, executed configs, and available trainer states"
+  },
+  "status": "portable_checkpoint_release",
+  "variants": [
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1104,
+          "sha256": "2c7d2832109500486858f20722eb0b355975e5febb2fbac3f92da1b9546015d4"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 34922600,
+          "sha256": "202e25d4a28ad0c1aedf46d9acb028445aaaf0e58447ec55e4a20de4b398ae3c"
+        },
+        "executed_config.json": {
+          "bytes": 889,
+          "sha256": "3fe29ba347dfd95461a948233152a460277435eabc940b839d8561e846572065"
+        }
+      },
+      "id": "radp-aux-lambda-0.0",
+      "method": "parse-loss control",
+      "paper_label": "RADP-aux lambda=0.0",
+      "source_adapter_config_sha256": "c9ef7194cf873f092175e9db134767f0d0f5eb75cc33941d1a2dc2f0f82788e1",
+      "source_adapter_sha256": "202e25d4a28ad0c1aedf46d9acb028445aaaf0e58447ec55e4a20de4b398ae3c",
+      "source_checkpoint": "output/checkpoints/radp_b_full_lambda00/final",
+      "source_log_sha256": null,
+      "subfolder": "radp-aux/lambda-0.0",
+      "training_base_model": "Qwen/Qwen3-VL-2B-Instruct"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1104,
+          "sha256": "d6d3a583eb35b9b6528380a5feda254d1f17153d14151050cc79381f9fbfad4f"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 34922600,
+          "sha256": "6a02cb0fb66dfe5c070d9c85d2fb49e5c30d2e138d4d9a01002f4e9534ae0113"
+        },
+        "executed_config.json": {
+          "bytes": 889,
+          "sha256": "089ea97813ade2d0a0984b7bf9b078c7b77d96f2c86babc90963806a10fbdd68"
+        }
+      },
+      "id": "radp-aux-lambda-0.1",
+      "method": "hidden-state auxiliary loss",
+      "paper_label": "RADP-aux lambda=0.1",
+      "source_adapter_config_sha256": "18b546362fa485a5272355d841c3eea544dc8c5d2e53fd78efec6c4616ee7efe",
+      "source_adapter_sha256": "6a02cb0fb66dfe5c070d9c85d2fb49e5c30d2e138d4d9a01002f4e9534ae0113",
+      "source_checkpoint": "output/checkpoints/radp_b_full_lambda01/final",
+      "source_log_sha256": null,
+      "subfolder": "radp-aux/lambda-0.1",
+      "training_base_model": "Qwen/Qwen3-VL-2B-Instruct"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1104,
+          "sha256": "2964a55e2fbad723259988a25962a4678f83cb65809be8e76614855b1e536b41"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 34922600,
+          "sha256": "67e4350932b81c0e2603bb825525698acf1c0590bb6d6ade634b8db54bea09e6"
+        },
+        "executed_config.json": {
+          "bytes": 889,
+          "sha256": "a8f33d880411d6cd8d0bd3d22dc12c0ea3142f1c6c463e482fd6ed7bd1980c4a"
+        }
+      },
+      "id": "radp-aux-lambda-0.3",
+      "method": "hidden-state auxiliary loss",
+      "paper_label": "RADP-aux lambda=0.3",
+      "source_adapter_config_sha256": "bfeced659213eb06465fc2b9f9d967f907ac74f5adb5b49f3d1d04c9dec6590c",
+      "source_adapter_sha256": "67e4350932b81c0e2603bb825525698acf1c0590bb6d6ade634b8db54bea09e6",
+      "source_checkpoint": "output/checkpoints/radp_b_full_lambda03/final",
+      "source_log_sha256": null,
+      "subfolder": "radp-aux/lambda-0.3",
+      "training_base_model": "Qwen/Qwen3-VL-2B-Instruct"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1104,
+          "sha256": "8f9606fc4157e32b39240dacf9e994675b0d6c378556888d76c51594c0d0e67b"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 34922600,
+          "sha256": "81516a898405ce4d8808062ece2ebe9996c62c77b921688808b4a7a30441c8ed"
+        },
+        "executed_config.json": {
+          "bytes": 887,
+          "sha256": "8e841a4aad3e2b773b0411b759622783048358a7496e23fff64f251b72414cef"
+        }
+      },
+      "id": "radp-aux-lambda-0.5",
+      "method": "hidden-state auxiliary loss",
+      "paper_label": "RADP-aux lambda=0.5",
+      "source_adapter_config_sha256": "c0dbe10dba5b836c953a44fa3392bc171b080b7f00731baffc3c888cf567e0fe",
+      "source_adapter_sha256": "81516a898405ce4d8808062ece2ebe9996c62c77b921688808b4a7a30441c8ed",
+      "source_checkpoint": "output/checkpoints/radp_b_full_lambda05/final",
+      "source_log_sha256": null,
+      "subfolder": "radp-aux/lambda-0.5",
+      "training_base_model": "Qwen/Qwen3-VL-2B-Instruct"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1169,
+          "sha256": "3245f46cd2c717f4b54fd365ff300520026e17c830e2e7a4b764c58c428a9f2c"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 49368912,
+          "sha256": "6b5ee58936c99d4f668ae31355d0e6fef5623182fce64b5fa0c59fafc7dd26e7"
+        },
+        "executed_config.json": {
+          "bytes": 626,
+          "sha256": "9b3d2ca994912e28bae32aee30e147547dffb2c46b9cf8b738477aa23ab44959"
+        },
+        "trainer_state.json": {
+          "bytes": 714396,
+          "sha256": "16dc8d42a36f121235d138bf960e73b4736ed7ae52d1b0006a110b58bdd8f373"
+        }
+      },
+      "id": "radp-dpo-r1",
+      "method": "retrieval-reward DPO, first round",
+      "paper_label": "RADP-DPO-R1",
+      "source_adapter_config_sha256": "cb51560415859ef3a779613670d70d743c2fc70e9fe57b931ffe80e9b08aaafd",
+      "source_adapter_sha256": "6b5ee58936c99d4f668ae31355d0e6fef5623182fce64b5fa0c59fafc7dd26e7",
+      "source_checkpoint": "output/checkpoints/radp_dpo/final",
+      "source_log_sha256": "37d96513b5e824ee4db3c26d77d2c1d83ef4013e98d7e9119e5248d47fd20040",
+      "subfolder": "radp-dpo/r1",
+      "training_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1169,
+          "sha256": "3d12bf2004c6aa03f0a670494818ae6ae43652663e30f8db822fca4794adc37d"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 49368912,
+          "sha256": "1a78cbb03c899069fed3818743bd67f6c56f85548a508d08be9a7d58e37b6356"
+        },
+        "executed_config.json": {
+          "bytes": 692,
+          "sha256": "55f18e945f2d2f8c61d3b1cf0d9ceeb2f5586605da4146c9c08c97b4bb73f7b9"
+        },
+        "trainer_state.json": {
+          "bytes": 545707,
+          "sha256": "c6c40c217542f837dfe95b3bf4f303fa14c76b473917235653dbeb3cd495090f"
+        }
+      },
+      "id": "radp-dpo-r2",
+      "method": "retrieval-reward DPO, warm-started second round",
+      "paper_label": "RADP-DPO-R2",
+      "source_adapter_config_sha256": "12ac353ba1fad18c6e3f6de960fae76c077fc315a63beb62788a689f6973194e",
+      "source_adapter_sha256": "1a78cbb03c899069fed3818743bd67f6c56f85548a508d08be9a7d58e37b6356",
+      "source_checkpoint": "output/checkpoints/radp_dpo_v4/final",
+      "source_log_sha256": "772990e041de63e3fc72f5e4b452ff887dcecc651d1ac6534f81877f117c63e6",
+      "subfolder": "radp-dpo/r2",
+      "training_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1169,
+          "sha256": "9a61d3c787b01364449bf2e3a4a6495915b8898a05c090ce6f2caec23184e102"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 49368912,
+          "sha256": "ec798e0e889ea61db9865e51ccc9e4c5427013dc5d64d4a8b0db5a1ffc311c9c"
+        },
+        "executed_config.json": {
+          "bytes": 691,
+          "sha256": "a49c0d0207203f49aa1d9af0c9957a1efe32e424d9d9c4399d2c124192c62de6"
+        },
+        "trainer_state.json": {
+          "bytes": 1489924,
+          "sha256": "3defba0fbebba87d6a1e6b8763e69c98c067f56375bd1f3c6165f7f342b26c80"
+        }
+      },
+      "id": "radp-dpo-r3",
+      "method": "retrieval-reward DPO with expanded candidates and hard negatives",
+      "paper_label": "RADP-DPO-R3",
+      "source_adapter_config_sha256": "28d6fc5fcddf0779326bb82ca893221687abcad67fe00523a2f1d4cafb8eb37b",
+      "source_adapter_sha256": "ec798e0e889ea61db9865e51ccc9e4c5427013dc5d64d4a8b0db5a1ffc311c9c",
+      "source_checkpoint": "output/checkpoints/radp_dpo_v5_hardneg/final",
+      "source_log_sha256": "ee43b44ed0dc27bb4e106d5ff116b3961ded7e38735138093945528e072e8958",
+      "subfolder": "radp-dpo/r3",
+      "training_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1169,
+          "sha256": "70205e3b763d414e28ecef50c1601f76eea20f6ba501216c56a69a5881fc16e6"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 49368912,
+          "sha256": "2a00c8d7cf9a79fc14df1ce0bb64b5925bd7f391aacf7fe262f2c3926568c377"
+        },
+        "executed_config.json": {
+          "bytes": 672,
+          "sha256": "8e54b19535795de212dccfff63a2b24dd03d5c6c6c3241ff88fa9b6d9ccb13ec"
+        },
+        "trainer_state.json": {
+          "bytes": 1914229,
+          "sha256": "9e6560249670a4d529c0a54005c34fcaecc5288a464b8265ecfc86e019990ac4"
+        }
+      },
+      "id": "radp-distill",
+      "method": "edit-distance preference control",
+      "paper_label": "RADP-Distill",
+      "source_adapter_config_sha256": "f2e81a947eaf97e1bd3efc943fa76047c3cf80ebbd54316b291b60dfaf6e7b9c",
+      "source_adapter_sha256": "2a00c8d7cf9a79fc14df1ce0bb64b5925bd7f391aacf7fe262f2c3926568c377",
+      "source_checkpoint": "output/checkpoints/arm_b_textned/final",
+      "source_log_sha256": "eccda7c35518bee41d243fcf719ac5779b7f43d89d781a7ba6a73526a5df71fc",
+      "subfolder": "radp-distill",
+      "training_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR"
+    },
+    {
+      "evaluation_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR",
+      "files": {
+        "adapter_config.json": {
+          "bytes": 1169,
+          "sha256": "e1d1e846e4ce21593e70ac74179d77a44fb55d2b8c0cba708ba055ba72959d16"
+        },
+        "adapter_model.safetensors": {
+          "bytes": 49368912,
+          "sha256": "757325ec00d8057e6452c8306281f91e64a186c4d16372700160f2d341a45db7"
+        },
+        "executed_config.json": {
+          "bytes": 617,
+          "sha256": "ff6a43948efe76281d6737da11d7707d1dca05c73ad346bb5dcbfe8198ad1a77"
+        },
+        "trainer_state.json": {
+          "bytes": 1002883,
+          "sha256": "dcf0085c24886ed9598cc9a34e2e45f1e969c377f12200acdfad51c2b0bd164e"
+        }
+      },
+      "id": "radp-simpo",
+      "method": "reference-free SimPO control",
+      "paper_label": "RADP-SimPO",
+      "source_adapter_config_sha256": "c1eddbdc00f42ce6428e0057653fc2c3cdcf5cb67ee5b46aa879e9ab72db99b6",
+      "source_adapter_sha256": "757325ec00d8057e6452c8306281f91e64a186c4d16372700160f2d341a45db7",
+      "source_checkpoint": "output/checkpoints/radp_simpo/final",
+      "source_log_sha256": "ad671b027c9c307357cb1402f67280613583ba5683500d9bb8b3bb3dcf91f4ce",
+      "subfolder": "radp-simpo",
+      "training_base_model": "Wigtn/Qwen3-VL-2B-WigtnOCR"
+    }
+  ]
+}

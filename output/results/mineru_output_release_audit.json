@@ -1,0 +1,34 @@
+{
+  "configuration_scope": {
+    "interpretation": "submitted-output diagnostic, not a controlled tables-on/off ablation",
+    "label": "MinerU tables-off",
+    "table_recognition": false
+  },
+  "predictions": {
+    "domain_counts": {
+      "arxiv": 65,
+      "kogov": 229
+    },
+    "filename_set_matches_tables_on": true,
+    "max_bytes": 7453,
+    "min_bytes": 6,
+    "num_pages": 294,
+    "path": "results/kogovdoc/mineru_val/predictions",
+    "tree_sha256": "ebd32a84b8eabfe469223049d6ce9cee2027f971dc71dacdfe6a0c9949389fdb"
+  },
+  "schema_version": 1,
+  "status": "audited_mineru_tables_off_release",
+  "submitted_output_aggregate": {
+    "dir": "mineru_val",
+    "hit@1": 0.19708396178984414,
+    "hit@10": 0.2594268476621418,
+    "hit@5": 0.25188536953242835,
+    "mrr@10": 0.2200070626541215,
+    "ndcg@10": 0.22970743291833093,
+    "num_chunks": 1050,
+    "num_pages": 294,
+    "rcps": 0.21204022919709195,
+    "source": "output/baselines/grid_v1_parser_native.json",
+    "source_sha256": "296d2e6aa2dea7e5c422240ebb24a23307196445b28bd37f72f91895da4f7acc"
+  }
+}
