@@ -1,4 +1,6 @@
 {
+  "status": "legacy_non_moc_boundary_metric_not_camera_ready_evidence",
+  "note": "Historical Phase-1 artifact computed with a different boundary-metric definition. Do not compare its BC values or correlations with the camera-ready MoC Boundary Clarity results in moc_bc_correlation.json and moc_bc_mineru_tableon.json.",
   "parsers": [
     {
       "parser": "Marker",

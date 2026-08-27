@@ -31,7 +31,7 @@ a6cd0fba0cba2f72d1ca5ae906eff60bc7007d506fc3650483ef7e513fbbe20d  ../../scripts/
 91538a54a5093a67b4b8bb65f4d298de763648ec472831b197e603fcf3b67337  ../../data/KoGovDoc-RAG/source_page_map_v1.json
 # Audited nine-adapter checkpoint release metadata and clean-checkout gate.
 24cbf5fc8ddfcdb5ae1be9e8e9822182a56bf67e0a219c7100135c8fafa961cb  ../../scripts/release/build_checkpoint_release.py
-52c25e6e097e749ad66bb08f7a1de7971bb63bb5916192e8cb0a79170e646775  ../../scripts/release/verify_camera_ready_artifacts.py
+215203b26645dfdb3405ea9b3542684fd6b0e5a85c31db7979dde5a9ee919c30  ../../scripts/release/verify_camera_ready_artifacts.py
 e0c1566492ad40ff2f05a089118c809d94193152093dd5817ee160e43104e01b  ../../docs/provenance/checkpoint_release_manifest.json
 aa13f22200e6390d628a167f6cdb486d244cb94cd3f372f7cee080a751d3aba4  e2e_rag.json
 # CPU-only camera-ready audits derived from tracked inputs.
@@ -39,6 +39,13 @@ aa13f22200e6390d628a167f6cdb486d244cb94cd3f372f7cee080a751d3aba4  e2e_rag.json
 320bcb88cb1a76daadd83d36f5bcfef94353cde15cca685669cdcbe433e6f728  ../baselines/chunking_grid_v1.json
 64145ceb9ae46fb946a39076514dec819e1ca96270dc87d3dcc995e3fd40ab76  ../../scripts/analysis/fullgrid_aggregate_audit.py
 bdf44a601efbb8c8fa0228db56ac9656189cbbe056d6d37222a66357dfc6f9ad  fullgrid_aggregate_audit.json
+# Camera-ready KoGov parser-training table, reconstructed from aligned per-Q--A MRR arrays.
+ead64b7029da0d3fa65dc818bad55b8d6ca9da8d02fa87c94bdec5181921afbf  ../../scripts/analysis/audit_kogov_training_table.py
+54644035cc6667194bc5c35ca2aea63489022f2f490700372d7731a43e806a94  kogov_training_table_10k_audit.json
+# MoC Boundary Clarity evidence for the complete-output and partial-Marker diagnostics.
+6c6abe5ece8e3829b955cd2a6f9b15c3f13e01d0102c1a15bdb22327ea4df8f5  ../../scripts/evaluation/compute_parser_bc.py
+f85cc91a7646bff18d9ef515654c08f1fe562c604d17f41b0fb573f1ec5bba21  ../baselines/moc_bc_correlation.json
+15f0f5f52a093bbb6444dda6f3ac66fae328a147ec04b44b357b1d783071e255  ../baselines/moc_bc_mineru_tableon.json
 e2b2c40c68bdb7564618e02e3b069b418937b0406e2e0ef4a1ee842533ffa5fa  ../../scripts/evaluation/rcps_protocol_ablation.py
 6acbf48a2ec94a4d9675e75e48c34db9337650a3ca0118e08d5bb733c47a65ce  rcps_protocol_ablation.json
 c25af747c6e4856c4c5b5bcbc4b643731c0c58ee756edeb5b41533ad591ad857  ../../scripts/analysis/rank_stability_bootstrap.py

@@ -13,7 +13,7 @@
 `main_camera_ready.tex`(b563327 기준)·그림·아티팩트를 게시본 약속 전체와 대조했고, 이후
 **8/24–25 머지된 PR #11–16(camera-ready 배치)까지 추가 검증했다.** PR #11–16에서 확인된 것:
 C1의 MinerU-on 재베이스(초록·intro·L136–143·Limitations 일관), Table 1 BC 셀 `0.713` 기입,
-n=5 상관 −0.81→**−0.83** 갱신(독립 재계산 −0.8292 일치 확인), `fig_disconnect` MinerU-on
+n=5 상관 −0.81→**−0.83** 갱신(현재 감사값 −0.8291), `fig_disconnect` MinerU-on
 재생성, Discussion의 MinerU-on absent 66.1%(=438/663, `FINDINGS_tableon_local_verification.md`
 근거 확인). 전부 수치상 정확하다 — 남은 문제는 §2-E의 **근거 아티팩트 미커밋**뿐이다.
 
@@ -27,7 +27,7 @@ n=5 상관 −0.81→**−0.83** 갱신(독립 재계산 −0.8292 일치 확인
 | P8 Table 1 3구획 분리, 42.6pp/4.47× 헤드라인, "lower bound" 제거 | ✅ (미세갭 §3-a) |
 | P9 pseudo-GT 3곳 | ✅ |
 | P11 4.9pp "scale only" 격하 + 229+65/527+136 | ✅ |
-| P16 그림: overview `294=229+65`, disconnect r=−0.74/−0.81, stale 35.1/2.8× 제거, **Type3=0** | ✅ |
+| P16 그림: overview `294=229+65`, disconnect r=−0.74/−0.83, stale 35.1/2.8× 제거, **Type3=0** | ✅ |
 | P17 감사부: alignment audit, 1,043/2,036 분리, "not a full v2 rerun" 명시, aligned Distill 직접 비교 복원 | ✅ |
 | MRR@10-only 약속(τ=1.0, `fullgrid_aggregate_audit`) 본문 반영 | ✅ |
 | refs.bib 26키, 저자 순서 고정, PDF A4 | ✅ |
@@ -81,19 +81,17 @@ bXGg Q1의 **"The full-grid version goes into the revision"** 약속은 동일 2
 교신저자는 chairs의 서면 승인에 따라 이름 별표 없이 `Correspondence: harrison@wigtn.com`으로 반영했다.
 PLAN §0 게이트 그대로.
 
-### E. BC 0.713 / r=−0.83의 근거 아티팩트 머지 【PR #12로 승격됨 — 이제 필수】
+### E. BC 0.713 / r=−0.83의 근거 아티팩트 머지 【2026-08-27 완료】
 
 논문이 이미 BC `0.713`(Table 1·초록·L136·L222·Limitations)과 n=5 `r=−0.83`(L138·캡션·
-Limitations)을 인용하는데, **이 수치를 생성한 아티팩트가 main에 없다.**
+Limitations)을 인용하며, 현재 두 수치 모두 tracked artifact와 CPU 검증 게이트에 연결돼 있다.
 
-1. `origin/codex/mineru-on-bc`(524fd58)를 PR 생성 → merge. 8/24 Harrison 리뷰 완료
-   **PASS(critical 0/major 0/minor 1)** — mean BC 0.7132·609 boundaries·r=−0.7445(→−0.74)를
-   manifest 해시까지 로컬 재현, 테스트 40개 통과. 브랜치만 push돼 있고 PR은 미생성 상태.
-2. **n=5(−0.83) 상관 아티팩트가 어디에도 없다** — 브랜치 JSON(`moc_bc_mineru_tableon.json`)의
-   `derived_correlations`는 n=4(−0.7445)만 담는다. 수치 자체는 검증됨(BC 5종 + current-grid
-   RCPS로 −0.8292): `compute_parser_bc.py`에 Marker 포함 n=5 블록을 추가해 재생성하거나,
-   최소한 계산 스크립트+결과 JSON을 커밋해 P14 감사가 대조할 대상을 만들 것.
-3. minor 1건(checkpoint의 manifest 미검증 재사용 풋건)은 camera-ready 무관 — 여유 있을 때만.
+1. Clean MinerU-on 결과는 mean BC `0.713123`(609/609 valid boundaries)과 complete-output
+   four-parser Pearson `−0.7443`을 기록한다.
+2. `moc_bc_mineru_tableon.json`의 `partial_marker_sensitivity`가 Marker 38페이지를 포함한
+   five-point Pearson `−0.8291`을 별도 보조 분석으로 기록한다.
+3. 계산기와 두 MoC BC 입력·결과 JSON을 `MANIFEST.sha256`에 고정했고,
+   `verify_camera_ready_artifacts.py`가 n=4와 n=5 값을 모두 검사한다.
 
 ## 3. 게시 주장 대비 편차 원장 (P15 매핑표에 그대로 옮길 것)
 

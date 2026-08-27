@@ -340,7 +340,7 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 ├── scripts/
 │   ├── training/             # candidate gen, preference / edit-distance pairs, DPO/Distill/SimPO pipelines
 │   ├── evaluation/           # baseline_grid, chunking_grid, coverage_diagnostic, rcps_protocol_ablation, OHR chains
-│   └── figures/              # paper figure generators (disconnect, RCPS protocol, overview PPTX)
+│   └── figures/              # paper figure generators (disconnect, coverage, RCPS protocol, noise family)
 ├── experiments/              # RADP-Distill training/evaluation harness
 ├── paper/                    # frozen submission + camera-ready working LaTeX + figures
 ├── data/KoGovDoc-RAG/        # frozen 663-Q–A probe + 169/73 evidence-page split
@@ -360,7 +360,8 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 uv sync --extra dev
 uv run pytest
 uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
-uv run python scripts/analysis/audit_mineru_output_release.py --check
+uv run python scripts/analysis/audit_mineru_output_release.py --check output/results/mineru_output_release_audit.json
+uv run python scripts/analysis/audit_kogov_training_table.py --check output/results/kogov_training_table_10k_audit.json
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
@@ -429,7 +430,9 @@ be added only from confirmed metadata.
   per-Q–A arrays, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
   MinerU-on, and the submitted-output MinerU-off run. The recovered off outputs are bound to their aggregate
   by the deterministic [`release audit`](output/results/mineru_output_release_audit.json); the on/off runs
-  are not treated as a controlled table-recognition ablation. The 294-page full-grid audit includes
+  are not treated as a controlled table-recognition ablation. The 10,000-resample
+  [`KoGov training-table audit`](output/results/kogov_training_table_10k_audit.json) reconstructs Hit@5
+  from the tracked MRR arrays and reproduces every value in camera-ready Table 8. The 294-page full-grid audit includes
   [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json) and fixed-seed parser/chunker
   [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) results. Across 1,000
   500-of-663 draws, Prod stays above Base and every OCR parser in 100% of draws; the complete chunker
@@ -450,6 +453,8 @@ be added only from confirmed metadata.
 - **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews;
   Figure 1 also includes its canonical editable PPTX. The compiled paper was checked with embedded fonts
   and no Type 3 fonts.
+- **Legacy metric quarantine** — `output/baselines/correlation_v1.json` is retained only as a historical
+  Phase-1 artifact and is marked as using a non-MoC boundary definition; it is not camera-ready evidence.
 
 ### Camera-ready pending — not currently available
 

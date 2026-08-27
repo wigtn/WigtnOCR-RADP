@@ -9,8 +9,7 @@ Sources:
   - output/baselines/moc_bc_correlation.json
   - output/baselines/grid_v1_parser_native.json
   - output/results/grid_MinerU-tableON_parser_native.json
-  - output/baselines/moc_bc_mineru_tableon.json (pending P18 branch merge;
-    the verified mean is pinned below until that artifact lands)
+  - output/baselines/moc_bc_mineru_tableon.json
 Output: paper/figures/fig_disconnect.{pdf,png}
 """
 
@@ -29,7 +28,6 @@ BC_SRC = Path("output/baselines/moc_bc_correlation.json")
 GRID_SRC = Path("output/baselines/grid_v1_parser_native.json")
 MINERU_ON_SRC = Path("output/results/grid_MinerU-tableON_parser_native.json")
 MINERU_ON_BC_SRC = Path("output/baselines/moc_bc_mineru_tableon.json")
-VERIFIED_MINERU_ON_BC = 0.7132110997071613
 
 INK = "#263238"
 BLUE = "#245a7a"
@@ -44,11 +42,7 @@ _GRID = {
     for parser in json.loads(GRID_SRC.read_text())["parsers"]
 }
 _MINERU_ON = json.loads(MINERU_ON_SRC.read_text())
-_MINERU_ON_BC = (
-    json.loads(MINERU_ON_BC_SRC.read_text())["summary"]["mean_bc"]
-    if MINERU_ON_BC_SRC.exists()
-    else VERIFIED_MINERU_ON_BC
-)
+_MINERU_ON_BC = json.loads(MINERU_ON_BC_SRC.read_text())["summary"]["mean_bc"]
 
 _SHORT = {
     "Qwen3-VL-30B (teacher)": "Qwen3-VL-30B\n(teacher)",
