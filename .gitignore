@@ -44,6 +44,7 @@ data/*
 data/KoGovDoc-RAG/*
 !data/KoGovDoc-RAG/qa_pairs_v1.jsonl
 !data/KoGovDoc-RAG/page_split_v1.json
+!data/KoGovDoc-RAG/source_page_map_v1.json
 !data/KoGovDoc-RAG/qa_verification_sample_v1.jsonl
 !data/KoGovDoc-RAG/qa_verification_results_v1.json
 output/*
@@ -70,6 +71,7 @@ output/results/*
 !output/results/ohrbench_per_domain.json
 !output/results/ohrbench_alignment_audit.json
 !output/results/arm_b_ohr_perqa.json
+!output/results/mineru_output_release_audit.json
 !output/results/MANIFEST.legacy-invalid.sha256
 !output/results/grid_MinerU-tableON_parser_native.json
 !output/results/perqa_MinerU-tableON_parser_native.json

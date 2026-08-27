@@ -23,6 +23,16 @@ bfd512080f44513e86c2ba46e908006261152eca9c747ee0e9845207aece0141  v4_ci.json
 fe39b158e024b95b170cfe9db1a64a02d042b7b3474d5eec0bf7a512cf4ac6ea  v4_perqa.json
 21940d1a06e6ef394e9f37f16ac79b5506b515fb554c1c2b31bbe38801a0b66d  grid_MinerU-tableON_parser_native.json
 b8246d9772ed8984e6d3722037d1774a63f5540acd1089d71b31d6ae608010d8  perqa_MinerU-tableON_parser_native.json
+# Recovered submitted-output MinerU tables-off release and deterministic tree audit.
+a6cd0fba0cba2f72d1ca5ae906eff60bc7007d506fc3650483ef7e513fbbe20d  ../../scripts/analysis/audit_mineru_output_release.py
+9e604307bf1a8099c7dbaff8107f676d20d74e77bec985fe2a74db0aa8464310  mineru_output_release_audit.json
+# Portable 294-page ID-to-parser-output map and cross-inventory validator.
+338bd414c85f800e1ba87a49eeec6d14ea7ab828e335b0875fd770773aa1fa19  ../../scripts/analysis/source_page_map.py
+91538a54a5093a67b4b8bb65f4d298de763648ec472831b197e603fcf3b67337  ../../data/KoGovDoc-RAG/source_page_map_v1.json
+# Audited nine-adapter checkpoint release metadata and clean-checkout gate.
+24cbf5fc8ddfcdb5ae1be9e8e9822182a56bf67e0a219c7100135c8fafa961cb  ../../scripts/release/build_checkpoint_release.py
+52c25e6e097e749ad66bb08f7a1de7971bb63bb5916192e8cb0a79170e646775  ../../scripts/release/verify_camera_ready_artifacts.py
+e0c1566492ad40ff2f05a089118c809d94193152093dd5817ee160e43104e01b  ../../docs/provenance/checkpoint_release_manifest.json
 aa13f22200e6390d628a167f6cdb486d244cb94cd3f372f7cee080a751d3aba4  e2e_rag.json
 # CPU-only camera-ready audits derived from tracked inputs.
 296d2e6aa2dea7e5c422240ebb24a23307196445b28bd37f72f91895da4f7acc  ../baselines/grid_v1_parser_native.json

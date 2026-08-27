@@ -40,20 +40,20 @@ A OHR alignment/noise(C1) / B E2E top-choice check(C2) / **C = 정의+worked-ex(
 | **P7** | §4.2 robustness + 공개 artifact | 동일 294p(229 KoGov+65 arXiv), 663 Q--A, 9 unique systems를 재색인했다. 500-Q--A×1,000 bootstrap에서 parser mean $\tau_a=0.902$, Prod-vs-Base/OCR 100%, chunker full-order 96.1%다. Raw 대비 normalised 차이는 0.024--0.041이고 두 pool order가 유지된다. Marker와 242p fold는 제외 | ✅ **완료** |
 | **P8** | Tab1 / Limitations L194 | MinerU-on deployment 행과 MinerU-off submitted-output 진단 행을 분리. 헤드라인은 **42.6pp/4.47×**. 두 실행은 software/retrieval 환경도 달라 35.1pp를 lower bound나 causal table ablation으로 재주장하지 않음. Limitations 수치 갱신(tabular87.9→41.7%, gap+50.2→+45.9pp, retrieval0.212→0.137) | ✅ 완료 |
 | **P9** | `main_camera_ready.tex` 전역 | "human-curated ground-truth"→pseudo-GT 잔여 표현 점검. 동결본 `main.tex`은 수정하지 않음 | ✅ 완료 |
-| **P10** | App H | 재현성 체크리스트/명령어 골격과 P7의 294p 결과는 존재. P12 공개 경로·릴리스 태그, 최종 URL 수령 후 clean checkout에서 exact commands 실행 검증. 검증 전 “exact/released” 완료 표기 금지 | ⏳ **외부 입력 대기** |
+| **P10** | App H / README | public `v1.0.0` checkpoint 다운로드와 CPU-only artifact gate의 exact commands를 기록했다. 익명 다운로드 본의 tarball SHA-256, 9-adapter manifest, clean checkout 실행을 검증했다 | ✅ **완료** |
 | **P11** | App H 또는 Limitations | 데이터 구성(294=229KoGov+65arXiv, Q–A527+136, 페이지분할)은 반영. 4.9pp는 오염의 엄밀한 상한이 아니므로 원고에서 규모 참고값으로만 표기. 상한 논리 입증 또는 약속 철회, CR-1/CR-2 최종 검증 필요 | ⚠️ **부분 완료** |
-| **P12** | 레포 | OHR mixed-version manifest 격리·strict audit hash 교체와 동일 294p full-grid JSON은 완료. MinerU tables-OFF 원본 회수, 인간라벨 공개 결정, checkpoints는 대기. 닫히기 전 “Everything is released” 금지 | ⏳ **외부 입력 대기** |
+| **P12** | 레포 + public release | MinerU tables-OFF 294건, portable 294-page source map, current/legacy OHR manifest, human-label author-only 정책, 9개 최종 LoRA adapter의 public `v1.0.0` 릴리스를 완료했다. Manifest에 source/release hash, executed config, training/evaluation base를 기록했고 익명 다운로드를 재검증했다 | ✅ **완료(명시한 비공개 예외 제외)** |
 | **P13** | 전역 | 5인 고정 순서로 de-anon하고 소속·이메일·ORCID·acks·라이브링크를 확정. OpenReview/form/PDF 순서 일치. Chairs의 서면 승인에 따라 PDF에 `Correspondence: harrison@wigtn.com` 반영 완료 | 🚧 **교신저자 완료, 나머지 저자 메타데이터 대기** |
-| **P14** | 자동 | 응답↔본문 수치 라운딩 + dataset SHA/version + QA→page coverage + 제외 223+5 + n=1,043/2,036 + seed42 CI + 표/캡션/figure source 전수 대조. P17 Distill 복원분을 포함해 현재 공개 artifact 범위를 재감사하고, P12 외부 artifact 반영 뒤 최종 재실행 | 🚧 **현재 범위 재감사 중, 최종 외부 입력 대기** |
-| **P15** | 자동 | P10/P12/P13과 공개 URL/릴리스를 닫은 최종판에서 REBUTTAL_FINAL 미래형 문장 전수→개정판 매핑 체크. P7/P17/P18과 chairs 회신, P19 원고 반영은 완료 | ⏳ **외부 입력 후 최종 감사** |
+| **P14** | 자동 | current manifest, source-page/filename coverage, MinerU-on/off, OHR 1,043/2,036 alignment, R2/R3/Distill, 294-page aggregate, checkpoint lineage/hash를 재감사했다. RADP-aux cross-base lineage 오류를 발견해 원고·README에 정정했다 | ✅ **완료** |
+| **P15** | 약속↔개정판 | artifact 공개·Appendix C·E2E·stability·Distill·MinerU 정정 약속을 개정판에 매핑했다. 수락 후 OHR 버전 감사로 변경된 2,036/6-domain 범위는 원고에 명시했다. 남은 게이트는 P13 폼 메타데이터와 저자 수동 참고문헌 확인 | ✅ **논문·artifact 범위 완료** |
 | **P16** | Fig1–4/아키텍처·캡션 | Fig1은 승인된 원래 디자인을 원복하고 RCPS 배지만 C2, coverage 배지만 C3로 교체했다. 편집 정본은 `paper/figures/fig_overview_camera_ready.pptx`, 삽입 정본은 `paper/figures/fig_overview.pdf`다. Fig2는 수식과 box-to-box 화살표를 정리했고 Fig3 guide endpoint를 연장했다. Fig4는 MinerU-on -0.74/-0.83과 42.6pp/4.47×를 반영했다. 현재 15쪽 합본·Type3=0 확인 | ✅ **최종 시각·수치 재검수 완료** |
 | **P17** | OHR 전역 | legacy 4,330p/v2 8,561p 혼용 차단. C1=Law–Manual 1,043; C4=notes223+missing5 제외 strict 2,036. Distill per-QA를 복구해 동일 mask에서 +1.36pp 및 DPO 직접 paired contrast를 재현했다. full v2는 주장하지 않는 것으로 범위를 고정했다 | ✅ **완료: compatibility-only scope + aligned Distill** |
 | **P18** | C1 / Tab1 / Fig4 / artifact | MinerU-on BC=0.713123 clean rerun(294p, 903 chunks, 609/609 boundaries), 4-parser Pearson=-0.7443를 검증했다. 원고·Table 1·Figure 4에는 BC 0.713, 4-parser -0.74, on+Marker/current RCPS n=5 -0.83을 반영했고 PR #21을 병합했다 | ✅ **완료** |
 | **P19** | Intro contributions / §3–4 / Fig1 / App A--H / 전역 C-label | 원고 흐름을 C1 disconnect → **C2 RCPS selection** → **C3 coverage diagnosis** → C4 training으로 통일했다. C4를 secondary/optional로 명시하고 RADP-aux·DPO·Distill의 역할을 정의했다. 부록도 C1--C3 검증(A--D)을 C4 상세(E--G)보다 먼저 배치했으며 Appendix C 약속은 보존했다. `Ref. page + span`은 사용자 결정대로 유지했다 | ✅ **완료** |
 
 ## 실행 순서
-1. **P12 외부 artifact** → 2. **P10 exact commands** → 3. **P14·P15 최종 재감사**. P7·P17·P18은 완료.
-- 외부 입력: P12 tables-OFF·인간라벨 공개 결정·checkpoints. P7 동일 294p full-grid와 P17 aligned Distill 비교는 완료했다.
+1. **P12 외부 artifact** → 2. **P10 exact commands** → 3. **P14·P15 최종 재감사**를 2026-08-27에 완료했다.
+- 공개 artifact: tables-OFF·source map·checkpoint 9종·clean-checkout gate 완료. 인간 per-case label은 저자 결정으로 author-only 유지.
 - Aug 23–30 form: P13의 5인 이름·이메일 순서와 OpenReview ORCID, 등록 담당자, 발표자 visa·travel, 발표 방식·선호를 먼저 확정하고, chairs 답변에 따라 교신 표기 여부를 결정.
-- 외부 입력 수령 후: P10 exact-command clean-run → P14 수치·lineage 감사 → figure·번호 정합 재검증 → P15 약속-이행 최종 게이트.
+- 남은 외부 입력: P13의 ORCID·form·presenter/visa/travel 메타데이터와 저자 수동 참고문헌 대조.
 - 제출 직전: 본문 7p 이하/Limitations와 선택 Ethics를 합친 추가 1p 이하/References·Supplement 구획, 참고문헌 26건, 저자순서, 링크, 최종 렌더를 수동 확인하고 2026-08-30 KST 안에 제출.

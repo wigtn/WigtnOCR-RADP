@@ -46,9 +46,10 @@ The denominators are not interchangeable:
 | OHR training audit | **2,036 Q–A / six domains** | Post-audit compatibility subset; not a full v2 rerun |
 
 The repository currently contains the frozen **663-Q–A KoGovDoc-RAG probe** (whose evidence spans
-242 pages), its 169/73 evidence-page split, the RCPS implementation, and selected result artifacts.
-The main selection run adds 52 Q–A-free distractor pages to form its 294-page index; the complete source
-corpus and mapping for a fresh-clone rerun are not yet packaged. All remaining release gaps are listed below.
+242 pages), its 169/73 evidence-page split, a portable 294-page source map, the RCPS implementation,
+selected result artifacts, and a public release of all nine evaluated parser-training adapters. The main
+selection run adds 52 Q–A-free distractor pages to form its 294-page index. The source documents required
+for a full fresh-clone rerun are not packaged; all remaining release gaps are listed below.
 
 <p align="center">
   <img src="paper/figures/fig_overview.png" width="100%" alt="RCPS workflow from the fixed evaluation frame through candidate generation, retrieval-based selection, coverage diagnosis, optional intervention, and deployment">
@@ -141,13 +142,17 @@ When the coverage diagnostic points to parser output, we test the following appr
 
 - **RADP-aux** *(hidden-state auxiliary loss — sub-threshold).* `L_total = L_parse + λ·L_contrast` uses
   InfoNCE between the parser's pooled answer-span hidden state and a frozen BGE-M3 embedding. Its best
-  73-page pilot estimate remains below the pre-specified success criterion.
+  73-page pilot estimate remains below the pre-specified success criterion. The executed sweep trains
+  adapters from `Qwen/Qwen3-VL-2B-Instruct` and applies them to Prod for evaluation; it is therefore not
+  a same-base comparison with the preference-based variants.
 - **RADP-DPO** *(discrete-output retrieval-reward DPO).* Sample K parses from the production parser, score
   each by page-local BGE-M3 MRR averaged over `k = {1, 5, 10}`, form preference pairs, and train with a
   **LoRA-toggle reference** (`π_θ` = LoRA on, `π_ref` = LoRA off). The candidate pool and negatives expand
   across **R1 → R2 → R3**. The original R2 execution log verifies `beta = 0.1`; its portable executed
   configuration and source-log hash are recorded in
   [`docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`](docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md).
+  The complete nine-adapter release inventory and original/release hashes are recorded in
+  [`checkpoint_release_manifest.json`](docs/provenance/checkpoint_release_manifest.json).
 - **RADP-Distill** *(fidelity-based control).* Candidates are ranked by edit distance to reference Markdown
   instead of the page-local BGE-M3 MRR retrieval reward. On the aligned 2,036-Q–A frame, its Hit@5 delta
   is **+1.36 pp** versus Prod. Direct Distill-minus-R2 and Distill-minus-R3 intervals both include zero.
@@ -356,19 +361,40 @@ does not establish that fidelity or boundary changes caused the retrieval differ
 ```bash
 uv sync --extra dev
 uv run pytest
+uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
+uv run python scripts/analysis/audit_mineru_output_release.py --check
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
 These commands assume the Linux/WSL CUDA 12.8 dependency source encoded in `pyproject.toml` and `uv.lock`;
-a clean macOS/CPU installation path has not yet been packaged or validated. `pytest` exercises the tracked
+a clean macOS/CPU installation path for the full dependency set has not yet been packaged or validated. `pytest` exercises the tracked
 unit and alignment-gate tests. The coverage calculation itself is CPU-only. Its default Prod outputs under
-`results/kogovdoc/v1_val/predictions/` and the 663-Q–A probe are tracked, but the source-page mapping
-`data/KoGovDoc-Bench/val.jsonl` is gitignored and not packaged. The command is therefore **not fresh-clone
-complete**; it can use equivalent local inputs through `--parser_dir` and `--val_jsonl`.
+`results/kogovdoc/v1_val/predictions/` and the 663-Q–A probe are tracked. The portable source-page map
+supports inventory checks, but the private training-format `data/KoGovDoc-Bench/val.jsonl` used by the
+coverage command includes reference transcriptions and is not packaged. The command is therefore **not
+fresh-clone complete**; it can use equivalent local inputs through `--parser_dir` and `--val_jsonl`.
 
 These commands are not a reproduction of every paper experiment. Full reruns still depend on external
-parser outputs, embedding caches, checkpoints, and executed-configuration provenance. The missing pieces are
-listed explicitly below.
+source documents, some parser outputs, embedding caches, and parser runtimes. The missing pieces are listed
+explicitly below.
+
+### CPU-only artifact and checkpoint verification
+
+The released evaluation artifacts and nine LoRA adapters can be audited from a clean checkout without a GPU:
+
+```bash
+RCPS_RELEASE_DIR="$(mktemp -d)"
+curl -fL -o /tmp/RCPS-RADP-Adapters-v1.tar.gz \
+  https://github.com/wigtn/RCPS-RADP-Adapters/releases/download/v1.0.0/RCPS-RADP-Adapters-v1.tar.gz
+tar -xzf /tmp/RCPS-RADP-Adapters-v1.tar.gz -C "$RCPS_RELEASE_DIR"
+python3 scripts/release/verify_camera_ready_artifacts.py \
+  --checkpoint-dir "$RCPS_RELEASE_DIR"
+```
+
+The release tarball SHA-256 is
+`22b4a0d4f5560f4d7c31633a1c885bbe3568a2bef841bfd94bf2407c339f08c6`.
+The deterministic builder, public-download manifest, and inclusion policy are documented in
+[`CHECKPOINT_RELEASE.md`](docs/provenance/CHECKPOINT_RELEASE.md).
 
 ---
 
@@ -396,12 +422,16 @@ be added only from confirmed metadata.
 - **KoGovDoc-RAG probe files** — 663 Q–A whose evidence spans **242 pages**, plus the frozen
   169-development / 73-held-out evidence-page split. The paper's selection frame indexes these 242 pages
   together with 52 Q–A-free distractors (**294 pages = 229 KoGov + 65 arXiv**); that full source-page
-  corpus and mapping are not packaged here. A separate LLM-assisted 100-pair Q–A quality-check sample
-  and its aggregate 94/100 result are tracked; the sample's blank `verification` fields are not human annotations.
+  corpus is not packaged here. The portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)
+  links every `val_####` ID to its domain and tracked parser-output filename without exposing machine-local
+  paths or reference transcriptions. A separate LLM-assisted 100-pair Q–A quality-check sample and its
+  aggregate 94/100 result are tracked; the sample's blank `verification` fields are not human annotations.
 - **RCPS reference implementation** — [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 - **Selected evaluation artifacts** — aggregate parser/chunker grids, aligned full-grid and audited-training
   per-Q–A arrays, coverage and end-to-end diagnostics, and complete 294-page outputs for Prod, PaddleOCR,
-  and MinerU-on. The 294-page full-grid audit includes
+  MinerU-on, and the submitted-output MinerU-off run. The recovered off outputs are bound to their aggregate
+  by the deterministic [`release audit`](output/results/mineru_output_release_audit.json); the on/off runs
+  are not treated as a controlled table-recognition ablation. The 294-page full-grid audit includes
   [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json) and fixed-seed parser/chunker
   [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) results. Across 1,000
   500-of-663 draws, Prod stays above Base and every OCR parser in 100% of draws; the complete chunker
@@ -414,23 +444,26 @@ be added only from confirmed metadata.
 - **Aggregate human-check results** — the paper records the parser-masked 100-case absent-label study
   (κ = 0.615, raw agreement 81/100, and post-adjudication parser-specific rates). The underlying
   sampling, rating, and adjudication records were rechecked and are retained in an author-only audit package.
+- **Parser-training checkpoints** — all nine evaluated LoRA adapters are public in
+  [`wigtn/RCPS-RADP-Adapters` release `v1.0.0`](https://github.com/wigtn/RCPS-RADP-Adapters/releases/tag/v1.0.0).
+  The tracked [`release manifest`](docs/provenance/checkpoint_release_manifest.json) records source and
+  portable hashes, training/evaluation base models, and executed configurations. The release contains the
+  four RADP-aux settings, RADP-DPO R1–R3, RADP-Distill, and RADP-SimPO.
 - **Camera-ready figure assets** — Figures 1–4 are stored as vector PDFs with PNG README previews;
   Figure 1 also includes its canonical editable PPTX. The compiled paper was checked with embedded fonts
   and no Type 3 fonts.
 
 ### Camera-ready pending — not currently available
 
-- The source-page mapping that links `val_####` Q–A IDs to tracked parser-output filenames
-  (`data/KoGovDoc-Bench/val.jsonl`), or an equivalent portable manifest.
-- MinerU **table-OFF**, Qwen3-VL-30B, and Qwen3-VL-2B-base parser outputs, plus exact rerun commands.
-- Clean-checkout validation of the current/quarantine workflow. The paper makes no full OHR-Bench v2
-  claim; a future full-v2 experiment would require the official v2 Q–A plus fresh parser and retrieval runs.
-  Legacy seven-domain / combined-CI / OHR-TextNED artifacts remain separated in the quarantine manifest.
+- Qwen3-VL-30B and Qwen3-VL-2B-base parser outputs, plus exact rerun commands for the released parsers.
+- The paper makes no full OHR-Bench v2 claim; a future full-v2 experiment would require the official v2 Q–A
+  plus fresh parser and retrieval runs. Legacy seven-domain / combined-CI / OHR-TextNED artifacts remain
+  separated in the quarantine manifest.
 - Complete BC/CS mechanism data and aligned uncertainty estimates.
-- Complete executed-configuration/log provenance and model checkpoints for RADP-Distill, RADP-aux,
-  RADP-DPO, and SimPO, except for the now-verified R2 executed configuration (`beta = 0.1`).
+- Raw preference-pair text and complete original training logs. The public checkpoint release instead
+  provides portable executed configurations, verified adapters, and available structured trainer states.
 - A portable **fresh-clone, end-to-end reproduction path**, including external data, parser outputs,
-  embedding caches, checkpoint acquisition, and removal of machine-specific runtime assumptions.
+  embedding caches, base-model acquisition, and removal of machine-specific runtime assumptions.
 
 ## License & Citation
 

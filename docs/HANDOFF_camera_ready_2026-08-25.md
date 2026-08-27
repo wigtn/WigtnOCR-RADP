@@ -49,13 +49,18 @@ bXGg Q1의 **"The full-grid version goes into the revision"** 약속은 동일 2
 
 ### B. P12 — 아티팩트 3건
 
-1. **MinerU tables-OFF predictions 커밋** — ZQv618에 "release both outputs"로 약속.
-   git에 0건 (`results/kogovdoc/`에 tableon만 존재). WSL 원본 회수 → 커밋.
-2. **체크포인트 릴리스 모순 해소 【감사 신규 발견 — PLAN에 없음】** — NAor1 답변은 현재형으로
-   "the parser-training **checkpoints** are all released"라고 주장했는데, Appendix H(L491)는
-   "does not yet contain … checkpoints"라고 자인한다. 게시 주장과 논문이 정면 충돌.
-   → 권고: 최소 R2/R3 LoRA 어댑터 + 실행 config 공개(HF 또는 repo). 불가하면 App H 서술과
-   별개로 공개 계획을 명시해야 하나, 공개가 정공법이다.
+1. **MinerU tables-OFF predictions 커밋 완료** — 35번 서버의 원본 294건을 회수했다.
+   `audit_mineru_output_release.py`가 229 KoGov+65 arXiv, tables-on과 동일 filename set,
+   tree SHA-256, `grid_v1_parser_native.json`의 MinerU aggregate 연결을 검증한다.
+   Portable `source_page_map_v1.json`도 294개 `val_####` ID를 4개 parser-output inventory와
+   교차검증하며, 242 evidence + 52 distractor와 229/65 domain 구성을 확인한다.
+2. **체크포인트 릴리스 모순 해소 완료(2026-08-27)** — RADP-aux 4종, RADP-DPO R1–R3,
+   RADP-Distill, RADP-SimPO의 최종 LoRA adapter 9종을 public
+   `wigtn/RCPS-RADP-Adapters` `v1.0.0`에 배포했다. 추적 manifest에 source/release hash,
+   portable executed config, training/evaluation base를 기록했고, 익명 다운로드 본을
+   clean checkout에서 검증했다. Appendix H의 “checkpoints missing” 문장은 공개 상태로 교체했다.
+   이 감사에서 RADP-aux가 Qwen3-VL-2B-Instruct에서 학습되고 Prod에 적용된 cross-base
+   실행임을 확인해 원고·README의 lineage도 정정했다.
 3. **인간 검수 per-case 라벨** — 저자 전용 패키지의 두 평가 파일, sampling manifest,
    19건 adjudication 기록을 scorer로 재검증했다. κ=0.615, 81/100, parser별 비율,
    human--LLM 90.3%(n=93)가 모두 원고와 일치한다. 원본은 패키지 규칙에 따라 공개하지 않으며,
@@ -97,7 +102,7 @@ Limitations)을 인용하는데, **이 수치를 생성한 아티팩트가 main�
 1. NAor1 답변 "seven domains, 2,264 Q--A" → 수락 후 감사로 **2,036/6-domain** 교체 (App F에 사유 공개 ✅).
 2. bXGg 답변 "does not beat a fidelity-distillation control" → 동일 2,036-Q–A frame의 Distill 아티팩트를
    복원했다. Distill−R2/R3 직접 paired CI가 모두 0을 포함해 이 부정 결과를 다시 직접 뒷받침한다 ✅.
-3. NAor1 답변 "checkpoints are all released" → §2-B2로 해소 전까지 **미해소 모순**.
+3. NAor1 답변 "checkpoints are all released" → 공개 `v1.0.0` 9-adapter release와 clean-checkout 검증으로 **해소 완료**.
 4. ZQv618·bXGg 답변의 "Boundary Clarity **r = −0.81**" → camera-ready는 MinerU-on 재베이스로
    **r = −0.83** (n=5, 방향 동일·더 강함, 독립 재계산 일치). 방어 가능하나 리뷰어가 응답과
    대조할 수 있는 수치 변경이므로 원장에 기록 + §2-E의 아티팩트로 뒷받침할 것.
