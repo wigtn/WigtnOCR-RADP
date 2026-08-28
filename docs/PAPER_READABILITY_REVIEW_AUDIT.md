@@ -82,7 +82,7 @@
 - R2 executed checkpoint의 `beta=0.1`은 원본 `v4_train.log`의 시작 기록과 exact command에서 확인했다. Portable config와 원본 로그 SHA-256을 `docs/provenance/RADP_DPO_R2_EXECUTED_CONFIG.md`에 기록했다.
 - 동일 294-page full-grid의 9개 unique system per-Q--A 재색인, probe-resampling stability, format-normalisation sensitivity를 완료했다. Prod는 Base와 세 OCR configuration보다 1,000/1,000 draws에서 높다. 전체 chunker 순서는 96.1% 유지됐고 normalised-vs-raw score 차이는 0.024--0.041이며 두 pool 모두 순서가 유지됐다.
 - full OHR-Bench v2 rerun은 수행하지 않고 호환성 subset으로 범위를 고정했다. RADP-Distill same-subset artifact는 복구했으며 직접 DPO 비교 구간이 모두 0을 포함한다.
-- 교신저자 표기는 chairs의 서면 승인에 따라 `Correspondence: harrison@wigtn.com`으로 반영했다. Public checkpoint URL과 CPU-only fresh-clone artifact 명령은 검증했다. 저자 affiliation/나머지 email/ORCID·form 입력은 아직 남아 있다.
+- 교신저자 표기는 chairs의 서면 승인에 따라 `Correspondence: harrison@wigtn.com`으로 반영했다. 공통 소속 `WIGTN, Seoul, Republic of Korea`도 저자명 아래에 추가했다. Public checkpoint URL과 CPU-only fresh-clone artifact 명령은 검증했다. 나머지 email/ORCID·form 입력은 아직 남아 있다.
 - Figure 1--4 시각 수정은 완료했다. 이후 그림 파일이 다시 바뀌면 합본 렌더·흑백·폰트 검사를 재실행해야 한다.
 
 ## 4. Reviewer NAor1 요구사항
@@ -154,7 +154,7 @@
 | P10 exact commands/fresh clone | **완료(artifact gate)** | Public `v1.0.0` 다운로드와 CPU-only audit를 clean checkout에서 검증. |
 | P11 composition/contamination | **부분 완료** | 구성·page-disjoint는 완료. 4.9pp는 엄밀한 contamination upper bound가 아니므로 scale로만 보고; 약속 수정 필요. |
 | P12 artifact release | **완료(명시한 예외 제외)** | MinerU-off, source map, strict manifests, full-grid JSON, public 9-adapter release 완료. Human per-case labels은 author-only 정책. |
-| P13 metadata | **대기** | 5인 순서는 고정. affiliation/email/ORCID/form/교신 회신 필요. |
+| P13 metadata | **부분 완료** | 5인 순서·공통 affiliation·교신 표기는 완료. 나머지 email/ORCID/form 입력 필요. |
 | P14 numeric/lineage final audit | **완료** | Public checkpoint hash/base lineage까지 재감사. RADP-aux cross-base 실행을 원고·README에 정정. |
 | P15 promises-to-paper gate | **논문·artifact 범위 완료** | 남은 외부 게이트는 저자 ORCID/form 메타데이터와 수동 참고문헌 대조. |
 | P16 figures/architecture | **완료** | Figure 1--4 재생성·합본 렌더·흑백·Type3=0 검증 완료. |
@@ -167,7 +167,7 @@
 1. P7 full-grid per-Q--A, probe bootstrap, normalisation sensitivity는 완료했다. 최종 원고와 manifest hash를 다시 대조한다.
 2. R2 beta의 executed provenance와 9-adapter public release·hash/base lineage 검증을 완료했다.
 3. MinerU-off 294-page predictions, portable source-page manifest, exact clean-clone artifact commands를 공개·검증했다. Human adjudication 원본은 author-only audit package에 유지한다.
-4. affiliation/email/ORCID/form과 corresponding-author chairs 회신을 반영한다.
+4. 공통 affiliation과 corresponding-author chairs 회신은 반영했다. 나머지 email/ORCID/form을 최종 확인한다.
 5. P14 수치·lineage와 P15 reviewer-promise 매핑은 완료했다. 제출 직전에는 P13 메타데이터와 참고문헌 수동 대조만 다시 확인한다.
 
 ## 9. 현재 PDF 빌드·렌더 검증

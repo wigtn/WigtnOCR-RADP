@@ -126,7 +126,7 @@ Appendix C 소절로: 프로토콜(파서 마스킹 시트, LLM-판정 absent fr
 
 ### P13. De-anonymization 【camera-ready 관례】
 
-- **부분 완료 / 외부 입력 대기**: 저자 순서는 `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정한다. Industry chairs가 Hyeong-seob Kim의 교신저자 지정과 PDF 각주 표기를 서면 승인했고, 원고에는 이름 별표 없이 ACL 템플릿의 `Correspondence: harrison@wigtn.com` 줄을 반영했다. PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, 5인 전원의 OpenReview 프로필에 ORCID를 등록한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않으므로 이를 메일 요구사항으로 간주하지 않는다. 소속·acks·라이브 링크(HF/GitHub)는 최종 템플릿과 저자 결정에 따라 복원한다.
+- **부분 완료 / 외부 입력 대기**: 저자 순서는 `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정한다. 공통 소속 `WIGTN, Seoul, Republic of Korea`를 저자명 아래에 넣었다. Industry chairs가 Hyeong-seob Kim의 교신저자 지정과 PDF 각주 표기를 서면 승인했고, 원고에는 이름 별표 없이 ACL 템플릿의 `Correspondence: harrison@wigtn.com` 줄을 반영했다. PDF 저자 이름 순서와 camera-ready form의 5인 이름·이메일 순서를 대조하고, 5인 전원의 OpenReview 프로필에 ORCID를 등록한다. Acceptance email은 PDF의 이메일·ORCID 표기를 요구하지 않으므로 이를 메일 요구사항으로 간주하지 않는다. Acknowledgements와 라이브 링크(HF/GitHub)는 최종 저자 결정에 따라 복원한다.
 - 벤치마크 명명 일관성(논문 "KoGov" 표기 vs HF "KoGovDoc-RAG") 정책 확정 후 통일. HF 카드 정정은 CR-2와 함께.
 
 ### P14. 수치·lineage 정합 감사 (자동)
