@@ -34,14 +34,11 @@
 % Author order is frozen to OpenReview Submission #384. Do not reorder.
 \author{
   \textbf{Sang-Woo Son},
-  \textbf{Hyeong-seob Kim}\textsuperscript{*},
+  \textbf{Hyeong-seob Kim}\textsuperscript{\dag},
   \textbf{Hyeonsang Kim},\\
   \textbf{Hyun-woo Cho},
   \textbf{Jinmo Kim}\\
-  \small{\textit{WIGTN, Seoul, Republic of Korea}}\\
-  \small{
-    \textbf{Correspondence:} \href{mailto:harrison@wigtn.com}{harrison@wigtn.com}
-  }
+  \small{\textit{WIGTN, Seoul, Republic of Korea}}
 }
 % CAMERA-READY METADATA PENDING: verify these names and their order against
 % OpenReview; enter author emails in that same order in the camera-ready form,
@@ -49,14 +46,15 @@
 % email does not require emails or ORCIDs in the PDF. The shared WIGTN affiliation
 % is included under the author names. The Industry Track Chairs confirmed in
 % writing that Hyeong-seob Kim may be identified as corresponding author without
-% changing this author order, marked with a footnote. The PDF therefore carries an
-% asterisk on Hyeong-seob Kim with an unnumbered name-bearing footnote (three
-% authors share the surname Kim) plus the ACL-template Correspondence line; the
-% supplied camera-ready form has no dedicated field.
+% changing this author order, marked with a footnote. The PDF therefore carries a
+% dagger on Hyeong-seob Kim with an unnumbered name-bearing footnote (three
+% authors share the surname Kim). No first-author marker and no byline email:
+% author order carries authorship, and a star reads as equal-contribution. The
+% supplied camera-ready form has no dedicated corresponding-author field.
 
 \begin{document}
 \maketitle
-\blfootnote{\textsuperscript{*}Corresponding author: Hyeong-seob Kim
+\blfootnote{\textsuperscript{\dag}Corresponding author: Hyeong-seob Kim
   (\href{mailto:harrison@wigtn.com}{harrison@wigtn.com}).}
 
 \begin{abstract}
@@ -190,7 +188,7 @@ MinerU-on & \textbf{0.713} & --- & 0.137 & 0.123 \\
 Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 \bottomrule
 \end{tabular}
-\caption{\rcps{} ranks the 30B teacher and Prod at the top of the complete-output parser pool. Scores average three retrievers and $k\in\{1,5,10\}$. BC is Boundary Clarity, for which higher is better. CS is Chunk Stickiness, for which lower is better. PaddleOCR has no adjacent parser-native boundaries from which to compute BC. CS was not recomputed for MinerU-on after the audited table-enabled rerun. The four-parser deployment correlation uses MinerU-on. Marker is excluded from complete-output comparisons.}
+\caption{\rcps{} ranks the 30B teacher and Prod at the top of the complete-output parser pool. Scores average three retrievers and $k\in\{1,5,10\}$. BC is Boundary Clarity, for which higher is better, and CS is Chunk Stickiness, for which lower is better \citep{zhao2025moc}. PaddleOCR has no adjacent parser-native boundaries from which to compute BC. CS was not recomputed for MinerU-on after the audited table-enabled rerun. The four-parser deployment correlation uses MinerU-on. Marker is excluded from complete-output comparisons.}
 \label{tab:grid}
 \end{table}
 
