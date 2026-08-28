@@ -19,7 +19,7 @@
 | 페이지 | 본문 최대 **7쪽** + 필수 Limitations와 선택 Ethical Considerations를 합쳐 추가 최대 **1쪽**; References와 Supplementary Material은 제한 없음 |
 | 저자 순서 | `Sang-Woo Son → Hyeong-seob Kim → Hyeonsang Kim → Hyun-woo Cho → Jinmo Kim`으로 고정 |
 | 저자 메타데이터 | PDF의 저자 이름 순서와 camera-ready form의 **5인 이름·이메일 순서**를 대조; **5인 전원의 OpenReview 프로필에 ORCID 등록 필수** |
-| 교신저자 | Industry Track chairs(Pepa Atanasova)가 저자 순서를 유지한 채 Hyeong-seob Kim을 교신저자로 지정하고 **각주(footnote)로 표시하는 방식**을 서면 승인(원문 아래 인용). PDF는 저자명에 `*` 마커 + 번호 없는 각주 `*Corresponding author: Hyeong-seob Kim (harrison@wigtn.com).`(Kim 성 3인이라 이름 명시) + ACL 템플릿 `Correspondence:` 줄을 병기. 공유된 form 항목에는 전용 교신저자 필드가 없음 |
+| 교신저자 | Industry Track chairs(Pepa Atanasova)가 저자 순서를 유지한 채 Hyeong-seob Kim을 교신저자로 지정하고 **각주(footnote)로 표시하는 방식**을 서면 승인(원문 아래 인용). PDF는 저자명에 `*` 마커 + 번호 없는 각주 `*Corresponding author: Hyeong-seob Kim.`(Kim 성 3인이라 이름 명시) + ACL 템플릿 `Correspondence: harrison@wigtn.com` 줄을 병기. 공유된 form 항목에는 전용 교신저자 필드가 없음 |
 | 폼 운영 정보 | 등록 담당자 이름·이메일, 발표자 이메일·거주 국가/지역·visa/초청장 여부와 대면/온라인 여부를 입력. 발표 형식 선호는 **Oral / Poster / No preference** 중 선택. 대면 발표자는 Budapest 도착일·출발일을 `YYYY-MM-DD`로 입력하고, 가상 발표이면 비워 둠. 추가 일정 제약은 선택 입력 |
 | 참고문헌 | `refs.bib`의 26개 키를 공식 출판·venue·arXiv 기록과 다시 대조하고 출판 버전·전체 저자·DOI·페이지를 정정함(2026-08-26). 최종 PDF에서 저자·제목·venue·연도·ID/링크를 저자가 다시 눈으로 확인 |
 
@@ -39,7 +39,7 @@ Chairs 회신 원문 (2026-08 수신, Sang-Woo Son 앞):
 - [ ] 논문 등록 담당자의 이름·이메일과 presenter 1인을 확정
 - [ ] 발표자의 이메일·거주 국가/지역·visa 상태·Visa Invitation Letter 필요 여부를 확인
 - [ ] 대면/온라인 발표 방식을 확정하고 선호를 Oral / Poster / No preference 중 선택. 대면 발표이면 Budapest 도착일·출발일을 각각 `YYYY-MM-DD`로 확인하고, 선택적 scheduling constraints를 정리
-- [x] chairs의 교신저자 서면 승인을 반영해 저자 순서를 유지하고, 승인된 각주 방식으로 `Hyeong-seob Kim*` + 번호 없는 이름 명시 각주와 `Correspondence: harrison@wigtn.com` 표기 (2026-08-28)
+- [x] chairs의 교신저자 서면 승인을 반영해 저자 순서를 유지하고, 승인된 각주 방식으로 `Hyeong-seob Kim*` + 번호 없는 이름 명시 각주와 `Correspondence: harrison@wigtn.com` 표기 (2026-08-29 렌더 재확인)
 - [ ] 7쪽 이하 본문 / Limitations와 선택 Ethics를 합친 추가 1쪽 이하 / References·Supplement 구획을 최종 PDF 페이지 단위로 확인
 - [ ] AI 도구의 결과만으로 종결하지 않고, 렌더링된 참고문헌 26건을 저자가 실제 논문·공식 출판 페이지와 수동 대조
 - [ ] 공식 마감보다 앞선 내부 목표인 2026-08-30 KST 안에 form과 PDF 제출 완료

@@ -56,8 +56,7 @@
 
 \begin{document}
 \maketitle
-\blfootnote{\textsuperscript{*}Corresponding author: Hyeong-seob Kim
-  (\href{mailto:harrison@wigtn.com}{harrison@wigtn.com}).}
+\blfootnote{\textsuperscript{*}Corresponding author: Hyeong-seob Kim.}
 
 \begin{abstract}
 Document RAG retrieves from parser outputs, yet parsers are commonly selected by intrinsic measures of transcription fidelity and boundary quality rather than by retrieval performance. We introduce the Retrieval-Conditional Parsing Score (\rcps{}), a training-free protocol that ranks parser--chunker combinations on a fixed held-out Q--A retrieval probe. \rcps{} averages mean reciprocal rank (MRR) across specified retrievers and retrieval depths, using the same format-normalised exact-span relevance rule for every candidate. On KoGovDoc-RAG, table-enabled MinerU-on has a higher Boundary Clarity score than our production parser, Prod ($0.713$ versus $0.610$). Yet its Hit@1 is $42.6$ percentage points lower ($0.123$ versus $0.549$). Across five parsers evaluated on all 294 pages, \rcps{} ranges from $0.137$ to $0.584$. With Prod fixed, the four chunkers score between $0.535$ and $0.593$. A retriever-free coverage diagnostic finds no normalised exact match for $20.2\%$ of reference spans in Prod output. No tested chunker splits more than $2.3\%$. On source-aligned OHR-Bench data, semantic noise lowers retrieval while Boundary Clarity remains stable or changes non-monotonically. In a secondary parser-training study, two direct preference optimization checkpoints improve Hit@5 by only $0.95$ and $1.15$ percentage points over Prod on an audited compatibility subset; a matched edit-distance control performs similarly. The workflow therefore selects with \rcps{}, diagnoses with coverage, and trains only if needed. We release the 663-Q--A KoGovDoc-RAG probe and an \rcps{} reference implementation.
@@ -190,7 +189,7 @@ MinerU-on & \textbf{0.713} & --- & 0.137 & 0.123 \\
 Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 \bottomrule
 \end{tabular}
-\caption{\rcps{} ranks the 30B teacher and Prod at the top of the complete-output parser pool. Scores average three retrievers and $k\in\{1,5,10\}$. BC is Boundary Clarity, for which higher is better. CS is Chunk Stickiness, for which lower is better. PaddleOCR has no adjacent parser-native boundaries from which to compute BC. CS was not recomputed for MinerU-on after the audited table-enabled rerun. The four-parser deployment correlation uses MinerU-on. Marker is excluded from complete-output comparisons.}
+\caption{\rcps{} ranks the 30B teacher and Prod at the top of the complete-output parser pool. Scores average three retrievers and $k\in\{1,5,10\}$. BC is Boundary Clarity, for which higher is better. CS is Chunk Stickiness \citep{zhao2025moc}, for which lower is better. PaddleOCR has no adjacent parser-native boundaries from which to compute BC. CS was not recomputed for MinerU-on after the audited table-enabled rerun. The four-parser deployment correlation uses MinerU-on. Marker is excluded from complete-output comparisons.}
 \label{tab:grid}
 \end{table}
 
@@ -513,7 +512,7 @@ All three DPO checkpoints also have positive Hit@5 point estimates in Table~\ref
 
 \paragraph{Dataset composition.} KoGovDoc-RAG contains 229 Korean government pages and 65 arXiv pages. The two sources contribute 527 and 136 verbatim-answerable Q--A, respectively. The separate 2{,}667-page training set is page-disjoint from all 294 evaluation pages. Prod exceeds its 2B base by $4.9$ Hit@1 points, whereas the audited Prod--MinerU-on difference is $42.6$ points. This comparison provides scale, not a formal bound on fine-tuning effects.
 
-\paragraph{Stored retriever ablation.} This ablation predates the MinerU-on audit and uses the submitted MinerU-off grid. Relative to full \rcps{}, BGE-M3 alone changes only the near-tied 30B--Prod order ($\tau_a=0.80$). Lower parser ranks and the chunker order remain unchanged. It provides no evidence about the MinerU-on--PaddleOCR order.
+\paragraph{Stored retriever ablation.} This ablation predates the MinerU-on audit and uses the submitted MinerU-off grid. Relative to full \rcps{} over the five full-page parsers (Marker excluded), BGE-M3 alone changes only the near-tied 30B--Prod order ($\tau_a=0.80$). Lower parser ranks and the chunker order remain unchanged. It provides no evidence about the MinerU-on--PaddleOCR order.
 
 \paragraph{Artifact status.} The repository contains the frozen probe and page map, both MinerU configurations' 294-page outputs, retrieval and diagnostic code, aligned per-Q--A arrays and stability results, and deterministic OHR-compatibility and MinerU-output audits. A separate public release provides all nine evaluated LoRA adapters, with portable configurations, hashes, and available trainer states. The adjudicated human-study inputs remain in an author-only audit package; the public repository reports their aggregate results. We verified the public checkpoint download and CPU-only artifact gates from a clean checkout. A full end-to-end rerun still requires external source documents, parser outputs, and embedding caches, and we do not claim a full OHR-Bench v2 rerun.
 
