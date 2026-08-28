@@ -316,8 +316,8 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 저자 명단과 순서는 제출 당시 그대로 유지한다. Industry Track chairs가 이 순서를 바꾸지 않고
 Hyeong-seob Kim을 교신저자로 지정해도 된다고 서면 확인했다. 카메라레디 PDF에는 ACL 템플릿의
-`Correspondence: harrison@wigtn.com` 표기를 사용한다. 소속과 나머지 이메일은 확인된 metadata만
-추후 반영한다.
+`Correspondence: harrison@wigtn.com` 표기를 사용하며, 공통 소속은
+**WIGTN, Seoul, Republic of Korea**로 기재한다. 나머지 이메일은 확인된 metadata만 추후 반영한다.
 
 ---
 

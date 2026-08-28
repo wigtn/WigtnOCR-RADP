@@ -409,8 +409,8 @@ Follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
 
 The author list and order remain exactly as submitted. The Industry Track chairs confirmed in writing that
 Hyeong-seob Kim may be designated as corresponding author without changing that order. The camera-ready PDF
-therefore uses the ACL-template line `Correspondence: harrison@wigtn.com`. Affiliations and other emails will
-be added only from confirmed metadata.
+therefore lists the shared affiliation as **WIGTN, Seoul, Republic of Korea** and uses the ACL-template line
+`Correspondence: harrison@wigtn.com`. Other emails will be added only from confirmed metadata.
 
 ---
 
