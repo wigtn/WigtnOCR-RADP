@@ -40,7 +40,7 @@ Chairs 회신 원문 (2026-08 수신, Sang-Woo Son 앞):
 - [ ] 발표자의 이메일·거주 국가/지역·visa 상태·Visa Invitation Letter 필요 여부를 확인
 - [ ] 대면/온라인 발표 방식을 확정하고 선호를 Oral / Poster / No preference 중 선택. 대면 발표이면 Budapest 도착일·출발일을 각각 `YYYY-MM-DD`로 확인하고, 선택적 scheduling constraints를 정리
 - [x] chairs의 교신저자 서면 승인을 반영해 저자 순서를 유지하고, 승인된 각주 방식으로 `Hyeong-seob Kim†` + 번호 없는 이름 명시 각주 표기. byline 이메일 줄 없음 (2026-08-29 확정)
-- [x] 7쪽 이하 본문 / Limitations와 선택 Ethics를 합친 추가 1쪽 이하 / References·Supplement 구획을 최종 PDF 페이지 단위로 확인 (2026-08-29: Discussion and Conclusion은 p.7에서 종료, Limitations는 pp.7--8, References는 p.8 시작, Appendix는 p.10 시작)
+- [x] 7쪽 이하 본문 / Limitations와 선택 Ethics를 합친 추가 1쪽 이하 / References·Supplement 구획을 최종 PDF 페이지 단위로 확인 (2026-08-29: Discussion and Conclusion은 p.7에서 종료, Limitations는 p.8, References는 pp.8--10, Appendix는 p.10의 마지막 참고문헌 바로 아래에서 시작)
 - [ ] AI 도구의 결과만으로 종결하지 않고, 렌더링된 참고문헌 26건을 저자가 실제 논문·공식 출판 페이지와 수동 대조
 - [ ] 공식 마감보다 앞선 내부 목표인 2026-08-30 KST 안에 form과 PDF 제출 완료
 
