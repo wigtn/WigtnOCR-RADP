@@ -256,7 +256,25 @@ PaddleOCR & 0.140 & 20.5 & 11.5 & 45.9 \\
 
 The retriever-free diagnostic uses all 294 pages. For Prod, 134/663 reference spans ($20.2\%$) have no normalised exact match before chunking. No tested chunker splits more than 15/663 spans ($2.3\%$) (Figure~\ref{fig:coverage}). Thus, rechunking alone cannot restore exact-span retrievability for roughly one in five reference answers.
 
-Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Under the character-tolerant L4 matcher, its absent rate remains $62.1\%$, $45.2$ points above Prod. In a parser-masked 100-case study, two authors independently label the cases and jointly adjudicate disagreements; 42/50 sampled MinerU-on exact-match-absent cases are retrieval-unusable. These MinerU-on checks support the direction of the gap, not a population rate. Appendix~\ref{app:familyneutral} reports the matcher definitions and sampling design. It separately reports the full-set cross-family judge, which was run only on the retained MinerU-off output.
+\begin{center}
+\begin{minipage}{\columnwidth}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.15\columnwidth}p{0.76\columnwidth}}
+\toprule
+Label & Meaning and next action \\
+\midrule
+covered & The normalised span lies within one chunk; if retrieval fails, inspect the index or retriever. \\
+split & The normalised span crosses chunk boundaries; rechunk or add overlap. \\
+absent & No normalised exact-span match exists in parser output; inspect the output before replacing the parser. \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Coverage maps a missing retrieval result to the first component that can repair it. A covered span does not guarantee retrieval.}
+\label{tab:coverage-actions}
+\end{minipage}
+\end{center}
+
+Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Under the character-tolerant L4 matcher, its absent rate remains $62.1\%$, $45.2$ points above Prod. In a parser-masked 100-case study, two authors independently label the cases and jointly adjudicate disagreements. After adjudication, retrieval-unusable rates among sampled exact-match-absent cases are 42/50 for MinerU-on ($84.0\%$, Wilson 95\% CI $[71.5,91.7]$), 12/30 for Prod ($40.0\%$, $[24.6,57.7]$), and 19/20 for PaddleOCR ($95.0\%$, $[76.4,99.1]$). These stratified samples validate the direction of the OCR-parser gap, not population rates. Appendix~\ref{app:familyneutral} reports the matcher definitions and sampling design. It separately reports the full-set cross-family judge, which was run only on the retained MinerU-off output.
 
 \subsection{Parser Training Is a Secondary, Bounded Lever (\contribTraining)}
 \label{sec:c4}\label{sec:mechanism}
