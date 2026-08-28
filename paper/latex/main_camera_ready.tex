@@ -197,7 +197,24 @@ Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 
 \paragraph{Selecting parsers.} The 30B teacher ranks first at $0.584$ \rcps{}, followed by Prod at $0.583$. Prod nevertheless has slightly higher Hit@1 ($0.549$ versus $0.545$). The point estimates are near-tied; in the probe bootstrap below, the teacher remains above Prod in only $62.5\%$ of draws. Latency and compute may therefore decide between them. MinerU-on reaches only $0.137$ \rcps{} and $0.123$ Hit@1. Prod's Hit@1 is $4.47\times$ as high.
 
-\paragraph{Selecting chunkers.} With Prod fixed, the point-estimate order is md-h3 ($0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-500 ($0.535$). The chunker range is $0.058$. This is much smaller than the $0.447$ range across the heterogeneous parser pool and close to the $0.052$ range among its three vision--language parsers.
+\paragraph{Selecting chunkers.} With Prod fixed, Table~\ref{tab:chunker-selection} ranks four chunkers. The $0.058$ range is much smaller than the $0.447$ range across the heterogeneous parser pool and close to the $0.052$ range among its three vision--language parsers.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{lc}
+\toprule
+Chunker & \rcps{} \\
+\midrule
+md-h3 & \textbf{0.593} \\
+parser-native & 0.583 \\
+LumberChunker \citep{duarte2024lumber} & 0.557 \\
+fixed-500 & 0.535 \\
+\bottomrule
+\end{tabular}
+\caption{Chunker selection with Prod fixed. Every row uses the same 663-Q--A probe, three retrievers, and retrieval depths $k\in\{1,5,10\}$.}
+\label{tab:chunker-selection}
+\end{table}
 
 \paragraph{End-to-end top-choice check.} Table~\ref{tab:e2e} tests whether the \rcps{} top choice remains best after retrieval and answer generation. Prod leads judged answer accuracy, while the nearly tied lower pair reverses. The result therefore supports the top choice, not the complete parser order. Appendix~\ref{app:e2e} gives the generation protocol and its limitations.
 
@@ -217,7 +234,22 @@ PaddleOCR & 0.140 & 20.5 & 11.5 & 45.9 \\
 \label{tab:e2e}
 \end{table}
 
-\paragraph{Retriever, depth, and probe robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. In the stored MinerU-off submission grid (five parsers including MinerU-off, not MinerU-on), averaging MRR@10 across the three retrievers yields the same complete five-parser and four-chunker rankings as \rcps{} averaged over $k\in\{1,5,10\}$ (Kendall $\tau_a=1.0$). To test sensitivity to the probe set, we use a fixed random seed to draw 1{,}000 subsets of 500 from the 663 Q--A pairs, without replacement within each draw, on the aligned 294-page full grid. Relative to the full-probe ranking, the six-configuration parser ranking (four parsers plus both MinerU configurations, off and on) has mean Kendall $\tau_a=0.902$ and is identical in $39.4\%$ of draws; all rank changes are confined to the near-tied teacher--Prod and PaddleOCR--MinerU-on pairs. Prod remains above Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. The four-chunker order is unchanged in $96.1\%$ of draws, and md-h3 remains above parser-native in $96.5\%$. Replacing format-normalised relevance with raw substring matching lowers \rcps{} by $0.024$--$0.041$ without changing either full order. A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}.
+\paragraph{Retriever, depth, and probe robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. Table~\ref{tab:robustness-summary} summarises the sensitivity checks. The depth check uses the stored MinerU-off submission grid; probe resampling uses the aligned 294-page grid containing both MinerU configurations. All parser rank changes are confined to the near-tied teacher--Prod and PaddleOCR--MinerU-on pairs. A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.94\columnwidth}}
+\toprule
+\textbf{MRR@10 only.} Complete five-parser and four-chunker orders remain unchanged ($\tau_a=1.0$). \\
+\textbf{Parser probe.} Across 1{,}000 draws of 500/663 Q--A, mean $\tau_a=0.902$; the full order is identical in $39.4\%$. Prod leads Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. \\
+\textbf{Chunker probe.} The full order is identical in $96.1\%$ of draws; md-h3 leads parser-native in $96.5\%$. \\
+\textbf{Raw matching.} Scores fall by $0.024$--$0.041$; parser and chunker orders remain unchanged. \\
+\bottomrule
+\end{tabular}
+\caption{Selection robustness to retrieval depth, probe resampling, and the relevance matcher. Probe results use fixed-seed sampling without replacement.}
+\label{tab:robustness-summary}
+\end{table}
 
 \subsection{Coverage Finds Pre-Chunking Absence (\contribCoverage)}
 \label{sec:c3}
