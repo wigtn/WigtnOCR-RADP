@@ -83,7 +83,7 @@ We run two secondary experiments after selection and diagnosis. In a three-parse
 
 Figure~\ref{fig:overview} summarises the resulting workflow: select with \rcps{}, diagnose parser- versus chunker-side loss with coverage, and consider parser training only afterward.
 
-\paragraph{Contributions.} We first show that intrinsic metrics can misrank parsers (\contribIntrinsic). Our primary contribution is \rcps{}, a training-free protocol for selecting parsers and chunkers by retrieval (\contribRCPS). We then introduce coverage as a diagnostic for separating parser-side absence from chunker-side splitting (\contribCoverage). Finally, we report the small and uncertain retrieval differences associated with parser training (\contribTraining). The main scope is answer-span retrievability. Appendix~\ref{app:e2e} provides the three-parser end-to-end check.
+\paragraph{Contributions.} We first show that intrinsic metrics can misrank parsers (\contribIntrinsic). Our primary contribution is \rcps{}, a training-free protocol for selecting parsers and chunkers by retrieval (\contribRCPS). We then introduce coverage as a diagnostic for separating parser-side absence from chunker-side splitting (\contribCoverage). Finally, we report the small and uncertain retrieval differences associated with parser training (\contribTraining). The main scope is answer-span retrievability. Table~\ref{tab:e2e} reports a three-parser end-to-end check; Appendix~\ref{app:e2e} gives its protocol and caveats.
 
 We release the frozen 663-Q--A KoGovDoc-RAG probe and a reference implementation of \rcps{}.\footnote{\url{https://github.com/wigtn/WigtnOCR-RADP}} The selection experiment indexes 294 pages. Appendix~\ref{app:repro} records the remaining release and clean-rerun gaps.
 
@@ -128,6 +128,8 @@ Here, $C(P)$ is the corpus produced by parser $P$ and chunker $C$. We use BGE-M3
 \label{sec:coverage}
 
 Coverage does not score a retriever. With parser output fixed, a reference span is \emph{covered} when it appears within one chunk. It is \emph{split} when it exists in the page output but crosses chunk boundaries. It is \emph{absent} when the normalised page output contains no exact match. Overlap may repair a split. Rechunking alone cannot restore an absent exact span. These are operational labels: \emph{absent} does not prove that the meaning is missing.
+
+For example, MinerU-on transcribes the table answer $A=180\,\mathrm{m}^{2}$ as \texttt{A = 180m}. Because the exponent never reaches the Markdown, no chunker can reconstruct the complete exact span. Appendix~\ref{sec:parser-def} gives the parser I/O definition and the full worked example.
 
 \begin{center}
 \begin{minipage}{\columnwidth}
@@ -197,6 +199,24 @@ Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 
 \paragraph{Selecting chunkers.} With Prod fixed, the point-estimate order is md-h3 ($0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-500 ($0.535$). The chunker range is $0.058$. This is much smaller than the $0.447$ range across the heterogeneous parser pool and close to the $0.052$ range among its three vision--language parsers.
 
+\paragraph{End-to-end top-choice check.} Table~\ref{tab:e2e} tests whether the \rcps{} top choice remains best after retrieval and answer generation. Prod leads judged answer accuracy, while the nearly tied lower pair reverses. The result therefore supports the top choice, not the complete parser order. Appendix~\ref{app:e2e} gives the generation protocol and its limitations.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccc}
+\toprule
+Parser & \rcps{} & Ans.\ acc. & EM & Answered \\
+\midrule
+Prod & 0.583 & \textbf{72.5} & \textbf{49.8} & 87.9 \\
+MinerU-on & 0.137 & 23.8 & 14.5 & 39.1 \\
+PaddleOCR & 0.140 & 20.5 & 11.5 & 45.9 \\
+\bottomrule
+\end{tabular}
+\caption{The \rcps{} top choice also leads answer accuracy in this three-parser check over 663 Q--A. Answer generation uses BGE-M3 top-five retrieval. Ans.\ acc., EM, and Answered are percentages; \rcps{} is on a 0--1 scale.}
+\label{tab:e2e}
+\end{table}
+
 \paragraph{Retriever, depth, and probe robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. In the stored MinerU-off submission grid (five parsers including MinerU-off, not MinerU-on), averaging MRR@10 across the three retrievers yields the same complete five-parser and four-chunker rankings as \rcps{} averaged over $k\in\{1,5,10\}$ (Kendall $\tau_a=1.0$). To test sensitivity to the probe set, we use a fixed random seed to draw 1{,}000 subsets of 500 from the 663 Q--A pairs, without replacement within each draw, on the aligned 294-page full grid. Relative to the full-probe ranking, the six-configuration parser ranking (four parsers plus both MinerU configurations, off and on) has mean Kendall $\tau_a=0.902$ and is identical in $39.4\%$ of draws; all rank changes are confined to the near-tied teacher--Prod and PaddleOCR--MinerU-on pairs. Prod remains above Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. The four-chunker order is unchanged in $96.1\%$ of draws, and md-h3 remains above parser-native in $96.5\%$. Replacing format-normalised relevance with raw substring matching lowers \rcps{} by $0.024$--$0.041$ without changing either full order. A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}.
 
 \subsection{Coverage Finds Pre-Chunking Absence (\contribCoverage)}
@@ -204,7 +224,7 @@ Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 
 The retriever-free diagnostic uses all 294 pages. For Prod, 134/663 reference spans ($20.2\%$) have no normalised exact match before chunking. No tested chunker splits more than 15/663 spans ($2.3\%$) (Figure~\ref{fig:coverage}). Thus, rechunking alone cannot restore exact-span retrievability for roughly one in five reference answers.
 
-Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Because absence is matcher-defined, Appendix~\ref{app:familyneutral} checks the label with tolerant matchers, a cross-family judge, and human verification.
+Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Because absence is matcher-defined, we test the result with complementary checks. A cross-family judge removes recoverable surface mismatches yet leaves MinerU-off's retrieval-unusable rate $50.4$ points above Prod. In a parser-masked 100-case study, two authors independently label the cases and jointly adjudicate disagreements; 42/50 sampled MinerU-on exact-match-absent cases are retrieval-unusable. The automated judge agrees with the adjudicated labels on 84/93 ($90.3\%$) overlapping cases. These stratified checks support the direction of the gap, not a population rate. Appendix~\ref{app:familyneutral} reports the tolerant matchers, sampling design, and configuration differences.
 
 \subsection{Parser Training Is a Secondary, Bounded Lever (\contribTraining)}
 \label{sec:c4}\label{sec:mechanism}
@@ -277,22 +297,6 @@ We ask whether the \rcps{} top choice among Prod, MinerU-on, and PaddleOCR also 
 This generation pipeline is not identical to the main \rcps{} protocol. The \rcps{} values in Table~\ref{tab:e2e} average three retrievers at three retrieval depths, whereas answer generation uses only BGE-M3 top-five retrieval. Each row nevertheless uses the same parser output for its \rcps{} and generation results. In particular, the MinerU row uses MinerU-on. MinerU-off scores $0.212$ \rcps{}, but it has no corresponding answer-generation run and is therefore excluded from this comparison.
 
 Prod achieves $72.5\%$ answer accuracy, compared with $23.8\%$ for MinerU-on and $20.5\%$ for PaddleOCR. Thus, the \rcps{} top choice also leads in judged answer accuracy. The nearly tied lower pair reverses, so this experiment does not validate their relative order. Moreover, the same model checkpoint generates and judges the answers. We therefore treat the experiment only as an end-to-end check of the top choice, not as validation of the full parser ranking.
-
-\begin{table}[ht!]
-\centering\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcccc}
-\toprule
-Parser & Ans.\ acc. & EM & Answered & \rcps{} \\
-\midrule
-Prod & \textbf{72.5} & \textbf{49.8} & 87.9 & 0.583 \\
-MinerU (on) & 23.8 & 14.5 & 39.1 & 0.137 \\
-PaddleOCR & 20.5 & 11.5 & 45.9 & 0.140 \\
-\bottomrule
-\end{tabular}
-\caption{The \rcps{} top choice, Prod, also has the highest answer accuracy in this three-parser check. The near-tied lower pair reverses. Generation uses BGE-M3 top-five retrieval over 663 Q--A, with MinerU-on used for both \rcps{} and generation. \rcps{} averages the main three-retriever grid at three retrieval depths. EM is normalised-span exact match. Answered excludes \texttt{NO ANSWER}. Ans.\ acc., EM, and Answered are percentages. \rcps{} uses a 0--1 scale. The same GPT-5.4 checkpoint generates and judges answers, so this checks only the top choice.}
-\label{tab:e2e}
-\end{table}
 
 \section{Is the Absent Label Robust?}
 \label{app:familyneutral}

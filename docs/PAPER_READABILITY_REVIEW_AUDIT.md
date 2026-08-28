@@ -1,10 +1,10 @@
 # EMNLP 2026 camera-ready 문장·리뷰 요구사항 전수 감사
 
-> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-27
+> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-29
 > 원고 정본: `paper/latex/main_camera_ready.tex`
 > 동결본: `paper/latex/main.tex`는 편집하지 않음
 > 정합성 기준 커밋: PR #12 merge `a981bca`. 이 기준에서 C2=RCPS, C3=coverage,
-> Marker 포함 보조 상관은 `r=-0.83`, E2E는 Appendix B, C4 상세는 Appendices E--G다.
+> Marker 포함 보조 상관은 `r=-0.83`, E2E 결과표는 본문 C2이고 프로토콜·한계는 Appendix B, C4 상세는 Appendices E--G다.
 > PR diff의 삭제 행과 동결본 `main.tex`는 현재 camera-ready 상태 판정에 사용하지 않는다.
 > 판정 원칙: 근거가 현재 원고 또는 추적 가능한 산출물에 없으면 완료로 표시하지 않음
 > rebuttal 정본: 2026-08-22 사용자 제공 OpenReview 최종 게시본(SHA-256 `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`). 로컬 reviewer별 초안과 충돌하면 최종 게시본을 우선함.
@@ -12,6 +12,8 @@
 > **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. 당시 `main_camera_ready.pdf`는 14쪽이었고, 아래 2026-08-27 갱신이 현재 15쪽 정본을 기록한다.
 
 > **2026-08-27 P7 후속 갱신:** 동일 294페이지 full-grid 수치와 probe bootstrap 문단을 반영한 현재 `main_camera_ready.pdf`는 15쪽이다. 본문과 Limitations는 1--6쪽, References는 7--9쪽, Appendix는 10쪽부터이며, 15쪽 전부를 다시 렌더해 잘림·겹침·overflow와 Type3 font가 없음을 확인했다.
+
+> **2026-08-29 본문 근거 보강:** 7쪽 본문 상한을 활용해 C2에 3-parser end-to-end 결과표를 이동하고, C3에 cross-family judge·human verification 핵심 수치와 coverage worked example을 보강했다. Discussion and Conclusion은 7쪽에서 끝나고, Limitations는 7--8쪽, References는 8--9쪽, Appendix는 10쪽부터다. 총 15쪽, 전 페이지 A4, Type3 font 0, embedded font, 잘림·겹침·overflow 없음과 CPU-only artifact gate 통과를 다시 확인했다.
 
 > **2026-08-24 C2 중심 hierarchy pass:** Abstract에서 parser training을 secondary study로 낮추고, §4.5 C4를 RADP의 operational definition과 제한된 결과 두 단락으로 압축했다. RADP-aux는 answer-span hidden state--frozen BGE-M3 contrastive alignment, RADP-DPO는 page-local MRR로 후보 parse를 순위화한 DPO pair, RADP-Distill은 edit-distance fidelity control로 구분했다. 부록은 A OHR(C1) → B E2E(C2) → C absent robustness → D coverage(C3) → E--G training(C4) → H release로 재배열했다. 리버털이 약속한 Appendix C의 parser I/O, worked example, human verification는 그대로 유지된다.
 
