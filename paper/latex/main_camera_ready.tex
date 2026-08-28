@@ -15,6 +15,14 @@
 \graphicspath{{../figures/}}
 
 \newcommand{\rcps}{\textnormal{\textsc{RCPS}}}
+% Unnumbered footnote for the corresponding-author dagger; keeps the numbered
+% footnote counter untouched so the GitHub release footnote stays footnote 1.
+\newcommand{\blfootnote}[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
 % Canonical contribution numbering; keep captions, headings, and prose synchronized.
 \newcommand{\contribIntrinsic}{C1}
 \newcommand{\contribRCPS}{C2}
@@ -26,7 +34,7 @@
 % Author order is frozen to OpenReview Submission #384. Do not reorder.
 \author{
   \textbf{Sang-Woo Son},
-  \textbf{Hyeong-seob Kim},
+  \textbf{Hyeong-seob Kim}\textsuperscript{*},
   \textbf{Hyeonsang Kim},\\
   \textbf{Hyun-woo Cho},
   \textbf{Jinmo Kim}\\
@@ -41,11 +49,15 @@
 % email does not require emails or ORCIDs in the PDF. The shared WIGTN affiliation
 % is included under the author names. The Industry Track Chairs confirmed in
 % writing that Hyeong-seob Kim may be identified as corresponding author without
-% changing this author order. The PDF therefore uses the ACL-template
-% Correspondence line; the supplied camera-ready form has no dedicated field.
+% changing this author order, marked with a footnote. The PDF therefore carries an
+% asterisk on Hyeong-seob Kim with an unnumbered name-bearing footnote (three
+% authors share the surname Kim) plus the ACL-template Correspondence line; the
+% supplied camera-ready form has no dedicated field.
 
 \begin{document}
 \maketitle
+\blfootnote{\textsuperscript{*}Corresponding author: Hyeong-seob Kim
+  (\href{mailto:harrison@wigtn.com}{harrison@wigtn.com}).}
 
 \begin{abstract}
 Document RAG retrieves from parser outputs, yet parsers are commonly selected by intrinsic measures of transcription fidelity and boundary quality rather than by retrieval performance. We introduce the Retrieval-Conditional Parsing Score (\rcps{}), a training-free protocol that ranks parser--chunker combinations on a fixed held-out Q--A retrieval probe. \rcps{} averages mean reciprocal rank (MRR) across specified retrievers and retrieval depths, using the same format-normalised exact-span relevance rule for every candidate. On KoGovDoc-RAG, table-enabled MinerU-on has a higher Boundary Clarity score than our production parser, Prod ($0.713$ versus $0.610$). Yet its Hit@1 is $42.6$ percentage points lower ($0.123$ versus $0.549$). Across five parsers evaluated on all 294 pages, \rcps{} ranges from $0.137$ to $0.584$. With Prod fixed, the four chunkers score between $0.535$ and $0.593$. A retriever-free coverage diagnostic finds no normalised exact match for $20.2\%$ of reference spans in Prod output. No tested chunker splits more than $2.3\%$. On source-aligned OHR-Bench data, semantic noise lowers retrieval while Boundary Clarity remains stable or changes non-monotonically. In a secondary parser-training study, two direct preference optimization checkpoints improve Hit@5 by only $0.95$ and $1.15$ percentage points over Prod on an audited compatibility subset; a matched edit-distance control performs similarly. The workflow therefore selects with \rcps{}, diagnoses with coverage, and trains only if needed. We release the 663-Q--A KoGovDoc-RAG probe and an \rcps{} reference implementation.
@@ -68,7 +80,7 @@ We address the deployment decision before attempting parser training. The Retrie
 
 A retrieval score identifies the better pipeline but not the faulty layer. We therefore add a retriever-free coverage diagnostic. It distinguishes reference spans that are absent from the normalised parser output from spans that exist in the output but cross chunk boundaries. For Prod, $20.2\%$ of reference spans have no normalised exact match before chunking. No tested chunker splits more than $2.3\%$. This points first to parser-output inspection rather than further chunker tuning.
 
-We run two secondary experiments after selection and diagnosis. In a three-parser end-to-end check, the \rcps{} top choice, Prod, also has the highest answer accuracy ($72.5\%$ versus $23.8\%$ and $20.5\%$). The lower pair reverses, so the experiment supports only the top choice. We also train the parser with retrieval-oriented feedback. Two direct preference-optimization checkpoints have Hit@5 estimates only about one percentage point above Prod on a separate, audited OHR-Bench compatibility subset. A matched edit-distance control performs similarly, so the comparison does not isolate a benefit from retrieval reward.
+We run two secondary experiments after selection and diagnosis. In a three-parser end-to-end check, the \rcps{} top choice, Prod, also has the highest answer accuracy ($72.5\%$ versus $23.8\%$ and $20.5\%$). The lower pair reverses, so the experiment supports only the top choice. We also train the parser with retrieval-oriented feedback. Two direct preference optimization checkpoints have Hit@5 estimates only about one percentage point above Prod on a separate, audited OHR-Bench compatibility subset. A matched edit-distance control performs similarly, so the comparison does not isolate a benefit from retrieval reward.
 
 Figure~\ref{fig:overview} summarises the resulting workflow: select with \rcps{}, diagnose parser- versus chunker-side loss with coverage, and consider parser training only afterward.
 
@@ -153,7 +165,7 @@ Among the four complete outputs with defined BC, the Pearson correlation with \r
 \label{fig:disconnect}
 \end{figure*}
 
-\paragraph{Law--Manual perturbations (1{,}043 Q--A).} On the aligned OHR-Bench subset, semantic corruption lowers retrieval without a consistent BC response. From mild to severe noise, \rcps{} falls $0.476\!\rightarrow\!0.265$ for MinerU, $0.534\!\rightarrow\!0.497$ for Qwen2.5-VL, and $0.461\!\rightarrow\!0.298$ for GOT. The corresponding BC values behave differently: MinerU stays within $0.628$--$0.651$, Qwen2.5-VL remains near $0.563$, and GOT rises $0.586\!\rightarrow\!0.624$. These twelve variants are dependent perturbations of three outputs, not independent parsers (Appendix~\ref{app:noise}), and do not establish broad domain generality.
+\paragraph{Law--Manual perturbations (1{,}043 Q--A).} On the aligned OHR-Bench subset, semantic corruption lowers retrieval without a consistent BC response. From mild to severe noise, \rcps{} falls $0.476\!\rightarrow\!0.265$ for MinerU, $0.534\!\rightarrow\!0.497$ for Qwen2.5-VL, and $0.461\!\rightarrow\!0.298$ for GOT. The corresponding BC values behave differently: MinerU stays within $0.628$--$0.651$, Qwen2.5-VL remains near $0.563$, and GOT rises $0.586\!\rightarrow\!0.624$. These eleven variants are dependent perturbations of three outputs, not independent parsers (Appendix~\ref{app:noise}), and do not establish broad domain generality.
 
 \subsection{\rcps{} Ranks Parsers and Chunkers (\contribRCPS)}
 \label{sec:c2}
@@ -186,7 +198,7 @@ Marker (38p) & 0.717 & 3.41 & 0.073 & 0.068 \\
 
 \paragraph{Selecting chunkers.} With Prod fixed, the point-estimate order is md-h3 ($0.593$) $>$ parser-native ($0.583$) $>$ LumberChunker \citep{duarte2024lumber} ($0.557$) $>$ fixed-500 ($0.535$). The chunker range is $0.058$. This is much smaller than the $0.447$ range across the heterogeneous parser pool and close to the $0.052$ range among its three vision--language parsers.
 
-\paragraph{Retriever, depth, and probe robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. In the stored MinerU-off submission grid, averaging MRR@10 across the three retrievers yields the same complete five-parser and four-chunker rankings as \rcps{} averaged over $k\in\{1,5,10\}$ (Kendall $\tau_a=1.0$).\par\pagebreak[4]\noindent To test sensitivity to the probe set, we use a fixed random seed to draw 1{,}000 subsets of 500 from the 663 Q--A pairs, without replacement within each draw, on the aligned 294-page full grid. Relative to the full-probe ranking, the six-configuration parser ranking has mean Kendall $\tau_a=0.902$ and is identical in $39.4\%$ of draws; all rank changes are confined to the near-tied teacher--Prod and PaddleOCR--MinerU-on pairs. Prod remains above Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. The four-chunker order is unchanged in $96.1\%$ of draws, and md-h3 remains above parser-native in $96.5\%$. Replacing format-normalised relevance with raw substring matching lowers \rcps{} by $0.024$--$0.041$ without changing either full order. A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}.
+\paragraph{Retriever, depth, and probe robustness.} When deployment fixes a retriever, evaluate with that retriever. Otherwise, averaging reduces dependence on one model. In the stored MinerU-off submission grid (five parsers including MinerU-off, not MinerU-on), averaging MRR@10 across the three retrievers yields the same complete five-parser and four-chunker rankings as \rcps{} averaged over $k\in\{1,5,10\}$ (Kendall $\tau_a=1.0$).\par\pagebreak[4]\noindent To test sensitivity to the probe set, we use a fixed random seed to draw 1{,}000 subsets of 500 from the 663 Q--A pairs, without replacement within each draw, on the aligned 294-page full grid. Relative to the full-probe ranking, the six-configuration parser ranking (four parsers plus both MinerU configurations, off and on) has mean Kendall $\tau_a=0.902$ and is identical in $39.4\%$ of draws; all rank changes are confined to the near-tied teacher--Prod and PaddleOCR--MinerU-on pairs. Prod remains above Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. The four-chunker order is unchanged in $96.1\%$ of draws, and md-h3 remains above parser-native in $96.5\%$. Replacing format-normalised relevance with raw substring matching lowers \rcps{} by $0.024$--$0.041$ without changing either full order. A single-retriever ablation and its limits appear in Appendix~\ref{app:repro}.
 
 \subsection{Coverage Finds Pre-Chunking Absence (\contribCoverage)}
 \label{sec:c3}
@@ -288,7 +300,7 @@ PaddleOCR & 20.5 & 11.5 & 45.9 & 0.140 \\
 
 This appendix assesses the exact-span absent label with alternative matchers, a cross-family judge, and a parser-masked human check.
 
-\paragraph{Parser I/O and the ``absent'' label.}
+\subsection{Parser I/O and the ``Absent'' Label}
 \label{sec:parser-def}
 Each PDF page is first rendered as an image. A document parser maps that image to a linear Markdown transcription. The intended output preserves body text in reading order, ATX (\texttt{\#}-style) headings, and GitHub-flavoured Markdown tables. It discards layout coordinates, fonts, figure imagery, and page furniture unless they are transcribed as text. The input collection includes born-digital and scanned PDFs, multi-column layouts, merged table cells, stamps, seals, and text embedded in figures.
 
@@ -344,7 +356,7 @@ The Q--A pairs were also generated by a GPT-family model, so this judge is not i
 \midrule
 Prod & 56\% & 2\% & 42\% & \textbf{8.9\%} \\
 MinerU-off & 16\% & 9\% & 75\% & \textbf{59.3\%} \\
-PaddleOCR & 16\% & 22\% & 63\% & \textbf{52.8\%} \\
+PaddleOCR & 16\% & 22\% & 62\% & \textbf{52.8\%} \\
 \bottomrule
 \end{tabular}
 \captionsetup{hypcap=false}
@@ -501,7 +513,7 @@ All three DPO checkpoints also have positive Hit@5 point estimates in Table~\ref
 
 \paragraph{Dataset composition.} KoGovDoc-RAG contains 229 Korean government pages and 65 arXiv pages. The two sources contribute 527 and 136 verbatim-answerable Q--A, respectively. The separate 2{,}667-page training set is page-disjoint from all 294 evaluation pages. Prod exceeds its 2B base by $4.9$ Hit@1 points, whereas the audited Prod--MinerU-on difference is $42.6$ points. This comparison provides scale, not a formal bound on fine-tuning effects.
 
-\paragraph{Stored retriever ablation.} This ablation predates the MinerU-on audit and uses the submitted MinerU-off grid. Relative to full \rcps{}, BGE-M3 alone changes only the near-tied 30B--Prod order ($\tau=0.80$). Lower parser ranks and the chunker order remain unchanged. It provides no evidence about the MinerU-on--PaddleOCR order.
+\paragraph{Stored retriever ablation.} This ablation predates the MinerU-on audit and uses the submitted MinerU-off grid. Relative to full \rcps{}, BGE-M3 alone changes only the near-tied 30B--Prod order ($\tau_a=0.80$). Lower parser ranks and the chunker order remain unchanged. It provides no evidence about the MinerU-on--PaddleOCR order.
 
 \paragraph{Artifact status.} The repository contains the frozen probe and page map, both MinerU configurations' 294-page outputs, retrieval and diagnostic code, aligned per-Q--A arrays and stability results, and deterministic OHR-compatibility and MinerU-output audits. A separate public release provides all nine evaluated LoRA adapters, with portable configurations, hashes, and available trainer states. The adjudicated human-study inputs remain in an author-only audit package; the public repository reports their aggregate results. We verified the public checkpoint download and CPU-only artifact gates from a clean checkout. A full end-to-end rerun still requires external source documents, parser outputs, and embedding caches, and we do not claim a full OHR-Bench v2 rerun.
 
