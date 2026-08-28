@@ -150,6 +150,8 @@ For example, MinerU-on transcribes the table answer $A=180\,\mathrm{m}^{2}$ as \
 
 \paragraph{Data and leakage control.} Qwen3-VL-30B produced the pseudo-reference Markdown, which we manually de-noised. \texttt{gpt-5.4-2026-03-05} generated the Q--A. A separate LLM-assisted check assessed question clarity, answer correctness, and whether the answer span appears in the reference context. It accepted 94/100 sampled pairs. \textbf{Prod} is our Qwen3-VL-2B parser \citep{qwen3vl} fine-tuned for Korean documents. It serves as both a deployment candidate and the training baseline. Training pages are disjoint from every evaluation frame.
 
+\paragraph{Released evaluation record.} The public repository contains the frozen probe and page map, both 294-page MinerU outputs, aligned per-Q--A arrays, stability results, and deterministic audits. Nine evaluated LoRA adapters are separately released with portable configurations and hashes. Appendix~\ref{app:repro} records source-document and author-only exceptions.
+
 For MinerU, \emph{MinerU-off} is the originally submitted output, generated with table recognition disabled. \emph{MinerU-on} is the later audited, table-enabled output used in the deployment comparison and four-parser BC correlation. We retain MinerU-off only as a separately labelled diagnostic. The two runs also differ in software and retrieval environments. Their difference is therefore not a controlled table-recognition ablation.
 
 \subsection{Boundary Clarity Can Misrank Parsers in This Pool (\contribIntrinsic)}
@@ -167,6 +169,8 @@ Among the four complete outputs with defined BC, the Pearson correlation with \r
 \end{figure*}
 
 \paragraph{Law--Manual perturbations (1{,}043 Q--A).} On the aligned OHR-Bench subset, semantic corruption lowers retrieval without a consistent BC response. From mild to severe noise, \rcps{} falls $0.476\!\rightarrow\!0.265$ for MinerU, $0.534\!\rightarrow\!0.497$ for Qwen2.5-VL, and $0.461\!\rightarrow\!0.298$ for GOT. The corresponding BC values behave differently: MinerU stays within $0.628$--$0.651$, Qwen2.5-VL remains near $0.563$, and GOT rises $0.586\!\rightarrow\!0.624$. These eleven variants are dependent perturbations of three outputs, not independent parsers (Appendix~\ref{app:noise}), and do not establish broad domain generality.
+
+\paragraph{Domain sensitivity.} MinerU-on scores $0.046$ \rcps{} on the 527 government-document Q--A but $0.486$ on the 136 arXiv Q--A. The mixed-corpus score of $0.137$ therefore hides substantial source variation. This reinforces the intended use of \rcps{} as a probe-specific deployment procedure rather than a parser leaderboard to transfer unchanged across corpora.
 
 \subsection{\rcps{} Ranks Parsers and Chunkers (\contribRCPS)}
 \label{sec:c2}
@@ -216,7 +220,7 @@ fixed-500 & 0.535 \\
 \label{tab:chunker-selection}
 \end{table}
 
-\paragraph{End-to-end top-choice check.} Table~\ref{tab:e2e} tests whether the \rcps{} top choice remains best after retrieval and answer generation. Prod leads judged answer accuracy, while the nearly tied lower pair reverses. The result therefore supports the top choice, not the complete parser order. Appendix~\ref{app:e2e} gives the generation protocol and its limitations.
+\paragraph{End-to-end top-choice check.} Table~\ref{tab:e2e} tests whether the \rcps{} top choice remains best after retrieval and answer generation. Prod leads judged answer accuracy, while the nearly tied lower pair reverses. The same GPT-5.4 checkpoint generates and judges the answers, so this check supports the top choice, not independent absolute accuracy or the complete parser order. Appendix~\ref{app:e2e} gives the protocol and remaining limitations.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -242,14 +246,17 @@ PaddleOCR & 0.140 & 20.5 & 11.5 & 45.9 \\
 \begin{tabular}{p{0.94\columnwidth}}
 \toprule
 \textbf{MRR@10 only.} Complete five-parser and four-chunker orders remain unchanged ($\tau_a=1.0$). \\
+\textbf{BGE-M3 only.} On the stored MinerU-off grid, only the near-tied teacher--Prod order swaps ($\tau_a=0.80$); lower parser ranks and the chunker order remain unchanged. \\
 \textbf{Parser probe.} Across 1{,}000 draws of 500/663 Q--A, mean $\tau_a=0.902$; the full order is identical in $39.4\%$. Prod leads Base, MinerU-off, PaddleOCR, and MinerU-on in every draw. \\
 \textbf{Chunker probe.} The full order is identical in $96.1\%$ of draws; md-h3 leads parser-native in $96.5\%$. \\
 \textbf{Raw matching.} Scores fall by $0.024$--$0.041$; parser and chunker orders remain unchanged. \\
 \bottomrule
 \end{tabular}
-\caption{Selection robustness to retrieval depth, probe resampling, and the relevance matcher. Probe results use fixed-seed sampling without replacement.}
+\caption{Selection robustness to retriever choice, retrieval depth, probe resampling, and the relevance matcher. Probe results use fixed-seed sampling without replacement.}
 \label{tab:robustness-summary}
 \end{table}
+
+\paragraph{Using the ranking.} The teacher leads Prod in only $62.5\%$ of probe draws, so their $0.001$ \rcps{} gap is a near-tie resolved by latency or compute. Prod leads Base, MinerU-off, PaddleOCR, and MinerU-on in all 1{,}000 draws. We therefore trust the deployment tier, not every adjacent rank.
 
 \subsection{Coverage Finds Pre-Chunking Absence (\contribCoverage)}
 \label{sec:c3}
@@ -274,7 +281,29 @@ absent & No normalised exact-span match exists in parser output; inspect the out
 \end{minipage}
 \end{center}
 
-Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Under the character-tolerant L4 matcher, its absent rate remains $62.1\%$, $45.2$ points above Prod. In a parser-masked 100-case study, two authors independently label the cases and jointly adjudicate disagreements. After adjudication, retrieval-unusable rates among sampled exact-match-absent cases are 42/50 for MinerU-on ($84.0\%$, Wilson 95\% CI $[71.5,91.7]$), 12/30 for Prod ($40.0\%$, $[24.6,57.7]$), and 19/20 for PaddleOCR ($95.0\%$, $[76.4,99.1]$). These stratified samples validate the direction of the OCR-parser gap, not population rates. Appendix~\ref{app:familyneutral} reports the matcher definitions and sampling design. It separately reports the full-set cross-family judge, which was run only on the retained MinerU-off output.
+Under the same matcher, MinerU-on's absent rate is $66.1\%$, $45.9$ points above Prod. Under the character-tolerant L4 matcher, its absent rate remains $62.1\%$, $45.2$ points above Prod.
+
+\paragraph{Parser-masked human check.} Two authors independently label 100 sampled exact-match-absent cases, agree on 81/100 ($\kappa=0.615$), and jointly adjudicate the remainder. Table~\ref{tab:human-main} reports the final labels.
+
+\begin{center}
+\begin{minipage}{\columnwidth}
+\centering\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcc}
+\toprule
+Parser & Retrieval-unusable & Wilson 95\% CI \\
+\midrule
+MinerU-on & 42/50 (84.0\%) & [71.5, 91.7] \\
+Prod & 12/30 (40.0\%) & [24.6, 57.7] \\
+PaddleOCR & 19/20 (95.0\%) & [76.4, 99.1] \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Adjudicated human labels for the stratified parser-masked sample. Unequal sampling fractions preclude population-rate comparisons.}
+\label{tab:human-main}
+\end{minipage}
+\end{center}
+
+The sample validates the direction of the OCR-parser gap, not population rates. Appendix~\ref{app:familyneutral} reports the matcher definitions and sampling design. It separately reports the full-set cross-family judge, which was run only on the retained MinerU-off output.
 
 \subsection{Parser Training Is a Secondary, Bounded Lever (\contribTraining)}
 \label{sec:c4}\label{sec:mechanism}
@@ -283,21 +312,23 @@ After selection and diagnosis, we refer to retrieval-oriented parser training as
 
 Neither RADP-aux nor RADP-DPO meets the pre-specified pilot target: a 5-percentage-point \rcps{} gain with a 95\% CI lower bound above zero. On the separate 2{,}036-Q--A OHR-Bench compatibility subset, R2, R3, and RADP-Distill exceed Prod Hit@5 by only $0.95$, $1.15$, and $1.36$ points. The paired Distill-minus-DPO intervals include zero for both R2 and R3, so these data do not identify a benefit from the retrieval reward over the edit-distance control. These post-audit estimates are neither a full v2 rerun nor a pre-specified confirmation. Appendix~\ref{app:dpo} reports the full results and the SimPO control \citep{meng2024simpo}.
 
+\paragraph{Scale of selection and tuning.} On the same 294-page frame, fine-tuning raises Prod Hit@1 by $4.9$ points over Base, whereas choosing Prod over MinerU-on changes Hit@1 by $42.6$ points. The 2{,}667-page training corpus is page-disjoint. This is scale, not a causal upper bound, and supports selecting before optimising.
+
 \section{Discussion and Conclusion}
 
-The main deployment lesson is to select before optimising. In our candidate pool, choosing Prod rather than MinerU-on raises Hit@1 by $42.6$ percentage points. On a different OHR-Bench frame, the audited parser-training checkpoints exceed Prod Hit@5 by about one percentage point. The magnitudes are not directly comparable, but they place candidate selection before further training.
+The main deployment lesson is to select before optimising. Choosing Prod over MinerU-on raises Hit@1 by $42.6$ points; on a different OHR-Bench frame, audited training raises Prod Hit@5 by about one point. The magnitudes are not directly comparable, but both place selection first.
 
 The diagnostics explain how to act on that selection. High BC does not guarantee retrievable content: MinerU-on combines BC $0.713$ with $66.1\%$ exact-span absence and Hit@1 $0.123$. When coverage finds \emph{split} spans, adjust chunking or overlap. When it finds \emph{absent} spans, inspect the parser output and switch parsers if required content is genuinely missing.
 
-The end-to-end check supports the top decision but not the full ranking. Prod leads answer accuracy among three parsers, while the near-tied lower pair reverses. The training evidence is also limited: neither RADP method meets the pilot target, the retrieval-reward variants do not separate from the matched fidelity control, and SimPO has negative point estimates. Lower TextNED at the DPO checkpoints is only a post hoc association. Incomplete boundary evidence prevents a causal explanation (Appendix~\ref{app:mechanism}). In practice, use retrieval to select the pipeline, coverage to locate loss, and training only after both steps.
+The end-to-end check supports the top decision, not the full ranking: Prod leads answer accuracy, while the lower pair reverses. Training evidence is also limited: neither RADP method meets its target, reward variants do not separate from the fidelity control, and SimPO point estimates are negative. Lower TextNED and incomplete boundary evidence do not establish a causal mechanism (Appendix~\ref{app:mechanism}). In practice, select by retrieval, diagnose with coverage, and then train if needed.
 
 \section*{Limitations}
 
 \paragraph{Data scope and frames.} The reported denominators are not interchangeable. KoGovDoc-RAG selection indexes 294 pages for 663 Q--A, whereas training indexes only the 242 evidence-bearing pages. The pilot uses 73 pages and 202 Q--A. The complete parser comparison contains five 294-page outputs. Its BC correlation uses the four outputs with defined BC ($r=-0.74$). The $r=-0.83$ estimate additionally includes Marker's partial 38-page output. OHR-Bench uses 1{,}043 Law--Manual Q--A for perturbations and 2{,}036 Q--A for training compatibility. The Law--Manual frame contains dependent perturbations and does not establish domain generality. We exclude the mixed-version seven-domain artifacts (Appendix~\ref{app:noise}).
 
-\paragraph{MinerU audit.} MinerU-off disables table recognition and remains only as a submitted-output diagnostic. In the later MinerU-on run, table-evidence absence falls from $87.9\%$ to $41.7\%$. Prod's rate is $13.9\%$. MinerU-on still reaches only $0.137$ \rcps{} and $0.123$ Hit@1, compared with Prod's $0.583$ and $0.549$. The two MinerU runs have similar BC ($0.713$ and $0.716$), but they also differ in software and retrieval environments. Their differences therefore do not isolate the effect of table recognition. Domain results also vary: MinerU-on \rcps{} is $0.046$ on government pages and $0.486$ on arXiv pages.
+\paragraph{MinerU audit.} MinerU-off disables table recognition and remains only as a submitted-output diagnostic. In the later MinerU-on run, table-evidence absence falls from $87.9\%$ to $41.7\%$. Prod's rate is $13.9\%$. MinerU-on still reaches only $0.137$ \rcps{} and $0.123$ Hit@1, compared with Prod's $0.583$ and $0.549$. The two MinerU runs have similar BC ($0.713$ and $0.716$), but they also differ in software and retrieval environments. Their differences therefore do not isolate the effect of table recognition.
 
-\paragraph{Reference, Q--A, and label quality.} KoGovDoc-RAG uses manually de-noised Qwen3-VL-30B pseudo-references and LLM-generated Q--A. Neither complete set was human-verified. Two 100-case checks address narrower questions. An LLM check accepted 94/100 sampled Q--A. A blind two-author study evaluates coverage labels. The fixed probe controls query variation but not possible Qwen-lineage bias. OHR-Bench supplies external evidence, although the six-domain result is a compatibility analysis rather than a full v2 rerun. \rcps{} evaluates verbatim spans, not implicit or paraphrased answers. Coverage also depends on its matcher: GPT-5.4 reclassifies $56\%$ of Prod's exact-match-absent cases as surface artifacts. Finally, the same GPT-5.4 checkpoint generates and judges end-to-end answers, so that experiment supports only the top parser choice.
+\paragraph{Reference, Q--A, and label quality.} KoGovDoc-RAG uses manually de-noised Qwen3-VL-30B pseudo-references and LLM-generated Q--A. Neither complete set was human-verified. Two 100-case checks address narrower questions. An LLM check accepted 94/100 sampled Q--A. A blind two-author study evaluates coverage labels. The fixed probe controls query variation but not possible Qwen-lineage bias. OHR-Bench supplies external evidence, although the six-domain result is a compatibility analysis rather than a full v2 rerun. \rcps{} evaluates verbatim spans, not implicit or paraphrased answers. Coverage also depends on its matcher: GPT-5.4 reclassifies $56\%$ of Prod's exact-match-absent cases as surface artifacts.
 
 \paragraph{Training.} The KoGovDoc-RAG R2 result is exploratory. Its $+1.96$-point Hit@5 estimate (95\% CI $[-1.06,+5.03]$) uses 242 pages and a configuration selected after several settings were inspected. On the separate 2{,}036-Q--A OHR compatibility subset, R2, R3, and RADP-Distill exceed Prod by $0.95$, $1.15$, and $1.36$ Hit@5 points. Distill-minus-R2 is $+0.41$ points (95\% CI $[-0.43,+1.26]$), and Distill-minus-R3 is $+0.21$ points (95\% CI $[-0.61,+1.05]$). This subset was defined after a version audit and is not a full v2 rerun. We do not adjust for multiple checkpoints and secondary metrics, and the bootstrap resamples Q--A rather than shared evidence pages. These are post-audit estimates, not the original confirmatory analysis.
 

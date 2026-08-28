@@ -147,7 +147,7 @@
 | P1 parser definition + worked example | **완료** | 정의, taxonomy, 수치, pseudo-reference↔output 대비표 반영. |
 | P2 Appendix 재배치 | **완료** | A--D가 C1--C3 검증, E--G가 C4 상세이며 Appendix C 약속과 모든 참조가 일치. |
 | P3 Intro 재구성 | **완료** | 핵심 발견과 scope를 전면 배치. |
-| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 압축하고, C2 핵심 근거를 표로 복원한 15쪽 최종 렌더에서 Discussion/Conclusion과 Limitations가 7쪽에 시작함을 재검증. |
+| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 유지하면서 C2/C3 핵심 근거를 본문에 복원했다. 16쪽 최종 렌더에서 본문·결론은 7쪽 마지막에 끝나고 Limitations는 8쪽에서 시작한다. |
 | P5 human verification | **완료(원고)** | 본문 C3에 MinerU-on/Prod/PaddleOCR의 adjudicated count, rate, Wilson CI를 모두 제시하고 표본 검증이라는 한계를 명시. per-case human label 공개는 P12에서 별도 추적. |
 | P6 E2E table | **완료** | same-configuration을 지키고 off 값은 별도 서술. |
 | P7 294-page full-grid stability | **완료** | aligned 9-system per-Q--A JSON, parser/chunker bootstrap JSON, exporter와 input tree hash를 저장했다. |
@@ -175,9 +175,9 @@
 ## 9. 현재 PDF 빌드·렌더 검증
 
 - `latexmk -pdf -g -interaction=nonstopmode -halt-on-error main_camera_ready.tex` 빌드 성공.
-- 최종 작업 PDF는 15쪽이다. Discussion/Conclusion과 Limitations는 7쪽에 시작하고, References는 8쪽, Appendix는 10쪽에서 시작한다.
-- undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다.
-- 2026-08-29 C2의 네 chunker 점수와 retrieval-depth/probe/matcher 강건성 결과를 간결한 표로 복원했다. C3에는 covered/split/absent별 후속 조치 표와 세 parser의 인간 검증 count/rate/CI를 본문 근거로 추가했다. 15쪽 전부를 다시 렌더해 육안 확인했으며, C4는 6쪽 오른쪽 열에서 시작하고 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
+- 최종 작업 PDF는 16쪽이다. 본문과 Discussion/Conclusion은 7쪽 마지막에서 끝나고, Limitations는 8쪽에서 시작한다. References는 8--10쪽이며 Appendix는 11쪽에서 시작한다.
+- undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다. Type~3 폰트는 0개이며 모든 폰트가 임베드됐다.
+- 2026-08-29 C2의 네 chunker 점수, single-retriever/depth/probe/matcher 강건성, near-tie 운영 규칙을 본문에 복원했다. C3에는 covered/split/absent별 후속 조치와 세 parser의 인간 검증 count/rate/CI를 추가했다. Release record, MinerU-on 도메인 민감도, selection-vs-tuning scale도 감사된 수치로 본문에 제시했다. 16쪽 전부를 다시 렌더해 육안 확인했으며, C4와 결론을 포함한 본문은 7쪽 안에 끝난다. 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
 - P16의 Figure 1--4 blocker는 해소됐다. 최신 수치·정의, 실제 삽입 크기, 흑백 구분, Type3=0을 확인했다. 현재 남은 blocker는 시각물이 아니라 외부 artifact·metadata·clean-checkout 재현이다.
 - 참고문헌 마지막 쪽과 마지막 Appendix 쪽의 여백은 내용 손실이 아니라 section/page break에 따른 비치명적 조판 여백이다.
 - current `MANIFEST.sha256`의 모든 항목이 일치했다. OHR 2,036-Q--A alignment audit의 `--check`와 294-page aggregate grid 재구성도 통과했다. `src/`, `scripts/`, `tests/` 전체 Python 문법 컴파일도 임시 캐시 경로에서 통과했다. 이 Mac에는 `uv`와 `pytest`가 없어 unit test suite 자체는 실행하지 못했으며, 이는 clean-checkout 환경 게이트로 남긴다.
