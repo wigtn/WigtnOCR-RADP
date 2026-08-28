@@ -1,17 +1,19 @@
 # EMNLP 2026 camera-ready 문장·리뷰 요구사항 전수 감사
 
-> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-27
+> 최초 감사일: 2026-08-22 · 최신 갱신: 2026-08-29
 > 원고 정본: `paper/latex/main_camera_ready.tex`
 > 동결본: `paper/latex/main.tex`는 편집하지 않음
 > 정합성 기준 커밋: PR #12 merge `a981bca`. 이 기준에서 C2=RCPS, C3=coverage,
-> Marker 포함 보조 상관은 `r=-0.83`, E2E는 Appendix B, C4 상세는 Appendices E--G다.
+> Marker 포함 보조 상관은 `r=-0.83`, E2E 결과표는 본문 C2이고 프로토콜·한계는 Appendix B, C4 상세는 Appendices E--G다.
 > PR diff의 삭제 행과 동결본 `main.tex`는 현재 camera-ready 상태 판정에 사용하지 않는다.
 > 판정 원칙: 근거가 현재 원고 또는 추적 가능한 산출물에 없으면 완료로 표시하지 않음
 > rebuttal 정본: 2026-08-22 사용자 제공 OpenReview 최종 게시본(SHA-256 `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`). 로컬 reviewer별 초안과 충돌하면 최종 게시본을 우선함.
 
-> **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. 당시 `main_camera_ready.pdf`는 14쪽이었고, 아래 2026-08-27 갱신이 현재 15쪽 정본을 기록한다.
+> **2026-08-24 전면 후속 갱신:** Figure 1--4와 C1→C2 RCPS→C3 coverage→C4 순서를 모두 반영했다. 영·한 README 및 활성 재현 문서도 같은 번호와 MinerU-on BC 결과로 동기화했다. MinerU-off 기반 `r=-0.81`을 보존하는 초기 실험·계획 문서에는 현재 camera-ready 근거가 아니라는 역사적 기록 경고를 추가했다. 당시 `main_camera_ready.pdf`는 14쪽이었고, 아래 후속 기록들이 현재 15쪽 정본까지의 변경을 추적한다.
 
-> **2026-08-27 P7 후속 갱신:** 동일 294페이지 full-grid 수치와 probe bootstrap 문단을 반영한 현재 `main_camera_ready.pdf`는 15쪽이다. 본문과 Limitations는 1--6쪽, References는 7--9쪽, Appendix는 10쪽부터이며, 15쪽 전부를 다시 렌더해 잘림·겹침·overflow와 Type3 font가 없음을 확인했다.
+> **2026-08-27 P7 후속 갱신(당시 스냅샷):** 동일 294페이지 full-grid 수치와 probe bootstrap 문단을 반영한 당시 `main_camera_ready.pdf`는 15쪽이었다. 본문과 Limitations는 1--6쪽, References는 7--9쪽, Appendix는 10쪽부터였으며, 15쪽 전부를 다시 렌더해 잘림·겹침·overflow와 Type3 font가 없음을 확인했다. 현재 구획은 아래 2026-08-29 기록과 §9를 따른다.
+
+> **2026-08-29 본문 근거 보강:** 7쪽 본문 상한을 활용해 C2에 3-parser end-to-end 결과표를 이동하고, C3에 MinerU-on L4 matcher·human verification 핵심 수치와 coverage worked example을 보강했다. Full-set cross-family judge는 MinerU-off에서만 실행됐으므로 Appendix C에 설정을 명시해 유지했다. Discussion and Conclusion은 7쪽에서 끝나고, Limitations는 8쪽, References는 8--10쪽, Appendix는 10쪽의 마지막 참고문헌 바로 아래에서 시작한다. 총 15쪽, 전 페이지 A4, Type3 font 0, 모든 폰트 임베드, 잘림·겹침·overflow 없음과 CPU-only artifact gate 통과를 다시 확인했다.
 
 > **2026-08-24 C2 중심 hierarchy pass:** Abstract에서 parser training을 secondary study로 낮추고, §4.5 C4를 RADP의 operational definition과 제한된 결과 두 단락으로 압축했다. RADP-aux는 answer-span hidden state--frozen BGE-M3 contrastive alignment, RADP-DPO는 page-local MRR로 후보 parse를 순위화한 DPO pair, RADP-Distill은 edit-distance fidelity control로 구분했다. 부록은 A OHR(C1) → B E2E(C2) → C absent robustness → D coverage(C3) → E--G training(C4) → H release로 재배열했다. 리버털이 약속한 Appendix C의 parser I/O, worked example, human verification는 그대로 유지된다.
 
@@ -145,8 +147,8 @@
 | P1 parser definition + worked example | **완료** | 정의, taxonomy, 수치, pseudo-reference↔output 대비표 반영. |
 | P2 Appendix 재배치 | **완료** | A--D가 C1--C3 검증, E--G가 C4 상세이며 Appendix C 약속과 모든 참조가 일치. |
 | P3 Intro 재구성 | **완료** | 핵심 발견과 scope를 전면 배치. |
-| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 압축하고 15쪽 최종 렌더에서 본문 6쪽·Limitations 구획을 재검증. |
-| P5 human verification | **완료(원고)** | 최종 게시본의 absent-label 100-case study와 수치를 반영. per-case human label 공개는 P12에서 별도 추적. |
+| P4 Abstract/본문 압축 | **완료** | C4를 두 단락으로 유지하면서 C2/C3 핵심 근거를 본문에 복원했다. 15쪽 최종 렌더에서 본문·결론은 7쪽 마지막에 끝나고 Limitations는 8쪽에서 시작한다. |
+| P5 human verification | **완료(원고)** | 본문 C3에 MinerU-on/Prod/PaddleOCR의 adjudicated count, rate, Wilson CI를 모두 제시하고 표본 검증이라는 한계를 명시. per-case human label 공개는 P12에서 별도 추적. |
 | P6 E2E table | **완료** | same-configuration을 지키고 off 값은 별도 서술. |
 | P7 294-page full-grid stability | **완료** | aligned 9-system per-Q--A JSON, parser/chunker bootstrap JSON, exporter와 input tree hash를 저장했다. |
 | P8 MinerU tables-on 정정 | **완료** | MinerU-on 원고 정정과 submitted-output MinerU-off 공개 감사를 모두 완료. |
@@ -173,9 +175,9 @@
 ## 9. 현재 PDF 빌드·렌더 검증
 
 - `latexmk -pdf -g -interaction=nonstopmode -halt-on-error main_camera_ready.tex` 빌드 성공.
-- 최종 작업 PDF는 15쪽이다. 본문과 Limitations는 1–6쪽, References는 7–9쪽이며, Appendix는 10쪽에서 시작한다.
-- undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다.
-- 2026-08-27 P7 문단 반영 뒤 15쪽 전부를 PNG로 다시 렌더해 육안 확인했다. C4는 6쪽 상단에서 시작하고, 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
+- 최종 작업 PDF는 15쪽이다. 본문과 Discussion/Conclusion은 7쪽 마지막에서 끝나고, Limitations는 8쪽에서 시작한다. References는 8--10쪽이며 Appendix는 참고문헌 마지막 항목 아래인 10쪽 왼쪽 열에서 이어진다.
+- undefined citation/reference, multiply-defined label, overfull box는 없다. 2단 편집에서 생기는 underfull box 경고만 남는다. Type~3 폰트는 0개이며 모든 폰트가 임베드됐다.
+- 2026-08-29 C2의 네 chunker 점수, single-retriever/depth/probe/matcher 강건성, near-tie 운영 규칙을 본문에 복원했다. C3에는 covered/split/absent별 후속 조치와 세 parser의 인간 검증 count/rate/CI를 추가했다. Release record, MinerU-on 도메인 민감도, selection-vs-tuning scale도 감사된 수치로 본문에 제시했다. 불필요한 참고문헌 뒤 강제 페이지 나눔을 제거했다. 앞서 검증한 1--9쪽의 조판이 유지됨을 확인하고 재배치된 10--15쪽을 다시 렌더해 육안 확인했다. C4와 결론을 포함한 본문은 7쪽 안에 끝나며 텍스트·표·그림의 잘림·겹침·페이지 밖 유출은 발견되지 않았다.
 - P16의 Figure 1--4 blocker는 해소됐다. 최신 수치·정의, 실제 삽입 크기, 흑백 구분, Type3=0을 확인했다. 현재 남은 blocker는 시각물이 아니라 외부 artifact·metadata·clean-checkout 재현이다.
-- 참고문헌 마지막 쪽과 마지막 Appendix 쪽의 여백은 내용 손실이 아니라 section/page break에 따른 비치명적 조판 여백이다.
+- 마지막 Appendix 쪽 하단 여백은 내용 손실이 아니라 문서 종료에 따른 비치명적 조판 여백이다.
 - current `MANIFEST.sha256`의 모든 항목이 일치했다. OHR 2,036-Q--A alignment audit의 `--check`와 294-page aggregate grid 재구성도 통과했다. `src/`, `scripts/`, `tests/` 전체 Python 문법 컴파일도 임시 캐시 경로에서 통과했다. 이 Mac에는 `uv`와 `pytest`가 없어 unit test suite 자체는 실행하지 못했으며, 이는 clean-checkout 환경 게이트로 남긴다.

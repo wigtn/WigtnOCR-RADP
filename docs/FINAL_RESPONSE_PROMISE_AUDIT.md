@@ -1,11 +1,11 @@
 # Final posted rebuttal authority and camera-ready mapping
 
-> Audited: 2026-08-22 · Rechecked: 2026-08-24
+> Audited: 2026-08-22 · Rechecked: 2026-08-29
 > Source: user-provided copy of the final OpenReview rebuttal
 > SHA-256: `654e60466b29d137af5aa527e3fd534e14d005378e5571e1775ae3728b0c5f6f`
-> Canonical paper baseline: PR #12 merge `a981bca`. At that baseline,
-> `paper/latex/main_camera_ready.tex` uses C2=RCPS, C3=coverage, Marker sensitivity
-> `r=-0.83`, E2E in Appendix B, and C4 details in Appendices E--G.
+> Canonical paper: `paper/latex/main_camera_ready.tex` uses C2=RCPS, C3=coverage,
+> Marker sensitivity `r=-0.83`, an E2E results table in main C2 with protocol and caveats
+> in Appendix B, and C4 details in Appendices E--G.
 > `paper/latex/main.tex` is the frozen submission and is excluded from current-number checks.
 
 This digest exists to prevent pre-posting reviewer drafts from being mistaken for
@@ -19,7 +19,7 @@ The final bXGg response does **not** promise blind re-verification of the same
 that two authors verified 100 cases stratified from the LLM-judged absent sets,
 with $\kappa=0.615$, 19 jointly adjudicated disagreements, and 90.3% human--LLM
 binary agreement on 93 overlapping cases. The General Response reports the same
-completed study. Those are the results now reported in Appendix C.
+completed study. The headline results appear in main C3 and the full study in Appendix C.
 
 The superseded local draft `docs/REBUTTAL_R3_bXGg.md` contains an earlier
 future-tense “same 100-Q--A” plan. It is not the posted commitment.
@@ -33,7 +33,7 @@ future-tense “same 100-Q--A” plan. It is not the posted commitment.
 | Split dense abstract prose and define parser/chunker/retriever up front | Reflected in the camera-ready text |
 | Move noise-family and DPO-milestone detail to appendices; compress parser training | Reflected: main C4 is a two-paragraph secondary study; details are in Appendices E--G |
 | Correct the MinerU table-recognition configuration and Limitations | Reflected in text and tables; the recovered public MinerU-off artifact now has a deterministic release audit |
-| Add the end-to-end table | Reflected in Appendix B with same-configuration MinerU-on reporting |
+| Add the end-to-end table | Reflected in main C2 with same-configuration MinerU-on reporting; protocol and caveats remain in Appendix B |
 | Add the full-grid probe-stability version | Completed with the aligned 294-page, 663-Q--A, nine-system artifact and parser/chunker bootstrap outputs |
 | State retrieval rather than end-to-end generation as the primary scope | Reflected in Introduction, Discussion, and Limitations |
 | Add a reproducibility checklist and exact commands | Public `v1.0.0` download and CPU-only artifact gate are documented and verified from a clean checkout |
