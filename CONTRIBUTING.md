@@ -78,4 +78,4 @@ shared ground truth — please do not silently re-generate or re-split them.
 ## License
 
 By contributing, you agree that your contributions are licensed under the
-[MIT License](LICENSE).
+[Apache License 2.0](LICENSE).

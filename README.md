@@ -1,19 +1,38 @@
+<div align="center">
+
+<img src="docs/assets/rcps-cover.png" width="100%" alt="RCPS, Retrieval-Conditional Parsing Score: choosing document parsers by retrieval, not by appearance. EMNLP 2026 Industry Track">
+
+<br>
+<br>
+
+[English](README.md) | [한국어](README.ko.md) | [中文](README.cn.md)
+
 # WigtnOCR-RADP
 
 **RCPS for retrieval-based selection, coverage for diagnosis, and RADP only for optional parser training.**
+
+[![EMNLP 2026](https://img.shields.io/badge/EMNLP_2026-Industry_Track_·_Accepted-4F46E5?style=for-the-badge)](#license--citation)
+[![Paper](https://img.shields.io/badge/Paper-Camera--ready_PDF-B31B1B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
+[![WIGTN Tech](https://img.shields.io/badge/WIGTN_Tech-RCPS_report-0F172A?style=for-the-badge)](https://tech.wigtn.com/rcps/)
+
+[![Adapters](https://img.shields.io/badge/Adapters-RCPS--RADP_v1.0.0-181717?style=flat-square&logo=github)](https://github.com/wigtn/RCPS-RADP-Adapters/releases/tag/v1.0.0)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
+
+</div>
+
+---
 
 > ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
 >
 > 🖼️ OpenReview currently records **Accept (Poster)**. The presentation assignment is provisional;
 > an oral assignment remains possible.
 >
-> ⏳ **Camera-ready deadline: August 30, 2026 (AoE)**
->
-> 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [camera-ready working PDF](paper/latex/main_camera_ready.pdf)
+> 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [final camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
 >
 > 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
 >
-> 🇰🇷 **[한국어 README](README.ko.md)** · 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md) (current audit) · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
+> 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md) (camera-ready audit) · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
 
 ---
 
@@ -470,7 +489,7 @@ therefore lists the shared affiliation as **WIGTN, Seoul, Republic of Korea** an
 
 ## License & Citation
 
-Repository code is released under the **MIT License**. Third-party datasets and model assets retain
+Repository code is released under the **Apache License 2.0**. Third-party datasets and model assets retain
 their original licenses and terms.
 
 ```bibtex
@@ -479,6 +498,6 @@ their original licenses and terms.
   author    = {Son, Sang-Woo and Kim, Hyeong-seob and Kim, Hyeonsang and Cho, Hyun-woo and Kim, Jinmo},
   booktitle = {Proceedings of EMNLP 2026 (Industry Track)},
   year      = {2026},
-  note      = {Accepted; camera-ready pending}
+  note      = {Accepted}
 }
 ```
