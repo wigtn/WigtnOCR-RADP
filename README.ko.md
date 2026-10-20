@@ -299,7 +299,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 - **Camera-ready 그림 자산**: Figure 1–4는 vector PDF로 저장했고 README용 PNG preview를 함께 두었다. Figure 1에는 편집 가능한 정본 PPTX도 있다. 컴파일한 논문은 font가 embedded이고 Type 3 font가 없음을 확인했다.
 - **옛 metric 격리**: `output/baselines/correlation_v1.json`은 Phase-1의 역사 자료로만 남기며 non-MoC boundary 정의를 사용했다고 표시했다. camera-ready 근거가 아니다.
 
-### 남은 공개 항목: 현재 제공하지 않음
+### 아직 공개하지 않은 항목
 
 - Qwen3-VL-30B와 Qwen3-VL-2B-base의 파서 출력, 그리고 공개된 파서의 정확한 rerun 명령.
 - 논문은 full OHR-Bench v2 결과를 주장하지 않는다. 향후 full-v2 실험에는 공식 v2 Q–A와 새 파서·retrieval 실행이 필요하다. 옛 7개 domain / combined-CI / OHR-TextNED 산출물은 quarantine manifest에 분리해 두었다.

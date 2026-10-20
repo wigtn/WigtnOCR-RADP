@@ -475,7 +475,7 @@ therefore lists the shared affiliation as **WIGTN, Seoul, Republic of Korea** an
 - **Legacy metric quarantine** — `output/baselines/correlation_v1.json` is retained only as a historical
   Phase-1 artifact and is marked as using a non-MoC boundary definition; it is not camera-ready evidence.
 
-### Camera-ready pending — not currently available
+### Not yet released
 
 - Qwen3-VL-30B and Qwen3-VL-2B-base parser outputs, plus exact rerun commands for the released parsers.
 - The paper makes no full OHR-Bench v2 claim; a future full-v2 experiment would require the official v2 Q–A
