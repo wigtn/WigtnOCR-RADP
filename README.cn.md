@@ -299,7 +299,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 - **Camera-ready 图表资源**：图 1–4 以矢量 PDF 保存，并附有用于 README 的 PNG 预览；图 1 还包括其规范的可编辑 PPTX。编译后的论文已检查确认字体均已嵌入，且没有 Type 3 字体。
 - **旧版指标隔离**：`output/baselines/correlation_v1.json` 仅作为 Phase-1 的历史产物保留，并标注为使用非 MoC 的边界定义；它不是 camera-ready 证据。
 
-### Camera-ready 待补充：目前尚不可用
+### 尚未公开的内容
 
 - Qwen3-VL-30B 和 Qwen3-VL-2B-base 的解析器输出，以及已发布解析器的精确重跑命令。
 - 论文没有提出关于完整 OHR-Bench v2 的结论；未来的完整 v2 实验需要官方 v2 Q–A，以及重新运行解析器和检索。旧版的七领域 / combined-CI / OHR-TextNED 产物仍在隔离清单中单独存放。
