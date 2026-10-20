@@ -470,7 +470,7 @@ therefore lists the shared affiliation as **WIGTN, Seoul, Republic of Korea** an
 
 ## License & Citation
 
-Repository code is released under the **MIT License**. Third-party datasets and model assets retain
+Repository code is released under the **Apache License 2.0**. Third-party datasets and model assets retain
 their original licenses and terms.
 
 ```bibtex
