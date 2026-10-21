@@ -25,12 +25,15 @@
 
 > ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
 >
-> 🖼️ OpenReview currently records **Accept (Poster)**. The presentation assignment is provisional;
-> an oral assignment remains possible.
+> 🎤 **Presentation:** virtual, Sunday 25 October 2026, 12:30–14:00 CET, Virtual Session 1 (Zoom),
+> presented by Sang-Woo Son, as listed in the [EMNLP 2026 program](https://2026.emnlp.org/program/).
 >
 > 📄 Title: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [final camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
 >
-> 📦 Builds on [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
+> 📦 Parser under study: **Prod** is WigtnOCR-2B, a LoRA fine-tune of Qwen3-VL-2B-Instruct trained in
+> [`wigtn/wigtnOCR-v1`](https://github.com/wigtn/wigtnOCR-v1) and released as
+> [`Wigtn/Qwen3-VL-2B-WigtnOCR`](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR). The 294 evaluation pages
+> are the validation split of [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench).
 >
 > 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md) (camera-ready audit) · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
 
@@ -381,16 +384,23 @@ uv run pytest
 uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
 uv run python scripts/analysis/audit_mineru_output_release.py --check output/results/mineru_output_release_audit.json
 uv run python scripts/analysis/audit_kogov_training_table.py --check output/results/kogov_training_table_10k_audit.json
+mkdir -p data/KoGovDoc-Bench
+curl -fL -o data/KoGovDoc-Bench/val.jsonl \
+  https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench/resolve/main/val.jsonl
+echo "7b0fc3606951ccf08a338d62c983976f9e8609ec38d668b6db51056d07fa5213  data/KoGovDoc-Bench/val.jsonl" | sha256sum -c -
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
 These commands assume the Linux/WSL CUDA 12.8 dependency source encoded in `pyproject.toml` and `uv.lock`;
 a clean macOS/CPU installation path for the full dependency set has not yet been packaged or validated. `pytest` exercises the tracked
 unit and alignment-gate tests. The coverage calculation itself is CPU-only. Its default Prod outputs under
-`results/kogovdoc/v1_val/predictions/` and the 663-Q–A probe are tracked. The portable source-page map
-supports inventory checks, but the private training-format `data/KoGovDoc-Bench/val.jsonl` used by the
-coverage command includes reference transcriptions and is not packaged. The command is therefore **not
-fresh-clone complete**; it can use equivalent local inputs through `--parser_dir` and `--val_jsonl`.
+`results/kogovdoc/v1_val/predictions/` and the 663-Q–A probe are tracked. The coverage command also reads
+`data/KoGovDoc-Bench/val.jsonl`, which is not tracked here. That file is byte-identical to the public
+validation file of [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench), which the
+`curl` line fetches; the same dataset holds the 294 page images. With that one file added, the coverage command
+reruns from a fresh clone and reproduces the Appendix D table (20.2% exact-span no-match for Prod, at most 2.3%
+split across all eight chunkers); we reran it this way on 2026-10-21. Other parser outputs can be passed through
+`--parser_dir` and `--val_jsonl`.
 
 These commands are not a reproduction of every paper experiment. Full reruns still depend on external
 source documents, some parser outputs, embedding caches, and parser runtimes. The missing pieces are listed
@@ -418,7 +428,7 @@ The deterministic builder, public-download manifest, and inclusion policy are do
 
 ## Authors (OpenReview and camera-ready order)
 
-Follow-up to **WigtnOCR v1** (Qwen3-VL-2B document-parsing fine-tuning).
+Follow-up to **[WigtnOCR v1](https://github.com/wigtn/wigtnOCR-v1)** (Qwen3-VL-2B document-parsing fine-tuning).
 
 1. Sang-Woo Son
 2. Hyeong-seob Kim
@@ -440,7 +450,8 @@ therefore lists the shared affiliation as **WIGTN, Seoul, Republic of Korea** an
 - **KoGovDoc-RAG probe files** — 663 Q–A whose evidence spans **242 pages**, plus the frozen
   169-development / 73-held-out evidence-page split. The paper's selection frame indexes these 242 pages
   together with 52 Q–A-free distractors (**294 pages = 229 KoGov + 65 arXiv**); that full source-page
-  corpus is not packaged here. The portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)
+  corpus is not packaged here, but its 294 page images and validation file are public in
+  [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench). The portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)
   links every `val_####` ID to its domain and tracked parser-output filename without exposing machine-local
   paths or reference transcriptions. A separate LLM-assisted 100-pair Q–A quality-check sample and its
   aggregate 94/100 result are tracked; the sample's blank `verification` fields are not human annotations.
