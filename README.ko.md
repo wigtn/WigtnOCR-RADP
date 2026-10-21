@@ -25,11 +25,11 @@
 
 > ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
 >
-> 🖼️ OpenReview에는 현재 <strong>Accept (Poster)</strong>로 기록돼 있다. 발표 형식 배정은 잠정적이며 oral로 배정될 가능성도 남아 있다.
+> 🎤 **발표:** 온라인 발표, 2026년 10월 25일(일) 12:30–14:00 CET, Virtual Session 1(Zoom), 발표자 Sang-Woo Son. [EMNLP 2026 프로그램](https://2026.emnlp.org/program/) 기준이다.
 >
 > 📄 제목: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [최종 camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
 >
-> 📦 기반: [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
+> 📦 연구 대상 파서: **Prod**는 WigtnOCR-2B다. [`wigtn/wigtnOCR-v1`](https://github.com/wigtn/wigtnOCR-v1)에서 Qwen3-VL-2B-Instruct를 LoRA로 파인튜닝했고 [`Wigtn/Qwen3-VL-2B-WigtnOCR`](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR)로 공개했다. 평가용 294페이지는 [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)의 validation split이다.
 >
 > 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md) (camera-ready 감사) · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
 
@@ -248,10 +248,14 @@ uv run pytest
 uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
 uv run python scripts/analysis/audit_mineru_output_release.py --check output/results/mineru_output_release_audit.json
 uv run python scripts/analysis/audit_kogov_training_table.py --check output/results/kogov_training_table_10k_audit.json
+mkdir -p data/KoGovDoc-Bench
+curl -fL -o data/KoGovDoc-Bench/val.jsonl \
+  https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench/resolve/main/val.jsonl
+echo "7b0fc3606951ccf08a338d62c983976f9e8609ec38d668b6db51056d07fa5213  data/KoGovDoc-Bench/val.jsonl" | sha256sum -c -
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
-이 명령들은 `pyproject.toml`과 `uv.lock`에 기록된 Linux/WSL CUDA 12.8 의존성 소스를 전제로 한다. 전체 의존성을 대상으로 한 깨끗한 macOS/CPU 설치 경로는 아직 packaging·검증되지 않았다. `pytest`는 tracked unit test와 alignment-gate test를 실행한다. coverage 계산 자체는 CPU만 쓴다. 이 계산의 기본 Prod 출력(`results/kogovdoc/v1_val/predictions/` 아래)과 663-Q–A probe는 tracked 상태다. portable source-page map은 inventory 점검을 지원하지만 coverage 명령이 쓰는 private training-format `data/KoGovDoc-Bench/val.jsonl`에는 reference transcription이 들어 있어 포함하지 않았다. 따라서 이 명령은 **fresh-clone만으로 완결되지 않는다**. 동등한 로컬 입력이 있으면 `--parser_dir`와 `--val_jsonl`로 지정해 쓸 수 있다.
+이 명령들은 `pyproject.toml`과 `uv.lock`에 기록된 Linux/WSL CUDA 12.8 의존성 소스를 전제로 한다. 전체 의존성을 대상으로 한 깨끗한 macOS/CPU 설치 경로는 아직 packaging·검증되지 않았다. `pytest`는 tracked unit test와 alignment-gate test를 실행한다. coverage 계산 자체는 CPU만 쓴다. 이 계산의 기본 Prod 출력(`results/kogovdoc/v1_val/predictions/` 아래)과 663-Q–A probe는 tracked 상태다. coverage 명령은 이 저장소에서 추적하지 않는 `data/KoGovDoc-Bench/val.jsonl`도 읽는다. 이 파일은 [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)에 공개된 validation 파일과 바이트 단위로 같고, 위 `curl` 줄이 이 파일을 받는다. 같은 데이터셋에 294페이지 이미지도 있다. 이 파일 하나만 더하면 coverage 명령이 fresh clone에서 다시 실행되며 Appendix D 표(Prod exact-span no-match 20.2%, 청커 8종 전체에서 split 최대 2.3%)를 재현한다. 2026-10-21에 이 방식으로 다시 실행해 확인했다. 다른 파서 출력은 `--parser_dir`와 `--val_jsonl`로 지정할 수 있다.
 
 이 명령들은 논문의 모든 실험을 재현하는 것이 아니다. 전체 재실행은 여전히 외부 source document, 일부 파서 출력, embedding cache, 파서 runtime에 의존한다. 빠진 항목은 아래에 명시했다.
 
@@ -274,7 +278,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ## 저자 (OpenReview 및 camera-ready 순서)
 
-**WigtnOCR v1**(Qwen3-VL-2B 문서 파싱 fine-tuning)의 후속 연구다.
+**[WigtnOCR v1](https://github.com/wigtn/wigtnOCR-v1)**(Qwen3-VL-2B 문서 파싱 fine-tuning)의 후속 연구다.
 
 1. Sang-Woo Son
 2. Hyeong-seob Kim
@@ -290,7 +294,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ### 현재 저장소
 
-- **KoGovDoc-RAG probe 파일**: evidence가 **242페이지**에 걸친 663 Q–A와 frozen 169-development / 73-held-out evidence-page split을 포함한다. 논문의 selection frame은 이 242페이지를 Q–A가 없는 distractor 52페이지와 함께 index한다(**294페이지 = 229 KoGov + 65 arXiv**). 그 전체 source-page corpus는 여기에 포함하지 않았다. portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)은 머신 로컬 경로나 reference transcription을 드러내지 않고 모든 `val_####` ID를 domain 및 tracked parser-output 파일명에 연결한다. 별도의 LLM 보조 100-pair Q–A 품질 점검 표본과 그 aggregate 94/100 결과도 tracked다. 이 표본의 빈 `verification` 필드는 인간 annotation이 아니다.
+- **KoGovDoc-RAG probe 파일**: evidence가 **242페이지**에 걸친 663 Q–A와 frozen 169-development / 73-held-out evidence-page split을 포함한다. 논문의 selection frame은 이 242페이지를 Q–A가 없는 distractor 52페이지와 함께 index한다(**294페이지 = 229 KoGov + 65 arXiv**). 그 전체 source-page corpus는 여기에 포함하지 않았지만, 294페이지 이미지와 validation 파일은 [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)에 공개돼 있다. portable [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json)은 머신 로컬 경로나 reference transcription을 드러내지 않고 모든 `val_####` ID를 domain 및 tracked parser-output 파일명에 연결한다. 별도의 LLM 보조 100-pair Q–A 품질 점검 표본과 그 aggregate 94/100 결과도 tracked다. 이 표본의 빈 `verification` 필드는 인간 annotation이 아니다.
 - **RCPS 레퍼런스 구현**: [`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/).
 - **선별된 평가 산출물**: aggregate 파서/청커 grid, 정렬된 full-grid 및 audited-training per-Q–A 배열, coverage와 end-to-end 진단, 그리고 Prod, PaddleOCR, MinerU-on, 제출본 출력 MinerU-off 실행의 완전한 294페이지 출력을 포함한다. 회수한 off 출력은 deterministic [`release audit`](output/results/mineru_output_release_audit.json)으로 해당 aggregate와 연결하며 on/off 실행을 통제된 table-recognition ablation으로 취급하지 않는다. 10,000회 재표본 [`KoGov training-table audit`](output/results/kogov_training_table_10k_audit.json)은 tracked MRR 배열에서 Hit@5를 복원해 camera-ready Table 8의 모든 값을 재현한다. 294페이지 full-grid 감사에는 [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json)과 고정 seed 파서/청커 [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) 결과가 포함된다. 663개 중 500개를 뽑는 1,000회 추출에서 Prod는 100%의 추출에서 Base와 모든 OCR 파서보다 높았고 전체 청커 순서는 96.1%에서 그대로였다. Raw matching은 두 pool의 순서를 바꾸지 않고 RCPS를 0.024–0.041 낮춘다.
 - **정렬된 OHR 감사 산출물**: 1,043-Q–A Law–Manual C1 결과, 정렬된 RADP-Distill per-Q–A 배열, strict 2,036-Q–A legacy compatibility subset의 deterministic derivation을 포함한다. 예전 7개 domain 출력은 provenance를 위해 tree에 남아 있고 [`MANIFEST.legacy-invalid.sha256`](output/results/MANIFEST.legacy-invalid.sha256)에 나열돼 있지만 유효한 camera-ready 근거가 아니다.

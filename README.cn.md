@@ -25,11 +25,11 @@
 
 > ✅ **EMNLP 2026 Industry Track · 投稿 #384 · 已录用**
 >
-> 🖼️ OpenReview 目前记录为 **Accept (Poster)**。展示形式的分配目前是暂定的，仍有可能被安排为口头报告。
+> 🎤 **报告安排：** 线上报告，2026 年 10 月 25 日（周日）12:30–14:00 CET，Virtual Session 1（Zoom），报告人 Sang-Woo Son。以 [EMNLP 2026 会议日程](https://2026.emnlp.org/program/) 为准。
 >
 > 📄 标题：*Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [最终 camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
 >
-> 📦 基于 [WigtnOCR v1](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR) + [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)
+> 📦 研究对象解析器：**Prod** 即 WigtnOCR-2B，是在 [`wigtn/wigtnOCR-v1`](https://github.com/wigtn/wigtnOCR-v1) 中对 Qwen3-VL-2B-Instruct 进行 LoRA 微调得到的模型，已发布为 [`Wigtn/Qwen3-VL-2B-WigtnOCR`](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR)。294 个评估页面即 [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench) 的验证集划分。
 >
 > 🧭 [`docs/PAPER_READABILITY_REVIEW_AUDIT.md`](docs/PAPER_READABILITY_REVIEW_AUDIT.md)（camera-ready 审计） · 🗓️ [`docs/CAMERA_READY_PLAN.md`](docs/CAMERA_READY_PLAN.md)
 
@@ -248,10 +248,14 @@ uv run pytest
 uv run python scripts/analysis/source_page_map.py --check data/KoGovDoc-RAG/source_page_map_v1.json
 uv run python scripts/analysis/audit_mineru_output_release.py --check output/results/mineru_output_release_audit.json
 uv run python scripts/analysis/audit_kogov_training_table.py --check output/results/kogov_training_table_10k_audit.json
+mkdir -p data/KoGovDoc-Bench
+curl -fL -o data/KoGovDoc-Bench/val.jsonl \
+  https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench/resolve/main/val.jsonl
+echo "7b0fc3606951ccf08a338d62c983976f9e8609ec38d668b6db51056d07fa5213  data/KoGovDoc-Bench/val.jsonl" | sha256sum -c -
 uv run python scripts/evaluation/coverage_diagnostic.py --out_dir /tmp/rcps-coverage-check
 ```
 
-这些命令假定使用 `pyproject.toml` 和 `uv.lock` 中写定的 Linux/WSL CUDA 12.8 依赖源；完整依赖集在干净 macOS/CPU 环境下的安装路径尚未打包或验证。`pytest` 运行仓库中跟踪的单元测试和对齐门控测试。coverage 计算本身只需 CPU。它默认使用的 `results/kogovdoc/v1_val/predictions/` 下的 Prod 输出和 663-Q–A probe 都已在仓库中跟踪。可移植的源页面映射支持清单检查，但 coverage 命令使用的私有训练格式文件 `data/KoGovDoc-Bench/val.jsonl` 含有参考转录文本，没有打包。因此该命令**并非 fresh-clone 即可完整运行**；它可以通过 `--parser_dir` 和 `--val_jsonl` 使用等价的本地输入。
+这些命令假定使用 `pyproject.toml` 和 `uv.lock` 中写定的 Linux/WSL CUDA 12.8 依赖源；完整依赖集在干净 macOS/CPU 环境下的安装路径尚未打包或验证。`pytest` 运行仓库中跟踪的单元测试和对齐门控测试。coverage 计算本身只需 CPU。它默认使用的 `results/kogovdoc/v1_val/predictions/` 下的 Prod 输出和 663-Q–A probe 都已在仓库中跟踪。coverage 命令还会读取本仓库未跟踪的 `data/KoGovDoc-Bench/val.jsonl`。该文件与 [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench) 公开的验证集文件逐字节相同，上面的 `curl` 命令即下载该文件；同一数据集中也包含 294 张页面图像。只需补充这一个文件，coverage 命令即可在 fresh clone 中重新运行，并复现附录 D 的表格（Prod 的 exact-span no-match 为 20.2%，八种分块器的 split 均不超过 2.3%）。我们已于 2026-10-21 按此方式重新运行并确认。其他解析器的输出可以通过 `--parser_dir` 和 `--val_jsonl` 指定。
 
 这些命令并不能复现论文中的每一个实验。完整重跑仍依赖外部源文档、部分解析器输出、嵌入缓存和解析器运行环境。缺失的部分在下文中明确列出。
 
@@ -274,7 +278,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ## 作者（按 OpenReview 与 camera-ready 顺序）
 
-**WigtnOCR v1**（Qwen3-VL-2B 文档解析微调）的后续工作。
+**[WigtnOCR v1](https://github.com/wigtn/wigtnOCR-v1)**（Qwen3-VL-2B 文档解析微调）的后续工作。
 
 1. Sang-Woo Son
 2. Hyeong-seob Kim
@@ -290,7 +294,7 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ### 当前仓库
 
-- **KoGovDoc-RAG probe 文件**：663 个 Q–A，其证据分布在 **242 页**中，另附冻结的 169 开发 / 73 held-out 证据页划分。论文的选择框架将这 242 页与 52 个不含 Q–A 的干扰页一起建立索引（**294 页 = 229 KoGov + 65 arXiv**）；完整的源页面语料没有在此打包。可移植的 [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json) 将每个 `val_####` ID 关联到其领域和仓库中跟踪的解析器输出文件名，且不暴露本机路径或参考转录文本。另有一个 LLM 辅助的 100 对 Q–A 质量检查样本及其 94/100 的汇总结果已在仓库中跟踪；样本中空白的 `verification` 字段并不是人工标注。
+- **KoGovDoc-RAG probe 文件**：663 个 Q–A，其证据分布在 **242 页**中，另附冻结的 169 开发 / 73 held-out 证据页划分。论文的选择框架将这 242 页与 52 个不含 Q–A 的干扰页一起建立索引（**294 页 = 229 KoGov + 65 arXiv**）；完整的源页面语料没有在此打包，但其 294 张页面图像和验证集文件已在 [`Wigtn/KoGovDoc-Bench`](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench) 公开。可移植的 [`source-page map`](data/KoGovDoc-RAG/source_page_map_v1.json) 将每个 `val_####` ID 关联到其领域和仓库中跟踪的解析器输出文件名，且不暴露本机路径或参考转录文本。另有一个 LLM 辅助的 100 对 Q–A 质量检查样本及其 94/100 的汇总结果已在仓库中跟踪；样本中空白的 `verification` 字段并不是人工标注。
 - **RCPS 参考实现**：[`src/wigtnocr_radp/evaluation/`](src/wigtnocr_radp/evaluation/)。
 - **部分评估产物**：汇总的解析器/分块器网格、对齐的全网格与经审计训练的逐 Q–A 数组、coverage 与端到端诊断，以及 Prod、PaddleOCR、MinerU-on 和提交版输出 MinerU-off 运行的完整 294 页输出。恢复出的 off 输出通过确定性的 [`release audit`](output/results/mineru_output_release_audit.json) 与其汇总结果绑定；on/off 两次运行不被视为受控的表格识别消融。基于 10,000 次重采样的 [`KoGov training-table audit`](output/results/kogov_training_table_10k_audit.json) 从仓库中跟踪的 MRR 数组重建 Hit@5，并复现了 camera-ready 表 8 中的每一个数值。294 页全网格审计包括 [`fullgrid_perqa_294p.json`](output/results/fullgrid_perqa_294p.json) 以及固定种子的解析器/分块器 [`ranking-stability`](output/results/rank_stability_parser_rcps_294p.json) 结果。在 1,000 次 500-of-663 抽样中，Prod 在 100% 的抽样里都高于 Base 和所有 OCR 解析器；完整的分块器排序在 96.1% 的抽样中保持不变。原始匹配使 RCPS 降低 0.024–0.041，但不会改变任一候选池的排序。
 - **对齐的 OHR 审计产物**：1,043-Q–A 的 Law–Manual C1 结果、对齐的 RADP-Distill 逐 Q–A 数组，以及严格的 2,036-Q–A 旧版兼容性子集的确定性推导。较早的七领域输出出于溯源目的仍保留在目录树中，并列于 [`MANIFEST.legacy-invalid.sha256`](output/results/MANIFEST.legacy-invalid.sha256)；它们不是有效的 camera-ready 证据。
