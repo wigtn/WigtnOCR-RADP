@@ -11,8 +11,8 @@
 
 **RCPS 用于基于检索的选择，coverage 用于诊断，RADP 仅用于可选的解析器训练。**
 
-[![EMNLP 2026](https://img.shields.io/badge/EMNLP_2026-Industry_Track_·_Accepted-4F46E5?style=for-the-badge)](#许可证与引用)
-[![Paper](https://img.shields.io/badge/Paper-Camera--ready_PDF-B31B1B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
+[![EMNLP 2026](https://img.shields.io/badge/EMNLP_2026-Industry_Track-4F46E5?style=for-the-badge)](#许可证与引用)
+[![Paper](https://img.shields.io/badge/Paper-ACL_Anthology-B31B1B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://aclanthology.org/2026.emnlp-industry.90/)
 [![WIGTN Tech](https://img.shields.io/badge/WIGTN_Tech-RCPS_report-0F172A?style=for-the-badge)](https://tech.wigtn.com/rcps/)
 
 [![Adapters](https://img.shields.io/badge/Adapters-RCPS--RADP_v1.0.0-181717?style=flat-square&logo=github)](https://github.com/wigtn/RCPS-RADP-Adapters/releases/tag/v1.0.0)
@@ -23,11 +23,11 @@
 
 ---
 
-> ✅ **EMNLP 2026 Industry Track · 投稿 #384 · 已录用**
+> ✅ **已发表于 EMNLP 2026 (Industry Track) 论文集，第 1531–1544 页** · [ACL Anthology](https://aclanthology.org/2026.emnlp-industry.90/)
 >
 > 🎤 **报告安排：** 线上报告，2026 年 10 月 25 日（周日）12:30–14:00 CET，Virtual Session 1（Zoom），报告人 Sang-Woo Son。以 [EMNLP 2026 会议日程](https://2026.emnlp.org/program/) 为准。
 >
-> 📄 标题：*Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [最终 camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
+> 📄 标题：*Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [PDF](https://aclanthology.org/2026.emnlp-industry.90.pdf)
 >
 > 📦 研究对象解析器：**Prod** 即 WigtnOCR-2B，是在 [`wigtn/wigtnOCR-v1`](https://github.com/wigtn/wigtnOCR-v1) 中对 Qwen3-VL-2B-Instruct 进行 LoRA 微调得到的模型，已发布为 [`Wigtn/Qwen3-VL-2B-WigtnOCR`](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR)。294 个评估页面即 [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench) 的验证集划分。
 >
@@ -317,10 +317,15 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ```bibtex
 @inproceedings{son2026rcps,
-  title     = {Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance},
+  title     = {Retrieval-Conditional Parsing Score ({RCPS}): Choosing Document Parsers by Retrieval, Not by Appearance},
   author    = {Son, Sang-Woo and Kim, Hyeong-seob and Kim, Hyeonsang and Cho, Hyun-woo and Kim, Jinmo},
-  booktitle = {Proceedings of EMNLP 2026 (Industry Track)},
+  editor    = {Atanasova, Pepa and Haffari, Gholamreza and Wang, Minghan},
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing: Industry Track},
+  month     = oct,
   year      = {2026},
-  note      = {Accepted}
+  address   = {Budapest, Hungary},
+  publisher = {Association for Computational Linguistics},
+  pages     = {1531--1544},
+  url       = {https://aclanthology.org/2026.emnlp-industry.90/}
 }
 ```

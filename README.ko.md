@@ -11,8 +11,8 @@
 
 **RCPS로 검색 기반 선택을 하고 coverage로 진단하며 RADP는 선택적인 파서 학습에만 쓴다.**
 
-[![EMNLP 2026](https://img.shields.io/badge/EMNLP_2026-Industry_Track_·_Accepted-4F46E5?style=for-the-badge)](#라이선스-및-인용)
-[![Paper](https://img.shields.io/badge/Paper-Camera--ready_PDF-B31B1B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
+[![EMNLP 2026](https://img.shields.io/badge/EMNLP_2026-Industry_Track-4F46E5?style=for-the-badge)](#라이선스-및-인용)
+[![Paper](https://img.shields.io/badge/Paper-ACL_Anthology-B31B1B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://aclanthology.org/2026.emnlp-industry.90/)
 [![WIGTN Tech](https://img.shields.io/badge/WIGTN_Tech-RCPS_report-0F172A?style=for-the-badge)](https://tech.wigtn.com/rcps/)
 
 [![Adapters](https://img.shields.io/badge/Adapters-RCPS--RADP_v1.0.0-181717?style=flat-square&logo=github)](https://github.com/wigtn/RCPS-RADP-Adapters/releases/tag/v1.0.0)
@@ -23,11 +23,11 @@
 
 ---
 
-> ✅ **EMNLP 2026 Industry Track · Submission #384 · Accepted**
+> ✅ **EMNLP 2026 (Industry Track) 논문집 게재, 1531–1544쪽** · [ACL Anthology](https://aclanthology.org/2026.emnlp-industry.90/)
 >
 > 🎤 **발표:** 온라인 발표, 2026년 10월 25일(일) 12:30–14:00 CET, Virtual Session 1(Zoom), 발표자 Sang-Woo Son. [EMNLP 2026 프로그램](https://2026.emnlp.org/program/) 기준이다.
 >
-> 📄 제목: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [최종 camera-ready PDF](output/pdf/EMNLP2026_Industry_384_camera_ready_final.pdf)
+> 📄 제목: *Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance* · [PDF](https://aclanthology.org/2026.emnlp-industry.90.pdf)
 >
 > 📦 연구 대상 파서: **Prod**는 WigtnOCR-2B다. [`wigtn/wigtnOCR-v1`](https://github.com/wigtn/wigtnOCR-v1)에서 Qwen3-VL-2B-Instruct를 LoRA로 파인튜닝했고 [`Wigtn/Qwen3-VL-2B-WigtnOCR`](https://huggingface.co/Wigtn/Qwen3-VL-2B-WigtnOCR)로 공개했다. 평가용 294페이지는 [KoGovDoc-Bench](https://huggingface.co/datasets/Wigtn/KoGovDoc-Bench)의 validation split이다.
 >
@@ -317,10 +317,15 @@ python3 scripts/release/verify_camera_ready_artifacts.py \
 
 ```bibtex
 @inproceedings{son2026rcps,
-  title     = {Retrieval-Conditional Parsing Score (RCPS): Choosing Document Parsers by Retrieval, Not by Appearance},
+  title     = {Retrieval-Conditional Parsing Score ({RCPS}): Choosing Document Parsers by Retrieval, Not by Appearance},
   author    = {Son, Sang-Woo and Kim, Hyeong-seob and Kim, Hyeonsang and Cho, Hyun-woo and Kim, Jinmo},
-  booktitle = {Proceedings of EMNLP 2026 (Industry Track)},
+  editor    = {Atanasova, Pepa and Haffari, Gholamreza and Wang, Minghan},
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing: Industry Track},
+  month     = oct,
   year      = {2026},
-  note      = {Accepted}
+  address   = {Budapest, Hungary},
+  publisher = {Association for Computational Linguistics},
+  pages     = {1531--1544},
+  url       = {https://aclanthology.org/2026.emnlp-industry.90/}
 }
 ```
